@@ -1,0 +1,69 @@
+#include <iostream>
+#include "arena.h"
+using namespace std;
+
+namespace pas {
+
+void Arena::setEventHandler(int(*eventHandler)(int, SDL_Event*)) {
+    this->eventHandler = eventHandler;
+}
+
+void Arena::insertWindow(Window* window) {
+    windows.insert(window);
+    SDL_ShowWindow(window->sdl_window);
+}
+
+void Arena::eraseWindow(Window* window) {
+    windows.erase(window);
+    SDL_HideWindow(window->sdl_window);
+}
+
+void Arena::run() {
+    SDL_Event event;
+
+    running = true;
+    while (running) {
+        if(SDL_WaitEvent(&event)) {
+            switch (event.type) {
+                case SDL_USEREVENT_UPDATEWINDOW: {
+                    auto window = (Window*)event.user.data1;
+                    window->step(SDL_GetTicks());
+                    window->sync();
+                    break;
+                }
+                case SDL_USEREVENT_DELETEWINDOW: {
+                    auto window = (Window*)event.user.data1;
+                    SDL_DestroyWindow(window->sdl_window);
+                    delete(window);
+                    break;
+                }
+                case SDL_QUIT: {
+                    if(!eventHandler(event.type, &event)) {
+                        running = false;
+                    }
+                    break;
+                }
+                case SDL_WINDOWEVENT: {
+                    if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+                        for(auto window : windows) {
+                            if(SDL_GetWindowID(window->sdl_window) == event.window.windowID) {
+                                window->setNeedResize();
+                            }
+                        }
+                    }
+                }
+                default: {
+                    eventHandler(event.type, &event);
+                }
+            }
+        } else {
+            cout << SDL_GetError() << endl;
+        }
+    }
+}
+
+void Arena::terminate(void) {
+    running = false;
+}
+
+}

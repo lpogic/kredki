@@ -1,0 +1,1 @@
+require_relative 'kredki-core/master'

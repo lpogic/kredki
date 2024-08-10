@@ -1,0 +1,68 @@
+require_relative 'has_flags'
+
+module Kredki
+  class Mouse
+    extend HasFlags
+
+    model :buttons do
+      @inverted_buttons = @buttons.invert
+    end
+
+    def button param
+      case param
+      when Button
+        param
+      when Symbol
+        Button.new @buttons[param] || (raise "Unknown mouse button symbol :#{param}"), param
+      when Integer
+        Button.new param, @inverted_buttons[param]
+      end
+    end
+
+    class Button
+      model :index, :symbol
+  
+      def to_i
+        @index
+      end
+  
+      def to_sym
+        @symbol
+      end
+  
+      def ==(other)
+        Button === other &&
+        index == other.index &&
+        symbol == other.symbol
+      end
+    end
+
+    def down? button
+      is_button_down Button[button].to_i
+    end
+
+    def position
+      get_cursor_position
+    end
+
+    flag :relative_mode
+
+    #internal api
+
+    private
+
+    def is_button_down index
+      Abi.mouse_get_button_state(index) != 0
+    end
+
+    def get_cursor_position
+      point = Abi::IntPoint.malloc(Fiddle::RUBY_FREE)
+      Abi.mouse_get_cursor_position point
+      [point.x, point.y]
+    end
+
+    def set_relative_mode relative
+      Abi.mouse_set_relative_mode relative
+    end
+  end
+end

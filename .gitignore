@@ -1,0 +1,9 @@
+.vscode
+kredki/sketch
+kredki/*.gem
+kredki-core/sketch
+kredki-core/*.gem
+pastele/cmaked
+pastele/CMakeLists.txt
+scripts
+lib-update-config.rb
