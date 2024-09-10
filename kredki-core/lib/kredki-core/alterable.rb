@@ -1,10 +1,13 @@
 module Kredki
   module Alterable
-    def alter **params, &block
-      params.each do |k, v|
+    def alter *arg, **narg, &block
+      arg.each do |a|
+        send :<<, a
+      end
+      narg.each do |k, v|
         send "#{k}=", v
       end
-      instance_exec &block if block
+      instance_exec self, &block if block
       self
     end
   end

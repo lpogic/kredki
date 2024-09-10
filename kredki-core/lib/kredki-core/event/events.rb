@@ -15,12 +15,12 @@ require_relative '../event/joystick_event'
 require_relative '../event/step_event'
 
 module Kredki
-  module ActionEvents
+  module Events
 
     def on_key_down! *filtered_keys, &block
       keycodes = keyboard.keycodes *filtered_keys
       callings = (@on_event[KeyDownEvent] ||= KeyboardEventCallings.new)[*keycodes]
-      block ? callings.attach!(block) : callings
+      block ? callings.attach(block) : callings
     end
 
     alias_method :on_key!, :on_key_down!
@@ -28,7 +28,7 @@ module Kredki
     def on_key_up! *filtered_keys, &block
       keycodes = keyboard.keycodes *filtered_keys
       callings = (@on_event[KeyUpEvent] ||= KeyboardEventCallings.new)[*keycodes]
-      block ? callings.attach!(block) : callings
+      block ? callings.attach(block) : callings
     end
 
     def on_text! &block
@@ -48,7 +48,7 @@ module Kredki
     def on_mouse_button! *filtered_buttons, &block
       indexes = mouse.indexes *filtered_buttons
       callings = (@on_event[MouseButtonDownEvent] ||= MouseEventCallings.new)[*indexes]
-      block ? callings.attach!(block) : callings
+      block ? callings.attach(block) : callings
     end
 
     alias_method :on_mouse_button_down!, :on_mouse_button!
@@ -56,14 +56,14 @@ module Kredki
     def on_mouse_button_up! *filtered_buttons, &block
       indexes = mouse.indexes *filtered_buttons
       callings = (@on_event[MouseButtonUpEvent] ||= MouseEventCallings.new)[*indexes]
-      block ? callings.attach!(block) : callings
+      block ? callings.attach(block) : callings
     end
 
     def on_joystick_button_down! joystick, *filtered_buttons, &block
       action_joystick = self.joystick joystick
       indexes = action_joystick.buttons *filtered_buttons
       callings = (@on_event[JoystickButtonDownEvent] ||= JoystickEventCallings.new)[*indexes, joystick: action_joystick.joystick]
-      block ? callings.attach!(block) : callings
+      block ? callings.attach(block) : callings
     end
 
     alias_method :on_joystick_button!, :on_joystick_button_down!
@@ -72,14 +72,14 @@ module Kredki
       action_joystick = self.joystick joystick
       indexes = action_joystick.buttons *filtered_buttons
       callings = (@on_event[JoystickButtonUpEvent] ||= JoystickEventCallings.new)[*indexes, joystick: action_joystick.joystick]
-      block ? callings.attach!(block) : callings
+      block ? callings.attach(block) : callings
     end
 
     def on_joystick_axis! joystick, *filtered_axes, &block
       action_joystick = self.joystick joystick
       indexes = action_joystick.axes *filtered_axes
       callings = (@on_event[JoystickAxisEvent] ||= JoystickEventCallings.new)[*indexes, joystick: action_joystick.joystick]
-      block ? callings.attach!(block) : callings
+      block ? callings.attach(block) : callings
     end
 
     def on_drop_begin! &block
@@ -178,7 +178,7 @@ module Kredki
 
     def on_event! event_type, &block
       callings = @on_event[event_type] ||= EventCallings.new
-      block ? callings.attach!(block) : callings
+      block ? callings.attach(block) : callings
     end
 
     def event event, instant = false

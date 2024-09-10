@@ -10,7 +10,7 @@ module Kredki
       @callings.sum{ _1.call event }
     end
 
-    def attach attached
+    def attach! attached
       calling = case attached
       when EventCalling
         attached
@@ -24,11 +24,11 @@ module Kredki
     end
 
     def <<(attached)
-      attach attached
+      attach! attached
       self
     end
 
-    def detach calling
+    def detach! calling
       @callings.delete calling
     end
   end

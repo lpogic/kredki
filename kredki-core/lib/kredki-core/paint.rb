@@ -13,25 +13,25 @@ module Kredki
       @rotation = 0
     end
 
-    def x! x 
+    aliasing def x! x 
       set_x x
-    end
-
-    alias_method :x=, :x!
+    end, :x=
 
     def x
       @x
     end
 
-    def y! y
+    aliasing def y! y
       set_y y
-    end
-
-    alias_method :y=, :y!
+    end, :y=
 
     def y
       @y
     end
+
+    aliasing def xy! x, y
+      set_xy x, y
+    end, :xy=
 
     def rotation! rotation
       set_rotation rotation
@@ -87,9 +87,14 @@ module Kredki
 
     def detach!
       @owner&.remove_paint self
+      @owner = nil
     end
 
     flag :show, :set_show, :get_show
+
+    def hide!
+      set_show false
+    end
 
     def window
       @owner&.window
@@ -120,8 +125,6 @@ module Kredki
       @owner&.paint_shown? self
     end
 
-    private
-
     def set_composite_method mask, method
       Abi.paint_set_composite_method @pointer, mask.pointer, method
       update
@@ -132,8 +135,10 @@ module Kredki
         @x = x
         if @x && @y
           set_translation @x, @y
+          return true
         end
       end
+      return false
     end
 
     def set_y y
@@ -141,8 +146,22 @@ module Kredki
         @y = y
         if @x && @y
           set_translation @x, @y
+          return true
         end
       end
+      return false
+    end
+
+    def set_xy x, y
+      if x != @x || y != @y
+        @x = x
+        @y = y
+        if @x && @y
+          set_translation @x, @y
+          return true
+        end
+      end
+      return false
     end
 
     def set_rotation rotation
@@ -150,7 +169,9 @@ module Kredki
         @rotation = rotation
         Abi.paint_set_rotation @pointer, rotation
         update
+        return true
       end
+      return false
     end
 
     def set_scale scale

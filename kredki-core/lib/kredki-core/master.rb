@@ -3,6 +3,31 @@ require 'modeling'
 require 'koper'
 require 'forwardable'
 
+class Object
+  class Break
+  end
+  
+  def to_e &block
+    Enumerator.new do |e|
+      c = self
+      while c != Break
+        e << c
+        c = block.call c, Break
+      end
+    end
+  end
+
+  def to_en &block
+    Enumerator.new do |e|
+      c = self
+      while c != Break
+        c = block.call c, Break
+        e << c if c != Break
+      end
+    end
+  end
+end
+
 class Class
   def enum *symbols, **key_symbols
     @symbols = symbols.each_with_index.to_h + key_symbols
@@ -50,6 +75,10 @@ class Class
       model_fields.map{|f| send f.name }
     end
   end
+
+  def aliasing name, *a
+    a.each{ alias_method _1, name }
+  end
 end
 
 class Array
@@ -61,6 +90,21 @@ end
 module Kredki
   class << self
     extend Forwardable
+
+    def attrs
+      @attrs ||= {}
+    end
+
+    def [](first_key, *keys)
+      attrs.dig(first_key, *keys) || (first_key.is_a?(Class) && first_key.superclass != first_key ? 
+        self[first_key.superclass, *keys] : nil
+      )
+    end
+
+    def []=(*keys, last_key, value)
+      keys.reduce(attrs){ _1[_2] ||= {} }[last_key] = value
+    end
+
     def init
       if !@arena
         Abi.thorvg_engine_init 2, 4
@@ -82,7 +126,7 @@ module Kredki
       :window,
       :terminate!
 
-    attr_accessor :clipboard, :keyboard, :mouse
+    attr_accessor :clipboard, :keyboard, :mouse, :colors
     attr :runned
 
     def joysticks=(joysticks)
@@ -106,6 +150,21 @@ module Kredki
         Font.load name, path
       end
     end
+
+    def color(param)
+      case param
+      when Color
+        param
+      when :rand
+        Color.new rand(255), rand(255), rand(255)
+      when Symbol
+        @colors&.itself[param] || (raise "Unknown color '#{param}'")
+      when Array
+        Color.new *param
+      else raise "Unknown color '#{param}'"
+      end
+    end
+
 
     #internal api
 

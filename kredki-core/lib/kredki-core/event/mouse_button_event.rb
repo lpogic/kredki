@@ -1,6 +1,5 @@
 module Kredki
   class MouseButtonEvent < Event
-    include EventWithWindowId
     
     model :mouse
 

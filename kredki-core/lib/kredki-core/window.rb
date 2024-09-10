@@ -14,11 +14,9 @@ module Kredki
 
     def initialize w = 400, h = 400, **params, &block
       @pointer = Abi.window_new w, h
-      ObjectSpace.define_finalizer(self, self.class.proc.finalize(@pointer))
+      ObjectSpace.define_finalizer(self, Window.proc.finalize(@pointer))
 
       @bordered = true
-
-      params[:action] ||= Action.new
 
       alter **params, &block
     end
@@ -75,38 +73,47 @@ module Kredki
     def opacity!(opacity) = set_opacity opacity > 1 ? opacity / 255.0 : opacity
     alias_method :opacity=, :opacity!
 
-    def position! x, y
+    aliasing def xy! x, y
       set_position x, y
-    end
-    
-    def position=(position)
-      set_position *position
-    end
+    end, :position!
+
+    aliasing def xy=(xy)
+      set_position x, y
+    end, :position=
 
     flag :resizable
 
-    def size! width, height
-      set_size width, height
-    end
+    aliasing def wh! w, h
+      set_size w, h
+    end, :size!
 
-    def size=(size)
-      set_size *size
-    end
+    aliasing def wh=(wh)
+      set_size *wh
+    end, :size=
 
-    def size
+    aliasing def wh
       get_size
-    end
+    end, :size
 
-    def width
+    aliasing def w! w
+      set_size w, h
+    end, :w=, :width!, :width=
+
+    aliasing def w
       get_size[0]
-    end
+    end, :width
 
-    def height
+    aliasing def h! h
+      set_size w, h
+    end, :h=, :height!, :height=
+
+    aliasing def h
       get_size[1]
-    end
+    end, :height
 
-    def title!(title) = set_title title.to_s
-    alias_method :title=, :title!
+    aliasing def title! title
+      set_title title.to_s
+    end, :title=
 
     flag :always_on_top
 
@@ -115,9 +122,14 @@ module Kredki
       set_action action
     end
     alias_method :action=, :action!
-    def action = @action
 
-    def window = self
+    def action
+      @action
+    end
+
+    def window
+      self
+    end
 
     def_delegators :@action, 
       :use!,
@@ -127,11 +139,11 @@ module Kredki
       :shape!,
       :ellipse!,
       :rectangle!,
-      :fill!,
       :picture!,
       :text!,
       :animation!,
       :scene!,
+      :color!,
       :job!,
       :after!,
       :clipboard,
@@ -169,7 +181,9 @@ module Kredki
       :on_take_focus!,
       :on_hit_test!,
       :on_iccprof_change!,
-      :on_display_change!
+      :on_display_change!,
+      :pad!,
+      :custom_pad!
       
 
     def <<(paint)
@@ -195,6 +209,10 @@ module Kredki
       @action&.event(...)
     end
 
+    def event_accumulator
+      @arena&.event_accumulator
+    end
+
     def update_paint paint
       Abi.window_paint_to_update @pointer, paint.pointer
     end
@@ -206,7 +224,8 @@ module Kredki
       @action.owner = self
       Abi.window_set_scene @pointer, action.pointer
       Abi.window_set_step_handler @pointer, action.step_callback
-      update_paint action
+      @action.sketch_base
+      update_paint @action
     end
 
     def set_bordered bordered
@@ -239,6 +258,13 @@ module Kredki
 
     def set_size width, height
       Abi.window_set_size @pointer, width, height
+      Abi::WindowEvent.malloc Fiddle::RUBY_FREE do |abi|
+        abi.type = 512
+        abi.event = 5
+        abi.data1 = width
+        abi.data2 = height
+        event WindowResizeEvent.new abi 
+      end
     end
 
     def get_size

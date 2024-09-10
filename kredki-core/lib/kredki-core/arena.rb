@@ -7,17 +7,19 @@ require_relative 'event/quit_event'
 require_relative 'event/text_event'
 require_relative 'event/window_event'
 require_relative 'event/joystick_event'
+require_relative 'event/event_accumulator'
 
 module Kredki
   class Arena
     def initialize
       @pointer = Abi.arena_new
-      ObjectSpace.define_finalizer(self, self.class.proc.finalize(@pointer))
+      ObjectSpace.define_finalizer(self, Arena.proc.finalize(@pointer))
 
       @event_callback = Fiddle::Closure::BlockCaller.new(Fiddle::TYPE_INT, [Fiddle::TYPE_INT, Fiddle::TYPE_VOIDP], &proc.event)
       Abi.arena_set_event_handler @pointer, @event_callback
       @windows = {}
       @window_threads = {}
+      @event_accumulator = EventAccumulator.new
     end
 
     def window! ...
@@ -29,6 +31,7 @@ module Kredki
     end
 
     def run!
+      @windows.values.each{ _1.size = _1.size }
       Abi.arena_run @pointer
     end
 
@@ -42,58 +45,68 @@ module Kredki
       Abi.arena_delete pointer
     end
 
-    attr :pointer
+    attr :pointer, :event_accumulator
 
     def event event_type, event_ptr
       case event_type
       when 768
-        window_event KeyDownEvent.new(Kredki.keyboard, Abi::KeyboardEvent.new(event_ptr))
+        abi = Abi::KeyboardEvent.new event_ptr
+        window_event abi.window_id, KeyDownEvent.new(Kredki.keyboard, abi)
       when 769
-        window_event KeyUpEvent.new(Kredki.keyboard, Abi::KeyboardEvent.new(event_ptr))
+        abi = Abi::KeyboardEvent.new event_ptr
+        window_event abi.window_id, KeyUpEvent.new(Kredki.keyboard, abi)
       when 1024
-        window_event MouseMoveEvent.new(Kredki.mouse, Abi::MouseMotionEvent.new(event_ptr))
+        abi = Abi::MouseMotionEvent.new event_ptr
+        window_event abi.window_id, MouseMoveEvent.new(Kredki.mouse, abi)
       when 1027
-        window_event MouseScrollEvent.new(Kredki.mouse, Abi::MouseWheelEvent.new(event_ptr))
+        abi = Abi::MouseWheelEvent.new event_ptr
+        window_event abi.window_id, MouseScrollEvent.new(Kredki.mouse, abi)
       when 1025
-        window_event MouseButtonDownEvent.new(Kredki.mouse, Abi::MouseButtonEvent.new(event_ptr))
+        abi = Abi::MouseButtonEvent.new event_ptr
+        window_event abi.window_id, MouseButtonDownEvent.new(Kredki.mouse, abi)
       when 1026
-        window_event MouseButtonUpEvent.new(Kredki.mouse, Abi::MouseButtonEvent.new(event_ptr))
+        abi = Abi::MouseButtonEvent.new event_ptr
+        window_event abi.window_id, MouseButtonUpEvent.new(Kredki.mouse, abi)
       when 771
-        window_event TextEvent.new(event_ptr, Abi::TextInputEvent.new(event_ptr))
+        abi = Abi::TextInputEvent.new event_ptr
+        window_event abi.window_id, TextEvent.new(event_ptr, abi)
       when 4096
-        window_event FileDropEvent.new(Abi::DropEvent.new(event_ptr))
+        abi = Abi::DropEvent event_ptr
+        window_event abi.window_id, FileDropEvent.new(abi)
       when 4098
-        window_event DropBeginEvent.new(Abi::DropEvent.new(event_ptr))
+        abi = Abi::DropEvent event_ptr
+        window_event abi.window_id, DropBeginEvent.new(abi)
       when 4099
-        window_event DropEndEvent.new(Abi::DropEvent.new(event_ptr))
+        abi = Abi::DropEvent event_ptr
+        window_event abi.window_id, DropEndEvent.new(abi)
       when 512
         abi_event = Abi::WindowEvent.new event_ptr
         
         case abi_event.event
-        when 1 then window_event WindowShowEvent.new abi_event
-        when 2 then window_event WindowHideEvent.new abi_event
-        when 3 then window_event WindowExposeEvent.new abi_event
-        when 4 then window_event WindowMoveEvent.new abi_event
-        when 5 then window_event WindowResizeEvent.new abi_event
-        when 6 then window_event WindowSizeChangeEvent.new abi_event
-        when 7 then window_event WindowMinimizeEvent.new abi_event
-        when 8 then window_event WindowMaximizeEvent.new abi_event
-        when 9 then window_event WindowRestoreEvent.new abi_event
-        when 10 then window_event WindowEnterEvent.new abi_event
-        when 11 then window_event WindowLeaveEvent.new abi_event
-        when 12 then window_event WindowFocusGainEvent.new abi_event
-        when 13 then window_event WindowFocusLoseEvent.new abi_event
+        when 1 then window_event abi_event.window_id, WindowShowEvent.new(abi_event)
+        when 2 then window_event abi_event.window_id, WindowHideEvent.new(abi_event)
+        when 3 then window_event abi_event.window_id, WindowExposeEvent.new(abi_event)
+        when 4 then window_event abi_event.window_id, WindowMoveEvent.new(abi_event)
+        when 5 then window_event abi_event.window_id, WindowResizeEvent.new(abi_event)
+        when 6 then window_event abi_event.window_id, WindowSizeChangeEvent.new(abi_event)
+        when 7 then window_event abi_event.window_id, WindowMinimizeEvent.new(abi_event)
+        when 8 then window_event abi_event.window_id, WindowMaximizeEvent.new(abi_event)
+        when 9 then window_event abi_event.window_id, WindowRestoreEvent.new(abi_event)
+        when 10 then window_event abi_event.window_id, WindowEnterEvent.new(abi_event)
+        when 11 then window_event abi_event.window_id, WindowLeaveEvent.new(abi_event)
+        when 12 then window_event abi_event.window_id, WindowFocusGainEvent.new(abi_event)
+        when 13 then window_event abi_event.window_id, WindowFocusLoseEvent.new(abi_event)
         when 14 
-          events_called = window_event WindowCloseEvent.new abi_event
+          events_called = window_event abi_event.window_id, WindowCloseEvent.new(abi_event)
           @windows[abi_event.window_id]&.destroy! if events_called == 0
           events_called
-        when 15 then window_event WindowTakeFocusEvent.new abi_event
-        when 16 then window_event WindowHitTestEvent.new abi_event
-        when 17 then window_event WindowIccprofChangeEvent.new abi_event
-        when 18 then window_event WindowDisplayChangeEvent.new abi_event
+        when 15 then window_event abi_event.window_id, WindowTakeFocusEvent.new(abi_event)
+        when 16 then window_event abi_event.window_id, WindowHitTestEvent.new(abi_event)
+        when 17 then window_event abi_event.window_id, WindowIccprofChangeEvent.new(abi_event)
+        when 18 then window_event abi_event.window_id, WindowDisplayChangeEvent.new(abi_event)
         else 0
         end
-      when 256 then arena_event QuitEvent.new abi_event
+      when 256 then arena_event QuitEvent.new(abi_event)
       when 1539
         abi_event = Abi::JoyButtonEvent.new event_ptr
         arena_event JoystickButtonDownEvent.new(Kredki.opened_joysticks[abi_event.which], abi_event)
@@ -153,15 +166,17 @@ module Kredki
 
     private
 
-    def window_event event
-      call_cnt = @windows[event.window_id]&.event(event) || 0
-      event.clear
+    def window_event window_id, event
+      call_cnt = @event_accumulator.load do
+        @windows[window_id]&.event(event, true) || 0
+      end
       call_cnt
     end
 
     def arena_event event
-      call_cnt = @windows.values.map{ _1.event(event) }.sum
-      event.clear
+      call_cnt = @event_accumulator.load do
+        @windows.values.map{ _1.event(event, true) }.sum
+      end
       call_cnt
     end
   end

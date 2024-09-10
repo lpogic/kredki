@@ -1,6 +1,9 @@
+require 'forwardable'
+
 module Kredki
   class Action
     class Keyboard
+      extend Forwardable
       model :action, :keyboard
 
       def keycodes *input
@@ -18,6 +21,15 @@ module Kredki
       def on_text! ...
         @action.on_text!(...)
       end
+
+      def_delegators :@keyboard,
+        :down?,
+        :shift?,
+        :ctrl?,
+        :alt?,
+        :num?,
+        :caps?,
+        :scroll?
     end
   end
 end

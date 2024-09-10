@@ -1,4 +1,5 @@
 #include <string>
+#include <algorithm>
 #include <thorvg.h>
 #include "cabi.h"
 #ifdef THORVG_LOTTIE_LOADER_SUPPORT
@@ -59,6 +60,10 @@ CABI void mouse_get_cursor_position(IntPoint* point) {
 
 CABI void mouse_set_relative_mode(int set) {
     SDL_SetRelativeMouseMode((SDL_bool)set);
+}
+
+CABI void mouse_set_capture(int set) {
+    SDL_CaptureMouse((SDL_bool)set);
 }
 
 CABI uint32_t joystick_open(int index) {
@@ -201,6 +206,10 @@ CABI void window_set_always_on_top(pas::Window* self, int on_top) {
 
 CABI void window_get_size(pas::Window* self, IntPoint* point) {
     self->getSize(&point->x, &point->y);
+}
+
+CABI int window_get_flags(pas::Window* self) {
+    return SDL_GetWindowFlags(self->sdl_window);
 }
 
 /************************************************************************/
@@ -444,18 +453,10 @@ CABI void shape_close(Shape* self)
     self->close();
 }
 
-
 CABI void shape_append_rect(Shape* self, float x, float y, float w, float h, float rx, float ry)
 {
     self->appendRect(x, y, w, h, rx, ry);
 }
-
-
-CABI void shape_append_arc(Shape* self, float cx, float cy, float radius, float startAngle, float sweep, uint8_t pie)
-{
-    self->appendArc(cx, cy, radius, startAngle, sweep, pie);
-}
-
 
 CABI void shape_append_circle(Shape* self, float cx, float cy, float rx, float ry)
 {
@@ -803,13 +804,21 @@ CABI void* scene_new()
 }
 
 CABI void scene_delete(Scene* self) {
-    self->clear(false);
+    self->paints().clear();
+    // self->clear(false);
     delete(self);
 }
 
 CABI void scene_push(Scene* self, Paint* paint)
 {
-    self->push(unique_ptr<Paint>(paint));
+    self->push(unique_ptr<Paint>(paint)); 
+}
+
+CABI void scene_insert(Scene* self, int index, Paint* paint) {
+    auto &paints = self->paints();
+    auto it = paints.begin();
+    advance(it, index);
+    paints.insert(it, paint);
 }
 
 CABI void scene_remove(Scene* self, Paint* paint) {
@@ -840,6 +849,18 @@ CABI void text_set_font(Text* self, const char* name, float size, const char* st
 
 CABI void text_set_text(Text* self, const char* text) {
     self->text(text);
+}
+
+CABI float text_get_text_width(Text* self, const char* text, int indexLimit) {
+    float width;
+    self->textMetrics(text, 1, -1, indexLimit, &width, nullptr);
+    return width;
+}
+
+CABI int text_nearest_character_index(Text* self, const char* text, float widthRequest) {
+    int index;
+    self->textMetrics(text, 2, widthRequest, -1, nullptr, &index);
+    return index;
 }
 
 CABI void text_set_fill_color(Text* self, uint8_t r, uint8_t g, uint8_t b) {

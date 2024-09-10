@@ -12,83 +12,97 @@ module Kredki
       super w:, h:, x:, y:, **params, &block
     end
 
-    def w!(w) = set_w w
-    alias_method :w=, :w!
-    def w = @w
-    alias_method :width=, :w!
-    alias_method :width!, :w!
-    alias_method :width, :w
+    aliasing def w! w
+      set_w w
+    end, :w=, :width!, :width=
 
-    def h!(h) = set_h h
-    alias_method :h=, :h!
-    def h = @h
-    alias_method :height=, :h!
-    alias_method :height!, :h!
-    alias_method :height, :h
-      
-    def rx!(rx) = set_rx rx
-    alias_method :rx=, :rx!
-    def rx = @rx
-    alias_method :radius_x=, :rx!
-    alias_method :radius_x!, :rx!
-    alias_method :radius_x, :rx
+    aliasing def w
+      @w
+    end, :width
 
-    def ry!(ry) = set_ry ry
-    alias_method :ry=, :ry!
-    def ry = @ry
-    alias_method :radius_y=, :ry!
-    alias_method :radius_y!, :ry!
-    alias_method :radius_y, :ry
+    aliasing def h! h
+      set_h h
+    end, :h=, :height!, :height=
 
-    def r!(r) = set_r r
-    alias_method :r=, :r!
-    def r = [@rx, @ry].max
-    alias_method :radius=, :r!
-    alias_method :radius!, :r!
-    alias_method :radius, :r
+    aliasing def h
+      @h
+    end, :height
+
+    aliasing def wh
+      [w, h]
+    end, :size
+
+    aliasing def rx! rx
+      set_rx rx
+    end, :rx=, :radius_x!, :radius_x=
+
+    aliasing def rx
+      @rx
+    end, :radius_x
+
+    aliasing def ry! ry
+      set_ry ry
+    end, :ry=, :radius_y!, :radius_y=
+
+    aliasing def ry
+      @ry
+    end, :radius_y
+
+    aliasing def r! r
+      set_r r
+    end, :r=, :radius!, :radius=
+
+    aliasing def r
+      [@rx, @ry].max
+    end, :radius
 
     private
 
     def reset!
       super
       if @w && @h
-        rectangle_at! -@w / 2, -@h / 2, @w, @h, @rx || 0, @ry || 0
+        rectangle_at! 0, 0, @w, @h, @rx || 0, @ry || 0
       end
       update
     end
 
     def set_w w
-      if w != @w
+      w != @w && begin
         @w = w
         reset!
+        true
       end
     end
 
     def set_h h
-      if h != @h
+      h != @h && begin
         @h = h
         reset!
+        true
       end
     end
 
     def set_rx rx
-      if rx != @rx
+      rx != @rx && begin
         @rx = rx
         reset!
+        true
       end
     end
 
     def set_ry ry
-      if ry != @ry
+      ry != @ry && begin
         @ry = ry
         reset!
+        true
       end
     end
 
     def set_r r
-      if r != @rx || r != @ry
+      (r != @rx || r != @ry) && begin
         @rx = @ry = r
         reset!
+        true
       end
     end
   end

@@ -2,7 +2,6 @@ require_relative 'event'
 
 module Kredki
   class TextEvent < Event
-    include EventWithWindowId
     
     def initialize ptr, abi
       super abi

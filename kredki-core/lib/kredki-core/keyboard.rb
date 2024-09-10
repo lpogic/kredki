@@ -34,8 +34,8 @@ module Kredki
       end
     end
 
-    def down? key
-      is_key_down Key[key].to_i
+    def down? key_param
+      is_key_down key(key_param).to_i
     end
 
     def shift?

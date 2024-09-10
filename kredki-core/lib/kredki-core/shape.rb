@@ -6,17 +6,13 @@ module Kredki
   class Shape < Paint
     include Alterable
 
-    class << self
-      attr_accessor :default_color
-    end
-
-    self.default_color = :white
+    Kredki[self, :color] = :white
 
     def initialize x = 100, y = 100, **params, &block
       super Abi.shape_new
-      ObjectSpace.define_finalizer(self, self.class.proc.finalize(@pointer))
+      ObjectSpace.define_finalizer(self, Shape.proc.finalize(@pointer))
       
-      alter x:, y:, color: Shape.default_color, **params, &block
+      alter x:, y:, color: Kredki[self.class, :color], **params, &block
     end
 
     def move_to! x, y
@@ -49,22 +45,17 @@ module Kredki
       update
     end
 
-    def arc_at! cx, cy, radius, start_angle, sweep, pie
-      Abi.shape_append_pie cx, cy, radius, start_angle, sweep, pie
-      update
-    end
-
     def reset!
       Abi.shape_reset @pointer
       update
     end
 
     def color! *color
-      set_fill_color *Color[color.extract || Shape.default_color].to_rgba_array
+      set_fill_color *Kredki.color(color.extract || Kredki[self.class, :color]).to_rgba_array
     end
 
     def color=(color)
-      set_fill_color *Color[color || Shape.default_color].to_rgba_array
+      set_fill_color *Kredki.color(color || Kredki[self.class, :color]).to_rgba_array
     end
 
     alias_method :fill_color!, :color!
@@ -76,14 +67,15 @@ module Kredki
 
     def fill_rule!(rule) = set_fill_rule FillRule[rule || :winding].to_i
     alias_method :fill_rule=, :fill_rule!
+    
+    def stroke_color! *color
+      set_stroke_color *Kredki.color(color.extract).to_array
+    end
 
     def stroke_color=(color)
-      set_stroke_color *Color[color].to_array
+      set_stroke_color *Kredki.color(color).to_array
     end
 
-    def stroke_color! *color
-      set_stroke_color *Color[color.extract].to_array
-    end
 
     def stroke_width!(width) = set_stroke_width width
     alias_method :stroke_width=, :stroke_width!

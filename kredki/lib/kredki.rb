@@ -12,6 +12,18 @@ end
 
 require 'kredki-core'
 
+Kredki.colors = {
+  red: Kredki::Color.new(222, 0, 0, 255),
+  green: Kredki::Color.new(0, 222, 0, 255),
+  blue: Kredki::Color.new(0, 0, 222, 255),
+  light_gray: Kredki::Color.new(211, 211, 211, 255),
+  gray: Kredki::Color.new(111, 111, 111, 255),
+  white: Kredki::Color.new(255, 255, 255, 255),
+  black: Kredki::Color.new(0, 0, 0, 255),
+  yellow: Kredki::Color.new(222, 222, 0, 255),
+  transparent: Kredki::Color.new(0, 0, 0, 0),
+}
+
 Kredki.clipboard = Kredki::Clipboard.new
 
 Kredki.keyboard = Kredki::Keyboard.new keys: {
@@ -85,7 +97,10 @@ Kredki.joystick = Kredki::Joystick.new buttons: {
 }
 
 Kredki.fonts = {
-  arial: ext("font/Arial.ttf")
+  arial: ext("font/Arial.ttf"),
+  blank: ext("font/AdobeBlank.ttf"),
+  lato: ext("font/Lato-Regular.ttf"),
+  dejavu: ext("font/DejaVuSans.ttf"),
 }
 
 class TerminateOnEsc
@@ -104,8 +119,13 @@ class CloseOnEsc
   end
 end
 
+# A = Kredki.init
+# A.window! action: Kredki::Action.new
+
+require_relative 'kredki/ui_action'
+
 A = Kredki.init
-A.window!
+A.window! action: Kredki::UiAction.new
 
 class << self 
   def respond_to? name

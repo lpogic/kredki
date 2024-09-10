@@ -37,15 +37,23 @@ module Kredki
       end
     end
 
-    def down? button
-      is_button_down Button[button].to_i
+    def down? button_param
+      is_button_down button(button_param).to_i
     end
 
-    def position
+    def x
+      xy[0]
+    end
+
+    def y
+      xy[1]
+    end
+
+    aliasing def xy
       get_cursor_position
-    end
+    end, :position
 
-    flag :relative_mode
+    flag :relative
 
     #internal api
 
@@ -61,7 +69,7 @@ module Kredki
       [point.x, point.y]
     end
 
-    def set_relative_mode relative
+    def set_relative relative
       Abi.mouse_set_relative_mode relative
     end
   end

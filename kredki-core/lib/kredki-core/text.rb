@@ -7,23 +7,19 @@ module Kredki
   class Text < Paint
     include Alterable
 
-    class << self
-      attr_accessor :default_color, :default_font
-    end
+    Kredki[self, :color] = :white
+    Kredki[self, :font] = [:arial, 16]
 
-    self.default_color = :white
-    self.default_font = [:arial, 16]
-
-    def initialize string = "TEXT", x = 100, y = 100, **params, &block
+    def initialize string = "TEXT", x = 0, y = 0, **params, &block
       super Abi.text_new
-      ObjectSpace.define_finalizer(self, self.class.proc.finalize(@pointer))
+      ObjectSpace.define_finalizer(self, Text.proc.finalize(@pointer))
 
       @string = ""
       @font = nil
 
       alter string:, x:, y:, 
-        font: self.class.default_font, 
-        color: self.class.default_color, 
+        font: Kredki[self.class, :font], 
+        color: Kredki[self.class, :color], 
         **params, &block
     end
 
@@ -35,6 +31,20 @@ module Kredki
 
     def string 
       @string
+    end
+
+    def substring_width index = nil, string = @string
+      str = string.to_s
+      Abi.text_get_text_width(@pointer, str, index || -1).ceil
+    end
+
+    def nearest_character_index width, string = @string
+      return 0 if width <= 0
+      Abi.text_nearest_character_index @pointer, string.to_s, width
+    end
+
+    def w
+      substring_width
     end
 
     def font! *font
@@ -50,11 +60,11 @@ module Kredki
     end
 
     def color! *color
-      set_fill_color *Color[color.extract].to_rgb_array
+      set_fill_color *Kredki.color(color.extract).to_rgb_array
     end
 
     def color=(color)
-      set_fill_color *Color[color].to_rgb_array
+      set_fill_color *Kredki.color(color).to_rgb_array
     end
 
     alias_method :fill_color!, :color!
@@ -63,7 +73,7 @@ module Kredki
     #internal api
 
     def self.finalize pointer
-      Abi.paint_delete pointer
+      Abi.text_delete pointer
     end
 
     private

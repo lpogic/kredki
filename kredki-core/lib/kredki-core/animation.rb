@@ -8,7 +8,7 @@ module Kredki
 
     def initialize source = nil, **params, &block
       @pointer = Abi.animation_new
-      ObjectSpace.define_finalizer(self, self.class.proc.finalize(@pointer))
+      ObjectSpace.define_finalizer(self, Animation.proc.finalize(@pointer))
 
       @picture = Paint.new Abi.animation_get_picture @pointer
       @source = nil
@@ -18,7 +18,7 @@ module Kredki
       @ms = nil
       @on_end = []
 
-      params[:source] ||= params[:src] || source
+      params[:src] ||= source
       alter **params, &block
     end
 

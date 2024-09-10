@@ -18,8 +18,8 @@ module Kredki
 
     attr :last_frame_ms
 
-    def use! extension
-      extension.plug_into self if extension.respond_to? :plug_into
+    def use! extension, *a, **na, &b
+      extension.plug_into self, *a, **na, &b if extension.respond_to? :plug_into
     end
 
     def window ...
@@ -35,11 +35,11 @@ module Kredki
     end
 
     def keyboard &block
-      Action::Keyboard.new(self, Kredki.keyboard).tap{ k.instance_exec &block if block }
+      Action::Keyboard.new(self, Kredki.keyboard).tap{|k| k.instance_exec &block if block }
     end
 
     def mouse &block
-      Action::Mouse.new(self, Kredki.mouse).tap{ m.instance_exec &block if block }
+      Action::Mouse.new(self, Kredki.mouse).tap{|m| m.instance_exec &block if block }
     end
 
     def joystick param = nil, &block
@@ -65,8 +65,8 @@ module Kredki
       @animations.delete animation
     end
 
-    def fill! fill_color
-      fill = shape! x: 0, y: 0, fill_color:;
+    def color! *color
+      fill = shape! x: 0, y: 0, color: color.extract;
       on_resize = proc do
         fill.alter do
           reset!
@@ -76,6 +76,10 @@ module Kredki
       on_resize! &on_resize
       on_resize.call
       fill
+    end
+
+    def color=(color)
+      color! *color
     end
 
     def job! repeat: false, run: true, &b
@@ -110,8 +114,21 @@ module Kredki
       @on_event
     end
 
-    def event event
-      @on_event[event.class]&.call(event) || 0
+    def event_accumulator
+      @owner&.event_accumulator
+    end
+
+    def sketch p0
+    end
+
+    def sketch_base
+      sketch self
+      @sketched = true
+      self
+    end
+
+    def translate x, y
+      [x, y]
     end
 
     private

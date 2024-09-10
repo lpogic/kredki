@@ -6,7 +6,7 @@ module Kredki
       @block = block
     end
 
-    def call event
+    def call event = nil
       case @block.call(event, self)
       when Event::TRANSPARENT
         0
@@ -15,8 +15,13 @@ module Kredki
       end
     end
 
+    def called! event = nil
+      call event
+      self
+    end
+
     def detach!
-      @director&.detach self
+      @director&.detach! self
     end
 
     #internal api

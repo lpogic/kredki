@@ -2,7 +2,6 @@ require_relative 'event'
 
 module Kredki
   class WindowEvent < Event
-    include EventWithWindowId
   end
 
   class WindowShowEvent < WindowEvent
@@ -18,6 +17,17 @@ module Kredki
   end
 
   class WindowResizeEvent < WindowEvent
+    def w
+      @abi.data1
+    end
+
+    def h
+      @abi.data2
+    end
+
+    def wh
+      [w, h]
+    end
   end
 
   class WindowSizeChangeEvent < WindowEvent

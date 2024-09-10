@@ -1,21 +1,78 @@
-require_relative '../event/event_callings'
-require_relative '../event/keyboard_event_callings'
-require_relative '../event/mouse_event_callings'
-require_relative '../event/joystick_event_callings'
-require_relative '../event/drop_event'
-require_relative '../event/key_event'
-require_relative '../event/mouse_button_event'
-require_relative '../event/mouse_move_event'
-require_relative '../event/mouse_scroll_event'
-require_relative '../event/quit_event'
-require_relative '../event/text_event'
-require_relative '../event/window_event'
-require_relative '../event/joystick_event'
-
-require_relative '../event/step_event'
+require 'forwardable'
 
 module Kredki
-  module ActionEvents
+  class PadMouseEvent
+    extend Forwardable
+
+    model :origin, :x, :y do
+      @x ||= @origin.x
+      @y ||= @origin.y
+    end
+
+    def translate xo, yo
+      self.class.new @origin, @x - xo, @y - yo
+    end
+
+    def xy
+      [@x, @y]
+    end
+
+    def_delegators :@origin,
+      :symbol, :button, :repeat?, :clicks
+  end
+
+  class PadMouseMoveEvent < PadMouseEvent
+  end
+
+  class PadMouseButtonDownEvent < PadMouseEvent
+  end
+
+  class PadMouseButtonUpEvent < PadMouseEvent
+  end
+
+  class PadDropEvent < PadMouseEvent
+  end
+
+  class PadClickEvent < PadMouseEvent
+  end
+
+  class PadDragEvent < PadMouseEvent
+  end
+
+  class PadShowEvent
+  end
+
+  class PadHideEvent
+  end
+
+  class PadMoveEvent
+  end
+
+  class PadResizeEvent
+  end
+
+  class PadEnterEvent
+  end
+
+  class PadLeaveEvent
+  end
+
+  class PadFocusGainEvent
+  end
+
+  class PadFocusLoseEvent
+  end
+
+  class PadStateEvent
+  end
+
+  class PadEditEvent
+  end
+
+  class PadChangeEvent
+  end
+
+  module PadEvents
 
     def on_key_down! *filtered_keys, &block
       keycodes = keyboard.keycodes *filtered_keys
@@ -36,7 +93,7 @@ module Kredki
     end
 
     def on_mouse_move! &block
-      on_event! MouseMoveEvent, &block
+      on_event! PadMouseMoveEvent, &block
     end
 
     def on_mouse_scroll! &block
@@ -47,7 +104,7 @@ module Kredki
 
     def on_mouse_button! *filtered_buttons, &block
       indexes = mouse.indexes *filtered_buttons
-      callings = (@on_event[MouseButtonDownEvent] ||= MouseEventCallings.new)[*indexes]
+      callings = (@on_event[PadMouseButtonDownEvent] ||= MouseEventCallings.new)[*indexes]
       block ? callings.attach!(block) : callings
     end
 
@@ -55,7 +112,7 @@ module Kredki
 
     def on_mouse_button_up! *filtered_buttons, &block
       indexes = mouse.indexes *filtered_buttons
-      callings = (@on_event[MouseButtonUpEvent] ||= MouseEventCallings.new)[*indexes]
+      callings = (@on_event[PadMouseButtonUpEvent] ||= MouseEventCallings.new)[*indexes]
       block ? callings.attach!(block) : callings
     end
 
@@ -94,84 +151,52 @@ module Kredki
       on_event! DropEndEvent, &block
     end
 
-    def on_quit! &block
-      on_event! QuitEvent, &block
-    end
-
     def on_show! &block
-      on_event! WindowShowEvent, &block
+      on_event! PadShowEvent, &block
     end 
 
     def on_hide! &block
-      on_event! WindowHideEvent, &block
-    end
-
-    def on_expose! &block
-      on_event! WindowExposeEvent, &block
+      on_event! PadHideEvent, &block
     end
 
     def on_move! &block
-      on_event! WindowMoveEvent, &block
+      on_event! PadMoveEvent, &block
     end
 
     def on_resize! &block
-      on_event! WindowResizeEvent, &block
-    end
-
-    def on_size_change! &block
-      on_event! WindowSizeChangeEvent, &block
-    end
-
-    def on_minimize! &block
-      on_event! WindowMinimizeEvent, &block
-    end
-
-    def on_maximize! &block
-      on_event! WindowMaximizeEvent, &block
-    end
-
-    def on_restore! &block
-      on_event! WindowRestoreEvent, &block
+      on_event! PadResizeEvent, &block
     end
 
     def on_enter! &block
-      on_event! WindowEnterEvent, &block
+      on_event! PadEnterEvent, &block
     end
 
     def on_leave! &block
-      on_event! WindowLeaveEvent, &block
+      on_event! PadLeaveEvent, &block
     end
 
     def on_focus_gain! &block
-      on_event! WindowFocusGainEvent, &block
+      on_event! PadFocusGainEvent, &block
     end
 
     def on_focus_lose! &block
-      on_event! WindowFocusLoseEvent, &block
+      on_event! PadFocusLoseEvent, &block
     end
 
-    def on_close! &block
-      on_event! WindowCloseEvent, &block
+    def on_click! &block
+      on_event! PadClickEvent, &block
     end
 
-    def on_take_focus! &block
-      on_event! WindowTakeFocusEvent, &block
+    def on_drag! &block
+      on_event! PadDragEvent, &block
     end
 
-    def on_hit_test! &block
-      on_event! WindowHitTestEvent, &block
+    def on_drop! &block
+      on_event! PadDropEvent, &block
     end
 
-    def on_iccprof_change! &block
-      on_event! WindowIccprofChangeEvent, &block
-    end
-
-    def on_display_change! &block
-      on_event! WindowDisplayChangeEvent, &block
-    end
-
-    def on_step! &block
-      on_event! StepEvent, &block
+    def on_state! &block
+      on_event! PadStateEvent, &block
     end
 
     #internal api

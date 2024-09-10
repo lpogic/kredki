@@ -2,8 +2,7 @@ require_relative 'event'
 
 module Kredki
   class FileDropEvent < Event
-    include EventWithWindowId
-
+    
     def initialize ae
       super
 
@@ -19,10 +18,8 @@ module Kredki
   end
   
   class DropBeginEvent < Event
-    include EventWithWindowId
   end
 
   class DropEndEvent < Event
-    include EventWithWindowId
   end
 end

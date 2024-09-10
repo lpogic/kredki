@@ -2,7 +2,7 @@ module Kredki
   class Event
     TRANSPARENT = Object.new
 
-    model :@abi, :data
+    model :abi
 
     def timestamp
       @abi.timestamp
@@ -16,12 +16,6 @@ module Kredki
 
     def clear
       @abi = nil
-    end
-  end
-
-  module EventWithWindowId
-    def window_id
-      @abi.window_id
     end
   end
 end

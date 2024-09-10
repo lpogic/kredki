@@ -66,6 +66,8 @@ module Kredki
     alias_method :diameter!, :d!
     alias_method :diameter, :d
 
+    #internal api
+
     private
 
     def reset!

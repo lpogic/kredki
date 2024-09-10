@@ -1,6 +1,5 @@
 module Kredki
   class KeyEvent < Event
-    include EventWithWindowId
     
     model :keyboard
 
