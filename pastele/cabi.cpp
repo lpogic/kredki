@@ -381,7 +381,7 @@ CABI void paint_get_bounds(Paint* self, Bounds* bounds, int transformed) {
 }
 
 CABI void paint_set_composite_method(Paint* self, Paint* mask, int method) {
-    self->composite(unique_ptr<Paint>(mask), (CompositeMethod)method);
+    self->composite(mask ? unique_ptr<Paint>(mask) : nullptr, (CompositeMethod)method);
 }
 
 // CABI int tvg_paint_get_composite_method(const Tvg_Paint* paint, const Tvg_Paint** target, Tvg_Composite_Method* method)
@@ -812,6 +812,7 @@ CABI void scene_delete(Scene* self) {
 CABI void scene_push(Scene* self, Paint* paint)
 {
     self->push(unique_ptr<Paint>(paint)); 
+    paint->markTransformed();
 }
 
 CABI void scene_insert(Scene* self, int index, Paint* paint) {
@@ -819,6 +820,7 @@ CABI void scene_insert(Scene* self, int index, Paint* paint) {
     auto it = paints.begin();
     advance(it, index);
     paints.insert(it, paint);
+    paint->markTransformed();
 }
 
 CABI void scene_remove(Scene* self, Paint* paint) {

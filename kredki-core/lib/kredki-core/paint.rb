@@ -11,6 +11,8 @@ module Kredki
       @x = nil
       @y = nil
       @rotation = 0
+
+      Paint.init_flags self
     end
 
     aliasing def x! x 
@@ -65,8 +67,12 @@ module Kredki
       enum :none, :clip, :alpha, :inverse_alpha, :luma, :inverse_luma
     end
 
-    def composite! method, mask
-      set_composite_method mask, CompositeMethod[method].to_i
+    def composite! method, mask = nil
+      if !method || method == :none
+        set_composite_method nil, CompositeMethod[:none].to_i
+      else
+        set_composite_method mask, CompositeMethod[method].to_i
+      end
     end
 
     def clip! mask
@@ -87,10 +93,13 @@ module Kredki
 
     def detach!
       @owner&.remove_paint self
-      @owner = nil
     end
 
-    flag :show, :set_show, :get_show
+    def attach! owner
+      owner.push_paint self
+    end
+
+    def_flag :show, :set_show, :get_show
 
     def hide!
       set_show false
@@ -126,7 +135,7 @@ module Kredki
     end
 
     def set_composite_method mask, method
-      Abi.paint_set_composite_method @pointer, mask.pointer, method
+      Abi.paint_set_composite_method @pointer, mask&.pointer, method
       update
     end
 

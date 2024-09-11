@@ -17,7 +17,7 @@ module Kredki
       @pads = []
 
       @button_down_xy = nil
-      @drag
+      Pad.init_flags self
     end
 
     def sketch p0
@@ -55,7 +55,7 @@ module Kredki
           @id[arg] = true
         end
       else
-        raise "Unsupported << (#{filter} : #{filter.class})"
+        raise "Unsupported << (#{arg} : #{arg.class})"
       end
     end
 
@@ -92,7 +92,7 @@ module Kredki
       end
     end
 
-    flag :keyboardy!, true
+    def_flag :keyboardy!, true
 
     def default_on_mouse_button_down e
       gain_focus if keyboardy?
@@ -178,9 +178,9 @@ module Kredki
       button_in? && @button_pad.nil?
     end
 
-    flag :mousy!, true
-    flag :focus, :set_focus, :keyboard_top?
-    flag :button, :set_button, :button_top?
+    def_flag :mousy!, true
+    def_flag :focus, :set_focus, :keyboard_top?
+    def_flag :mouse_focus, :set_button, :button_top?
 
     def drag!
       gain_button
@@ -269,9 +269,17 @@ module Kredki
 
     def remove_pad pad
       @pads.delete pad
+      pad.composite! false
       event_accumulator.load do
         action.update_point *mouse.position, false
       end if mousy? && mouse_in?
+    end
+
+    def attach! parent
+      return if @parent == parent
+      detach! if @parent
+      @parent = parent
+      @parent&.push_pad self
     end
 
     def detach!

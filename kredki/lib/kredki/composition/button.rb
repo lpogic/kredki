@@ -3,11 +3,11 @@ module Kredki
 
     attr :text
 
-    def string! str
+    aliasing def string! str
       @text.string! str
       w! @text.w + 10
       h! @text.font.size + 10
-    end
+    end, :string=
 
     def sketch p0
       super

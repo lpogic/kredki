@@ -11,6 +11,8 @@ module Kredki
     def initialize x = 100, y = 100, **params, &block
       super Abi.shape_new
       ObjectSpace.define_finalizer(self, Shape.proc.finalize(@pointer))
+
+      Shape.init_flags self
       
       alter x:, y:, color: Kredki[self.class, :color], **params, &block
     end
@@ -103,7 +105,7 @@ module Kredki
       set_stroke_dash_pattern dash_pattern
     end
 
-    flag :stroke_first
+    def_flag :stroke_first
 
     # class StrokeTrim
     #   struct :begin, :end, :simultaneous

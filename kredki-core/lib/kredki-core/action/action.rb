@@ -122,9 +122,13 @@ module Kredki
     end
 
     def sketch_base
-      sketch self
+      sketch self if !sketched?
       @sketched = true
       self
+    end
+
+    def sketched?
+      @sketched
     end
 
     def translate x, y

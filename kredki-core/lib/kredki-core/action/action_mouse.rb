@@ -7,7 +7,9 @@ module Kredki
       extend Forwardable
       extend HasFlags
 
-      model :action, :mouse
+      model :action, :mouse do
+        Mouse.init_flags self
+      end
 
       def indexes *input
         input.flatten.map{ @mouse.button(_1).to_i }.uniq
@@ -43,8 +45,8 @@ module Kredki
         @action.on_leave!(...)
       end
 
-      flag :capture, :set_capture, :get_capture
-      flag :grab, :set_grab, :get_grab
+      def_flag :capture, :set_capture, :get_capture
+      def_flag :grab, :set_grab, :get_grab
 
       def x
         xy[0]

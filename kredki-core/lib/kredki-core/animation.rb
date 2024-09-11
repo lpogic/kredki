@@ -13,10 +13,9 @@ module Kredki
       @picture = Paint.new Abi.animation_get_picture @pointer
       @source = nil
       @owner = nil
-      @play = false
-      @loop = false
       @ms = nil
       @on_end = []
+      Animation.init_flags self
 
       params[:src] ||= source
       alter **params, &block
@@ -65,8 +64,8 @@ module Kredki
       Abi.animation_set_segment @pointer, *segment
     end
 
-    flag :loop
-    flag :play
+    def_flag :loop
+    def_flag :play
 
     def on_end! &block
       @on_end << block
@@ -83,7 +82,7 @@ module Kredki
       @picture.detach!
     end
 
-    flag :show, :set_show, :get_show
+    def_flag :show, :set_show, :get_show
 
     def finish!
       if @play

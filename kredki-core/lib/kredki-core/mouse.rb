@@ -6,6 +6,8 @@ module Kredki
 
     model :buttons do
       @inverted_buttons = @buttons.invert
+
+      Mouse.init_flags self
     end
 
     def button param
@@ -53,7 +55,7 @@ module Kredki
       get_cursor_position
     end, :position
 
-    flag :relative
+    def_flag :relative
 
     #internal api
 

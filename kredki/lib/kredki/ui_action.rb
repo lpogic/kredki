@@ -34,9 +34,17 @@ module Kredki
       push_pad(klass.new).sketch_base
     end
 
-    def push_pad pad
-      push_paint(pad).alter parent: self, action: action
-      @pads << pad
+    def push_pad pad, next_pad = nil, clip = true
+      index = next_pad && @paints[next_pad]&.index
+      push_paint(pad, true, index).alter parent: self, action: action
+      if index
+        pad_index = ([index, @pads.size].min...0).step(-1).find do |i|
+          @paints[@pads[i - 1]].index < index
+        end || 0
+        @pads.insert pad_index, pad
+      else
+        @pads << pad
+      end
       event_accumulator.load do
         update_point *mouse.position, false
       end
@@ -87,10 +95,10 @@ module Kredki
         end
       end
 
-      @background = pad!
+      @background = pad! color: :black
       on_resize! do
         @background.size = window.size
-      end
+      end.call
     end
 
     def [](filter, &block)

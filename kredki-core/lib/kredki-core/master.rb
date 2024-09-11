@@ -19,10 +19,10 @@ class Object
 
   def to_en &block
     Enumerator.new do |e|
-      c = self
+      c = block.call self, Break
       while c != Break
+        e << c
         c = block.call c, Break
-        e << c if c != Break
       end
     end
   end

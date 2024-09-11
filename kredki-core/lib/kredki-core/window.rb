@@ -12,20 +12,14 @@ module Kredki
     extend HasFlags
     extend Forwardable
 
-    def initialize w = 400, h = 400, **params, &block
+    def initialize w = 400, h = 400
       @pointer = Abi.window_new w, h
       ObjectSpace.define_finalizer(self, Window.proc.finalize(@pointer))
 
-      @bordered = true
-
-      alter **params, &block
+      Window.init_flags self
     end
 
-    attr_accessor :arena
-
-    def inspect
-      "#{self.class}:#{object_id}"
-    end
+    attr_reader :arena
 
     def terminate!
       @arena&.terminate!
@@ -47,48 +41,58 @@ module Kredki
       Abi.window_restore @pointer
     end
 
-    flag :bordered
-    flag :grab
+    def_flag :bordered!
+    def_flag :grab
 
     def fullscreen! method = 0
       Abi.window_set_fullscreen @pointer, method
     end
 
-    def min_size! width, height
-      set_minimum_size width, height
-    end
+    aliasing def min_wh! w, h = nil
+      set_minimum_size w, h || w
+    end, :min_size!
 
-    def min_size=(size)
-      set_minimum_size *size
-    end
+    aliasing def min_wh= wh
+      case wh
+      when Array then min_wh! *wh
+      else min_wh! wh
+      end
+    end, :min_size=
+
+    aliasing def max_wh! w, h = nil
+      set_maximum_size w, h || w
+    end, :max_size!
+
+    aliasing def max_wh= wh
+      case wh
+      when Array then max_wh! *wh
+      else max_wh! wh
+      end
+    end, :max_size=
     
-    def max_size! width, height
-      set_maximum_size width, height
-    end
-
-    def max_size=(size)
-      set_maximum_size *size
-    end
-   
-    def opacity!(opacity) = set_opacity opacity > 1 ? opacity / 255.0 : opacity
-    alias_method :opacity=, :opacity!
+    aliasing def opacity! opacity
+      set_opacity opacity > 1 ? opacity / 255.0 : opacity
+    end, :opacity=
 
     aliasing def xy! x, y
       set_position x, y
     end, :position!
 
-    aliasing def xy=(xy)
-      set_position x, y
+    aliasing def xy= xy
+      set_position *xy
     end, :position=
 
-    flag :resizable
+    def_flag :resizable
 
-    aliasing def wh! w, h
-      set_size w, h
+    aliasing def wh! w, h = nil
+      set_size w, h || w
     end, :size!
 
-    aliasing def wh=(wh)
-      set_size *wh
+    aliasing def wh= wh
+      case wh
+      when Array then wh! *wh
+      else wh! wh
+      end
     end, :size=
 
     aliasing def wh
@@ -115,13 +119,12 @@ module Kredki
       set_title title.to_s
     end, :title=
 
-    flag :always_on_top
+    def_flag :always_on_top
 
-    def action! action = nil, &block_action
+    aliasing def action! action = nil, &block_action
       action ||= Action.new &block_action
       set_action action
-    end
-    alias_method :action=, :action!
+    end, :action=
 
     def action
       @action
@@ -133,9 +136,6 @@ module Kredki
 
     def_delegators :@action, 
       :use!,
-      :push_paint,
-      :push_animation,
-      :remove_animation,
       :shape!,
       :ellipse!,
       :rectangle!,
@@ -203,11 +203,14 @@ module Kredki
       Abi.window_delete pointer
     end
 
+    attr_writer :arena
     attr :pointer
 
-    def event ...
-      @action&.event(...)
-    end
+    def_delegators :@action,
+      :push_paint,
+      :push_animation,
+      :remove_animation,
+      :event
 
     def event_accumulator
       @arena&.event_accumulator
@@ -217,7 +220,9 @@ module Kredki
       Abi.window_paint_to_update @pointer, paint.pointer
     end
 
-    private
+    def inspect
+      "#{self.class}:#{object_id}"
+    end
 
     def set_action action
       @action = action

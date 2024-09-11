@@ -31,7 +31,8 @@ module Kredki
     end
 
     def run!
-      @windows.values.each{ _1.size = _1.size }
+      # generate initial resize event
+      @windows.values.each{|w| w.set_size *w.get_size }
       Abi.arena_run @pointer
     end
 
@@ -136,7 +137,7 @@ module Kredki
           joystick&.device_id = nil
         end
         events_called
-      else
+      else # unsupported event
         # p event_type
         0
       end
@@ -161,23 +162,27 @@ module Kredki
       @window_threads.delete(window_id)&.kill
       @windows.delete window_id
       window.arena = nil
-      terminate! if @windows.empty?
+      if @windows.empty?
+        terminate!
+      else
+        if @main_window == window_id
+          @main_window = @windows.keys.first
+        end
+      end
     end
 
     private
 
     def window_event window_id, event
-      call_cnt = @event_accumulator.load do
+      @event_accumulator.load do
         @windows[window_id]&.event(event, true) || 0
       end
-      call_cnt
     end
 
     def arena_event event
-      call_cnt = @event_accumulator.load do
+      @event_accumulator.load do
         @windows.values.map{ _1.event(event, true) }.sum
       end
-      call_cnt
     end
   end
 end

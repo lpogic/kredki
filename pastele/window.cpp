@@ -73,6 +73,7 @@ bool Window::update(tvg::Canvas* canvas) {
             canvas->update(paint);
         }
         toUpdate.clear();
+        canvas.sync();
         return true;
     }
 }
