@@ -127,7 +127,7 @@ module Kredki
       :terminate!
 
     attr_accessor :clipboard, :keyboard, :mouse, :colors
-    attr :runned
+    attr :runned, :fonts
 
     def joysticks=(joysticks)
       @joysticks = joysticks
@@ -145,9 +145,33 @@ module Kredki
       name ? joysticks.find{ _1.name == name } : joysticks.first
     end
 
-    def fonts=(fonts)
-      fonts.each do |name, path|
-        Font.load name, path
+    def fonts= fonts
+      values = fonts.values
+      Font.loaded_fonts.values.reject do |font|
+        values.find{ _1 == font || _1 == font.path }
+      end.each{ Font.unload _1 }
+      @fonts = fonts.map do |id, param|
+        case param
+        when String
+          [id, (Font.load param)]
+        when Font
+          [id, param]
+        end
+      end.to_h
+    end
+
+    def font param
+      case param
+      when Font
+        param
+      when :rand
+        @fonts&.values.sample || (raise "No fonts loaded")
+      when Symbol
+        @fonts&.itself[param] || (raise "Unknown font '#{param}'")
+      when String
+        @fonts&.values.find{|font| font.name == param || font.path == param } || (raise "Unknown font '#{param}'")
+      else
+        raise "Unknown font '#{param.class}'"
       end
     end
 
@@ -161,7 +185,8 @@ module Kredki
         @colors&.itself[param] || (raise "Unknown color '#{param}'")
       when Array
         Color.new *param
-      else raise "Unknown color '#{param}'"
+      else
+        raise "Unknown color '#{param}'"
       end
     end
 

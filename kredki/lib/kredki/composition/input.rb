@@ -16,19 +16,19 @@ module Kredki
           clip! p2.body
         end
   
-        text = text! x: 0, y: 0, color: :white, font: [:arial, 40] do
+        text = text! x: 0, y: 0, color: :white, font: :arial, h: 24 do
           clip! p2.body
           string! "Tee"
         end
   
         cursor = rectangle! x: 0, y: 0, color: :black, w: 2
   
-        p2.height = text.font.size
+        p2.h = text.h
   
         on_resize! do
           selection.h = h
           cursor.h = h
-          p0.height = text.font.size + 10
+          p0.h = text.h + 10
         end.call
       end
 
@@ -147,12 +147,17 @@ module Kredki
       end
   
       on_state! do
-        body.color = if mouse_in?
-          :light_gray
-        else
-          :gray
-        end
+        color = Kredki.color :gray
+        body.color = mouse_in? ? color.light(20) : color
+      end.call
+
+      on_focus_gain! do
+        cursor.show!
       end
+
+      on_focus_lose! do
+        cursor.hide!
+      end.call
 
       @text = text
     end
@@ -169,6 +174,10 @@ module Kredki
 
     def on_edit! &block
       on_event! PadEditEvent, &block
+    end
+
+    def autosized?
+      true
     end
   end
 end

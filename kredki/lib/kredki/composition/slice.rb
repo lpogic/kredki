@@ -2,26 +2,26 @@ module Kredki
   class Slice < Pad
 
     aliasing def x! x = nil
-      set_x_slice((x || 0).to_f) && begin
-        if sketched?
+      if sketched?
+        set_x_slice((x || 0).to_f) && begin
           update_size
           update_cars
-        else
-          set_x x
+          true
         end
-        true
+      else
+        set_x x
       end
     end, :x=
 
     aliasing def y! y = nil
-      set_y_slice((y || 0).to_f) && begin
-        if sketched?
+      if sketched?
+        set_y_slice((y || 0).to_f) && begin
           update_size
           update_cars
-        else
-          set_y y
+          true
         end
-        true
+      else
+        set_y y
       end
     end, :y=
 
@@ -100,7 +100,7 @@ module Kredki
         update_cars
       end
 
-      alter color: :transparent
+      body.hide!
     end
 
     def set_x_slice part
@@ -160,7 +160,7 @@ module Kredki
 
     def update_size
       set_xy parent.w * @x_slice, parent.h * @y_slice
-      set_size parent.w * @w_slice, parent.h * @h_slice
+      set_size [parent.w * @w_slice, parent.w - x].min, [parent.h * @h_slice, parent.h - y].min
     end
 
     def update_cars

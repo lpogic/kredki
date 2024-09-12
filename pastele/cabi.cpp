@@ -237,7 +237,7 @@ CABI void sdl_init(int joystick_enabled) {
         SDL_JoystickEventState(SDL_ENABLE);
     }
     SDL_GL_SetSwapInterval(1);
-    SDL_RegisterEvents(2);
+    SDL_RegisterEvents(SDL_USEREVENTS_COUNT);
 }
 
 
@@ -328,7 +328,14 @@ CABI void sdl_init(int joystick_enabled) {
 
 CABI void paint_delete(Paint* self)
 {
-    delete(self);
+    union SDL_Event event;
+    event.type = SDL_USEREVENT_DELETEPAINT;
+    SDL_UserEvent userEvent;
+    userEvent.type = SDL_USEREVENT_DELETEPAINT;
+    userEvent.data1 = self;
+    event.user = userEvent;
+    SDL_PushEvent(&event);
+    // delete(self);
 }
 
 
@@ -420,7 +427,14 @@ CABI void* shape_new()
 }
 
 CABI void shape_delete(Shape* self) {
-    delete(self);
+    union SDL_Event event;
+    event.type = SDL_USEREVENT_DELETESHAPE;
+    SDL_UserEvent userEvent;
+    userEvent.type = SDL_USEREVENT_DELETESHAPE;
+    userEvent.data1 = self;
+    event.user = userEvent;
+    SDL_PushEvent(&event);
+    // delete(self);
 }
 
 
@@ -805,8 +819,15 @@ CABI void* scene_new()
 
 CABI void scene_delete(Scene* self) {
     self->paints().clear();
+    union SDL_Event event;
+    event.type = SDL_USEREVENT_DELETESCENE;
+    SDL_UserEvent userEvent;
+    userEvent.type = SDL_USEREVENT_DELETESCENE;
+    userEvent.data1 = self;
+    event.user = userEvent;
+    SDL_PushEvent(&event);
     // self->clear(false);
-    delete(self);
+    // delete(self);
 }
 
 CABI void scene_push(Scene* self, Paint* paint)
@@ -842,7 +863,14 @@ CABI void* text_new(void) {
 }
 
 CABI void text_delete(Text* self) {
-    delete(self);
+    union SDL_Event event;
+    event.type = SDL_USEREVENT_DELETETEXT;
+    SDL_UserEvent userEvent;
+    userEvent.type = SDL_USEREVENT_DELETETEXT;
+    userEvent.data1 = self;
+    event.user = userEvent;
+    SDL_PushEvent(&event);
+    // delete(self);
 }
 
 CABI void text_set_font(Text* self, const char* name, float size, const char* style) {
@@ -969,7 +997,14 @@ CABI void animation_set_segment(Animation* self, float begin, float end) {
 // }
 
 CABI void animation_delete(Animation* self) {
-    delete(self);
+    union SDL_Event event;
+    event.type = SDL_USEREVENT_DELETEANIMATION;
+    SDL_UserEvent userEvent;
+    userEvent.type = SDL_USEREVENT_DELETEANIMATION;
+    userEvent.data1 = self;
+    event.user = userEvent;
+    SDL_PushEvent(&event);
+    // delete(self);
 }
 
 

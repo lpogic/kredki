@@ -51,6 +51,45 @@ void Arena::run() {
                             }
                         }
                     }
+                    eventHandler(event.type, &event);
+                    break;
+                }
+                case SDL_USEREVENT_DELETEPAINT: {
+                    auto paint = (tvg::Paint*)event.user.data1;
+                    for(auto window : windows) {
+                        if(window->paintDelete(paint)) break;
+                    }
+                    delete paint;
+                    break;
+                }
+                case SDL_USEREVENT_DELETESCENE: {
+                    auto scene = (tvg::Scene*)event.user.data1;
+                    for(auto window : windows) {
+                        if(window->paintDelete(scene)) break;
+                    }
+                    delete scene;
+                    break;
+                }
+                case SDL_USEREVENT_DELETESHAPE: {
+                    auto shape = (tvg::Shape*)event.user.data1;
+                    for(auto window : windows) {
+                        if(window->paintDelete(shape)) break;
+                    }
+                    delete shape;
+                    break;
+                }
+                case SDL_USEREVENT_DELETETEXT: {
+                    auto text = (tvg::Text*)event.user.data1;
+                    for(auto window : windows) {
+                        if(window->paintDelete(text)) break;
+                    }
+                    delete text;
+                    break;
+                }
+                case SDL_USEREVENT_DELETEANIMATION: {
+                    auto animation = (tvg::Animation*)event.user.data1;
+                    delete animation;
+                    break;
                 }
                 default: {
                     eventHandler(event.type, &event);

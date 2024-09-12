@@ -123,7 +123,7 @@ module Kredki
         update_cars
       end.call
 
-      alter color: :transparent
+      body.hide!
     end
     
     def set_x_place &place

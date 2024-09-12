@@ -78,6 +78,7 @@ class Window
     void step(uint32_t ms);
     void sync(void);
     bool update(tvg::Canvas* canvas);
+    bool paintDelete(tvg::Paint* paint);
     void planDelete(void);
     void planUpdate(void);
     void setNeedResize();

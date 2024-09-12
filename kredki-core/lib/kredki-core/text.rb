@@ -7,31 +7,20 @@ module Kredki
   class Text < Paint
     include Alterable
 
-    Kredki[self, :color] = :white
-    Kredki[self, :font] = [:arial, 16]
-
-    def initialize string = "TEXT", x = 0, y = 0, **params, &block
+    def initialize string = "TEXT", font = :arial, x = 0, y = 0, height = 16, color = :white
       super Abi.text_new
       ObjectSpace.define_finalizer(self, Text.proc.finalize(@pointer))
 
-      @string = ""
-      @font = nil
-
-      alter string:, x:, y:, 
-        font: Kredki[self.class, :font], 
-        color: Kredki[self.class, :color], 
-        **params, &block
+      alter string:, font:, x:, y:, height:, color:;
     end
 
-    def string! string 
+    aliasing def s! string 
       set_string string.to_s
-    end
+    end, :s=, :string!, :string=
 
-    alias_method :string=, :string!
-
-    def string 
+    aliasing def s 
       @string
-    end
+    end, :string
 
     def substring_width index = nil, string = @string
       str = string.to_s
@@ -43,32 +32,37 @@ module Kredki
       Abi.text_nearest_character_index @pointer, string.to_s, width
     end
 
-    def w
+    aliasing def h! h
+      set_height h
+    end, :h=, :height!, :height=
+
+    aliasing def h
+      @h
+    end, :height
+
+    aliasing def w
       substring_width
-    end
+    end, :width
 
-    def font! *font
-      set_font Font[font.extract]
-    end
-
-    def font=(font)
-      set_font Font[font]
-    end
+    aliasing def font! font
+      set_font Kredki.font(font)
+    end, :font=
 
     def font
       @font
     end
 
     def color! *color
-      set_fill_color *Kredki.color(color.extract).to_rgb_array
+      self.color = color.extract
     end
 
-    def color=(color)
-      set_fill_color *Kredki.color(color).to_rgb_array
+    def color= color
+      set_fill_color Kredki.color(color)
     end
 
-    alias_method :fill_color!, :color!
-    alias_method :fill_color=, :color=
+    def color
+      @color
+    end
 
     #internal api
 
@@ -88,17 +82,31 @@ module Kredki
 
     def set_font font
       if @font != font
-        # set blank font to workaround size & style change blindness
-        Abi.text_set_font @pointer, "AdobeBlank", 1, nil
-        Abi.text_set_font @pointer, *font.to_array if font
         @font = font
+        update_font
+      end
+    end
+
+    def set_height h
+      if @h != h
+        @h = h
+        update_font
+      end
+    end
+
+    def update_font
+      if @font && @h
+        Abi.text_set_font @pointer, @font.name, @h, @style&.encode || ""
         update
       end
     end
 
-    def set_fill_color r, g, b
-      Abi.text_set_fill_color @pointer, r, g, b
-      update
+    def set_fill_color color
+      if @color != color
+        @color = color
+        Abi.text_set_fill_color @pointer, *@color.to_rgb_array if @color
+        update
+      end
     end
   end
 end

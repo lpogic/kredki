@@ -6,7 +6,7 @@ module Kredki
     aliasing def string! str
       @text.string! str
       w! @text.w + 10
-      h! @text.font.size + 10
+      h! @text.h + 10
     end, :string=
 
     def sketch p0
@@ -18,7 +18,8 @@ module Kredki
       string! "Button"
   
       on_state! do
-        body.color = button_top? ? :green : mouse_top? ? :light_gray : :gray
+        color = Kredki.color :gray
+        body.color = button_top? ? :green : mouse_top? ? color.light : color
       end
     end
   end

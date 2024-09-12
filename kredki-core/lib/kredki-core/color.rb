@@ -21,5 +21,9 @@ module Kredki
       b == other.b && 
       a == other.a
     end
+
+    def light level = 10
+      Color.new @r + level, @g + level, @b + level, @a
+    end
   end
 end

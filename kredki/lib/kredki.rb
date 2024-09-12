@@ -98,7 +98,6 @@ Kredki.joystick = Kredki::Joystick.new buttons: {
 
 Kredki.fonts = {
   arial: ext("font/Arial.ttf"),
-  blank: ext("font/AdobeBlank.ttf"),
   lato: ext("font/Lato-Regular.ttf"),
   dejavu: ext("font/DejaVuSans.ttf"),
 }
@@ -123,6 +122,15 @@ end
 # A.window! action: Kredki::Action.new
 
 require_relative 'kredki/ui_action'
+
+module Kredki
+  class Window
+    aliasing def action! action = nil, &block
+      action ||= UiAction.new
+      set_action action, &block
+    end, :action=
+  end
+end
 
 A = Kredki.init
 A.window! action: Kredki::UiAction.new

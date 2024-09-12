@@ -121,9 +121,9 @@ module Kredki
 
     def_flag :always_on_top
 
-    aliasing def action! action = nil, &block_action
-      action ||= Action.new &block_action
-      set_action action
+    aliasing def action! action = nil, &block
+      action ||= Action.new
+      set_action action, &block
     end, :action=
 
     def action
@@ -134,7 +134,7 @@ module Kredki
       self
     end
 
-    def_delegators :@action, 
+    def_delegators :action, 
       :use!,
       :shape!,
       :ellipse!,
@@ -206,7 +206,7 @@ module Kredki
     attr_writer :arena
     attr :pointer
 
-    def_delegators :@action,
+    def_delegators :action,
       :push_paint,
       :push_animation,
       :remove_animation,
@@ -224,12 +224,12 @@ module Kredki
       "#{self.class}:#{object_id}"
     end
 
-    def set_action action
+    def set_action action, &block
       @action = action
       @action.owner = self
       Abi.window_set_scene @pointer, action.pointer
       Abi.window_set_step_handler @pointer, action.step_callback
-      @action.sketch_base
+      @action.sketch_base.alter(&block)
       update_paint @action
     end
 

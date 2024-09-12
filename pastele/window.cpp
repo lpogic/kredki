@@ -73,9 +73,12 @@ bool Window::update(tvg::Canvas* canvas) {
             canvas->update(paint);
         }
         toUpdate.clear();
-        canvas.sync();
         return true;
     }
+}
+
+bool Window::paintDelete(tvg::Paint* paint) {
+    return toUpdate.erase(paint) > 0;
 }
 
 void Window::setNeedResize() {

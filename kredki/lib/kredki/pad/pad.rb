@@ -322,8 +322,8 @@ module Kredki
     def set_size w, h
       (body.w!(w) | body.h!(h || w)) && begin
         event_accumulator.load do
-          action.update_point *mouse.position, false if mousy?
           event PadResizeEvent.new
+          action.update_point *mouse.position, false if mousy?
         end
         true
       end
