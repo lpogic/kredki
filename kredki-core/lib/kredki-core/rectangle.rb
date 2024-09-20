@@ -4,12 +4,11 @@ require_relative 'shape'
 module Kredki
   class Rectangle < Shape
 
-    def initialize w = 100, h = 100, x = 100, y = 100, **params, &block
-      @w = nil
-      @h = nil
+    def initialize w = 100, h = 100, x = 100, y = 100
       @rx = 0
       @ry = 0
-      super w:, h:, x:, y:, **params, &block
+      super x, y
+      alter wh: [w, h]
     end
 
     aliasing def w! w
@@ -27,6 +26,19 @@ module Kredki
     aliasing def h
       @h
     end, :height
+
+    aliasing def wh! w, h = nil
+      set_size w, h || w
+    end, :size!
+
+    aliasing def wh=(wh)
+      case wh
+      when Array
+        wh! *wh
+      else
+        wh! wh
+      end
+    end, :size=
 
     aliasing def wh
       [w, h]
@@ -76,6 +88,15 @@ module Kredki
 
     def set_h h
       h != @h && begin
+        @h = h
+        reset!
+        true
+      end
+    end
+
+    def set_size w, h
+      (w != @w || h != @h) && begin
+        @w = w
         @h = h
         reset!
         true

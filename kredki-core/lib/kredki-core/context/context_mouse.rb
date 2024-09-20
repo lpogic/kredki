@@ -2,12 +2,12 @@ require 'forwardable'
 require_relative '../has_flags'
 
 module Kredki
-  class Action
+  module Context
     class Mouse
       extend Forwardable
       extend HasFlags
 
-      model :action, :mouse do
+      model :context, :mouse do
         Mouse.init_flags self
       end
 
@@ -16,31 +16,31 @@ module Kredki
       end
 
       def on_move! ...
-        @action.on_mouse_move!(...)
+        @context.on_mouse_move!(...)
       end
       
       def on_scroll! ...
-        @action.on_mouse_scroll!(...)
+        @context.on_mouse_scroll!(...)
       end
 
       aliasing def on_down! ...
-        @action.on_mouse_button!(...)
+        @context.on_mouse_button!(...)
       end, :on_button!, :on_button_down!
 
       aliasing def on_up! ...
-        @action.on_mouse_button_up!(...)
+        @context.on_mouse_button_up!(...)
       end, :on_button_up!
 
       def on_drop! ...
-        @action.on_drop!(...)
+        @context.on_drop!(...)
       end
 
       def on_enter! ...
-        @action.on_enter!(...)
+        @context.on_enter!(...)
       end
 
       def on_leave! ...
-        @action.on_leave!(...)
+        @context.on_leave!(...)
       end
 
       def_flag :capture, :set_capture, :get_capture
@@ -55,7 +55,7 @@ module Kredki
       end
 
       def xy
-        offset = @action.parent.translate 0, 0
+        offset = @context.parent.translate 0, 0
         [@mouse.x - offset[0], mouse.y - offset[1]]
       end
 
@@ -70,16 +70,16 @@ module Kredki
       end
 
       def get_capture
-        w = @action.window
+        w = @context.window
         Abi.window_get_flags(w.pointer) & 0x4000 != 0 if w
       end
 
       def set_grab grab
-        @action.window&.grab! grab
+        @context.window&.grab! grab
       end
 
       def get_grab
-        @action.window&.grab?
+        @context.window&.grab?
       end
     end
   end

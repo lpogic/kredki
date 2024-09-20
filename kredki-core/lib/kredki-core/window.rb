@@ -19,10 +19,16 @@ module Kredki
       Window.init_flags self
     end
 
+    class << self
+      attr_accessor :default_action
+    end
+
+    self.default_action = Action
+
     attr_reader :arena
 
-    def terminate!
-      @arena&.terminate!
+    def terminate! result = nil
+      @arena&.terminate! result
     end
 
     def maximize!
@@ -122,8 +128,7 @@ module Kredki
     def_flag :always_on_top
 
     aliasing def action! action = nil, &block
-      action ||= Action.new
-      set_action action, &block
+      set_action action || Window.default_action.new, &block
     end, :action=
 
     def action
@@ -132,62 +137,6 @@ module Kredki
 
     def window
       self
-    end
-
-    def_delegators :action, 
-      :use!,
-      :shape!,
-      :ellipse!,
-      :rectangle!,
-      :picture!,
-      :text!,
-      :animation!,
-      :scene!,
-      :color!,
-      :job!,
-      :after!,
-      :clipboard,
-      :keyboard,
-      :mouse,
-      :joystick,
-      :on_step!,
-      :on_key_down!,
-      :on_key!,
-      :on_key_up!,
-      :on_mouse_move!,
-      :on_mouse_scroll!,
-      :on_mouse_button_down!,
-      :on_mouse_button!,
-      :on_mouse_button_up!,
-      :on_text!,
-      :on_drop!,
-      :on_drop_begin!,
-      :on_drop_end!,
-      :on_quit!,
-      :on_show!,
-      :on_hide!,
-      :on_expose!,
-      :on_move!,
-      :on_resize!,
-      :on_size_change!,
-      :on_minimize!,
-      :on_maximize!,
-      :on_restore!,
-      :on_enter!,
-      :on_leave!,
-      :on_focus_gein!,
-      :on_focus_lose!,
-      :on_close!,
-      :on_take_focus!,
-      :on_hit_test!,
-      :on_iccprof_change!,
-      :on_display_change!,
-      :pad!,
-      :custom_pad!
-      
-
-    def <<(paint)
-      push_paint paint
     end
 
     def destroy!
@@ -207,9 +156,6 @@ module Kredki
     attr :pointer
 
     def_delegators :action,
-      :push_paint,
-      :push_animation,
-      :remove_animation,
       :event
 
     def event_accumulator
@@ -231,6 +177,7 @@ module Kredki
       Abi.window_set_step_handler @pointer, action.step_callback
       @action.sketch_base.alter(&block)
       update_paint @action
+      @action
     end
 
     def set_bordered bordered

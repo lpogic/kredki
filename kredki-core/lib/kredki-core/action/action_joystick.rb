@@ -1,7 +1,7 @@
 require 'forwardable'
 
 module Kredki
-  class Action
+  module Context
     class Joystick
       extend Forwardable
 
@@ -15,11 +15,9 @@ module Kredki
         input.flatten.map{ @joystick.axis(_1).to_i }.uniq
       end
 
-      def on_button! ...
+      aliasing def on_button! ...
         @action.on_joystick_button_down!(self, ...)
-      end
-
-      alias_method :on_button_down!, :on_button!
+      end, :on_button_down!
 
       def on_button_up! ...
         @action.on_joystick_button_up!(self, ...)
@@ -33,6 +31,21 @@ module Kredki
         :down?,
         :value
 
+    end
+
+    def joystick param = nil, &block
+      joystick = case param
+      when Joystick
+        param
+      when Kredki::Joystick
+        Action::Joystick.new self, param
+      else
+        j = Kredki.joystick param
+        raise "Joystick #{param} not found" if !j
+        Action::Joystick.new self, j
+      end
+      joystick.instance_exec &block if block
+      joystick
     end
   end
 end

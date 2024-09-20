@@ -6,51 +6,32 @@ module Kredki
     include Alterable
     extend HasFlags
 
-    def initialize source = nil, **params, &block
+    def initialize source = nil
       @pointer = Abi.animation_new
       ObjectSpace.define_finalizer(self, Animation.proc.finalize(@pointer))
 
       @picture = Paint.new Abi.animation_get_picture @pointer
-      @source = nil
       @owner = nil
       @ms = nil
-      @on_end = []
+      @on_end = EventCallings.new
       Animation.init_flags self
 
-      params[:src] ||= source
-      alter **params, &block
-    end
-
-    attr :owner
-    def owner=(owner)
-      owner, @owner = @owner, owner
-      if @play
-        owner&.remove_animation self
-        @owner&.push_animation self
-      end
+      alter source:;
     end
 
     attr :picture
 
-    def src! source
+    aliasing def s! source
       set_source source
-    end
+    end, :s=, :source!, :source=
 
-    alias_method :src=, :src!
-
-    def src
+    aliasing def s
       @source
-    end
+    end, :source
 
-    alias_method :source=, :src=
-    alias_method :source!, :src!
-    alias_method :source, :src
-    
-    def frame! no
+    aliasing def frame! no
       set_frame no
-    end
-
-    alias_method :frame=, :frame!
+    end, :frame=
 
     def total_frame
       Abi.animation_get_total_frame @pointer
@@ -60,7 +41,11 @@ module Kredki
       Abi.animation_get_duration @pointer
     end
 
-    def segment=(segment)
+    def segment! *segment
+      Abi.animation_set_segment @pointer, *segment
+    end
+
+    def segment= segment
       Abi.animation_set_segment @pointer, *segment
     end
 
@@ -87,7 +72,7 @@ module Kredki
     def finish!
       if @play
         set_play 0
-        @on_end.each{ instance_exec &_1 }
+        @on_end.call nil
       end
     end
 
@@ -102,6 +87,15 @@ module Kredki
     end
 
     attr :pointer
+
+    attr :owner
+    def owner= owner
+      owner, @owner = @owner, owner
+      if @play
+        owner&.remove_animation self
+        @owner&.push_animation self
+      end
+    end
 
     def step ms
       @ms = ms if !@ms

@@ -23,7 +23,15 @@ module Kredki
     end
 
     def light level = 10
-      Color.new @r + level, @g + level, @b + level, @a
+      Color.new *to_rgb_array.map{ _1 + level }, @a
+    end
+
+    def dark level = 10
+      Color.new *to_rgb_array.map{ _1 - level }, @a
+    end
+
+    def tune r = 0, g = 0, b = 0
+      Color.new (@r + r).clamp(0, 255), (@g + g).clamp(0, 255), (@b + b).clamp(0, 255), @a
     end
   end
 end

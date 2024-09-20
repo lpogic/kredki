@@ -117,36 +117,3 @@ class CloseOnEsc
     end
   end
 end
-
-# A = Kredki.init
-# A.window! action: Kredki::Action.new
-
-require_relative 'kredki/ui_action'
-
-module Kredki
-  class Window
-    aliasing def action! action = nil, &block
-      action ||= UiAction.new
-      set_action action, &block
-    end, :action=
-  end
-end
-
-A = Kredki.init
-A.window! action: Kredki::UiAction.new
-
-class << self 
-  def respond_to? name
-    super || A.window.respond_to?(name)
-  end
-
-  def method_missing name, *a, **na, &b
-    A.window.respond_to?(name) ? A.window.send(name, *a, **na, &b) : super
-  end
-end
-
-if $0 != 'irb'
-  at_exit do
-    Kredki.run if !Kredki.runned
-  end
-end

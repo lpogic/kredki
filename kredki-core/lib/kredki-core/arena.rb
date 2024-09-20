@@ -22,21 +22,23 @@ module Kredki
       @event_accumulator = EventAccumulator.new
     end
 
-    def window! ...
-      push_window(Window.new).alter(...)
+    def window! action = nil, *a, **na, &b
+      push_window(Window.new).action!(action).alter(*a, **na, &b)
     end
 
     def window key = nil
-      @windows[key || @main_window]
+      key ? @windows[key] : @main_window
     end
 
     def run!
       # generate initial resize event
       @windows.values.each{|w| w.set_size *w.get_size }
       Abi.arena_run @pointer
+      @result
     end
 
-    def terminate!
+    def terminate! result = nil
+      @result = result
       Abi.arena_terminate @pointer
     end
 
@@ -146,7 +148,7 @@ module Kredki
     def push_window window
       window_id = Abi.arena_insert_window @pointer, window.pointer
       @windows[window_id] = window
-      @main_window ||= window_id
+      @main_window ||= window
       window.arena = self
       @window_threads[window_id] = Thread.new do
         loop do
@@ -165,9 +167,7 @@ module Kredki
       if @windows.empty?
         terminate!
       else
-        if @main_window == window_id
-          @main_window = @windows.keys.first
-        end
+        @main_window = @windows.values.first if @main_window == window
       end
     end
 

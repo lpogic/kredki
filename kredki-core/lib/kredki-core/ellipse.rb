@@ -4,67 +4,42 @@ require_relative 'shape'
 module Kredki
   class Ellipse < Shape
 
-    def initialize r = 50, x = 100, y = 100, **params, &block
-      @rx = nil
-      @ry = nil
-      super x:, y:, r:, **params, &block
+    def initialize r = 50, x = 100, y = 100
+      super x, y
+      alter r:;
     end
 
-    def rx! rx
+    aliasing def rx! rx
       set_rx rx
-    end
+    end, :rx=, :radius_x!, :radius_x=
 
-    alias_method :rx=, :rx!
-
-    def rx
+    aliasing def rx
       @rx
-    end
+    end, :radius_x
 
-    alias_method :radius_x=, :rx=
-    alias_method :radius_x!, :rx!
-    alias_method :radius_x, :rx
-
-    def ry! ry
+    aliasing def ry! ry
       set_ry ry
-    end
+    end, :ry=, :radius_y!, :radius_y=
 
-    alias_method :ry=, :ry!
-
-    def ry
+    aliasing def ry
       @ry
-    end
+    end, :radius_y
 
-    alias_method :radius_y=, :ry=
-    alias_method :radius_y!, :ry!
-    alias_method :radius_y, :ry
-
-    def r! r
+    aliasing def r! r
       set_r r
-    end
+    end, :r=, :radius!, :radius=
 
-    alias_method :r=, :r!
-
-    def r
+    aliasing def r
       @rx == @ry ? @rx : [@rx, @ry].max
-    end
+    end, :radius
 
-    alias_method :radius=, :r=
-    alias_method :radius!, :r!
-    alias_method :radius, :r
-
-    def d! d
+    aliasing def d! d
       set_r d / 2
-    end
-
-    alias_method :d=, :d!
-
-    def d 
+    end, :d=, :diameter!, :diameter=
+    
+    aliasing def d 
       r * 2
-    end
-
-    alias_method :diameter=, :d=
-    alias_method :diameter!, :d!
-    alias_method :diameter, :d
+    end, :diameter
 
     #internal api
 
@@ -72,28 +47,31 @@ module Kredki
 
     def reset!
       super
+      result = false
       if @rx && @ry
         ellipse_at! 0, 0, @rx, @ry
+        result = true
       end
       update
+      result
     end
 
     def set_rx rx
-      if rx != @rx
+      rx != @rx && begin
         @rx = rx
         reset!
       end
     end
 
     def set_ry ry
-      if ry != @ry
+      ry != @ry && begin
         @ry = ry
         reset!
       end
     end
 
     def set_r r
-      if r != @rx || r != @ry
+      (r != @rx || r != @ry) && begin
         @rx = @ry = r
         reset!
       end

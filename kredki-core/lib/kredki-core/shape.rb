@@ -6,15 +6,13 @@ module Kredki
   class Shape < Paint
     include Alterable
 
-    Kredki[self, :color] = :white
-
-    def initialize x = 100, y = 100, **params, &block
+    def initialize x = 100, y = 100, color = :white
       super Abi.shape_new
       ObjectSpace.define_finalizer(self, Shape.proc.finalize(@pointer))
 
       Shape.init_flags self
       
-      alter x:, y:, color: Kredki[self.class, :color], **params, &block
+      alter x:, y:, color:;
     end
 
     def move_to! x, y
@@ -53,11 +51,11 @@ module Kredki
     end
 
     def color! *color
-      set_fill_color *Kredki.color(color.extract || Kredki[self.class, :color]).to_rgba_array
+      set_fill_color *Kredki.color(color.extract).to_rgba_array
     end
 
-    def color=(color)
-      set_fill_color *Kredki.color(color || Kredki[self.class, :color]).to_rgba_array
+    def color= color
+      set_fill_color *Kredki.color(color).to_rgba_array
     end
 
     alias_method :fill_color!, :color!
@@ -67,41 +65,44 @@ module Kredki
       enum :winding, :even_odd
     end
 
-    def fill_rule!(rule) = set_fill_rule FillRule[rule || :winding].to_i
-    alias_method :fill_rule=, :fill_rule!
+    aliasing def fill_rule! rule
+      set_fill_rule FillRule[rule || :winding].to_i
+    end, :fill_rule=
     
     def stroke_color! *color
-      set_stroke_color *Kredki.color(color.extract).to_array
+      set_stroke_color *Kredki.color(color.extract).to_rgba_array
     end
 
-    def stroke_color=(color)
-      set_stroke_color *Kredki.color(color).to_array
+    def stroke_color= color
+      set_stroke_color *Kredki.color(color).to_rgba_array
     end
 
 
-    def stroke_width!(width) = set_stroke_width width
-    alias_method :stroke_width=, :stroke_width!
+    aliasing def stroke_width! width
+      set_stroke_width width
+    end, :stroke_width=
 
     class StrokeCap
       enum :square, :round, :butt
     end
 
-    def stroke_cap!(cap) = set_stroke_cap StrokeCap[cap].to_i
-    alias_method :stroke_cap=, :stroke_cap!
+    aliasing def stroke_cap! cap
+      set_stroke_cap StrokeCap[cap].to_i
+    end, :stroke_cap=
 
     class StrokeJoin
       enum :bevel, :round, :miter
     end
 
-    def stroke_join!(join) = set_stroke_join StrokeCap[join].to_i
-    alias_method :stroke_join=, :stroke_join!
+    aliasing def stroke_join! join
+      set_stroke_join StrokeJoin[join].to_i
+    end, :stroke_join=
 
-
-    def stroke_dash=(dash_pattern)
+    def stroke_dash! *dash_pattern
       set_stroke_dash_pattern dash_pattern
     end
 
-    def stroke_dash! *dash_pattern
+    def stroke_dash= dash_pattern
       set_stroke_dash_pattern dash_pattern
     end
 

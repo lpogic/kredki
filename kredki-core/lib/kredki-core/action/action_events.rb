@@ -17,13 +17,11 @@ require_relative '../event/step_event'
 module Kredki
   module ActionEvents
 
-    def on_key_down! *filtered_keys, &block
+    aliasing def on_key! *filtered_keys, &block
       keycodes = keyboard.keycodes *filtered_keys
       callings = (@on_event[KeyDownEvent] ||= KeyboardEventCallings.new)[*keycodes]
       block ? callings.attach!(block) : callings
-    end
-
-    alias_method :on_key!, :on_key_down!
+    end, :on_key_down!
 
     def on_key_up! *filtered_keys, &block
       keycodes = keyboard.keycodes *filtered_keys
@@ -39,19 +37,15 @@ module Kredki
       on_event! MouseMoveEvent, &block
     end
 
-    def on_mouse_scroll! &block
+    aliasing def on_scroll! &block
       on_event! MouseScrollEvent, &block
-    end
+    end, :on_mouse_scroll!
 
-    alias_method :on_scroll!, :on_mouse_scroll!
-
-    def on_mouse_button! *filtered_buttons, &block
+    aliasing def on_mouse_button! *filtered_buttons, &block
       indexes = mouse.indexes *filtered_buttons
       callings = (@on_event[MouseButtonDownEvent] ||= MouseEventCallings.new)[*indexes]
       block ? callings.attach!(block) : callings
-    end
-
-    alias_method :on_mouse_button_down!, :on_mouse_button!
+    end, :on_mouse_button_down!
 
     def on_mouse_button_up! *filtered_buttons, &block
       indexes = mouse.indexes *filtered_buttons
@@ -59,14 +53,12 @@ module Kredki
       block ? callings.attach!(block) : callings
     end
 
-    def on_joystick_button_down! joystick, *filtered_buttons, &block
+    aliasing def on_joystick_button! joystick, *filtered_buttons, &block
       action_joystick = self.joystick joystick
       indexes = action_joystick.buttons *filtered_buttons
       callings = (@on_event[JoystickButtonDownEvent] ||= JoystickEventCallings.new)[*indexes, joystick: action_joystick.joystick]
       block ? callings.attach!(block) : callings
-    end
-
-    alias_method :on_joystick_button!, :on_joystick_button_down!
+    end, :on_joystick_button_down!
 
     def on_joystick_button_up! joystick, *filtered_buttons, &block
       action_joystick = self.joystick joystick

@@ -31,37 +31,35 @@ module Kredki
       @y
     end
 
-    aliasing def xy! x, y
+    def xy! x, y
       set_xy x, y
-    end, :xy=
-
-    def rotation! rotation
-      set_rotation rotation
     end
 
-    alias_method :rotation=, :rotation!
+    def xy= xy
+      set_xy *xy
+    end
+
+    aliasing def rotation! rotation
+      set_rotation rotation
+    end, :rotation=
 
     def rotation
       @rotation
     end
 
-    def scale! scale
+    aliasing def scale! scale
       set_scale scale
-    end
+    end, :scale=
 
-    alias_method :scale=, :scale!
-    
     def bounds
       bounds = Abi::Bounds.malloc(Fiddle::RUBY_FREE)
       Abi.paint_get_bounds @pointer, bounds, 1
       bounds
     end
 
-    def opacity! opacity
+    aliasing def opacity! opacity
       set_opacity opacity
-    end
-
-    alias_method :opacity=, :opacity!
+    end, :opacity=
 
     class CompositeMethod
       enum :none, :clip, :alpha, :inverse_alpha, :luma, :inverse_luma
@@ -85,12 +83,10 @@ module Kredki
         :hardlight, :softlight
     end
 
-    def blend! blend
+    aliasing def blend! blend
       set_blend BlendMethod[blend || :normal].to_i
-    end
+    end, :blend=
     
-    alias_method :blend=, :blend!
-
     def detach!
       @owner&.remove_paint self
     end
@@ -140,62 +136,52 @@ module Kredki
     end
 
     def set_x x
-      if x != @x
+      x != @x && begin
         @x = x
-        if @x && @y
-          set_translation @x, @y
-          return true
-        end
+        @x && @y && (set_translation @x, @y)
       end
-      return false
     end
 
     def set_y y
-      if y != @y
+      y != @y && begin
         @y = y
-        if @x && @y
-          set_translation @x, @y
-          return true
-        end
+        @x && @y && (set_translation @x, @y)
       end
-      return false
     end
 
     def set_xy x, y
-      if x != @x || y != @y
+      (x != @x || y != @y) && begin
         @x = x
         @y = y
-        if @x && @y
-          set_translation @x, @y
-          return true
-        end
+        @x && @y && (set_translation @x, @y)
       end
-      return false
     end
 
     def set_rotation rotation
-      if @rotation != rotation
+      @rotation != rotation && begin
         @rotation = rotation
         Abi.paint_set_rotation @pointer, rotation
         update
-        return true
+        true
       end
-      return false
     end
 
     def set_scale scale
       Abi.paint_set_scale @pointer, scale
       update
+      true
     end
 
     def set_opacity opacity
       Abi.paint_set_opacity @pointer, opacity
       update
+      true
     end
 
     def set_translation x, y
       Abi.paint_set_translation @pointer, x, y
       update
+      true
     end
 
     def set_blend blend_method

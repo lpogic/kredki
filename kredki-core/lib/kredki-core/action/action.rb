@@ -1,10 +1,16 @@
 require_relative '../scene'
 require_relative '../event/step_event'
+require_relative 'action_events'
+require_relative '../context/context'
+require 'forwardable'
 
 module Kredki
   class Action < Scene
+    include ActionEvents
+    include Context
+    extend Forwardable
     
-    def initialize **params, &block
+    def initialize
 
       @step_callback = Fiddle::Closure::BlockCaller.new(Fiddle::TYPE_VOID, [Fiddle::TYPE_INT], &proc.step)
 
@@ -28,41 +34,6 @@ module Kredki
 
     def action
       self
-    end
-
-    def clipboard
-      Kredki.clipboard
-    end
-
-    def keyboard &block
-      Action::Keyboard.new(self, Kredki.keyboard).tap{|k| k.instance_exec &block if block }
-    end
-
-    def mouse &block
-      Action::Mouse.new(self, Kredki.mouse).tap{|m| m.instance_exec &block if block }
-    end
-
-    def joystick param = nil, &block
-      joystick = case param
-      when Joystick
-        param
-      when Kredki::Joystick
-        Action::Joystick.new self, param
-      else
-        j = Kredki.joystick(param)
-        raise "Joystick #{param} not found" if !j
-        Action::Joystick.new self, j
-      end
-      joystick.instance_exec &block if block
-      joystick
-    end
-
-    def push_animation animation
-      @animations << animation
-    end
-
-    def remove_animation animation
-      @animations.delete animation
     end
 
     def color! *color
@@ -99,8 +70,8 @@ module Kredki
       end
     end
 
-    require_relative 'action_events'
-    include ActionEvents
+    def_delegators :window,
+      :wh, :size, :w, :width, :h, :height
 
     #internal api
 
@@ -135,6 +106,14 @@ module Kredki
       [x, y]
     end
 
+    def push_animation animation
+      @animations << animation
+    end
+
+    def remove_animation animation
+      @animations.delete animation
+    end
+
     private
 
     def step ms
@@ -142,13 +121,7 @@ module Kredki
       @jobs.filter!(&:audit)
       @animations.each{ _1.step ms }
       event StepEvent.new
-      # @on_step&.call ms
     end
-
 
   end
 end
-
-require_relative 'action_keyboard'
-require_relative 'action_mouse'
-require_relative 'action_joystick'

@@ -6,7 +6,7 @@ module Kredki
       @mutex = Thread::Mutex.new
       @repeat = repeat
       @job = b
-      @on_tip = nil
+      @on_tip = EventCallings.new
       self.run if run
     end
 
@@ -26,35 +26,37 @@ module Kredki
     end
 
     def on_tip &b
-      @on_tip = b
+      @on_tip << b
       self
-    end
-
-    def audit
-      while !@tips.empty?
-        tip = @tips.pop
-        @on_tip&.call tip, self
-      end
-      @thread ? @thread.alive? : !!@job
     end
 
     attr_accessor :tips
     attr :repeat
 
-    def <<(value)
+    def << value
       @tips << value
       self
     end
 
-    def repeat=(repeat)
+    aliasing def repeat! repeat
       @mutex.synchronize do
         @repeat = repeat
       end
-    end
+    end, :repeat=
 
-    def cancel
+    def cancel!
       @thread&.kill
       @thread = @job = nil
+    end
+
+    #internal api
+
+    def audit
+      while !@tips.empty?
+        tip = @tips.pop
+        @on_tip.call tip
+      end
+      @thread ? @thread.alive? : !!@job
     end
   end
 end

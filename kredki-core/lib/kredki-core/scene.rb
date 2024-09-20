@@ -9,13 +9,13 @@ module Kredki
       struct :index, :shown
     end
 
-    def initialize x: 0, y: 0, **params, &block
+    def initialize x = 0, y = 0
       super Abi.scene_new
       ObjectSpace.define_finalizer(self, self.class.proc.finalize(@pointer))
 
       @paints = {}
 
-      alter x:, y:, **params, &block
+      alter x:, y:;
     end
 
     def shape! ...
@@ -74,7 +74,7 @@ module Kredki
       index = @paints.size - index + 1 if index < 0
       if show
         if index < @paints.size
-          Abi.scene_insert @pointer, index, paint.pointer
+          Abi.scene_insert @pointer, @paints.each_value.count{|state| state.shown && state.index < index }, paint.pointer
         else
           Abi.scene_push @pointer, paint.pointer
         end
@@ -108,7 +108,7 @@ module Kredki
     def show_paint paint
       if (state = @paints[paint])&.shown.!
         if state.index + 1 < @paints.size
-          Abi.scene_insert @pointer, index, paint.pointer
+          Abi.scene_insert @pointer, @paints.each_value.count{|s| s.shown && s.index < state.index }, paint.pointer
         else
           Abi.scene_push @pointer, paint.pointer
         end
