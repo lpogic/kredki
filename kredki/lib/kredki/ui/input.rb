@@ -30,7 +30,7 @@ module Kredki
             selection.h = h
             cursor.h = h
             p0.h = text.h + 10
-          end.call
+          end.resolve
         end
 
         pad.w = w - 10
@@ -78,17 +78,8 @@ module Kredki
           end
         end
     
-    
-        on_text! do |e|
-          str = text.string
-          if str != ""
-            text.string = str[...@selection_min] + e[] + str[@selection_max..]
-          else
-            text.string = e[]
-          end
-          @selection_min = @selection_max = @cursor_position = @selection_min + e[].length
-          @update_cursor.call :right
-          p0.event PadEditEvent.new
+        on_text! do |te|
+          paste te[]
         end
     
         on_key! :left do |e|
@@ -119,38 +110,19 @@ module Kredki
           end
           @update_cursor.call :right
         end
-    
+
         on_key! :backspace do
-          str = text.string
-          if @selection_min != @selection_max
-            text.string = str[...@selection_min] + str[@selection_max..]
-            @selection_max = @cursor_position = @selection_min
-            p0.event PadEditEvent.new
-          elsif @cursor_position > 0
-            text.string = str[...(@cursor_position - 1)] + str[@cursor_position..]
-            @selection_min = @selection_max = @cursor_position -= 1
-            p0.event PadEditEvent.new
-          end
-          @update_cursor.call
+          backspace
         end
     
         on_key! :delete do
-          str = text.string
-          if @selection_min != @selection_max
-            text.string = str[...@selection_min] + str[@selection_max..]
-            @selection_max = @cursor_position = @selection_min
-            p0.event PadEditEvent.new
-          elsif @cursor_position < str.length
-            text.string = str[...@cursor_position] + str[(@cursor_position + 1)..]
-            p0.event PadEditEvent.new
-          end
-          @update_cursor.call
+          delete
         end
     
         on_state! do
           color = Kredki.color :gray
           body.color = mouse_in? ? color.light(20) : color
-        end.call
+        end.resolve
 
         on_focus_gain! do
           cursor.show!
@@ -158,9 +130,35 @@ module Kredki
 
         on_focus_lose! do
           cursor.hide!
-        end.call
+        end.resolve
+
+        on_edit! do |e|
+          @text.string = @text.string.then{|s| s == "" ? e.string : s[...e.selection_min] + e.string + s[e.selection_max..]}
+          @selection_min = @selection_max = @cursor_position = e.selection_min + e.string.length
+          @update_cursor.call :right
+        end
 
         @text = text
+      end
+
+      def paste pasted
+        report EditEvent.new @selection_min, @selection_max, pasted, :paste
+      end
+
+      def backspace
+        if @selection_min != @selection_max
+          report EditEvent.new @selection_min, @selection_max, "", :backspace
+        elsif @cursor_position > 0
+          report EditEvent.new @cursor_position - 1, @cursor_position, "", :backspace
+        end
+      end
+
+      def delete
+        if @selection_min != @selection_max
+          report EditEvent.new @selection_min, @selection_max, "", :delete
+        elsif @cursor_position < @text.string.length
+          report EditEvent.new @cursor_position, @cursor_position + 1, "", :delete
+        end
       end
 
       aliasing def string! str
@@ -174,7 +172,7 @@ module Kredki
       end
 
       def on_edit! &block
-        on_event! PadEditEvent, &block
+        on! EditEvent, &block
       end
 
       def autosized?

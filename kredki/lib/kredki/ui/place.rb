@@ -122,7 +122,7 @@ module Kredki
         parent.on_resize! do
           update_size
           update_cars
-        end.call
+        end.resolve
 
         body.hide!
       end
@@ -168,14 +168,15 @@ module Kredki
         end
       end
 
-      def gain_point x, y, current_mouse_pad, event
+      def point_pads x, y, hash = {}
         if mousy? && show?
+          hash[self] = [x, y]
           x -= self.x
           y -= self.y
-          @mouse_pad = @pads.reverse_each.find{ _1.gain_point x, y, @mouse_pad, event }
-          return @mouse_pad.nil?.!
+          return true if @pads.reverse_each.find{ _1.point_pads x, y, hash }
+          hash.delete self
         end
-        return false 
+        return false
       end
       
       def autosized?

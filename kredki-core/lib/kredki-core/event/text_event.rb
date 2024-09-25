@@ -1,7 +1,7 @@
 require_relative 'event'
 
 module Kredki
-  class TextEvent < Event
+  class TextEvent < AbiEvent
     
     def initialize ptr, abi
       super abi

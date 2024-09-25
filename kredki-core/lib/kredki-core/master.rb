@@ -87,6 +87,12 @@ class Array
   def extract
     size > 1 ? self : first
   end
+
+  def polarize other
+    both = []
+    others = other.reject{|item| both << item if include? item }
+    [self - both, both, others]
+  end
 end
 
 module Kredki

@@ -1,8 +1,65 @@
+require 'kredki-core/event/key_event'
+require 'kredki-core/event/text_event'
+require 'kredki-core/event/mouse_button_event'
+require 'kredki-core/event/mouse_move_event'
+require 'kredki-core/event/mouse_scroll_event'
+require 'kredki-core/event/joystick_event'
+require 'kredki-core/event/drop_event'
+require 'kredki-core/event/quit_event'
+require 'kredki-core/event/window_event'
+require 'kredki-core/event/step_event'
 require 'forwardable'
 
 module Kredki
   module UI
-    class PadMouseEvent
+
+    class Event
+    
+      model :target do
+        @resolved = false
+        @forward = false
+        @break = false
+        @mode = :default
+      end
+  
+      attr_accessor :mode
+      
+      def [](key)
+        send key
+      end
+  
+      def resolved?
+        @resolved
+      end
+  
+      def resolve
+        @resolved = true
+      end
+  
+      def forward?
+        @forward
+      end
+  
+      def forward f = true
+        @forward = f
+      end
+  
+      def break?
+        @break
+      end
+  
+      def break b = true
+        @break = b
+      end
+  
+      def break_forward
+        @break = true
+        @forward = true
+      end
+  
+    end
+  
+    class MouseEvent < Event
       extend Forwardable
 
       model :origin, :x, :y do
@@ -22,197 +79,168 @@ module Kredki
         :symbol, :button, :repeat?, :clicks
     end
 
-    class PadMouseMoveEvent < PadMouseEvent
+    class MouseMoveEvent < MouseEvent
     end
 
-    class PadMouseButtonDownEvent < PadMouseEvent
+    class MouseButtonDownEvent < MouseEvent
     end
 
-    class PadMouseButtonUpEvent < PadMouseEvent
+    class MouseButtonUpEvent < MouseEvent
     end
 
-    class PadDropEvent < PadMouseEvent
+    class DropEvent < MouseEvent
     end
 
-    class PadClickEvent < PadMouseEvent
+    class ClickEvent < MouseEvent
     end
 
-    class PadDragEvent < PadMouseEvent
+    class DragEvent < MouseEvent
     end
 
-    class PadShowEvent
+    class ShowEvent < Event
     end
 
-    class PadHideEvent
+    class HideEvent < Event
     end
 
-    class PadMoveEvent
+    class MoveEvent < Event
     end
 
-    class PadResizeEvent
+    class ResizeEvent < Event
     end
 
-    class PadEnterEvent
+    class EnterEvent < Event
     end
 
-    class PadLeaveEvent
+    class LeaveEvent < Event
     end
 
-    class PadFocusGainEvent
+    class FocusGainEvent < Event
     end
 
-    class PadFocusLoseEvent
+    class FocusLoseEvent < Event
     end
 
-    class PadStateEvent
+    class StateEvent < Event
     end
 
-    class PadEditEvent
+    class EditEvent < Event
+      model :selection_min, :selection_max, :string, :type
+
+      def [](key = :string)
+        send key
+      end
     end
 
-    class PadChangeEvent
+    class ChangeEvent < Event
     end
 
     module PadEvents
 
-      def on_key_down! *filtered_keys, &block
-        keycodes = keyboard.keycodes *filtered_keys
-        callings = (@on_event[KeyDownEvent] ||= KeyboardEventCallings.new)[*keycodes]
-        block ? callings.attach!(block) : callings
+      aliasing def on_key! *filtered_keys, mode: :default, &block
+        keycodes = keyboard.keycodes filtered_keys
+        @event_manager.keyboard_manager KeyDownEvent, keycodes, block, mode
+      end, :on_key_down!
+
+      def on_key_up! *filtered_keys, mode: :default, &block
+        keycodes = keyboard.keycodes filtered_keys
+        @event_manager.keyboard_manager KeyUpEvent, keycodes, block, mode
       end
 
-      alias_method :on_key!, :on_key_down!
-
-      def on_key_up! *filtered_keys, &block
-        keycodes = keyboard.keycodes *filtered_keys
-        callings = (@on_event[KeyUpEvent] ||= KeyboardEventCallings.new)[*keycodes]
-        block ? callings.attach!(block) : callings
+      def on_text! mode: :default, &block
+        on! TextEvent, &block
+      end
+  
+      aliasing def on_mouse_button! *filtered_buttons, mode: :default, &block
+        indexes = mouse.indexes filtered_buttons
+        @event_manager.mouse_manager MouseButtonDownEvent, indexes, block, mode
+      end, :on_mouse_button_down!
+  
+      def on_mouse_button_up! *filtered_buttons, mode: :default, &block
+        indexes = mouse.indexes filtered_buttons
+        @event_manager.mouse_manager MouseButtonUpEvent, indexes, block, mode
+      end
+  
+      def on_mouse_move! mode: :default, &block
+        on! MouseMoveEvent, mode:, &block
       end
 
-      def on_text! &block
-        on_event! TextEvent, &block
+      aliasing def on_scroll! mode: :default, &block
+        on! MouseScrollEvent, mode:, &block
+      end, :on_mouse_scroll!
+
+      def on_external_drop! mode: :default, &block
+        on! FileDropEvent, mode:, &block
       end
 
-      def on_mouse_move! &block
-        on_event! PadMouseMoveEvent, &block
-      end
-
-      def on_mouse_scroll! &block
-        on_event! MouseScrollEvent, &block
-      end
-
-      alias_method :on_scroll!, :on_mouse_scroll!
-
-      def on_mouse_button! *filtered_buttons, &block
-        indexes = mouse.indexes *filtered_buttons
-        callings = (@on_event[PadMouseButtonDownEvent] ||= MouseEventCallings.new)[*indexes]
-        block ? callings.attach!(block) : callings
-      end
-
-      alias_method :on_mouse_button_down!, :on_mouse_button!
-
-      def on_mouse_button_up! *filtered_buttons, &block
-        indexes = mouse.indexes *filtered_buttons
-        callings = (@on_event[PadMouseButtonUpEvent] ||= MouseEventCallings.new)[*indexes]
-        block ? callings.attach!(block) : callings
-      end
-
-      def on_joystick_button_down! joystick, *filtered_buttons, &block
+      aliasing def on_joystick_button! joystick, *filtered_buttons, mode: :default, &block
         action_joystick = self.joystick joystick
-        indexes = action_joystick.buttons *filtered_buttons
-        callings = (@on_event[JoystickButtonDownEvent] ||= JoystickEventCallings.new)[*indexes, joystick: action_joystick.joystick]
-        block ? callings.attach!(block) : callings
-      end
+        indexes = action_joystick.buttons filtered_buttons
+        @event_manager.joystick_manager JoystickButtonDownEvent, action_joystick.joystick, indexes, block, mode
+      end, :on_joystick_button_down!
 
-      alias_method :on_joystick_button!, :on_joystick_button_down!
-
-      def on_joystick_button_up! joystick, *filtered_buttons, &block
+      def on_joystick_button_up! joystick, *filtered_buttons, mode: :default, &block
         action_joystick = self.joystick joystick
-        indexes = action_joystick.buttons *filtered_buttons
-        callings = (@on_event[JoystickButtonUpEvent] ||= JoystickEventCallings.new)[*indexes, joystick: action_joystick.joystick]
-        block ? callings.attach!(block) : callings
+        indexes = action_joystick.buttons filtered_buttons
+        @event_manager.joystick_manager JoystickButtonUpEvent, action_joystick.joystick, indexes, block, mode
       end
 
-      def on_joystick_axis! joystick, *filtered_axes, &block
+      def on_joystick_axis! joystick, *filtered_axes, mode: :default, &block
         action_joystick = self.joystick joystick
-        indexes = action_joystick.axes *filtered_axes
-        callings = (@on_event[JoystickAxisEvent] ||= JoystickEventCallings.new)[*indexes, joystick: action_joystick.joystick]
-        block ? callings.attach!(block) : callings
+        indexes = action_joystick.axes filtered_axes
+        @event_manager.joystick_manager JoystickAxisEvent, action_joystick.joystick, indexes, block, mode
       end
 
-      def on_drop_begin! &block
-        on_event! DropBeginEvent, &block
-      end
-
-      def on_drop! &block
-        on_event! FileDropEvent, &block
-      end
-
-      def on_drop_end! &block
-        on_event! DropEndEvent, &block
-      end
-
-      def on_show! &block
-        on_event! PadShowEvent, &block
+      def on_show! mode: :default, &block
+        on! ShowEvent, mode:, &block
       end 
 
-      def on_hide! &block
-        on_event! PadHideEvent, &block
+      def on_hide! mode: :default, &block
+        on! HideEvent, mode:, &block
       end
 
-      def on_move! &block
-        on_event! PadMoveEvent, &block
+      def on_move! mode: :default, &block
+        on! MoveEvent, mode:, &block
       end
 
-      def on_resize! &block
-        on_event! PadResizeEvent, &block
+      def on_resize! mode: :default, &block
+        on! ResizeEvent, mode:, &block
       end
 
-      def on_enter! &block
-        on_event! PadEnterEvent, &block
+      def on_enter! mode: :default, &block
+        on! EnterEvent, mode:, &block
       end
 
-      def on_leave! &block
-        on_event! PadLeaveEvent, &block
+      def on_leave! mode: :default, &block
+        on! LeaveEvent, mode:, &block
       end
 
-      def on_focus_gain! &block
-        on_event! PadFocusGainEvent, &block
+      def on_focus_gain! mode: :default, &block
+        on! FocusGainEvent, mode:, &block
       end
 
-      def on_focus_lose! &block
-        on_event! PadFocusLoseEvent, &block
+      def on_focus_lose! mode: :default, &block
+        on! FocusLoseEvent, mode:, &block
       end
 
-      def on_click! &block
-        on_event! PadClickEvent, &block
+      def on_click! mode: :default, &block
+        on! ClickEvent, mode:, &block
       end
 
-      def on_drag! &block
-        on_event! PadDragEvent, &block
+      def on_drag! mode: :default, &block
+        on! DragEvent, mode:, &block
       end
 
-      def on_drop! &block
-        on_event! PadDropEvent, &block
+      def on_drop! mode: :default, &block
+        on! DropEvent, mode:, &block
       end
 
-      def on_state! &block
-        on_event! PadStateEvent, &block
+      def on_state! mode: :default, &block
+        on! StateEvent, mode:, &block
       end
 
-      #internal api
-
-      def on_event! event_type, &block
-        callings = @on_event[event_type] ||= EventCallings.new
-        block ? callings.attach!(block) : callings
-      end
-
-      def event event, instant = false
-        if instant || !event_accumulator&.store(self, event)
-          return @on_event[event.class]&.call(event) || 0
-        else
-          return 0
-        end
+      def on! event_type, mode: :default, &block
+        @event_manager.manager event_type, block, mode
       end
     end
   end

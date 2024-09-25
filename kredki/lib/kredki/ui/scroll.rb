@@ -26,10 +26,11 @@ module Kredki
           pad.x! ((p0.w - pad.w) * @xslide.value).round if pad
         end
 
-        on_resize! do
-          update_car
-        end.call
-        
+        on_resize!{ update_car }.resolve
+        on_scroll! do |e|
+          p e
+        end
+
         body.hide!
       end
 

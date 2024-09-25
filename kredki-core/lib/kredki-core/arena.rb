@@ -7,7 +7,7 @@ require_relative 'event/quit_event'
 require_relative 'event/text_event'
 require_relative 'event/window_event'
 require_relative 'event/joystick_event'
-require_relative 'event/event_accumulator'
+require_relative 'event/event_director'
 
 module Kredki
   class Arena
@@ -19,7 +19,7 @@ module Kredki
       Abi.arena_set_event_handler @pointer, @event_callback
       @windows = {}
       @window_threads = {}
-      @event_accumulator = EventAccumulator.new
+      @event_director = EventDirector.new
     end
 
     def window! action = nil, *a, **na, &b
@@ -48,10 +48,10 @@ module Kredki
       Abi.arena_delete pointer
     end
 
-    attr :pointer, :event_accumulator
+    attr :pointer, :event_director
 
     def event event_type, event_ptr
-      case event_type
+      event = case event_type
       when 768
         abi = Abi::KeyboardEvent.new event_ptr
         window_event abi.window_id, KeyDownEvent.new(Kredki.keyboard, abi)
@@ -100,9 +100,9 @@ module Kredki
         when 12 then window_event abi_event.window_id, WindowFocusGainEvent.new(abi_event)
         when 13 then window_event abi_event.window_id, WindowFocusLoseEvent.new(abi_event)
         when 14 
-          events_called = window_event abi_event.window_id, WindowCloseEvent.new(abi_event)
-          @windows[abi_event.window_id]&.destroy! if events_called == 0
-          events_called
+          window_event abi_event.window_id, WindowCloseEvent.new(abi_event) do
+            @windows[abi_event.window_id]&.destroy!
+          end
         when 15 then window_event abi_event.window_id, WindowTakeFocusEvent.new(abi_event)
         when 16 then window_event abi_event.window_id, WindowHitTestEvent.new(abi_event)
         when 17 then window_event abi_event.window_id, WindowIccprofChangeEvent.new(abi_event)
@@ -122,27 +122,24 @@ module Kredki
       when 1541
         abi_event = Abi::JoyDeviceEvent.new event_ptr
         joystick = (Kredki.joysticks - Kredki.opened_joysticks.values).max{ _1.match abi_event.which } || Joystick.new
-        events_called = arena_event JoystickConnectEvent.new(joystick, abi_event)
-        if events_called == 0
+        arena_event JoystickConnectEvent.new(joystick, abi_event) do
           device_id = Abi.joystick_open abi_event.which
           Kredki.opened_joysticks[device_id] = joystick
           joystick.device_id = device_id
         end
-        events_called
       when 1542
         abi_event = Abi::JoyDeviceEvent.new event_ptr
         device_id = abi_event.which
         joystick = Kredki.opened_joysticks[device_id]
-        events_called = arena_event JoystickDisconnectEvent.new(joystick, abi_event)
-        if events_called == 0
+        arena_event JoystickDisconnectEvent.new(joystick, abi_event) do
           joystick = Kredki.opened_joysticks.delete device_id
           joystick&.device_id = nil
         end
-        events_called
       else # unsupported event
         # p event_type
-        0
+        nil
       end
+      event&.resolved? ? 1 : 0
     end
 
     def push_window window
@@ -173,16 +170,26 @@ module Kredki
 
     private
 
-    def window_event window_id, event
-      @event_accumulator.load do
-        @windows[window_id]&.event(event, true) || 0
+    def window_event window_id, event, &autoresolve
+      @event_director.stem do
+        @windows[window_id]&.resolve event
       end
+      if !event.resolved? && autoresolve
+        autoresolve.call event
+        event.resolve
+      end
+      event
     end
 
-    def arena_event event
-      @event_accumulator.load do
-        @windows.values.map{ _1.event(event, true) }.sum
+    def arena_event event, &autoresolve
+      @event_director.stem do
+        @windows.values.each{ _1.resolve event }
       end
+      if !event.resolved? && autoresolve
+        autoresolve.call event
+        event.resolve
+      end
+      event
     end
   end
 end

@@ -19,7 +19,7 @@ module Kredki
 
         on_resize! do
           selection.h = h
-        end.call
+        end.resolve
     
         @update_cursor = proc do
           x = text.substring_width @cursor_position
@@ -140,7 +140,7 @@ module Kredki
           w! @text.substring_width.ceil
           @selection_min = @selection_max = @cursor_position = 0
           @update_cursor.call
-          event PadResizeEvent.new
+          report ResizeEvent.new
           true
         end
       end, :s=, :string!, :string=
@@ -154,12 +154,6 @@ module Kredki
 
       def autosized?
         true
-      end
-    end
-
-    module PadBase
-      def label! ...
-        custom_pad!(Kredki::Label).alter(...)
       end
     end
   end

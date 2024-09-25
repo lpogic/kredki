@@ -1,5 +1,5 @@
 module Kredki
-  class MouseButtonEvent < Event
+  class MouseButtonEvent < AbiEvent
     
     model :mouse
 

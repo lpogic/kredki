@@ -11,11 +11,11 @@ module Kredki
       end
 
       def on_change! &block
-        on_event! PadChangeEvent, &block
+        on_event! ChangeEvent, &block
       end
 
       def on_edit! &block
-        on_event! PadEditEvent, &block
+        on_event! EditEvent, &block
       end
 
       def value! v
@@ -43,11 +43,11 @@ module Kredki
             y = [[0, e.y - h / 2].max, p0.h - h].min
             y! y
             p0.set_value 1.0 * y / (p0.h - h)
-            p0.event PadEditEvent.new
+            p0.report EditEvent.new
           end
     
           on_drop! do
-            p0.event PadChangeEvent.new
+            p0.report ChangeEvent.new
           end
 
           on_resize! do
@@ -82,11 +82,11 @@ module Kredki
             x = [[0, e.x - w / 2].max, p0.w - w].min
             x! x
             p0.set_value 1.0 * x / (p0.w - w)
-            p0.event PadEditEvent.new
+            p0.report EditEvent.new
           end
     
           on_drop! do
-            p0.event PadChangeEvent.new
+            p0.report ChangeEvent.new
           end
 
           on_resize! do

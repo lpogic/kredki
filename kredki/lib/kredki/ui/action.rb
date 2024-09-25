@@ -10,49 +10,34 @@ module Kredki
       
       def initialize
         super
-
-        @pads = []
-        @mouse_pad = nil
-        @keyboard_pad = nil
+        
         @button_pad = nil
+        @keyboard_pads = []
+        @mouse_pads = []
       end
-
-      attr :mouse_pad, :keyboard_pad, :button_pad
 
       def a
         self
       end
 
+      def parent
+        self
+      end
+
+      def mouse_pad
+        @mouse_pads.last
+      end
+
+      def keyboard_pad
+        @keyboard_pads.last
+      end
+
+      attr_accessor :button_pad
+      
       def_delegators :@background,
-        :color!, :color=
-
-      def new_pad klass
-        push_pad(klass.new).sketch_base
-      end
-
-      def push_pad pad, next_pad = nil, clip = true
-        index = next_pad && @paints[next_pad]&.index
-        push_paint(pad, true, index).alter parent: self, action: action
-        if index
-          pad_index = ([index, @pads.size].min...0).step(-1).find do |i|
-            @paints[@pads[i - 1]].index < index
-          end || 0
-          @pads.insert pad_index, pad
-        else
-          @pads << pad
-        end
-        event_accumulator.load do
-          update_point *mouse.position, false
-        end
-        pad
-      end
-
-      def remove_pad pad
-        @pads.delete pad
-        event_accumulator.load do
-          update_point *mouse.position, false
-        end
-      end
+        :color!, :color=,
+        :push_pad, :remove_pad, :new_pad,
+        :mouse_top, :keyboard_top, :button_top
 
       #internal api
 
@@ -61,88 +46,82 @@ module Kredki
 
         mouse do
           on_move! do |e|
-            p0.update_point e.x, e.y, e
+            p0.update_mouse_pad e.x, e.y, e
+            e.forward
           end
         
           on_button! do |e|
-            p0.mouse_event PadMouseButtonDownEvent.new e
+            p0.mouse_pad&.report MouseButtonDownEvent.new e
+            e.forward
           end
         
           on_button_up! do |e|
-            p0.mouse_event PadMouseButtonUpEvent.new e
+            p0.mouse_pad&.report MouseButtonUpEvent.new e
+            e.forward
           end
 
           on_drop! do |e|
-            p0.mouse_event PadDropEvent.new e, x, y
+            p0.mouse_pad&.report DropEvent.new e, x, y
+            e.forward
+          end
+
+          on_scroll! do |e|
+            p0.mouse_pad&.report e
+            e.forward
           end
         end
 
         keyboard do
           on_down! do |e|
-            p0.focus_event e
+            p0.keyboard_pad&.report e
+            e.forward
           end
 
           on_up! do |e|
-            p0.focus_event e
+            p0.keyboard_pad&.report e
+            e.forward
           end
 
           on_text! do |e|
-            p0.focus_event e
+            p0.keyboard_pad&.report e
+            e.forward
           end
         end
 
-        @background = pad! color: :black
+        @background = push_paint(Pad.new).alter parent: self, action: action, color: :black
         on_resize! do
           @background.size = window.size
-        end.call
+        end.resolve
       end
 
-      def update_point x, y, event = nil
+      def update_mouse_pad x, y, event = nil
         if @button_pad && event
-          @button_pad.mouse_event PadMouseMoveEvent.new(event, x, y)
+          @button_pad.report MouseMoveEvent.new(event, x, y)
         else
-          @mouse_pad = @pads.reverse_each.find{ _1.gain_point x, y, @mouse_pad, event }
+          @background.point_pads(x, y, mouse_pads = {})
+          @mouse_pads.reverse_each do |pad| 
+            pad.report LeaveEvent.new unless mouse_pads[pad]
+          end
+          mouse_pads_keys = mouse_pads.keys
+          mouse_pads_keys.each do |pad|
+            pad.report EnterEvent.new unless @mouse_pads.include? pad
+          end
+          mouse_top = mouse_pads_keys.last
+          mouse_top.report MouseMoveEvent.new(event, *mouse_pads[mouse_top]) if mouse_top
+          @mouse_pads = mouse_pads_keys
         end
       end
 
-      def mouse_event e
-        (@button_pad || @mouse_pad)&.mouse_event e
-      end
-
-      def gain_focus keyboard_pad = nil
-        if @keyboard_pad != keyboard_pad
-          @keyboard_pad&.lose_focus
-          @keyboard_pad = keyboard_pad
-          @keyboard_pad&.event PadFocusGainEvent.new
-          return false
+      def update_keyboard_pad keyboard_pad
+        if !keyboard_pad
+          @keyboard_pads.each{|pad| pad.report FocusLoseEvent.new }
         else
-          return true
+          keyboard_pads = keyboard_pad.sanc.to_a.reverse
+          pol = keyboard_pads.polarize @keyboard_pads
+          pol.last.reverse_each{|pad| pad.report FocusLoseEvent.new }
+          pol.first.each{|pad| pad.report FocusGainEvent.new }
+          @keyboard_pads = keyboard_pads
         end
-      end
-
-      def focus_event e
-        @keyboard_pad&.focus_event e
-      end
-
-      def gain_button button_pad = nil
-        if @button_pad != button_pad
-          @button_pad&.lose_button
-          @button_pad = button_pad
-          return false
-        else
-          return true
-        end
-      end
-
-      def lose_button
-        if @button_pad
-          @button_pad.lose_button
-          @button_pad = nil
-        end
-      end
-
-      def release_button button_pad = nil
-        lose_button if button_pad.nil? || @button_pad == button_pad
       end
     end
   end

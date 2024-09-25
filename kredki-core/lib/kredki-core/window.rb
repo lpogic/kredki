@@ -156,10 +156,10 @@ module Kredki
     attr :pointer
 
     def_delegators :action,
-      :event
+      :resolve
 
-    def event_accumulator
-      @arena&.event_accumulator
+    def event_director
+      @arena&.event_director
     end
 
     def update_paint paint
@@ -215,7 +215,7 @@ module Kredki
         abi.event = 5
         abi.data1 = width
         abi.data2 = height
-        event WindowResizeEvent.new abi 
+        resolve WindowResizeEvent.new abi 
       end
     end
 

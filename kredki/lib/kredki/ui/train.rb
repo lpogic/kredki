@@ -61,7 +61,7 @@ module Kredki
         end.max
         offset -= @space if offset > 0
         if h!(max_h || 100) | w!(offset)
-          event PadResizeEvent.new
+          report ResizeEvent.new
         end
       end
     end
@@ -76,7 +76,7 @@ module Kredki
         end.max
         offset -= @space if offset > 0
         if w!(max_w || 100) | h!(offset)
-          event PadResizeEvent.new
+          report ResizeEvent.new
         end
       end
     end

@@ -1,13 +1,14 @@
 require_relative '../scene'
 require_relative '../event/step_event'
 require_relative 'action_events'
+require_relative 'action_event_manager'
 require_relative '../context/context'
 require 'forwardable'
 
 module Kredki
   class Action < Scene
-    include ActionEvents
     include Context
+    include ActionEvents
     extend Forwardable
     
     def initialize
@@ -17,7 +18,7 @@ module Kredki
       @jobs = []
       @animations = []
       @on_step = nil
-      @on_event = {}
+      @event_manager = ActionEventManager.new
 
       super
     end
@@ -75,18 +76,14 @@ module Kredki
 
     #internal api
 
-    attr :step_callback
+    attr :step_callback, :event_manager
 
     def update_paint paint
       @owner&.update_paint paint
     end
 
-    def on_event
-      @on_event
-    end
-
-    def event_accumulator
-      @owner&.event_accumulator
+    def event_director
+      @owner&.event_director
     end
 
     def sketch p0
@@ -114,14 +111,22 @@ module Kredki
       @animations.delete animation
     end
 
+    def report event
+      event_director.push event, self
+    end
+
+    def resolve event
+      @event_manager.resolve event
+    end
+
     private
 
     def step ms
       @last_frame_ms = ms
       @jobs.filter!(&:audit)
       @animations.each{ _1.step ms }
-      event StepEvent.new
+      resolve StepEvent.new
     end
-
+    
   end
 end

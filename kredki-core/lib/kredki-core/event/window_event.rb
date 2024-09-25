@@ -1,7 +1,7 @@
 require_relative 'event'
 
 module Kredki
-  class WindowEvent < Event
+  class WindowEvent < AbiEvent
   end
 
   class WindowShowEvent < WindowEvent

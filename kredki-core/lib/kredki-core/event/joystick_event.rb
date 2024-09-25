@@ -1,5 +1,5 @@
 module Kredki
-  class JoystickEvent < Event
+  class JoystickEvent < AbiEvent
     model :joystick
   end
 

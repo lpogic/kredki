@@ -1,5 +1,5 @@
 module Kredki
-  class KeyEvent < Event
+  class KeyEvent < AbiEvent
     
     model :keyboard
 

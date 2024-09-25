@@ -1,4 +1,4 @@
 module Kredki
-  class StepEvent
+  class StepEvent < Event
   end
 end

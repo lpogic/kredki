@@ -1,7 +1,7 @@
 require_relative 'event'
 
 module Kredki
-  class MouseMoveEvent < Event
+  class MouseMoveEvent < AbiEvent
 
     model :mouse
 

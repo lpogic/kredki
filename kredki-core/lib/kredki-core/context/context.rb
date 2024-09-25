@@ -35,5 +35,9 @@ module Kredki
     def clipboard
       Kredki.clipboard
     end
+
+    def on! event_type, mode: :default, &block
+      @event_manager.manager event_type, block, mode
+    end
   end
 end
