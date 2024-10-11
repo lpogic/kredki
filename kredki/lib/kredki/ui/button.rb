@@ -14,7 +14,7 @@ module Kredki
 
       aliasing def color! color
         @base_color = Kredki.color color
-        update_color
+        report RepaintEvent.new
       end, :color=
 
       def_delegators :@label,
@@ -27,7 +27,9 @@ module Kredki
 
         @label = label! s: "Button", mousy: false
     
-        on_state!{ update_color }
+        on_repaint! do
+          update_color
+        end
 
         body.show!
         alter wh: 5, color: :gray
@@ -39,23 +41,22 @@ module Kredki
 
       def default_on_mouse_button_down e
         super
-        report StateEvent.new
+        report RepaintEvent.new
       end
 
       def default_on_mouse_enter e
         super
-        report StateEvent.new
+        report RepaintEvent.new
       end
 
       def default_on_mouse_leave e
         super
-        report StateEvent.new
+        report RepaintEvent.new
       end
 
       def default_on_mouse_button_up e
         super
-        report StateEvent.new
-        action.update_mouse_pad e.x, e.y
+        report RepaintEvent.new
       end
     end
   end

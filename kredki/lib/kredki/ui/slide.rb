@@ -2,6 +2,15 @@ module Kredki
   module UI
     class Slide < Pad
 
+      def sketch p0
+        super
+
+        on_mouse_button! mode: :aim do |e|
+          @handle.drag!
+          e.break
+        end
+      end
+
       def value
         @value
       end
@@ -11,20 +20,22 @@ module Kredki
       end
 
       def on_change! &block
-        on_event! ChangeEvent, &block
+        on! ChangeEvent, &block
       end
 
       def on_edit! &block
-        on_event! EditEvent, &block
+        on! EditEvent, &block
       end
 
-      def value! v
-        v = v.to_f
-        v = 1.0 if v > 1.0
-        v = 0.0 if v < 0.0
-        set_value v
-        set_offset v
-      end
+      aliasing def value! v
+        v = v.to_f.clamp 0.0..1.0
+        @value != v && begin
+          set_value v
+          set_offset v
+          report EditEvent.new
+          report ChangeEvent.new
+        end
+      end, :value=
 
       attr :handle
     end
@@ -40,7 +51,7 @@ module Kredki
         @handle = pad! h: 20, color: :gray do
         
           on_drag! do |e|
-            y = [[0, e.y - h / 2].max, p0.h - h].min
+            y = [[0, self.y + e.y - h / 2].max, p0.h - h].min
             y! y
             p0.set_value 1.0 * y / (p0.h - h)
             p0.report EditEvent.new
@@ -57,10 +68,6 @@ module Kredki
 
         on_resize! do
           @handle.y! (h - @handle.h) * value
-        end
-    
-        on_mouse_button! do |e|
-          @handle.drag!
         end
       end
 
@@ -79,7 +86,7 @@ module Kredki
         @handle = pad! w: 20, color: :gray do
         
           on_drag! do |e|
-            x = [[0, e.x - w / 2].max, p0.w - w].min
+            x = [[0, self.x + e.x - w / 2].max, p0.w - w].min
             x! x
             p0.set_value 1.0 * x / (p0.w - w)
             p0.report EditEvent.new
@@ -98,8 +105,9 @@ module Kredki
           @handle.x! (w - @handle.w) * value
         end
     
-        on_mouse_button! do |e|
+        on_mouse_button! mode: :aim do |e|
           @handle.drag!
+          e.break
         end
       end
 

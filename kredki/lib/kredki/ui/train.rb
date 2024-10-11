@@ -39,7 +39,7 @@ module Kredki
         pad
       end
 
-      def remove_pad pad
+      def remove_pad pad, transfer
         super
         car = @cars.to_en{|c, b| @cars == c.next_car ? b : c.next_car}.find{ _1.pad == pad }
         if car
@@ -49,19 +49,47 @@ module Kredki
           update_cars
         end
       end
+
+      def_flag :autosized!, true, true
     end
 
     class XTrain < Train
+      # def update_cars
+      #   offset = 0
+      #   max_h = @cars.to_en{|c, b| @cars == c.next_car ? b : c.next_car }.map do |c|
+      #     c.pad.x = offset
+      #     offset += c.pad.w + @space
+      #     c.pad.h
+      #   end.max
+      #   offset -= @space if offset > 0
+      #   if h!(max_h || 100) | w!(offset)
+      #     report ResizeEvent.new
+      #   end
+      # end
+
+      def reduce_child_w?
+        true
+      end
+
       def update_cars
-        offset = 0
-        max_h = @cars.to_en{|c, b| @cars == c.next_car ? b : c.next_car }.map do |c|
-          c.pad.x = offset
-          offset += c.pad.w + @space
-          c.pad.h
-        end.max
-        offset -= @space if offset > 0
-        if h!(max_h || 100) | w!(offset)
-          report ResizeEvent.new
+        if @autosized
+          offset = 0
+          max_h = @cars.to_en{|c, b| @cars == c.next_car ? b : c.next_car }.map do |c|
+            c.pad.x = offset
+            offset += c.pad.w + @space
+            c.pad.h
+          end.max
+          offset -= @space if offset > 0
+          h!(max_h || 100) | w!(offset)
+        else
+          offset = 0
+          @cars.to_en{|c, b| @cars == c.next_car ? b : c.next_car }.map do |c|
+            c.pad.x = offset
+            offset += c.pad.w + @space
+            c.pad.h = h if !c.pad.autosized?
+          end
+          offset -= @space if offset > 0
+          w! offset
         end
       end
     end

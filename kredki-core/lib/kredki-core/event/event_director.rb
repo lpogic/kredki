@@ -22,7 +22,7 @@ module Kredki
       resolve if !@stem
     end
 
-    def push_block event, block
+    def push_block event, &block
       @pairs << [event, block]
     end
 
@@ -33,7 +33,7 @@ module Kredki
         break unless pair
         event, target, mode = *pair
         if target.is_a? Proc
-          target.call event unless event.resolved?
+          target.call event
         else
           mode = case mode
           when :alt

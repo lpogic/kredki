@@ -97,7 +97,7 @@ module Kredki
         pad
       end
 
-      def remove_pad pad
+      def remove_pad pad, transfer
         if pad == @car&.pad
           @car.on_resize.detach!
           @car = nil

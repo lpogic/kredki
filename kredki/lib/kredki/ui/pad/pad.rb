@@ -15,6 +15,8 @@ module Kredki
 
       def initialize **params, &block
         super
+        @action = nil
+        @parent = nil
         @body = rectangle! x: 0, y: 0
         @names = {}
         @event_manager = PadEventManager.new
@@ -45,6 +47,8 @@ module Kredki
           else
             @names[arg] = true
           end
+        when Pad
+          arg.attach! self
         else
           raise "Unsupported << (#{arg} : #{arg.class})"
         end
@@ -75,8 +79,7 @@ module Kredki
 
       def default_on_mouse_button_down e
         gain_keyboard if keyboardy?
-        gain_button
-        @button_down_xy = e.xy
+        gain_button e.xy
       end
 
       def default_on_mouse_enter e
@@ -87,10 +90,9 @@ module Kredki
 
       def default_on_mouse_button_up e
         lose_button
-        @button_down_xy = nil
         if @drag
           @drag = false
-          report DropEvent.new e
+          report DropEvent.new e.origin
         elsif include? e.x, e.y
           report ClickEvent.new e
         end
@@ -99,28 +101,23 @@ module Kredki
       def default_on_mouse_move e
         if @drag || (@button_down_xy && ((@button_down_xy[0] - e.x) ** 2 + (@button_down_xy[1] - e.y) ** 2 > 100))
           @drag = true
-          report DragEvent.new e
+          report DragEvent.new e.origin
         end
       end
-          
-
-      attr_accessor :parent, :action
+      
+      attr :parent, :action, :body, :pads
       alias_method :a, :action
 
-      attr :state, :body, :mouse_pad, :keyboard_pad, :button_pad, :pads
-
       def include? x, y
-        sx = self.x
-        sy = self.y
-        x > sx && x < sx + @body.w && y > sy && y < sy + @body.h
+        x >= 0 && y >= 0 && x <= @body.w && y <= @body.h
       end
 
       def anc
-        to_en{|e, b| par = e.parent; par == action ? b : par }
+        to_en{|e, b| e.parent || b }
       end
 
       def sanc
-        to_e{|e, b| par = e.parent; par == action ? b : par }
+        to_e{|e, b| e.parent || b }
       end
 
       def mouse_in?
@@ -153,10 +150,8 @@ module Kredki
 
       def drag!
         gain_button
-        xy = mouse.xy
-        @button_down_xy = xy
         @drag = true
-        report DragEvent.new(nil, *xy)
+        report DragEvent.new(nil, *action.mouse.xy)
       end
 
       def drag?
@@ -205,8 +200,10 @@ module Kredki
       end
 
       def push_pad pad, next_pad = nil, clip = true
+        pad_parent = pad.parent
         index = next_pad && @paints[next_pad]&.index
-        push_paint(pad, true, index).alter parent: self, action: action
+        push_paint pad, true, index
+        pad.set_parent self
         if index
           pad_index = ([index, @pads.size].min...0).step(-1).find do |i|
             @paints[@pads[i - 1]].index < index
@@ -215,31 +212,38 @@ module Kredki
         else
           @pads << pad
         end
-        pad.clip! body if clip
-        event_director.stem do
+        if clip
+          pad.clip! body
+        elsif pad_parent
+          pad.clip! nil
+        end
+        action.event_director.stem do
           action.update_mouse_pad *mouse.position, false
-        end if mousy? && mouse_in?
+        end if mousy? && mouse_in? || pad.mousy? && pad.mouse_in?
         pad
       end
 
-      def remove_pad pad
+      def remove_pad pad, transfer
         @pads.delete pad
-        pad.composite! false
-        event_director.stem do
-          action.update_mouse_pad *mouse.position, false
-        end if mousy? && mouse_in?
+        if !transfer
+          pad.composite! false
+          action.event_director.stem do
+            action.update_mouse_pad *mouse.position, false
+          end if mousy? && mouse_in?
+        end
       end
 
       def attach! parent
         return if @parent == parent
-        detach! if @parent
+        raise "LOOP" if parent.sanc.find{ _1 == self }
+        detach! true if @parent
         @parent = parent
         @parent&.push_pad self
       end
 
-      def detach!
-        super
-        @parent&.remove_pad self
+      def detach! transfer = false
+        super()
+        @parent&.remove_pad self, transfer
         @parent = nil
       end
 
@@ -256,10 +260,6 @@ module Kredki
 
       #internal api
 
-      def event_director
-        parent&.event_director
-      end
-
       def sketch_base
         sketch self
         @sketched = true
@@ -268,7 +268,7 @@ module Kredki
       
       def set_size w, h
         body.wh!(w, h) && begin
-          event_director.stem do
+          action.event_director.stem do
             report ResizeEvent.new
             action.update_mouse_pad *mouse.position if mousy? && show?
           end
@@ -278,7 +278,7 @@ module Kredki
       
       def set_x x
         super && begin
-          event_director.stem do
+          action.event_director.stem do
             action.update_mouse_pad *mouse.position if mousy? && show?
             report MoveEvent.new
           end if mousy? && sketched?
@@ -288,7 +288,7 @@ module Kredki
 
       def set_y y
         super && begin
-          event_director.stem do
+          action.event_director.stem do
             action.update_mouse_pad *mouse.position if mousy? && show?
             report MoveEvent.new
           end if mousy? && sketched?
@@ -298,7 +298,7 @@ module Kredki
 
       def set_xy x, y
         super && begin
-          event_director.stem do
+          action.event_director.stem do
             action.update_mouse_pad *mouse.position, false
             report MoveEvent.new
           end if mousy? && sketched?
@@ -331,12 +331,10 @@ module Kredki
         end
       end
 
-      def point_pads x, y, hash = {}
-        if mousy? && show? && include?(x, y)
-          hash[self] = [x, y]
-          x -= self.x
-          y -= self.y
-          @pads.reverse_each.find{ _1.point_pads x, y, hash }
+      def point_pads x, y, pads, force = false
+        if force || (mousy? && show? && include?(x, y))
+          pads << self
+          @pads.reverse_each.find{ _1.point_pads x - _1.x, y - _1.y, pads }
           return true
         end
         return false
@@ -354,12 +352,14 @@ module Kredki
         set ? gain_keyboard : lose_keyboard
       end
 
-      def gain_button
-        action.button_pad = self
+      def gain_button xy = nil
+        @button_down_xy = xy
+        action.gain_button self
       end
 
       def lose_button
-        action.button_pad = nil if action.button_pad == self
+        @button_down_xy = nil
+        action.lose_button self
       end
 
       def set_button set
@@ -367,31 +367,65 @@ module Kredki
       end
 
       def translate x, y
-        parent.translate x + self.x, y + self. y
+        parent.translate x - self.x, y - self. y
       end
 
       def autosized?
         false
       end
 
-      def report event, &block
+      def reduce_child_w?
+        false
+      end
+
+      def reduce_child_h?
+        false
+      end
+
+      def report event
         event.target = self
-        ancs = anc.to_a
-        ed = event_director
-        ed.stem do
-          ancs.reverse_each do |pad|
-            ed.push event, pad, :aim
+        ancs = sanc.to_a
+        ed = action.event_director
+        if event.is_a? MouseEvent
+          ed.stem do
+            ancs.reverse_each do |pad|
+              ed.push_block event do
+                event.x -= pad.x
+                event.y -= pad.y
+              end
+              ed.push event, pad, :aim
+            end
+            ancs.each do |pad|
+              ed.push event, pad, :alt
+              ed.push_block event do
+                event.x += pad.x
+                event.y += pad.y
+              end
+            end
           end
-          ed.push event, self, :alt
-          ed.push_block event, block if block
-          ancs.each do |pad|
-            ed.push event, pad, :alt
+        else
+          ed.stem do
+            ancs.reverse_each do |pad|
+              ed.push event, pad, :aim
+            end
+            ancs.each do |pad|
+              ed.push event, pad, :alt
+            end
           end
         end
       end
 
       def resolve event, mode = :default
         @event_manager.resolve event, mode
+      end
+
+      def set_parent parent
+        @parent = parent
+        set_action parent&.action
+      end
+
+      def set_action action
+        @action = action
       end
     end
   end

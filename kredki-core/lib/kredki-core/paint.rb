@@ -39,6 +39,10 @@ module Kredki
       set_xy *xy
     end
 
+    def xy
+      [@x, @y]
+    end
+
     aliasing def rotation! rotation
       set_rotation rotation
     end, :rotation=

@@ -67,10 +67,6 @@ module Kredki
         @y ||= @origin.y
       end
 
-      def translate xo, yo
-        self.class.new @origin, @x - xo, @y - yo
-      end
-
       def xy
         [@x, @y]
       end
@@ -121,7 +117,7 @@ module Kredki
     class FocusLoseEvent < Event
     end
 
-    class StateEvent < Event
+    class RepaintEvent < Event
     end
 
     class EditEvent < Event
@@ -235,8 +231,8 @@ module Kredki
         on! DropEvent, mode:, &block
       end
 
-      def on_state! mode: :default, &block
-        on! StateEvent, mode:, &block
+      def on_repaint! mode: :default, &block
+        on! RepaintEvent, mode:, &block
       end
 
       def on! event_type, mode: :default, &block

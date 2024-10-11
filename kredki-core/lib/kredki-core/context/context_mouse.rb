@@ -55,8 +55,7 @@ module Kredki
       end
 
       def xy
-        offset = @context.parent.translate 0, 0
-        [@mouse.x - offset[0], mouse.y - offset[1]]
+        @context.translate *@mouse.xy
       end
 
       def_delegators :@mouse,

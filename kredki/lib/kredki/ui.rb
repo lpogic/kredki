@@ -16,6 +16,8 @@ module Kredki
   require_relative 'ui/slice'
   require_relative 'ui/place'
   require_relative 'ui/split'
+  require_relative 'ui/edit'
+  require_relative 'ui/image'
 
   module UI
     module PadBase
@@ -35,6 +37,8 @@ module Kredki
       def_pad :xsplit!, XSplit
       def_pad :ysplit!, YSplit
       def_pad :split!, YSplit
+      def_pad :edit!, Edit
+      def_pad :image!, Image
     end
   end
 

@@ -5,7 +5,7 @@ module Kredki
   class Picture < Paint
     include Alterable
 
-    def initialize source = nil, x = 100, y = 100
+    def initialize source = nil, x = 0, y = 0
       super Abi.picture_new
       ObjectSpace.define_finalizer(self, self.class.proc.finalize(@pointer))
 
@@ -39,6 +39,10 @@ module Kredki
     aliasing def h
       @height
     end, :height
+
+    aliasing def wh
+      [@width, @height]
+    end, :size
 
     #internal api
 

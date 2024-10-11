@@ -3,6 +3,10 @@ module Kredki
     
     model :keyboard
 
+    def key
+      @keyboard.key(@abi.sym)
+    end
+
     def symbol
       @keyboard.key(@abi.sym).to_sym
     end
@@ -63,7 +67,7 @@ module Kredki
       @abi.mod & 0b0010_0000_0000_0000 != 0
     end
 
-    def pause?
+    def scroll?
       @abi.mod & 0b1000_0000_0000_0000 != 0
     end
 

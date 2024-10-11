@@ -39,7 +39,7 @@ module Kredki
       end
     end
 
-    def down? button_param
+    def down? button_param = :primary
       is_button_down button(button_param).to_i
     end
 

@@ -27,8 +27,15 @@ module Kredki
         end
 
         on_resize!{ update_car }.resolve
-        on_scroll! do |e|
-          p e
+        on_scroll! mode: :aim do |e|
+          jump = keyboard.alt? ? 0.02 : 0.1
+          if keyboard.shift?
+            @yslide.value -= e.x * jump
+            @xslide.value -= e.y * jump
+          else
+            @yslide.value -= e.y * jump
+            @xslide.value -= e.x * jump
+          end
         end
 
         body.hide!
@@ -48,7 +55,7 @@ module Kredki
         end
       end
 
-      def remove_pad pad
+      def remove_pad pad, transfer
         if pad == @car&.pad
           @car.on_resize.detach!
           @car = nil
@@ -68,22 +75,20 @@ module Kredki
           if xscroll
             @xslide.w = yscroll ? w - 10 : w
             @xslide.handle.w = (w.to_f / pad.w * w).clamp(20, [w - 20, 20].max)
-            @yslide.x = @corner.x = w - 10
           else
             pad.x = 0
-            @yslide.x = @corner.x = pad.w - 10
           end
+          @yslide.x = @corner.x = w - 10
 
           
           @yslide.show = yscroll
           if yscroll
             @yslide.h = xscroll ? h - 10 : h
             @yslide.handle.h = (h.to_f / pad.h * h).clamp(20, [h - 20, 20].max)
-            @xslide.y = @corner.y = h - 10
           else
             pad.y = 0
-            @xslide.y = @corner.y = pad.h - 10
           end
+          @xslide.y = @corner.y = h - 10
 
           @corner.show = xscroll && yscroll
         else

@@ -16,8 +16,9 @@ module Kredki
         pad
       end
 
-      def remove_pad pad
-        super pad.parent
+      def remove_pad pad, transfer
+        super pad.parent, false
+        pad.parent.remove_pad pad, transfer
         update_slices
       end
     end

@@ -96,6 +96,8 @@ module Kredki
       end
 
       def sketch p0
+        super
+        
         parent.on_resize! do
           update_size
           update_cars
@@ -145,14 +147,13 @@ module Kredki
         pad
       end
 
-      def remove_pad pad
+      def remove_pad pad, transfer
         super
         car = @cars.to_en{|c, b| @cars == c.next_car ? b : c.next_car}.find{ _1.pad == pad }
         if car
           car.prev_car.next_car = car.next_car
           car.next_car.prev_car = car.prev_car
           car.on_resize.detach!
-          update_cars
         end
       end
 
