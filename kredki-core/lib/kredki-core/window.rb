@@ -125,7 +125,7 @@ module Kredki
       set_title title.to_s
     end, :title=
 
-    def_flag :always_on_top
+    def_flag :always_top
 
     aliasing def action! action = nil, &block
       set_action action || Window.default_action.new, &block
@@ -158,10 +158,6 @@ module Kredki
     def_delegators :action,
       :resolve
 
-    def event_director
-      @arena&.event_director
-    end
-
     def update_paint paint
       Abi.window_paint_to_update @pointer, paint.pointer
     end
@@ -178,6 +174,10 @@ module Kredki
       @action.sketch_base.alter(&block)
       update_paint @action
       @action
+    end
+
+    def paint_shown? action
+      @action == action && !!@arena
     end
 
     def set_bordered bordered
@@ -229,8 +229,8 @@ module Kredki
       Abi.window_set_title @pointer, title
     end
 
-    def set_always_on_top on_top
-      Abi.window_set_always_on_top @pointer, on_top
+    def set_always_top top
+      Abi.window_set_always_on_top @pointer, top
     end
   end
 end

@@ -9,20 +9,18 @@ module Kredki
       def sketch p0
         super
 
-        @edit = edit! autosized: false
-    
-        on_repaint! do
-          color = Kredki.color :gray
-          body.color = mouse_in? ? color.light(20) : color
-        end.resolve
+        @edit = edit! :keyboardy!, autosized: false
 
-        on_enter! do
-          report RepaintEvent.new
-        end
+        body.show!
+        alter wh: 5, color: :gray, stroke_width: 1
+        
+        repaint_event = proc{ report RepaintEvent.new }
+        on_enter! &repaint_event
+        on_leave! &repaint_event
+        on_focus_gain! &repaint_event
+        on_focus_lose! &repaint_event
 
-        on_leave! do
-          report RepaintEvent.new
-        end
+        on_repaint!(&proc.repaint).resolve
 
         on_mouse_button_up! mode: :aim do |e|
           if !@edit.drag? && include?(e.x, e.y)
@@ -30,13 +28,20 @@ module Kredki
             e.x -= self.x
             e.y -= self.y
             @edit.report ClickEvent.new e
-          else
-            e.forward
+            e.resolve
           end
         end
+      end
 
-        body.show!
-        alter wh: 5, color: :gray
+      aliasing def color! color
+        @base_color = Kredki.color color
+        report RepaintEvent.new
+      end, :color=
+
+      def repaint
+        body.color = mouse_in? ? @base_color.light(20) : @base_color
+        body.stroke_color = keyboard_in? ? Kredki.color(:yellow) : @base_color.dark(40)
+        # stroke_width: 2, stroke_color: :yellow
       end
 
       def point_pads x, y, pads, force = false

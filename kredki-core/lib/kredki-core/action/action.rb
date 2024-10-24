@@ -82,15 +82,11 @@ module Kredki
       @owner&.update_paint paint
     end
 
-    def event_director
-      @owner&.event_director
-    end
-
     def sketch p0
     end
 
     def sketch_base
-      sketch self if !sketched?
+      sketch self unless sketched?
       @sketched = true
       self
     end
@@ -112,7 +108,7 @@ module Kredki
     end
 
     def report event
-      event_director.push event, self
+      Kredki.event_director.push event, self
     end
 
     def resolve event

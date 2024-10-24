@@ -7,11 +7,9 @@ module Kredki
     end
 
     def resolve event
-      event.break false
+      event.unbreak
       @resolvers.reverse_each do |r|
-        event.forward false
         r.resolve event
-        event.resolve if !event.forward?
         break if event.break?
       end
     end
@@ -24,7 +22,7 @@ module Kredki
         EventResolver.new attached
       else raise "Unsupported attached type (#{attached.class})"
       end
-      resolver.manager = self
+      resolver.attach! self
       @resolvers << resolver
       resolver
     end

@@ -95,8 +95,12 @@ module Kredki
         when 7 then window_event abi_event.window_id, WindowMinimizeEvent.new(abi_event)
         when 8 then window_event abi_event.window_id, WindowMaximizeEvent.new(abi_event)
         when 9 then window_event abi_event.window_id, WindowRestoreEvent.new(abi_event)
-        when 10 then window_event abi_event.window_id, WindowEnterEvent.new(abi_event)
-        when 11 then window_event abi_event.window_id, WindowLeaveEvent.new(abi_event)
+        when 10
+          Kredki.mouse.in_window = true
+          window_event abi_event.window_id, WindowEnterEvent.new(abi_event)
+        when 11
+          Kredki.mouse.in_window = false
+          window_event abi_event.window_id, WindowLeaveEvent.new(abi_event)
         when 12 then window_event abi_event.window_id, WindowFocusGainEvent.new(abi_event)
         when 13 then window_event abi_event.window_id, WindowFocusLoseEvent.new(abi_event)
         when 14 

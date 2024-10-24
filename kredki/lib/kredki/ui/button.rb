@@ -1,10 +1,41 @@
 require 'forwardable'
 require_relative 'margin'
+require_relative 'label'
 
 module Kredki
   module UI
-    class Button < Margin
+    class Button < Pad
       extend Forwardable
+
+      aliasing def color! color
+        @base_color = Kredki.color color
+        report RepaintEvent.new
+      end, :color=
+
+      aliasing def s! s
+        if pad.respond_to? :s!
+          pad.s! s
+        else
+          new_pad(Label).alter s:, mousy: false
+        end
+      end, :s=, :string!, :string=
+
+      aliasing def s
+        if pad.respond_to? :s
+          pad.s
+        end
+      end, :string
+
+      def << arg
+        case arg
+        when String
+          s! arg
+        else
+          super
+        end
+      end
+
+      #internal api
 
       def initialize
         super
@@ -12,49 +43,81 @@ module Kredki
         @base_color = nil
       end
 
-      aliasing def color! color
-        @base_color = Kredki.color color
-        report RepaintEvent.new
-      end, :color=
-
-      def_delegators :@label,
-        :s, :string, :s!, :s=, :string!, :string=
-
-      #internal api
-
       def sketch p0
         super
 
-        @label = label! s: "Button", mousy: false
-    
-        on_repaint! do
-          update_color
+        keyboardy!
+        string! "Button"
+        
+        color! :gray
+        stroke_width! 1
+
+        on_resize! do |e|
+          if e.target != self
+            update_car
+            e.resolve
+          end
         end
 
-        body.show!
-        alter wh: 5, color: :gray
+        on_repaint! do |e|
+          update_color
+          e.resolve
+        end
+        update_color
+
+        on_focus_gain! do |e|
+          report RepaintEvent.new
+          e.resolve
+        end
+
+        on_focus_lose! do |e|
+          report RepaintEvent.new
+          e.resolve
+        end
+      end
+
+      def pad
+        @pads.first
+      end
+
+      def push_pad ...
+        pad&.detach!
+        result = super
+        update_car
+        result
+      end
+
+      def remove_pad pad, transfer
+        result = super
+        update_car
+        result
+      end
+
+      def update_car
+        pad&.then{ set_size *_1.wh }
       end
 
       def update_color
-        body.color = button_top? ? @base_color.dark : mouse_top? ? @base_color.light : @base_color
+        stroke_color! keyboard_top? ? :yellow : @base_color.dark(20)
+        body.color! button_top? ? @base_color.dark : mouse_in? ? @base_color.light : @base_color
       end
 
-      def default_on_mouse_button_down e
+      def mouse_button_down e
         super
         report RepaintEvent.new
       end
 
-      def default_on_mouse_enter e
+      def mouse_enter e
         super
         report RepaintEvent.new
       end
 
-      def default_on_mouse_leave e
+      def mouse_leave e
         super
         report RepaintEvent.new
       end
 
-      def default_on_mouse_button_up e
+      def mouse_button_up e
         super
         report RepaintEvent.new
       end

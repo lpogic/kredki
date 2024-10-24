@@ -1,120 +1,60 @@
+require_relative 'pad/sort_pad'
+
 module Kredki
   module UI
-    class Place < Pad
+    class Place < SortPad
 
-      # aliasing def x! x = :center, &block
-      #   if sketched?
-      #     if block
-      #       set_x_place &block
-      #     else
-      #       case x
-      #       when :c, :center
-      #         set_x_place{|w, pw| (w - pw) / 2 }
-      #       when :r, :right, :e, :end
-      #         set_x_place{|w, pw| w - pw }
-      #       when :l, :left, :s, :start
-      #         set_x_place{|w, pw| 0 }
-      #       when Proc
-      #         set_x_place &x
-      #       else
-      #         cx! x
-      #       end
-      #     end
-      #   else
-      #     set_x x
-      #   end
-      # end, :x=
-
-      # aliasing def y! y = :center, &block
-      #   if sketched?
-      #     if block
-      #       set_y_place &block
-      #     else
-      #       case y
-      #       when :c, :center
-      #         set_y_place{|h, ph| (h - ph) / 2 }
-      #       when :b, :bottom, :e, :end
-      #         set_y_place{|h, ph| h - ph }
-      #       when :t, :top, :s, :start
-      #         set_y_place{|h, ph| 0 }
-      #       when Proc
-      #         set_y_place &y
-      #       else
-      #         cy! y
-      #       end
-      #     end
-      #   else
-      #     set_y y
-      #   end
-      # end, :y=
-
-      # def xy! x = :center, y = nil
-      #   x! x
-      #   y! y || x
-      # end
-
-      # def xy=(xy)
-      #   case xy
-      #   when Array
-      #     xy! *xy
-      #   else
-      #     xy! xy
-      #   end
-      # end
-
-      aliasing def l! l = 0
-        set_x_place{ l }
+      aliasing def l! offset = 0
+        set_x_place{ offset } && update_pads
       end, :l=, :left!, :left=
 
-      aliasing def t! t = 0
-        set_y_place{ t }
+      aliasing def t! offset = 0
+        set_y_place{ offset } && update_pads
       end, :t=, :top!, :top=
 
-      aliasing def r! r = 0
-        set_x_place{|w, pw| w - pw - r }
+      aliasing def r! offset = 0
+        set_x_place{|w, pw| w - pw - offset } && update_pads
       end, :r=, :right!, :right=
 
-      aliasing def b! b = 0
-        set_y_place{|h, ph| h - ph - b }
+      aliasing def b! offset = 0
+        set_y_place{|h, ph| h - ph - offset } && update_pads
       end, :b=, :bottom!, :bottom=
+
+      aliasing def cx! offset = 0
+        set_x_place{|w, pw| (w - pw) / 2 + offset } && update_pads
+      end, :cx=, :center_x!, :center_x=
+
+      aliasing def cy! offset = 0
+        set_y_place{|h, ph| (h - ph) / 2 + offset } && update_pads
+      end, :cy=, :center_y!, :center_y=
       
-      aliasing def c! x = 0, y = nil
-        xc! x
-        yx! y || x
+      aliasing def c! xoffset = 0, yoffset = nil
+        yoffset ||= xoffset
+        (set_x_place{|w, pw| (w - pw) / 2 + xoffset } | set_y_place{|h, ph| (h - ph) / 2 + yoffset }) && update_pads
       end, :center!
 
-      aliasing def c=(xy)
-        case xy
+      aliasing def c=(xyoffset)
+        case xyoffset
         when Array
-          c! *xy
+          c! *xyoffset
         else
-          c! xy
+          c! xyoffset
         end
       end, :center=
 
-      aliasing def cx! x = 0
-        set_x_place{|w, pw| (w - pw) / 2 + x } && begin
-          update_cars
-        end
-      end, :cx=, :center_x!, :center_x=
+      aliasing def l
+        @x_place.call w, 0
+      end, :r, :cx, :left, :right, :center_x
 
-      aliasing def cy! y = 0
-        set_y_place{|h, ph| (h - ph) / 2 + y } && begin
-          update_cars
-        end
-      end, :cy=, :center_y!, :center_y=
+      aliasing def t
+        @y_place.call w, 0
+      end, :b, :cy, :top, :bottom, :center_y
 
       #internal api
-
-      class Car
-        struct :prev_car, :pad, :on_resize, :next_car
-      end
 
       def initialize ...
         super
 
-        @cars = Car.new
-        @cars.prev_car = @cars.next_car = @cars
         @x_place = @y_place = proc{|a, pa| (a - pa) / 2 }
         @parent_resize = nil
       end
@@ -122,79 +62,102 @@ module Kredki
       def sketch p0
         super
 
-        body.hide!
+        on_resize! do |e|
+          if e.target != self
+            update_pads
+            e.resolve
+          end
+        end
+      end
+
+      def rebound e
+      end
+
+      def mouse_button_down e
+      end
+
+      def mouse_button_up e
       end
 
       def set_parent parent
         super
         @parent_resize&.detach!
-        @parent_resize = parent&.on_resize! do
-          update_size
-          update_cars
+        @parent_resize = parent&.on_resize! do |e|
+          update_size if e.target == parent
         end
-        @parent_resize&.resolve
+        update_size
       end
       
       def set_x_place &place
         @x_place = place
-        return true
+        true
       end
 
       def set_y_place &place
         @y_place = place
-        return true
+        true
+      end
+
+      def min_w
+        @pads.map{ _1.min_w }.max || 0
+      end
+
+      def min_h
+        @pads.map{ _1.min_h }.max || 0
       end
 
       def push_pad pad, next_pad = nil
-        super pad, next_pad
-
-        car = Car.new @cars.prev_car, pad, pad.on_resize!{ update_cars }, @cars
-        @cars.prev_car = @cars.prev_car.next_car = car
-        update_cars
+        super
+        update_size
+        report ResizeEvent.new
         pad
       end
 
       def remove_pad pad, transfer
         super
-        car = @cars.to_en{|c, b| @cars == c.next_car ? b : c.next_car }.find{ _1.pad == pad }
-        if car
-          car.prev_car.next_car = car.next_car
-          car.next_car.prev_car = car.prev_car
-          car.on_resize.detach!
+        update_size
+      end
+
+      def alter ...
+        altering, @altering = @altering, true
+        result = super
+        @altering = altering
+        release unless @altering
+        result
+      end
+
+      def release
+        @after_altering&.each do |k, v|
+          send k
         end
+        @after_altering = nil
+      end
+
+      def after_altering name
+        (@after_altering ||= {})[name] = true
       end
 
       def update_size
-        set_size parent.reduce_child_w? ? w : parent.w, parent.reduce_child_h? ? h : parent.h
+        return after_altering :update_size if @altering
+        return unless parent
+        set_size *parent.wh
+        update_pads
       end
 
-      def update_cars
+      def update_pads
+        return after_altering :update_pads if @altering
         w, h = *wh
-        alter_size = false
-        if parent.reduce_child_w?
-          w = @cars.to_en{|c, b| @cars == c.next_car ? b : c.next_car }.map{|c| c.pad.w }.max
-          alter_size = true if w
+        @pads.each do |p1|
+          p1.xy! @x_place.call(w, p1.w), @y_place.call(h, p1.h)
         end
-        if parent.reduce_child_h?
-          h = @cars.to_en{|c, b| @cars == c.next_car ? b : c.next_car }.map{|c| c.pad.h }.max
-          alter_size = true if h
-        end
-        set_size w, h if alter_size
-        @cars.to_en{|c, b| @cars == c.next_car ? b : c.next_car }.map do |c|
-          c.pad.xy! @x_place.call(w, c.pad.w), @y_place.call(h, c.pad.h)
-        end
-      end
-
-      def point_pads x, y, pads
-        if mousy? && show?
-          pads << self
-          return true if @pads.reverse_each.find{ _1.point_pads x - _1.x, y - _1.y, pads }
-          pads >> 1
-        end
-        return false
+        true
       end
       
       def autosized?
+        true
+      end
+
+      def update_child_xy_on_resize?
         true
       end
     end

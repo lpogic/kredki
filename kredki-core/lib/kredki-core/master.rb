@@ -95,6 +95,27 @@ class Array
   end
 end
 
+module Enumerable
+  def self.zip *enums, &block
+    Enumerator.new do |e|
+      each = enums.map{ _1.each }
+      loop do
+        any = false
+        values = each.map do |en|
+          value = en.next
+          any = true
+          value
+        rescue
+          nil
+        end
+        break unless any
+        e << (block ? block.call(*values) : values)
+      end
+    end
+  end
+end
+
+
 module Kredki
   class << self
     extend Forwardable
@@ -122,7 +143,7 @@ module Kredki
     end
 
     def_delegators :@arena,
-      :terminate!
+      :terminate!, :event_director
 
     attr_accessor :clipboard, :keyboard, :mouse
     attr :runned, :arena, :fonts, :colors

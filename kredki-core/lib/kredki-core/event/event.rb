@@ -3,7 +3,6 @@ module Kredki
     
     model :target do
       @resolved = false
-      @forward = false
       @break = false
       @mode = :default
     end
@@ -22,27 +21,29 @@ module Kredki
       @resolved = true
     end
 
-    def forward?
-      @forward
-    end
-
-    def forward f = true
-      @forward = f
-    end
-
     def break?
       @break
     end
 
-    def break b = true
-      @break = b
-    end
-
-    def break_forward
+    def break
       @break = true
-      @forward = true
     end
 
+    def unbreak
+      @break = false
+    end
+
+    def track
+      @track = true
+    end
+
+    def track= enabled
+      @track = enabled
+    end
+
+    def track?
+      !!@track
+    end
   end
 
   class AbiEvent < Event

@@ -6,13 +6,13 @@ module Kredki
   class Shape < Paint
     include Alterable
 
-    def initialize x = 100, y = 100, color = :white
+    def initialize
       super Abi.shape_new
       ObjectSpace.define_finalizer(self, Shape.proc.finalize(@pointer))
 
       Shape.init_flags self
       
-      alter x:, y:, color:;
+      color! :white
     end
 
     def move_to! x, y

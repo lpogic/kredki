@@ -3,22 +3,37 @@ module Kredki
     module PadBase
 
       def [](filter, &block)
-        if block
-          each_pad.filter{ _1 =~ filter }.map{ block.call _1 }
+        case filter
+        when Integer
+          if block
+            pads.find{ _1.index == filter }&.then{ _1.instance_exec _1, &block }
+          else
+            pads.find{ _1.index == filter }
+          end
         else
-          each_pad.find{ _1 =~ filter }
+          if block
+            each_pad.filter{ _1 =~ filter }.map{ _1.instance_exec _1, &block }
+          else
+            each_pad.find{ _1 =~ filter }
+          end
         end
       end
 
-      def each_pad enum = nil
+      def each_pad enum = nil, reverse: false, deep_first: false
         if enum
-          @pads.each{ enum << _1 }
-          @pads.each{ _1.each_pad enum }
+          method = reverse ? :reverse_each : :each
+          if deep_first
+            @pads.send method do
+              enum << _1
+              _1.each_pad enum, reverse:, deep_first:;
+            end
+          else
+            @pads.send(method){ enum << _1 }
+            @pads.send(method){ _1.each_pad enum, reverse:, deep_first: }
+          end
           enum
         else
-          Enumerator.new do |enum|
-            each_pad enum
-          end
+          Enumerator.new{|enum| each_pad enum, reverse:, deep_first: }
         end
       end
       
@@ -26,11 +41,13 @@ module Kredki
       def def_pad name, klass = nil, &block
         if block
           PadBase.define_method name do |*a, **na, &b|
-            instance_exec(klass, &block).alter *a, **na, &b
+            pad = instance_exec self, a, b, **na, &block
+            pad.alter name, *a, **na, &b if klass
+            pad
           end
         else
           PadBase.define_method name do |*a, **na, &b|
-            new_pad(klass).alter *a, **na, &b
+            new_pad klass, name, *a, **na, &b
           end
         end
       end
@@ -38,11 +55,13 @@ module Kredki
       def self.def_pad name, klass = nil, &block
         if block
           define_method name do |*a, **na, &b|
-            instance_exec(klass, &block).alter *a, **na, &b
+            pad = instance_exec self, a, b, **na, &block
+            pad.alter name, *a, **na, &b if klass
+            pad
           end
         else
           define_method name do |*a, **na, &b|
-            new_pad(klass).alter *a, **na, &b
+            new_pad klass, name, *a, **na, &b
           end
         end
       end

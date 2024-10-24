@@ -4,11 +4,11 @@ require_relative 'shape'
 module Kredki
   class Rectangle < Shape
 
-    def initialize w = 100, h = 100, x = 100, y = 100
+    def initialize
+      super
       @rx = 0
       @ry = 0
-      super x, y
-      alter wh: [w, h]
+      size! 100, 100
     end
 
     aliasing def w! w

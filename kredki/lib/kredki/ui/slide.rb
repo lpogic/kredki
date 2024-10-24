@@ -5,10 +5,7 @@ module Kredki
       def sketch p0
         super
 
-        on_mouse_button! mode: :aim do |e|
-          @handle.drag!
-          e.break
-        end
+        @value = 0.0
       end
 
       def value
@@ -34,19 +31,68 @@ module Kredki
           set_offset v
           report EditEvent.new
           report ChangeEvent.new
+          true
         end
       end, :value=
 
       attr :handle
     end
 
+    class XSlide < Slide
+
+      def sketch p0
+        super
+
+        h! 10
+
+        @handle = new_pad.alter w: 20, color: :gray do
+        
+          on_drag! do |e|
+            start_x = @button_down_xy[0]
+            x = [[0, self.x + e.x - start_x].max, p0.w - w].min
+            x! x
+            p0.set_value 1.0 * x / (p0.w - w)
+            p0.report EditEvent.new
+            e.resolve
+          end
+    
+          on_drop! do |e|
+            p0.report ChangeEvent.new
+            e.resolve
+          end
+
+          on_resize! do |e|
+            x! (p0.w - w) * p0.value
+            e.resolve
+          end
+
+          on_mouse_button! do |e|
+            drag! e.xy
+            e.resolve
+          end
+        end
+
+        on_resize! do
+          @handle.x! (w - @handle.w) * value
+        end
+    
+        on_mouse_button! do |e|
+          @handle.drag! [@handle.w / 2, 0]
+          e.resolve
+        end
+      end
+
+      def set_offset o
+        @handle.x = o * (w - @handle.w)
+      end
+    end
+
     class YSlide < Slide
 
       def sketch p0
         super
-        p0 = self
 
-        @value = 0
+        w! 10
 
         @handle = pad! h: 20, color: :gray do
         
@@ -55,64 +101,37 @@ module Kredki
             y! y
             p0.set_value 1.0 * y / (p0.h - h)
             p0.report EditEvent.new
+            e.resolve
           end
     
-          on_drop! do
+          on_drop! do |e|
             p0.report ChangeEvent.new
+            e.resolve
           end
 
-          on_resize! do
+          on_resize! do |e|
             y! (p0.h - h) * p0.value
+            e.resolve
+          end
+
+          on_mouse_button! do |e|
+            drag! e.xy
+            e.resolve
           end
         end
 
         on_resize! do
           @handle.y! (h - @handle.h) * value
         end
+
+        on_mouse_button! do |e|
+          @handle.drag! [0, @handle.h / 2]
+          e.resolve
+        end
       end
 
       def set_offset o
         @handle.y = o * (h - @handle.h)
-      end
-    end
-
-    class XSlide < Slide
-
-      def sketch p0
-        super
-
-        @value = 0
-
-        @handle = pad! w: 20, color: :gray do
-        
-          on_drag! do |e|
-            x = [[0, self.x + e.x - w / 2].max, p0.w - w].min
-            x! x
-            p0.set_value 1.0 * x / (p0.w - w)
-            p0.report EditEvent.new
-          end
-    
-          on_drop! do
-            p0.report ChangeEvent.new
-          end
-
-          on_resize! do
-            x! (p0.w - w) * p0.value
-          end
-        end
-
-        on_resize! do
-          @handle.x! (w - @handle.w) * value
-        end
-    
-        on_mouse_button! mode: :aim do |e|
-          @handle.drag!
-          e.break
-        end
-      end
-
-      def set_offset o
-        @handle.x = o * (w - @handle.w)
       end
     end
   end

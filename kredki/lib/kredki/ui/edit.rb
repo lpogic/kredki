@@ -7,25 +7,30 @@ module Kredki
       def sketch p0
         super
 
-        on_key! :backspace do
+        on_key! :backspace do |e|
           backspace
+          e.resolve
         end
 
-        on_key! :delete do
+        on_key! :delete do |e|
           delete
+          e.resolve
         end
 
         on_text! do |e|
           paste e[]
+          e.resolve
         end
 
-        on_key! :v do
+        on_key! :v do |e|
           paste clipboard.string
+          e.resolve
         end
 
         on_edit! do |e|
           s! string.then{|s| s == "" ? e.string : s[...e.selection_min] + e.string + s[e.selection_max..]}, false
           reset_cursor e.selection_min + e.string.length
+          e.resolve
         end
       end
 

@@ -6,7 +6,7 @@ module Kredki
     include Alterable
     extend HasFlags
 
-    def initialize source = nil
+    def initialize
       @pointer = Abi.animation_new
       ObjectSpace.define_finalizer(self, Animation.proc.finalize(@pointer))
 
@@ -15,8 +15,6 @@ module Kredki
       @ms = nil
       @on_end = EventCallings.new
       Animation.init_flags self
-
-      alter source:;
     end
 
     attr :picture

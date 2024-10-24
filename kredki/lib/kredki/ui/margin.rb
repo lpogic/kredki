@@ -1,118 +1,128 @@
+require_relative 'pad/sort_pad'
+
 module Kredki
   module UI
-    class Margin < Pad
+    class Margin < SortPad
 
-      class Car
-        struct :pad, :on_resize
+      def << arg
+        case arg
+        when Array
+          space! *arg
+        else
+          super
+        end
+      end
+
+      aliasing def sl! s
+        space! s, @r, @t, @b
+      end, :space_left!, :sl=, :space_left=
+
+      aliasing def sr! s
+        space! @l, s, @t, @b
+      end, :space_right!, :sr=, :space_right=
+
+      aliasing def st! s
+        space! @l, @r, s, @b
+      end, :space_top!, :st=, :space_top=
+
+      aliasing def sb! s
+        space! @l, @r, @t, s
+      end, :space_bottom!, :sb=, :space_bottom=
+
+      aliasing def sl
+        @l
+      end, :space_left
+
+      aliasing def sr
+        @r
+      end, :space_right
+
+      aliasing def st
+        @t
+      end, :space_top
+
+      aliasing def sb
+        @b
+      end, :space_bottom
+
+      aliasing def sx! s
+        space! s, s, @t, @b
+      end, :space_x, :sx=, :space_x=
+
+      aliasing def sy! s
+        space! @l, @r, s, s
+      end, :space_y, :sy=, :space_y=
+
+      aliasing def sp! *space, &block
+        space = [block.call(sp, space)].flatten if block
+        l, r, t, b = case space.size
+        when 0 then [0, 0, 0, 0]
+        when 1 then space * 4
+        when 2 then [space[0], space[0], space[1], space[1]]
+        when 3 then [*space, space[2]]
+        else space
+        end
+        (@l != l || @r != r || @t != t || @b != b) && begin
+          @l = l
+          @r = r
+          @t = t
+          @b = b
+          update_car
+          true
+        end
+      end, :space!
+
+      aliasing def sp= space
+        space! *space
+      end, :space=
+
+      aliasing def sp
+        [@l, @r, @t, @b]
+      end, :space
+
+      #internal api
+
+      def initialize ...
+        super
+
+        @car = nil
+        @l = @r = @t = @b = 0
       end
 
       def sketch p0
         super
-
-        @car = nil
-        @t = @b = @l = @r = 0
-        body.hide!
-        alter w: 0, h: 0
+        
+        on_resize! do |e|
+          if e.target != self
+            update_car
+            e.resolve
+          end
+        end
       end
 
-      aliasing def t! m
-        @t != m && begin 
-          @t = m
-          update_car
-          true
-        end
-      end, :t=, :top!, :top=
-
-      aliasing def t
-        @t
-      end, :top
-
-      aliasing def b! m
-        @b != m && begin 
-          @b = m
-          update_car
-          true
-        end
-      end, :b=, :bottom!, :bottom=
-
-      aliasing def b
-        @b
-      end, :botttom
-
-      aliasing def l! m
-        @l != m && begin 
-          @l = m
-          update_car
-          true
-        end
-      end, :l=, :left!, :left=
-
-      aliasing def l
-        @l
-      end, :left
-
-      aliasing def r! m
-        @r != m && begin 
-          @r = m
-          update_car
-          true
-        end
-      end, :r=, :right!, :right=
-
-      aliasing def r
-        @r
-      end, :right
-
-      aliasing def w! m
-        (@l != m || @r != m) && begin
-          @l = @r = m
-          update_car
-          true
-        end
-      end, :w=
-
-      aliasing def h! m
-        (@t != m || @b != m) && begin
-          @t = @b = m
-          update_car
-          true
-        end
-      end, :h=
-
-      aliasing def wh! m
-        (@t != m || @b != m || @l != m || @r != m) && begin
-          @t = @b = @l = @r = m
-          update_car
-          true
-        end
-      end, :wh=
-
-      #internal api
+      def pad
+        @pads.first
+      end
 
       def push_pad pad, next_pad = nil
-        @car.pad.detach! if @car
-        super pad, next_pad, false
-        @car = Car.new pad, pad.on_resize!{ update_car }
+        pad&.detach!
+        super
         update_car
         pad
       end
 
       def remove_pad pad, transfer
-        if pad == @car&.pad
-          @car.on_resize.detach!
-          @car = nil
-        end
-        super
+        removed = super
         update_car
+        removed
       end
 
       def update_car
-        pad = @car&.pad
+        pad = self.pad
         w = @l + @r
         h = @t + @b
         if pad
-          pad.x = @l
-          pad.y = @t
+          pad.xy! @l, @t
           w += pad.w
           h += pad.h
         end

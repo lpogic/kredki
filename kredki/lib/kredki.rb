@@ -72,14 +72,18 @@ Kredki.keyboard = Kredki::Keyboard.new keys: {
   calulator: 1073742108,
 }
 
-Kredki.mouse = Kredki::Mouse.new buttons: {
-  primary: 1,
-  secondary: 3,
+Kredki.mouse = Kredki::Mouse.new(
+  buttons: {
+    primary: 1,
+    secondary: 3,
 
-  left: 1,
-  center: 2,
-  right: 3
-}
+    left: 1,
+    center: 2,
+    right: 3
+  },
+  scrollbar_speed: 0.3,
+  scrollbar_alt_speed: 0.06
+)
 
 Kredki.joystick = Kredki::Joystick.new buttons: {
   _1: 0,
@@ -103,17 +107,33 @@ Kredki.fonts = {
 }
 
 class TerminateOnEsc
-  def self.plug_into action
-    action.on_key! :escape do |event|
-      action.window.terminate!
+  def self.plug_into target
+    target.on_key! :escape do |event|
+      target.action.window.terminate!
     end
   end
 end
 
 class CloseOnEsc
-  def self.plug_into action
-    action.on_key! :escape do |event|
-      action.window.destroy!
+  def self.plug_into target
+    target.on_key! :escape do |event|
+      target.action.window.destroy!
+    end
+  end
+end
+
+class CarryFocusOnTab
+  def self.plug_into target
+    target.on_key! :tab do |event|
+      next_pad = target.action.keyboard_pad&.then do |p0|
+        target.each_pad(reverse: event.shift?, deep_first: true)
+          .lazy
+          .drop_while{|p1| p0 != p1 }
+          .drop(1)
+          .filter{ _1.keyboardy? }
+          .first
+      end || target.each_pad(reverse: event.shift?, deep_first: true).lazy.filter{ _1.keyboardy? }.first
+      next_pad.focus_gain if next_pad
     end
   end
 end

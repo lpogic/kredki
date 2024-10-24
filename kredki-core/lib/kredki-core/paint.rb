@@ -8,8 +8,8 @@ module Kredki
       @pointer = pointer
       @owner = nil
 
-      @x = nil
-      @y = nil
+      @x = 0
+      @y = 0
       @rotation = 0
 
       Paint.init_flags self

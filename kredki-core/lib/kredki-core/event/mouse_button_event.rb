@@ -3,11 +3,15 @@ module Kredki
     
     model :mouse
 
-    def symbol
+    def button
       @mouse.button(@abi.button).to_sym
     end
 
-    def button
+    def symbol
+      button
+    end
+
+    def button_number
       @abi.button
     end
 
@@ -27,7 +31,7 @@ module Kredki
       @abi.y
     end
 
-    def [](key = :symbol)
+    def [](key = :button)
       send key
     end
   end

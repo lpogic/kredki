@@ -4,7 +4,7 @@ module Kredki
   class Mouse
     extend HasFlags
 
-    model :buttons do
+    model :buttons, :scrollbar_speed, :scrollbar_alt_speed do
       @inverted_buttons = @buttons.invert
 
       Mouse.init_flags self
@@ -57,6 +57,12 @@ module Kredki
 
     def_flag :relative
 
+    def scrollbar_speed alt = false
+      alt ? @scrollbar_alt_speed : @scrollbar_speed
+    end
+
+    def_flag :in_window, true, :get_in_window
+
     #internal api
 
     private
@@ -73,6 +79,10 @@ module Kredki
 
     def set_relative relative
       Abi.mouse_set_relative_mode relative
+    end
+
+    def get_in_window
+      @in_window.nil? ? get_cursor_position != [0, 0] : @in_window
     end
   end
 end

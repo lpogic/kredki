@@ -59,7 +59,7 @@ module Kredki
       end
 
       def_delegators :@mouse,
-        :down?, :position,
+        :down?, :position, :in_window?,
         :relative!, :relative=, :relative
 
       #internal api

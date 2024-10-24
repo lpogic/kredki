@@ -5,15 +5,13 @@ module Kredki
   class Picture < Paint
     include Alterable
 
-    def initialize source = nil, x = 0, y = 0
+    def initialize
       super Abi.picture_new
       ObjectSpace.define_finalizer(self, self.class.proc.finalize(@pointer))
 
       @w = nil
       @h = nil
       @source = nil
-
-      alter source:, x:, y:;
     end
 
     aliasing def s! source

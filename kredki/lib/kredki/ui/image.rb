@@ -13,6 +13,15 @@ module Kredki
       def_delegators :@picture,
         :s, :source
 
+      def << arg
+        case arg
+        when String
+          s! arg
+        else
+          super
+        end
+      end
+
       #internal api
 
       def sketch p0

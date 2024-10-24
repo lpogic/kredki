@@ -1,17 +1,13 @@
+require_relative 'pad/sort_pad'
+
 module Kredki
   module UI
-    class Split < Pad
+    class Split < SortPad
 
-      def initialize ...
-        super
-      end
-
-      def sketch p0
-        body.hide!
-      end
+      #internal api
 
       def push_pad pad, next_pad = nil
-        super(Slice.new, next_pad).sketch_base.push_pad pad
+        super(Slice.new.sketch_base, next_pad).push_pad pad
         update_slices
         pad
       end

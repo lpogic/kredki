@@ -1,41 +1,19 @@
+require_relative 'pad/sort_pad'
+
 module Kredki
   module UI
-    class Slice < Pad
+    class Slice < SortPad
 
       aliasing def x! x = nil
-        if sketched?
-          set_x_slice((x || 0).to_f) && begin
-            update_size
-            update_cars
-            true
-          end
-        else
-          set_x x
-        end
+        set_x_slice((x || 0).to_f) && pad_update
       end, :x=
 
       aliasing def y! y = nil
-        if sketched?
-          set_y_slice((y || 0).to_f) && begin
-            update_size
-            update_cars
-            true
-          end
-        else
-          set_y y
-        end
+        set_y_slice((y || 0).to_f) && pad_update
       end, :y=
 
       def xy! x = nil, y = nil
-        (set_x_slice((x || 0).to_f) | set_y_slice((y || x || 0).to_f)) && begin
-          if sketched?
-            update_size
-            update_cars
-          else
-            set_xy x, y
-          end
-          true
-        end
+        (set_x_slice((x || 0).to_f) | set_y_slice((y || x || 0).to_f)) && pad_update
       end
 
       def xy=(xy)
@@ -48,27 +26,15 @@ module Kredki
       end
 
       aliasing def w! w = nil
-        set_w_slice((w || 1.0).to_f) && begin
-          update_size
-          update_cars
-          true
-        end
+        set_w_slice((w || 1.0).to_f) && pad_update
       end, :width!, :w=, :width=
 
       aliasing def h! h = nil
-        set_h_slice((h || 1.0).to_f) && begin
-          update_size
-          update_cars
-          true
-        end
+        set_h_slice((h || 1.0).to_f) && pad_update
       end, :height!, :h=, :height=
 
       aliasing def wh! w = nil, h = nil
-        (set_w_slice((w || 1.0).to_f) | set_h_slice((h || w || 1.0).to_f)) && begin
-          update_size
-          update_cars
-          true
-        end
+        (set_w_slice((w || 1.0).to_f) | set_h_slice((h || w || 1.0).to_f)) && pad_update
       end, :size!
 
       aliasing def wh=(wh)
@@ -83,27 +49,38 @@ module Kredki
       #internal api
 
       class Car
-        struct :prev_car, :pad, :on_resize, :next_car
+        struct :pad, :on_resize
       end
 
       def initialize ...
         super
 
-        @cars = Car.new
-        @cars.prev_car = @cars.next_car = @cars
+        @cars = []
         @x_slice = @y_slice = 0
         @w_slice = @h_slice = 1.0
       end
 
-      def sketch p0
+      def mouse_button_down e
+      end
+
+      def mouse_button_up e
+      end
+
+      def set_parent parent
         super
-        
-        parent.on_resize! do
+        @parent_resize&.detach!
+        if parent
+          if parent.update_child_xy_on_resize?
+            @parent_resize = nil
+          else
+            @parent_resize = parent.on_resize! do
+              update_size
+              update_cars
+            end
+          end
           update_size
           update_cars
         end
-
-        body.hide!
       end
 
       def set_x_slice part
@@ -141,30 +118,33 @@ module Kredki
       def push_pad pad, next_pad = nil
         super pad, next_pad
 
-        car = Car.new @cars.prev_car, pad, pad.on_resize!{ update_cars }, @cars
-        @cars.prev_car = @cars.prev_car.next_car = car
+        @cars << Car.new(pad, pad.on_resize!{ update_cars })
         update_cars
         pad
       end
 
       def remove_pad pad, transfer
         super
-        car = @cars.to_en{|c, b| @cars == c.next_car ? b : c.next_car}.find{ _1.pad == pad }
-        if car
-          car.prev_car.next_car = car.next_car
-          car.next_car.prev_car = car.prev_car
-          car.on_resize.detach!
+        
+        if index = @cars.index{ _1.pad == pad }
+          @cars.delete_at(index).on_resize.detach!
         end
       end
 
+      def pad_update
+        update_size
+        update_cars
+        true
+      end
+
       def update_size
-        set_xy @x_slice >= 1.0 ? @x_slice : parent.w * @x_slice, @y_slice >= 1.0 ? @y_slice : parent.h * @y_slice
-        set_size [parent.w * @w_slice, parent.w - x].min, [parent.h * @h_slice, parent.h - y].min
+        set_xy @x_slice.abs > 1.0 ? @x_slice : parent.w * @x_slice, @y_slice.abs > 1.0 ? @y_slice : parent.h * @y_slice
+        set_size @w_slice > 1.0 ? @w_slice : parent.w * @w_slice, @h_slice > 1.0 ? @h_slice : parent.h * @h_slice
       end
 
       def update_cars
         w, h = *wh
-        @cars.to_en{|c, b| @cars == c.next_car ? b : c.next_car }.map do |c|
+        @cars.each do |c|
           c.pad.wh! w, h if !c.pad.autosized?
         end
       end

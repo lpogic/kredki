@@ -12,6 +12,7 @@ module Kredki
         super
 
         body.hide!
+        keyboardy!
 
         @cursor_position = @selection_min = @selection_max = 0
 
@@ -25,35 +26,45 @@ module Kredki
 
         @cursor = rectangle! x: 0, y: 0, color: :black, w: 2
 
-        p0.h = @text.h
+        p0.wh = @text.wh
 
-        on_resize! do
+        on_resize! do |e|
           @selection.h = h
           @cursor.h = h
-        end.resolve
+        end.resolve ResizeEvent.new
     
         on_key! :left do |e|
           cursor_left e.shift?
+          e.resolve
         end
     
         on_key! :right do |e|
           cursor_right e.shift?
+          e.resolve
         end
 
         on_key! :home do |e|
           cursor_home e.shift?
+          e.resolve
         end
 
         on_key! :keypad_seven do |e|
-          cursor_home e.shift? unless e.num?
+          unless e.num?
+            cursor_home e.shift? 
+            e.resolve
+          end
         end
 
         on_key! :end do |e|
           cursor_end e.shift?
+          e.resolve
         end
 
         on_key! :keypad_one do |e|
-          cursor_end e.shift? unless e.num?
+          unless e.num?
+            cursor_end e.shift?
+            e.resolve
+          end
         end
 
         on_key! :a do |e|
@@ -61,12 +72,14 @@ module Kredki
             @selection_min = 0
             @selection_max = @cursor_position = @text.string.length
             update_cursor true
+            e.resolve
           end
         end
 
         on_key! :c do |e|
           if e.ctrl? && selection?
             clipboard.string = @text.string[@selection_min...@selection_max]
+            e.resolve
           end
         end
 
@@ -77,14 +90,17 @@ module Kredki
             cursor_position = text.nearest_character_index e.x - @text.x
             reset_cursor cursor_position, true, true
           end
+          e.resolve
         end
 
         on_drag! do |e|
           drag e.x
+          e.resolve
         end
 
         on_drop! do |e|
           @cursor_position = text.nearest_character_index e.x - @text.x
+          e.resolve
         end
 
         on_click! do |e|
@@ -95,28 +111,40 @@ module Kredki
             @selection.x = @text.x
             @cursor.hide!
           end
+          e.resolve
         end
 
         on_scroll! do |e|
           if keyboard_top?
-            scroll e.xory
-            drag mouse.x if mouse.down?
+            # scroll e.xory
+            # drag mouse.x if mouse.down?
           end
         end
 
 
-        on_focus_lose! do
+        on_focus_lose! do |e|
           @cursor.hide!
-          @selection.hide!
-        end.resolve
+          # @selection.hide!
+          e.resolve
+        end.resolve FocusLoseEvent.new
 
-        on_focus_gain! do
+        on_focus_gain! do |e|
           @selection.show!
           @cursor.show!
+          e.resolve
         end
       end
 
       attr :text, :selection_min, :selection_max, :cursor_position
+
+      def << arg
+        case arg
+        when String
+          s! arg
+        else
+          super
+        end
+      end
 
       def selection?
         @selection_min != @selection_max
@@ -265,11 +293,12 @@ module Kredki
       end
 
 
-      aliasing def s! str, reset_cursor = true
+      aliasing def s! str = "", reset_cursor = true, &block
+        str = block.call @text.string, str if block
         @text.string != str && begin
           @text.string = str
           self.reset_cursor if reset_cursor
-          report ResizeEvent.new if autosized? && w!(@text.substring_width.ceil)
+          w! @text.w.ceil if autosized?
           true
         end
       end, :s=, :string!, :string=

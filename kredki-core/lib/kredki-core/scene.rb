@@ -9,13 +9,11 @@ module Kredki
       struct :index, :shown
     end
 
-    def initialize x = 0, y = 0
+    def initialize
       super Abi.scene_new
       ObjectSpace.define_finalizer(self, self.class.proc.finalize(@pointer))
 
       @paints = {}
-
-      alter x:, y:;
     end
 
     def shape! ...
@@ -118,7 +116,11 @@ module Kredki
     end
 
     def paint_shown? paint
-      !!@paints[paint]&.shown
+      !!@paints[paint]&.shown && show?
+    end
+
+    def paint_index paint
+      @paints[paint]&.index
     end
   end
 end

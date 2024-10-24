@@ -4,9 +4,9 @@ require_relative 'shape'
 module Kredki
   class Ellipse < Shape
 
-    def initialize r = 50, x = 100, y = 100
-      super x, y
-      alter r:;
+    def initialize
+      super
+      radius! 50
     end
 
     aliasing def rx! rx

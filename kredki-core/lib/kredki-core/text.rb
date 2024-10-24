@@ -7,11 +7,14 @@ module Kredki
   class Text < Paint
     include Alterable
 
-    def initialize string = "TEXT", font = :arial, x = 0, y = 0, height = 16, color = :white
+    def initialize
       super Abi.text_new
       ObjectSpace.define_finalizer(self, Text.proc.finalize(@pointer))
 
-      alter string:, font:, x:, y:, height:, color:;
+      string! "TEXT"
+      font! :arial
+      height! 16
+      color! :white
     end
 
     aliasing def s! string 
@@ -41,8 +44,12 @@ module Kredki
     end, :height
 
     aliasing def w
-      substring_width
+      @w
     end, :width
+
+    aliasing def wh
+      [@w, @h]
+    end, :size
 
     aliasing def font! font
       set_font Kredki.font(font)
@@ -77,6 +84,7 @@ module Kredki
         Abi.text_set_text @pointer, string
         @string = string
         update
+        @w = substring_width
       end
     end
 
@@ -98,6 +106,7 @@ module Kredki
       if @font && @h
         Abi.text_set_font @pointer, @font.name, @h, @style&.encode || ""
         update
+        @w = substring_width
       end
     end
 
