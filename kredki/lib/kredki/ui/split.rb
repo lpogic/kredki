@@ -6,8 +6,8 @@ module Kredki
 
       #internal api
 
-      def push_pad pad, next_pad = nil
-        super(Slice.new.sketch_base, next_pad).push_pad pad
+      def push_pad pad, index = nil
+        super(Slice.new.sketch_base, index).push_pad pad
         update_slices
         pad
       end

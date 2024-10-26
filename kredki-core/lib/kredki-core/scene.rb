@@ -6,7 +6,7 @@ module Kredki
     include Alterable
 
     class PaintState
-      struct :index, :shown
+      struct :paint, :index, :shown
     end
 
     def initialize
@@ -17,23 +17,23 @@ module Kredki
     end
 
     def shape! ...
-      push_paint(Shape.new).alter(...)
+      push_paint(Shape.new).paint.alter(...)
     end
 
     def ellipse! ...
-      push_paint(Ellipse.new).alter(...)
+      push_paint(Ellipse.new).paint.alter(...)
     end
 
     def rectangle! ...
-      push_paint(Rectangle.new).alter(...)
+      push_paint(Rectangle.new).paint.alter(...)
     end
 
     def picture! ...
-      push_paint(Picture.new).alter(...)
+      push_paint(Picture.new).paint.alter(...)
     end
 
     def text! ...
-      push_paint(Text.new).alter(...)
+      push_paint(Text.new).paint.alter(...)
     end
 
     def animation! ...
@@ -44,7 +44,7 @@ module Kredki
     end
 
     def scene! ...
-      push_paint(Scene.new).alter(...)
+      push_paint(Scene.new).paint.alter(...)
     end
 
     def clear!
@@ -69,7 +69,7 @@ module Kredki
       paint.detach! if paint.owner
       paint.owner = self
       index = @paints.size if !index || index > @paints.size
-      index = @paints.size - index + 1 if index < 0
+      index = @paints.size + index + 1 if index < 0
       if show
         if index < @paints.size
           Abi.scene_insert @pointer, @paints.each_value.count{|state| state.shown && state.index < index }, paint.pointer
@@ -79,8 +79,7 @@ module Kredki
         update
       end
       @paints.each_value{|paint| paint.index += 1 if paint.index >= index } if index < @paints.size
-      @paints[paint] = PaintState.new index, show
-      paint
+      @paints[paint] = PaintState.new paint, index, show
     end
 
     def remove_paint paint

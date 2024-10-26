@@ -79,6 +79,7 @@ module Kredki
         on_mouse_button! do |e|
           @handle.drag! [@handle.w / 2, 0]
           e.resolve
+          e.break
         end
       end
 
@@ -97,7 +98,8 @@ module Kredki
         @handle = pad! h: 20, color: :gray do
         
           on_drag! do |e|
-            y = [[0, self.y + e.y - h / 2].max, p0.h - h].min
+            start_y = @button_down_xy[1]
+            y = [[0, self.y + e.y - start_y].max, p0.h - h].min
             y! y
             p0.set_value 1.0 * y / (p0.h - h)
             p0.report EditEvent.new
@@ -127,6 +129,7 @@ module Kredki
         on_mouse_button! do |e|
           @handle.drag! [0, @handle.h / 2]
           e.resolve
+          e.break
         end
       end
 

@@ -18,7 +18,7 @@ module Kredki
   require_relative 'ui/split'
   require_relative 'ui/edit'
   require_relative 'ui/image'
-  require_relative 'ui/multilabel'
+  require_relative 'ui/nlabel'
 
   module UI
     module PadBase
@@ -38,9 +38,10 @@ module Kredki
       def_pad :xsplit!, XSplit
       def_pad :ysplit!, YSplit
       def_pad :split!, YSplit
-      def_pad :edit!, Edit
+      def_pad :edit!, LabelEdit
       def_pad :image!, Image
-      def_pad :multilabel!, Multilabel
+      def_pad :nlabel!, NLabel
+      def_pad :nedit!, NLabelEdit
 
       def btn! *a, **na, &b
         button! *a, **na do

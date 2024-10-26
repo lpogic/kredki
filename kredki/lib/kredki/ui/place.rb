@@ -106,16 +106,17 @@ module Kredki
         @pads.map{ _1.min_h }.max || 0
       end
 
-      def push_pad pad, next_pad = nil
-        super
-        update_size
-        report ResizeEvent.new
-        pad
+      def push_pad ...
+        super.tap do
+          update_size
+          report ResizeEvent.new
+        end
       end
 
       def remove_pad pad, transfer
-        super
-        update_size
+        super.tap do
+          update_size unless transfer
+        end
       end
 
       def alter ...

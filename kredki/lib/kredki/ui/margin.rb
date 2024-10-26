@@ -67,7 +67,7 @@ module Kredki
           @r = r
           @t = t
           @b = b
-          update_car
+          update_pad
           true
         end
       end, :space!
@@ -84,8 +84,7 @@ module Kredki
 
       def initialize ...
         super
-
-        @car = nil
+        
         @l = @r = @t = @b = 0
       end
 
@@ -94,7 +93,7 @@ module Kredki
         
         on_resize! do |e|
           if e.target != self
-            update_car
+            update_pad
             e.resolve
           end
         end
@@ -104,20 +103,20 @@ module Kredki
         @pads.first
       end
 
-      def push_pad pad, next_pad = nil
-        pad&.detach!
+      def push_pad ...
+        pad&.detach! true
         super
-        update_car
+        update_pad
         pad
       end
 
       def remove_pad pad, transfer
         removed = super
-        update_car
+        update_pad unless transfer
         removed
       end
 
-      def update_car
+      def update_pad
         pad = self.pad
         w = @l + @r
         h = @t + @b

@@ -235,7 +235,6 @@ module Kredki
         def method_missing name, *a, **na, &b
           index = pad.parent&.paint_index pad
           if index
-            p [pad.parent, index, name]
             pad.parent&.send name, *a, _index: index + 1, **na, &b
           end
         end
@@ -249,15 +248,16 @@ module Kredki
         parent&.paint_index self
       end
 
-      def push_pad pad, index = nil, clip = true
+      def push_pad pad, paint_index = nil, clip = true
         pad_parent = pad.parent
-        push_paint pad, true, index
+        paint_state = push_paint pad, true, paint_index
         pad.set_parent self
-        if index
-          pad_index = ([index, @pads.size].min...0).step(-1).find do |i|
-            @paints[@pads[i - 1]].index < index
-          end || 0
-          @pads.insert pad_index, pad
+        if paint_index
+          start = [paint_state.index, @pads.size - 1].min
+          pad_index = (start..0).step(-1).find do |i|
+            @paints[@pads[i]].index < paint_state.index
+          end || -1
+          @pads.insert pad_index + 1, pad
         else
           @pads << pad
         end

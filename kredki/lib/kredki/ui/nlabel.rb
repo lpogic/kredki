@@ -1,6 +1,6 @@
 module Kredki
   module UI
-    class Multilabel < Pad
+    class NLabel < Pad
 
       class Line
         model :selection, :text
@@ -9,6 +9,7 @@ module Kredki
       def initialize
         super
 
+        @text_place = proc{ 0 }
         Label.init_flags self
       end
 
@@ -48,25 +49,25 @@ module Kredki
         end
 
         on_key! :home do |e|
-          cursor_home e.shift?
+          cursor_home e.shift?, e.ctrl?
           e.resolve
         end
 
         on_key! :keypad_seven do |e|
           unless e.num?
-            cursor_home e.shift? 
+            cursor_home e.shift?, e.ctrl?
             e.resolve
           end
         end
 
         on_key! :end do |e|
-          cursor_end e.shift?
+          cursor_end e.shift?, e.ctrl?
           e.resolve
         end
 
         on_key! :keypad_one do |e|
           unless e.num?
-            cursor_end e.shift?
+            cursor_end e.shift?, e.ctrl?
             e.resolve
           end
         end
@@ -127,7 +128,7 @@ module Kredki
 
         on_focus_lose! do |e|
           @cursor.hide!
-          # @selection.hide!
+          @lines.each{ _1.selection.hide! }
           e.resolve
         end.resolve FocusLoseEvent.new
 
@@ -196,23 +197,23 @@ module Kredki
             x = text.substring_width @cursor_position - total
             if move
               if text.x + x > w
-                @cursor.x = w - 1
-                @lines.each{ _1.text.x = w - x }
+                @cursor.x = @text_place.(text.w, w) + w - 1
+                @lines.each{ _1.text.x = @text_place.(_1.text.w, w) + w - x }
               elsif text.x + x < 0
-                @cursor.x = -1
-                @lines.each{ _1.text.x = -x }
+                @cursor.x = @text_place.(text.w, w) - 1
+                @lines.each{ _1.text.x = @text_place.(_1.text.w, w) - x }
               else
                 @cursor.x = text.x + x - 1
               end
             else
               if x <= w
-                @cursor.x = x - 1
-                @lines.each{ _1.text.x = 0 }
+                @cursor.x = @text_place.(text.w, w) + x - 1
+                @lines.each{ _1.text.x = @text_place.(_1.text.w, w) }
               elsif text.x + x < w && text.x + x > 0
                 @cursor.x = text.x + x - 1
               else
-                cursor.x = w / 2 - 1
-                @lines.each{ _1.text.x = w / 2 - x }
+                cursor.x = @text_place.(text.w, w) + w / 2 - 1
+                @lines.each{ _1.text.x = @text_place.(_1.text.w, w) + w / 2 - x }
               end
             end
             break
@@ -295,10 +296,12 @@ module Kredki
 
       def cursor_left shift
         if shift
-          if @cursor_position > 0 && @cursor_position == @selection_min
-            @selection_min = @cursor_position -= 1
-          elsif @cursor_position == @selection_max
-            @selection_max = @cursor_position -= 1
+          if @cursor_position > 0
+            if @cursor_position == @selection_min
+              @selection_min = @cursor_position -= 1
+            elsif @cursor_position == @selection_max
+              @selection_max = @cursor_position -= 1
+            end
           end
         else
           if @selection_min == @selection_max            
@@ -314,10 +317,12 @@ module Kredki
       def cursor_right shift
         length = string_length
         if shift
-          if @cursor_position < length && @cursor_position == @selection_max
-            @selection_max = @cursor_position += 1
-          elsif @cursor_position == @selection_min
-            @selection_min = @cursor_position += 1
+          if @cursor_position < length
+            if @cursor_position == @selection_max
+              @selection_max = @cursor_position += 1
+            elsif @cursor_position == @selection_min
+              @selection_min = @cursor_position += 1
+            end
           end
         else
           if @selection_min == @selection_max            
@@ -398,13 +403,61 @@ module Kredki
         end
       end
 
-      def cursor_end shift
+      def cursor_home shift, ctrl
+        cursor_position = if ctrl
+          0
+        else
+          @lines.reduce -1 do |total, line|
+            length = line.text.string.length
+            total += 1
+            break total if total + length >= @cursor_position
+            total + length
+          end
+        end
+
         if shift
-          @selection_min = @selection_max if @cursor_position == @selection_min
-          @selection_max = @cursor_position = string_length
+          if @cursor_position == @selection_max
+            if cursor_position <= @selection_min
+              @selection_max = @selection_min
+              @selection_min = cursor_position
+            else
+              @selection_max = cursor_position
+            end
+          else
+            @selection_min = cursor_position
+          end
+          @cursor_position = cursor_position
           update_cursor true
         else
-          reset_cursor string_length, true
+          reset_cursor cursor_position, true
+        end
+      end
+
+      def cursor_end shift, ctrl
+        cursor_position = if ctrl
+          string_length
+        else
+          @lines.reduce -1 do |total, line|
+            break total if total >= @cursor_position
+            total + 1 + line.text.string.length
+          end
+        end
+
+        if shift
+          if @cursor_position == @selection_min
+            if cursor_position >= @selection_max
+              @selection_min = @selection_max
+              @selection_max = cursor_position
+            else
+              @selection_min = cursor_position
+            end
+          else
+            @selection_max = cursor_position
+          end
+          @cursor_position = cursor_position
+          update_cursor true
+        else
+          reset_cursor cursor_position, true
         end
       end
 
@@ -412,8 +465,8 @@ module Kredki
         string = self.string
         str = block.call string, str if block
         string != str && begin
-          texts = str.split "\n"
-          texts = [""] if texts.empty?
+          str += "\n" if str.empty? || str.end_with?("\n")
+          texts = str.each_line chomp: true
           @lines = Enumerable.zip @lines, texts do |line, s|
             if line
               if s
@@ -430,8 +483,8 @@ module Kredki
               line
             end
           end.compact
-          self.reset_cursor if reset_cursor
           wh! @lines.map{ _1.text.w.ceil }.max, @lines.last.text.then{ _1.y + _1.h } if autosized?
+          self.reset_cursor if reset_cursor
           true
         end
       end, :s=, :string!, :string=
@@ -448,10 +501,20 @@ module Kredki
         @lines.first.text.color
       end
 
+      aliasing def text_place! place
+        @text_place = case place
+        when :l, :left then proc{ 0 }
+        when :c, :center then proc{ (_2 - _1) / 2 }
+        when :r, :right then proc{ _2 - _1 }
+        when Proc then place
+        else raise "Invalid #{place.class}[#{place}] given"
+        end
+      end, :text_place=
+
       def_flag :autosized!, true, true
 
       def string_length
-        @lines.map{ _1.text.string.length }.sum + @lines.length
+        @lines.map{ _1.text.string.length }.sum + @lines.length - 1
       end
     end
   end

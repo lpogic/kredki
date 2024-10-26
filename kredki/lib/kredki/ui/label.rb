@@ -70,7 +70,7 @@ module Kredki
         on_key! :a do |e|
           if e.ctrl?
             @selection_min = 0
-            @selection_max = @cursor_position = @text.string.length
+            @selection_max = @cursor_position = string.length
             update_cursor true
             e.resolve
           end
@@ -78,7 +78,7 @@ module Kredki
 
         on_key! :c do |e|
           if e.ctrl? && selection?
-            clipboard.string = @text.string[@selection_min...@selection_max]
+            clipboard.string = string[@selection_min...@selection_max]
             e.resolve
           end
         end
@@ -297,8 +297,8 @@ module Kredki
         str = block.call @text.string, str if block
         @text.string != str && begin
           @text.string = str
-          self.reset_cursor if reset_cursor
           w! @text.w.ceil if autosized?
+          self.reset_cursor if reset_cursor
           true
         end
       end, :s=, :string!, :string=

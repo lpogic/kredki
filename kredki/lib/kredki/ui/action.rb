@@ -45,6 +45,7 @@ module Kredki
         :on_mouse_button!, 
         :on_scroll!,
         :on_key!,
+        :on_click!,
         :use!
 
       #internal api
@@ -82,7 +83,7 @@ module Kredki
           end
         end
 
-        @background = push_paint(RootPad.new.sketch_base).alter color: :black do
+        @background = push_paint(RootPad.new.sketch_base).paint.alter color: :black do
           set_action p0
           focus!
         end

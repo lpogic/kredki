@@ -1,8 +1,9 @@
 require_relative 'label'
+require_relative 'nlabel'
 
 module Kredki
   module UI
-    class Edit < Label
+    module Edit
 
       def sketch p0
         super
@@ -23,15 +24,38 @@ module Kredki
         end
 
         on_key! :v do |e|
-          paste clipboard.string
-          e.resolve
+          if e.ctrl?
+            paste clipboard.string
+            e.resolve
+          end
+        end
+
+        on_key! :x do |e|
+          if e.ctrl? && (selection? || e.shift?)
+            s = e.shift? ? clipboard.string : ""
+            clipboard.string = string[@selection_min...@selection_max] if selection?
+            paste s
+            e.resolve
+          end
         end
 
         on_edit! do |e|
-          s! string.then{|s| s == "" ? e.string : s[...e.selection_min] + e.string + s[e.selection_max..]}, false
-          reset_cursor e.selection_min + e.string.length
+          edit e.string, e.selection_min, e.selection_max
           e.resolve
         end
+      end
+
+      def edit string, selection_min, selection_max
+        s = self.string
+        s = if s == ""
+          string
+        elsif selection_max < s.length
+          s[...selection_min] + string + s[selection_max..]
+        else
+          s[...selection_min] + string
+        end
+        s! s, false
+        reset_cursor selection_min + string.length
       end
 
       def on_edit! &block
@@ -55,6 +79,23 @@ module Kredki
           report EditEvent.new @selection_min, @selection_max, "", :backspace
         elsif @cursor_position < string.length
           report EditEvent.new @cursor_position, @cursor_position + 1, "", :backspace
+        end
+      end
+    end
+
+    class LabelEdit < Label
+      include Edit
+    end
+
+    class NLabelEdit < NLabel
+      include Edit
+
+      def sketch p0
+        super
+
+        on_key! :enter do |e|
+          paste "\n"
+          e.resolve
         end
       end
     end

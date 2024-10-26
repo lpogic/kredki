@@ -54,7 +54,7 @@ module Kredki
 
         on_resize! do |e|
           if e.target != self
-            update_car
+            update_pad
             e.resolve
           end
         end
@@ -81,20 +81,25 @@ module Kredki
       end
 
       def push_pad ...
-        pad&.detach!
+        pad&.detach! true
         result = super
-        update_car
+        update_pad
         result
       end
 
       def remove_pad pad, transfer
         result = super
-        update_car
+        update_pad unless transfer
         result
       end
 
-      def update_car
-        pad&.then{ set_size *_1.wh }
+      def update_pad
+        pad = self.pad
+        if pad
+          set_size *pad.wh
+        else
+          set_size 0, 0
+        end
       end
 
       def update_color

@@ -48,14 +48,9 @@ module Kredki
 
       #internal api
 
-      class Car
-        struct :pad, :on_resize
-      end
-
       def initialize ...
         super
-
-        @cars = []
+        
         @x_slice = @y_slice = 0
         @w_slice = @h_slice = 1.0
       end
@@ -75,11 +70,11 @@ module Kredki
           else
             @parent_resize = parent.on_resize! do
               update_size
-              update_cars
+              update_pads
             end
           end
           update_size
-          update_cars
+          update_pads
         end
       end
 
@@ -115,25 +110,15 @@ module Kredki
         return false
       end
 
-      def push_pad pad, next_pad = nil
-        super pad, next_pad
-
-        @cars << Car.new(pad, pad.on_resize!{ update_cars })
-        update_cars
-        pad
-      end
-
-      def remove_pad pad, transfer
-        super
-        
-        if index = @cars.index{ _1.pad == pad }
-          @cars.delete_at(index).on_resize.detach!
+      def push_pad ...
+        super.tap do
+          update_pads
         end
       end
 
       def pad_update
         update_size
-        update_cars
+        update_pads
         true
       end
 
@@ -142,10 +127,10 @@ module Kredki
         set_size @w_slice > 1.0 ? @w_slice : parent.w * @w_slice, @h_slice > 1.0 ? @h_slice : parent.h * @h_slice
       end
 
-      def update_cars
+      def update_pads
         w, h = *wh
-        @cars.each do |c|
-          c.pad.wh! w, h if !c.pad.autosized?
+        @pads.each do |p1|
+          p1.wh! w, h unless p1.autosized?
         end
       end
       
