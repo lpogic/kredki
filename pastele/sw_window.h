@@ -7,7 +7,7 @@ namespace pas {
 
 class SwWindow : Window
 {
-    unique_ptr<tvg::SwCanvas> canvas = nullptr;
+    tvg::SwCanvas* canvas = nullptr;
 
     public:
 

@@ -1,4 +1,3 @@
-require_relative 'alterable'
 require_relative 'has_flags'
 
 module Kredki
@@ -13,7 +12,7 @@ module Kredki
       @picture = Paint.new Abi.animation_get_picture @pointer
       @owner = nil
       @ms = nil
-      @on_end = EventCallings.new
+      @on_end = EventManager.new
       Animation.init_flags self
     end
 
@@ -47,8 +46,8 @@ module Kredki
       Abi.animation_set_segment @pointer, *segment
     end
 
-    def_flag :loop
-    def_flag :play
+    def_flag :loop, true, true
+    def_flag :play, nil, true
 
     def on_end! &block
       @on_end << block
@@ -70,7 +69,7 @@ module Kredki
     def finish!
       if @play
         set_play 0
-        @on_end.call nil
+        @on_end.resolve Event.new
       end
     end
 

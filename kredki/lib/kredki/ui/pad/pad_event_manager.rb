@@ -6,48 +6,35 @@ require 'kredki-core/event/joystick_event_manager'
 module Kredki
   class PadEventManager
 
-    def self.mode_map mode
-      case mode
-      when :default
-        :alt
-      when :resolved
-        :alt_resolved
-      else
-        mode
-      end
-    end
-
     model do
       @managers = {
-        alt: {},
-        aim: {},
-        alt_resolved: {},
-        aim_resolved: {},
+        true => {},
+        false => {},
       }
     end
 
-    def manager event_type, block, mode = :default
-      manager = (@managers[PadEventManager.mode_map mode][event_type] ||= EventManager.new)
-      block ? manager.attach!(block) : manager
+    def manager event_class, block, aim, force
+      manager = (@managers[aim][event_class] ||= EventManager.new)
+      block ? manager.attach!(block, force) : manager
     end
 
-    def keyboard_manager event_type, keycodes, block, mode = :default
-      manager = (@managers[PadEventManager.mode_map mode][event_type] ||= KeyboardEventManager.new)[*keycodes]
-      block ? manager.attach!(block) : manager
+    def keyboard_manager event_class, keycodes, block, aim, force
+      manager = (@managers[aim][event_class] ||= KeyboardEventManager.new)[*keycodes]
+      block ? manager.attach!(block, force) : manager
     end
 
-    def mouse_manager event_type, indexes, block, mode = :default
-      manager = (@managers[PadEventManager.mode_map mode][event_type] ||= MouseEventManager.new)[*indexes]
-      block ? manager.attach!(block) : manager
+    def mouse_manager event_class, indexes, block, aim, force
+      manager = (@managers[aim][event_class] ||= MouseEventManager.new)[*indexes]
+      block ? manager.attach!(block, force) : manager
     end
     
-    def joystick_manager event_type, joystick, indexes, block, mode = :default
-      manager = (@managers[PadEventManager.mode_map mode][event_type] ||= JoystickEventManager.new)[joystick, indexes]
-      block ? manager.attach!(block) : manager
+    def joystick_manager event_class, joystick, indexes, block, aim, force
+      manager = (@managers[aim][event_class] ||= JoystickEventManager.new)[joystick, indexes]
+      block ? manager.attach!(block, force) : manager
     end
 
-    def resolve event, mode = :default
-      @managers[PadEventManager.mode_map mode][event.class]&.resolve event
+    def resolve event, aim
+      @managers[aim][event.class]&.resolve event
     end
   end
 end

@@ -55,7 +55,7 @@ module Kredki
       end
 
       def xy
-        @context.translate *@mouse.xy
+        @context.action.translate *@mouse.xy, @context
       end
 
       def_delegators :@mouse,

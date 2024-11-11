@@ -10,24 +10,24 @@ module Kredki
       @managers = {}
     end
 
-    def manager event_type, block
+    def manager event_type, block, force = false
       manager = (@managers[event_type] ||= EventManager.new)
-      block ? manager.attach!(block) : manager
+      block ? manager.attach!(block, force) : manager
     end
 
-    def keyboard_manager event_type, keycodes, block
+    def keyboard_manager event_type, keycodes, block, force = false
       manager = (@managers[event_type] ||= KeyboardEventManager.new)[*keycodes]
-      block ? manager.attach!(block) : manager
+      block ? manager.attach!(block, force) : manager
     end
 
-    def mouse_manager event_type, indexes, block
+    def mouse_manager event_type, indexes, block, force = false
       manager = (@managers[event_type] ||= MouseEventManager.new)[*indexes]
-      block ? manager.attach!(block) : manager
+      block ? manager.attach!(block, force) : manager
     end
     
-    def joystick_manager event_type, joystick, indexes, block
+    def joystick_manager event_type, joystick, indexes, block, force = false
       manager = (@managers[event_type] ||= JoystickEventManager.new)[joystick, indexes]
-      block ? manager.attach!(block) : manager
+      block ? manager.attach!(block, force) : manager
     end
 
     def resolve event

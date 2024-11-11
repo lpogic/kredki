@@ -83,13 +83,16 @@ module Kredki
           end
         end
 
-        @background = push_paint(RootPad.new.sketch_base).paint.alter color: :black do
+        @background = RootPad.new.sketch_base
+        push_paint @background.scene
+        @background.alter color: :black do
           set_action p0
           focus!
         end
         on_resize! do
           @background.size = window.size
         end.resolve
+        @background.alter_commit
       end
 
       def update_mouse_pad event = nil

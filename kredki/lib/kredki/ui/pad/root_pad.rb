@@ -7,8 +7,13 @@ module Kredki
         keyboardy!
       end
 
-      def translate x, y
-        [x, y]
+      def translate x, y, target = nil
+        if target
+          xy = target.translate -x, -y
+          [-xy[0], -xy[1]]
+        else
+          [x, y]
+        end
       end
     end
   end

@@ -1,4 +1,3 @@
-require_relative 'alterable'
 require_relative 'paint'
 require_relative 'color'
 require_relative 'font'

@@ -6,9 +6,9 @@ module Kredki
         case filter
         when Integer
           if block
-            pads.find{ _1.index == filter }&.then{ _1.instance_exec _1, &block }
+            pads.find{ _1.pad_index == filter }&.then{ _1.instance_exec _1, &block }
           else
-            pads.find{ _1.index == filter }
+            pads.find{ _1.pad_index == filter }
           end
         else
           if block
@@ -41,8 +41,8 @@ module Kredki
       def def_pad name, klass = nil, &block
         if block
           PadBase.define_method name do |*a, **na, &b|
-            pad = instance_exec self, a, b, **na, &block
-            pad.alter name, *a, **na, &b if klass
+            pad = instance_exec a, na, b, self, &block
+            pad.alter! name, *a, **na, &b if klass
             pad
           end
         else
@@ -55,8 +55,8 @@ module Kredki
       def self.def_pad name, klass = nil, &block
         if block
           define_method name do |*a, **na, &b|
-            pad = instance_exec self, a, b, **na, &block
-            pad.alter name, *a, **na, &b if klass
+            pad = instance_exec a, na, b, self, &block
+            pad.alter! name, *a, **na, &b if klass
             pad
           end
         else

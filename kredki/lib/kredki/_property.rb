@@ -1,15 +1,15 @@
 module Kredki
   class Property
     model do
-      @callings = EventCallings.new
+      @event_manager = EventManager.new
     end
 
     def on! &block
-      block ? @callings.attach(block) : @callings
+      block ? @event_manager.attach(block) : @event_manager
     end
 
     def push value
-      @callings.call value
+      @event_manager.call value
     end
 
     def <<(value)

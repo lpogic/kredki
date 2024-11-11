@@ -2,7 +2,7 @@ require_relative 'pad/sort_pad'
 
 module Kredki
   module UI
-    class Slice < SortPad
+    class SlicePad < SortPad
 
       aliasing def x! x = nil
         set_x_slice((x || 0).to_f) && pad_update
@@ -53,6 +53,18 @@ module Kredki
         
         @x_slice = @y_slice = 0
         @w_slice = @h_slice = 1.0
+      end
+      
+      def sketch p0
+        super
+
+        on_resize! do |e|
+          e.resolve
+        end
+
+        on! SizeModeEvent do |e|
+          update_pads
+        end
       end
 
       def mouse_button_down e
@@ -124,7 +136,7 @@ module Kredki
 
       def update_size
         set_xy @x_slice.abs > 1.0 ? @x_slice : parent.w * @x_slice, @y_slice.abs > 1.0 ? @y_slice : parent.h * @y_slice
-        set_size @w_slice > 1.0 ? @w_slice : parent.w * @w_slice, @h_slice > 1.0 ? @h_slice : parent.h * @h_slice
+        set_size(@w_slice > 1.0 ? @w_slice : parent.w * @w_slice, @h_slice > 1.0 ? @h_slice : parent.h * @h_slice) && resize_common
       end
 
       def update_pads
@@ -132,6 +144,14 @@ module Kredki
         @pads.each do |p1|
           p1.wh! w, h unless p1.autosized?
         end
+      end
+
+      def max_x
+        0
+      end
+
+      def max_y
+        0
       end
       
       def autosized?

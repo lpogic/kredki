@@ -30,7 +30,7 @@ module Kredki
     end
 
     def window ...
-      @owner&.alter(...)
+      @owner&.alter!(...)
     end
 
     def action
@@ -72,7 +72,8 @@ module Kredki
     end
 
     def_delegators :window,
-      :wh, :size, :w, :width, :h, :height
+      :wh, :size, :w, :width, :h, :height, 
+      :window!
 
     #internal api
 
@@ -95,8 +96,13 @@ module Kredki
       @sketched
     end
 
-    def translate x, y
-      [x, y]
+    def translate x, y, target = nil
+      if target
+        xy = target.translate -x, -y
+        [-xy[0], -xy[1]]
+      else
+        [x, y]
+      end
     end
 
     def push_animation animation

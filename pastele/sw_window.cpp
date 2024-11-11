@@ -29,7 +29,7 @@ void SwWindow::initialize()
 
 tvg::Canvas* SwWindow::getCanvas() 
 { 
-    return canvas.get();
+    return canvas;
 }
 
 void SwWindow::resize()
@@ -38,7 +38,7 @@ void SwWindow::resize()
     if (!surface) return;
 
     canvas->sync();
-    verify(canvas->target((uint32_t*)surface->pixels, surface->w, surface->pitch / 4, surface->h, tvg::SwCanvas::ARGB8888));
+    verify(canvas->target((uint32_t*)surface->pixels, surface->w, surface->pitch / 4, surface->h, tvg::ColorSpace::ARGB8888));
     canvas->update(nullptr);
 }
 

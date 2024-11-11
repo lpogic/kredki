@@ -1,9 +1,9 @@
-require_relative 'label'
-require_relative 'nlabel'
+require_relative 'text/text_line'
+require_relative 'text/text_column'
 
 module Kredki
   module UI
-    module Edit
+    module Editor
 
       def sketch p0
         super
@@ -41,7 +41,6 @@ module Kredki
 
         on_edit! do |e|
           edit e.string, e.selection_min, e.selection_max
-          e.resolve
         end
       end
 
@@ -79,16 +78,18 @@ module Kredki
           report EditEvent.new @selection_min, @selection_max, "", :backspace
         elsif @cursor_position < string.length
           report EditEvent.new @cursor_position, @cursor_position + 1, "", :backspace
+        elsif string.length > 0
+          backspace
         end
       end
     end
 
-    class LabelEdit < Label
-      include Edit
+    class TextLineEditor < TextLine
+      include Editor
     end
 
-    class NLabelEdit < NLabel
-      include Edit
+    class TextColumnEditor < TextColumn
+      include Editor
 
       def sketch p0
         super

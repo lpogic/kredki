@@ -4,7 +4,7 @@ module Kredki
     EVENT_LOOP_LIMIT = 200
 
     model do
-      @pairs = []
+      @stops = []
       @stem = false
     end
 
@@ -19,13 +19,13 @@ module Kredki
       "#{self.class}:#{object_id}"
     end
 
-    def push event, target, mode
-      @pairs << [event, target, mode]
+    def push event, stop, mode
+      @stops << [stop, event, mode]
       resolve if !@stem
     end
 
-    def push_block event, &block
-      @pairs << [event, block]
+    def push_block event, &stop
+      @stops << [stop, event]
     end
 
     def resolve
@@ -35,29 +35,21 @@ module Kredki
           begin
             return loop_safe_resolve i
           ensure
-            @pairs = []
+            @stops = []
             @stem = stem
           end
         end
-        pair = @pairs[i]
-        unless pair
-          @pairs = []
+        stop = @stops[i]
+        unless stop
+          @stops = []
           @stem = stem
           return
         end
-        event, target, mode = *pair
-        if target.is_a? Proc
-          target.call event
+        stop, event, mode = *stop
+        if stop.is_a? Proc
+          stop.call event
         else
-          mode = case mode
-          when :alt
-            event.resolved? ? :alt_resolved : :alt
-          when :aim
-            event.resolved? ? :aim_resolved : :aim
-          else
-            mode
-          end
-          target.resolve event, mode
+          stop.resolve event, mode
         end
       end
     end
@@ -68,31 +60,23 @@ module Kredki
     end
 
     def loop_error range
-      raise EventLoopError.new "#{@pairs[range]}"
+      raise EventLoopError.new "#{@stops[range]}"
     end
 
     def loop_safe_resolve start = 0
       proceed = {}
       (start..).each do |i|
-        return unless pair = @pairs[i]
-        if j = proceed[pair]
+        return unless stop = @stops[i]
+        if j = proceed[stop]
           loop_error j..i
         else
-          proceed[pair] = i
+          proceed[stop] = i
         end
-        event, target, mode = *pair
-        if target.is_a? Proc
-          target.call event
+        stop, event, mode = *stop
+        if stop.is_a? Proc
+          stop.call event
         else
-          mode = case mode
-          when :alt
-            event.resolved? ? :alt_resolved : :alt
-          when :aim
-            event.resolved? ? :aim_resolved : :aim
-          else
-            mode
-          end
-          target.resolve event, mode
+          stop.resolve event, mode
         end
       end
     end

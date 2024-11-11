@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
   s.homepage    = "https://github.com/lpogic/kredki"
   s.license       = "Zlib"
   s.required_ruby_version     = ">= 3.2.2"
-  s.add_runtime_dependency("kredki-core", "~> 0.1")
+  # s.add_runtime_dependency("kredki-core", "~> 0.1.0")
   s.metadata = {
     "documentation_uri" => "https://github.com/lpogic/kredki/blob/main/doc/wiki/README.md",
     "homepage_uri" => "https://github.com/lpogic/kredki"

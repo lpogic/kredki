@@ -1,12 +1,13 @@
 module Kredki
   class EventResolver
-    model :block, :@manager
+    model :block, :@manager, :force
 
     def on_resolve! &block
       @block = block
     end
 
     def resolve event = nil
+      return if !@force && event&.resolved?
       p @block if event&.track?
       @block.call event, self
     end
@@ -18,11 +19,11 @@ module Kredki
 
     def detach!
       @manager&.detach! self
+      @manager = nil
     end
 
-    def attach! manager
-      detach!
-      @manager = manager
+    def attach! manager, force = false
+      self.class.new model_fields.map{ send _1.name }, manager:, force:;
     end
   end
 end

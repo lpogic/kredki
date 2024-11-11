@@ -73,7 +73,7 @@ WgWindow::~WgWindow() {
 }
 
 tvg::Canvas* WgWindow::getCanvas()  { 
-    return canvas->get();
+    return canvas;
 }
 
 void WgWindow::resize() {

@@ -2,7 +2,7 @@ require_relative 'pad/sort_pad'
 
 module Kredki
   module UI
-    class Margin < SortPad
+    class SpacerPad < SortPad
 
       def << arg
         case arg
@@ -91,11 +91,11 @@ module Kredki
       def sketch p0
         super
         
-        on_resize! do |e|
-          if e.target != self
-            update_pad
-            e.resolve
-          end
+      end
+
+      def resize e
+        if e.target != self
+          update_pad
         end
       end
 

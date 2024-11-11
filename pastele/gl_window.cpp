@@ -31,7 +31,7 @@ GlWindow::~GlWindow()
 
 tvg::Canvas* GlWindow::getCanvas() 
 { 
-    return canvas.get();
+    return canvas;
 }
 
 void GlWindow::resize()

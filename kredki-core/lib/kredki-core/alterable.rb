@@ -14,6 +14,35 @@ module Kredki
       instance_exec self, &block if block
       self
     end
+
+    def alter! ...
+      altered = alter_begin
+      alter(...)
+      altered ? alter_commit : self
+    end
+    
+    def alter_begin
+      @altered = {} unless @altered
+    end
+
+    def alter_commit keep_open = false
+      altered, @altered = @altered, nil
+      if altered
+        after_alter altered
+        @altered = {} if keep_open
+      end
+      self
+    end
+
+    def after_alter altered
+      altered.each do |k, v|
+        send k
+      end
+    end
+
+    def altered? sending = nil
+      !sending || (@altered[sending] = true) if @altered
+    end
   end
 end
     

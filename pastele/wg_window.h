@@ -9,7 +9,7 @@ namespace pas {
 
 class WgWindow : Window
 {
-    unique_ptr<tvg::WgCanvas> canvas = nullptr;
+    tvg::WgCanvas* canvas = nullptr;
 
     WGPUInstance instance;
     WGPUSurface surface;

@@ -2,7 +2,7 @@ require 'forwardable'
 
 module Kredki
   module UI
-    class Image < Pad
+    class ImagePad < Pad
       extend Forwardable
 
       aliasing def s! source
@@ -27,9 +27,7 @@ module Kredki
       def sketch p0
         super
 
-        @picture = picture! do
-          clip! p0.body
-        end
+        @picture = @scene.picture! clip!: @body
 
         @body.hide!
       end

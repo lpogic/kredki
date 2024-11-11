@@ -1,10 +1,9 @@
 require 'forwardable'
-require_relative 'margin'
-require_relative 'label'
+require_relative 'text/text_line'
 
 module Kredki
   module UI
-    class Button < Pad
+    class ButtonPad < Pad
       extend Forwardable
 
       aliasing def color! color
@@ -12,11 +11,13 @@ module Kredki
         report RepaintEvent.new
       end, :color=
 
-      aliasing def s! s
+      aliasing def s! ...
         if pad.respond_to? :s!
-          pad.s! s
+          pad.s!(...)
         else
-          new_pad(Label).alter s:, mousy: false
+          new_pad(TextLine).alter mousy: false do
+            s!(...)
+          end
         end
       end, :s=, :string!, :string=
 
@@ -47,8 +48,7 @@ module Kredki
         super
 
         keyboardy!
-        string! "Button"
-        
+
         color! :gray
         stroke_width! 1
 
@@ -74,6 +74,8 @@ module Kredki
           report RepaintEvent.new
           e.resolve
         end
+
+        string! "Button"
       end
 
       def pad

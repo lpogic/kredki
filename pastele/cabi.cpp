@@ -387,9 +387,13 @@ CABI void paint_get_bounds(Paint* self, Bounds* bounds, int transformed) {
     self->bounds(&bounds->x, &bounds->y, &bounds->w, &bounds->h, transformed);
 }
 
-CABI void paint_set_composite_method(Paint* self, Paint* mask, int method) {
-    self->composite(mask ? unique_ptr<Paint>(mask) : nullptr, (CompositeMethod)method);
+CABI void paint_set_clip(Paint* self, Paint* clipper) {
+    self->clip(clipper);
 }
+
+// CABI void paint_set_composite_method(Paint* self, Paint* mask, int method) {
+//     self->composite(mask ? unique_ptr<Paint>(mask) : nullptr, (CompositeMethod)method);
+// }
 
 // CABI int tvg_paint_get_composite_method(const Tvg_Paint* paint, const Tvg_Paint** target, Tvg_Composite_Method* method)
 // {
@@ -423,7 +427,7 @@ CABI void paint_set_blend_method(Paint* self, int method) {
 
 CABI void* shape_new()
 {
-    return Shape::gen().release();
+    return Shape::gen();
 }
 
 CABI void shape_delete(Shape* self) {
@@ -664,7 +668,7 @@ CABI void shape_set_paint_order(Shape* self, int strokeFirst) {
 // /************************************************************************/
 
 CABI Picture* picture_new(void) {
-    return Picture::gen().release();
+    return Picture::gen();
 }
 
 CABI int picture_load(Picture* self, const char* path) {
@@ -814,7 +818,7 @@ CABI void picture_get_size(Picture* self, Point* size) {
 
 CABI void* scene_new()
 {
-    return Scene::gen().release();
+    return Scene::gen();
 }
 
 CABI void scene_delete(Scene* self) {
@@ -832,7 +836,7 @@ CABI void scene_delete(Scene* self) {
 
 CABI void scene_push(Scene* self, Paint* paint)
 {
-    self->push(unique_ptr<Paint>(paint)); 
+    self->push(paint); 
     paint->markTransformed();
 }
 
@@ -859,7 +863,7 @@ CABI void scene_clear(Scene* self, int free)
 // /************************************************************************/
 
 CABI void* text_new(void) {
-    return Text::gen().release();
+    return Text::gen();
 }
 
 CABI void text_delete(Text* self) {
@@ -960,7 +964,7 @@ CABI int font_unload(const char* path)
 // /************************************************************************/
 
 CABI Animation* animation_new(void) {
-    return Animation::gen().release();
+    return Animation::gen();
 }
 
 CABI void animation_set_frame(Animation* self, float no) {

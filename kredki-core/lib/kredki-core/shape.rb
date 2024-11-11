@@ -1,4 +1,3 @@
-require_relative 'alterable'
 require_relative 'paint'
 require_relative 'color'
 
@@ -50,16 +49,26 @@ module Kredki
       update
     end
 
-    def color! *color
-      set_fill_color *Kredki.color(color.extract).to_rgba_array
+    aliasing def color! *color, &block
+      if block
+        color = Kredki.color(block.call self.color)
+      else
+        color = Kredki.color(color.extract)
+      end
+      set_fill_color color
+    end, :fill_color!
+    
+    aliasing def color= color
+      if color.is_a? Array
+        color! *color
+      else
+        color! color
+      end
+    end, :fill_color=
+    
+    def color
+      @color
     end
-
-    def color= color
-      set_fill_color *Kredki.color(color).to_rgba_array
-    end
-
-    alias_method :fill_color!, :color!
-    alias_method :fill_color=, :color=
 
     class FillRule
       enum :winding, :even_odd
@@ -76,7 +85,6 @@ module Kredki
     def stroke_color= color
       set_stroke_color *Kredki.color(color).to_rgba_array
     end
-
 
     aliasing def stroke_width! width
       set_stroke_width width
@@ -124,9 +132,12 @@ module Kredki
 
     private
 
-    def set_fill_color r, g, b, a
-      Abi.shape_set_fill_color @pointer, r, g, b, a
-      update
+    def set_fill_color color
+      @color != color && begin
+        Abi.shape_set_fill_color @pointer, *color.to_rgba_array
+        @color = color
+        update
+      end
     end
 
     def set_fill_rule rule

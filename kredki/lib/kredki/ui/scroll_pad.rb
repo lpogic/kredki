@@ -3,7 +3,7 @@ require_relative 'slide'
 
 module Kredki
   module UI
-    class Scroll < SortPad
+    class ScrollPad < SortPad
 
       #internal api
 
@@ -11,8 +11,8 @@ module Kredki
         super
         
         @corner = new_pad(Pad).alter color: :light_gray, h: 10, w: 10
-        @xslide = new_pad(XSlide).alter h: 10, x: 0, y: h - 10
-        @yslide = new_pad(YSlide).alter w: 10, y: 0, x: w - 10
+        @xslide = new_pad(HorizontalSlide).alter h: 10, x: 0, y: h - 10
+        @yslide = new_pad(VerticalSlide).alter w: 10, y: 0, x: w - 10
 
         @yslide.on_edit! do |e|
           if pad = p0.pad
@@ -50,6 +50,20 @@ module Kredki
               [0, 0]
             end
             e.resolve if (@xslide.value! @xslide.value - xo * xjump) | (@yslide.value! @yslide.value - yo * yjump)
+          end
+        end
+
+        on! ROIEvent do |e|
+          if (l = e.x) < 0
+            @xslide.value! 1.0 * (l - pad.x) / (pad.w - @xslide.w)
+          elsif (r = e.w + e.x) > w
+            @xslide.value! 1.0 * (r - @xslide.w - pad.x) / (pad.w - @xslide.w)
+          end
+
+          if (t = e.y) < 0
+            @yslide.value! 1.0 * (t - pad.y) / (pad.h - @yslide.h)
+          elsif (b = e.h + e.y) > h
+            @yslide.value! 1.0 * (b - @yslide.h - pad.y) / (pad.h - @yslide.h)
           end
         end
       end

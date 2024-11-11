@@ -1,4 +1,3 @@
-require_relative 'alterable'
 require_relative 'has_flags'
 require 'forwardable'
 require_relative 'clipboard'
@@ -171,7 +170,7 @@ module Kredki
       @action.owner = self
       Abi.window_set_scene @pointer, action.pointer
       Abi.window_set_step_handler @pointer, action.step_callback
-      @action.sketch_base.alter(&block)
+      @action.sketch_base.alter(&block).alter_commit
       update_paint @action
       @action
     end

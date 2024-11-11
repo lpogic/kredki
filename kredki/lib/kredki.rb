@@ -6,7 +6,7 @@ if RUBY_PLATFORM =~ /cygwin|mswin|mingw|bccwin|wince|emx/
   $kredki_zlib = ext "dll/zlib1.dll"
   $kredki_libpng = ext "dll/libpng16.dll"
   $kredki_sdl = ext "dll/SDL2.dll"
-  $kredki_thorvg = ext "dll/thorvg-0.dll"
+  $kredki_thorvg = ext "dll/thorvg-1.dll"
   $kredki_pastele = ext "dll/pastele.dll"
 end
 
@@ -106,6 +106,22 @@ Kredki.fonts = {
   dejavu: ext("font/DejaVuSans.ttf"),
 }
 
+module Kredki
+  class Scene
+    def_paint :shape!, Shape
+    def_paint :rectangle!, Rectangle
+    def_paint :ellipse!, Ellipse
+    def_paint :picture!, Picture
+    def_paint :text!, Text
+    def_paint :scene!, Scene
+    def_paint :animation! do |scene, a, b, _show: true, _index: nil, **na|
+      new_animation(_show, _index).alter *a, **na, &b
+    end
+  end
+end
+
+K = Kredki
+
 class TerminateOnEsc
   def self.plug_into target
     target.on_key! :escape do |event|
@@ -118,22 +134,6 @@ class CloseOnEsc
   def self.plug_into target
     target.on_key! :escape do |event|
       target.action.window.destroy!
-    end
-  end
-end
-
-class CarryFocusOnTab
-  def self.plug_into target
-    target.on_key! :tab do |event|
-      next_pad = target.action.keyboard_pad&.then do |p0|
-        target.each_pad(reverse: event.shift?, deep_first: true)
-          .lazy
-          .drop_while{|p1| p0 != p1 }
-          .drop(1)
-          .filter{ _1.keyboardy? }
-          .first
-      end || target.each_pad(reverse: event.shift?, deep_first: true).lazy.filter{ _1.keyboardy? }.first
-      next_pad.focus_gain if next_pad
     end
   end
 end

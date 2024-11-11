@@ -5,6 +5,7 @@ module Kredki
     model do
       @resolvers = []
     end
+    attr :resolvers
 
     def resolve event
       event.unbreak
@@ -14,15 +15,14 @@ module Kredki
       end
     end
 
-    def attach! attached
+    def attach! attached, force = false
       resolver = case attached
       when EventResolver
-        attached
+        attached.attach! self, force;
       when Proc
-        EventResolver.new attached
+        EventResolver.new attached, self, force
       else raise "Unsupported attached type (#{attached.class})"
       end
-      resolver.attach! self
       @resolvers << resolver
       resolver
     end

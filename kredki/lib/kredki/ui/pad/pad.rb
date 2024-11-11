@@ -3,27 +3,29 @@ require_relative 'pad_events'
 require_relative 'pad_base'
 require 'forwardable'
 require 'kredki-core/context/context'
+require 'kredki-core/has_flags'
 
 module Kredki
   module UI
-    class Pad < Scene
+    class Pad
       include PadBase
       include Alterable
       include Context
       include PadEvents
       extend Forwardable
+      extend HasFlags
 
-      def initialize **params, &block
+      def initialize
         super
         @action = nil
         @parent = nil
-        @body = rectangle!
+        @scene = Scene.new
+        @body = @scene.rectangle!
         @names = {}
         @event_manager = PadEventManager.new
-
         @pads = []
-
         @button_down_xy = nil
+
         Pad.init_flags self
       end
 
@@ -33,13 +35,10 @@ module Kredki
         on_mouse_button!{ mouse_button_down _1 }
         on_mouse_button_up!{ mouse_button_up _1 }
         on_mouse_move!{ mouse_move _1 }
-        on! ReboundEvent do |e|
-          rebound e
+        on_resize!{ resize _1 }
+        on! SizeModeEvent do |e|
+          size_mode e
         end
-      end
-
-      def rebound e
-        e.resolve if e.target != self
       end
 
       def sketched?
@@ -114,9 +113,20 @@ module Kredki
         end
         e.resolve
       end
+
+      def resize e
+        e.resolve if e.target != self
+      end
+
+      def size_mode e
+        e.resolve if e.target != self
+      end
       
-      attr :parent, :action, :body, :pads
+      attr :parent, :action, :scene, :body, :pads
       alias_method :a, :action
+
+      def_delegators :@scene,
+        :show?, :show!, :show=
 
       def include? x, y
         x >= 0 && y >= 0 && x <= @body.w && y <= @body.h
@@ -169,47 +179,45 @@ module Kredki
       end
 
       aliasing def x! x
-        set_x x
+        set_x(x) && move_common
       end, :x=
 
       aliasing def y! y
-        set_y y
+        set_y(y) && move_common
       end, :y=
 
       def xy! x, y
-        set_xy x, y
+        set_xy(x, y) && move_common
       end
 
       def xy=(xy)
         xy! *xy
       end
 
-      def x global = false
-        x = super()
-        global ? -parent.translate(-x, 0)[0] : x
+      def x
+        @scene.x
       end
 
-      def y global = false
-        y = super()
-        global ? -parent.translate(0, -y)[1] : y
+      def y
+        @scene.y
       end
 
-      def xy global = false
-        xy = super()
-        xy = -parent.translate(-xy[0], -xy[1]) if global
-        xy
+      def xy
+        @scene.xy
       end
 
-      aliasing def w! w
-        set_size w, h
+      aliasing def w! w = nil
+        w = yield self.w, w if block_given?
+        set_size(w, h) && resize_common
       end, :w=, :width!, :width=
 
-      aliasing def h! h
-        set_size w, h
+      aliasing def h! h = nil
+        h = yield self.h, h if block_given?
+        set_size(w, h) && resize_common
       end, :h=, :height!, :height=
 
       aliasing def wh! w, h = nil
-        set_size w, h || w
+        set_size(w, h || w) && resize_common
       end, :size!
 
       aliasing def wh=(wh)
@@ -222,7 +230,7 @@ module Kredki
       end, :size=
 
       def new_pad klass = Pad, *a, _index: nil, **na, &b
-        push_pad(klass.new.sketch_base, _index).alter(*a, **na, &b)
+        push_pad(klass.new.sketch_base, _index).alter(*a, **na, &b).alter_commit
       end
 
       class Next
@@ -244,27 +252,28 @@ module Kredki
         Next.new self
       end
 
-      def index
+      def pad_index
         parent&.paint_index self
       end
 
       def push_pad pad, paint_index = nil, clip = true
         pad_parent = pad.parent
-        paint_state = push_paint pad, true, paint_index
+        paint_state = @scene.push_paint pad.scene, true, paint_index
         pad.set_parent self
         if paint_index
           start = [paint_state.index, @pads.size - 1].min
+          paints = @scene.paint_hash
           pad_index = (start..0).step(-1).find do |i|
-            @paints[@pads[i]].index < paint_state.index
+            paints[@pads[i].scene].index < paint_state.index
           end || -1
           @pads.insert pad_index + 1, pad
         else
           @pads << pad
         end
         if clip
-          pad.clip! body
+          pad.scene.clip! body
         elsif pad_parent
-          pad.clip! nil
+          pad.scene.clip! nil
         end
         report ContentChangeEvent.new
         event_director.stem do
@@ -276,7 +285,7 @@ module Kredki
       def remove_pad pad, transfer
         removed = @pads.delete pad
         if removed && !transfer
-          pad.composite! false
+          pad.scene.composite! false
           report ContentChangeEvent.new
           event_director.stem do
             action.update_mouse_pad
@@ -289,7 +298,7 @@ module Kredki
         pads, @pads = @pads, []
         pads.each do |pad|
           pad.detach! true
-          pad.composite! false
+          pad.scene.composite! false
         end
         unless pads.empty?
           report ContentChangeEvent.new
@@ -308,7 +317,7 @@ module Kredki
       end
 
       def detach! transfer = false
-        super()
+        @scene.detach!
         @parent&.remove_pad self, transfer
         @parent = nil
       end
@@ -317,8 +326,26 @@ module Kredki
         extension.plug_into self, *a, **na, &b if extension.respond_to? :plug_into
       end
 
+      
+      def color! *color, &block
+        case color
+        in [false]
+          body.hide!
+        else
+          body.show!
+          body.color! *color, &block
+        end
+      end
+
+      def color= color
+        if color.is_a? Array
+          color! *color
+        else
+          color! color
+        end
+      end
+
       def_delegators :@body,
-        :color!, :color=,
         :h, :height, 
         :w, :width,
         :wh, :size,
@@ -327,41 +354,39 @@ module Kredki
 
       #internal api
 
+      def inspect
+        "#{self.class}:#{object_id}"
+      end
+
       def sketch_base
+        alter_begin
         sketch self unless @sketched
         @sketched = true
         self
       end
       
       def set_size w, h
-        body.wh!(w, h) && begin
-          event_director.stem do
-            report ResizeEvent.new
-            report ReboundEvent.new
-            action.update_mouse_pad if mousy? && show?
-          end
-          true
-        end
+        body.wh! w, h
       end
       
       def set_x x
-        super && move_common
+        @scene.set_x x
       end
 
       def set_y y
-        super && move_common
+        @scene.set_y y
       end
 
       def set_xy x, y
-        super && move_common
+        @scene.set_xy x, y
       end
 
-      def min_w
-        w
+      def max_x
+        x + w
       end
 
-      def min_h
-        h
+      def max_y
+        y + h
       end
 
       def move_common
@@ -369,6 +394,14 @@ module Kredki
           action.update_mouse_pad if mousy? && show?
           report MoveEvent.new
         end if sketched?
+        true
+      end
+
+      def resize_common
+        event_director.stem do
+          report ResizeEvent.new
+          action.update_mouse_pad if mousy? && show?
+        end
         true
       end
 
@@ -380,7 +413,7 @@ module Kredki
           report HideEvent.new
           @pads.each &:hide_propagate
         end
-        super
+        @scene.set_show show
       end
 
       def show_propagate
@@ -441,8 +474,20 @@ module Kredki
         set ? gain_button : lose_button
       end
 
-      def translate x, y
-        parent.translate x - self.x, y - self. y
+      def translate x = 0, y = 0, target = nil
+        if target == self
+          return [x, y]
+        elsif target == nil
+          if pa = parent
+            return parent.translate x + self.x, y + self.y
+          else 
+            return [x, y] 
+          end
+        else
+          xy = parent.translate x + self.x, y + self.y
+          xy = target.translate -xy[0], -xy[1]
+          return [-xy[0], -xy[1]]
+        end
       end
 
       def autosized?
@@ -453,41 +498,46 @@ module Kredki
         false
       end
 
-      def report event
+      def report event, path = true
         event.target = self
-        ancs = sanc.to_a
         ed = event_director
-        if event.is_a? MouseEvent
-          ed.stem do
-            ancs.reverse_each do |pad|
-              ed.push_block event do
-                event.x -= pad.x
-                event.y -= pad.y
+        if path
+          ancs = sanc.to_a
+          if event.is_a? PositionEvent
+            ed.stem do
+              ancs.reverse_each do |pad|
+                ed.push_block event do
+                  event.x -= pad.x
+                  event.y -= pad.y
+                end
+                ed.push event, pad, true
               end
-              ed.push event, pad, :aim
+              ancs.each do |pad|
+                ed.push event, pad, false
+                ed.push_block event do
+                  event.x += pad.x
+                  event.y += pad.y
+                end
+              end
             end
-            ancs.each do |pad|
-              ed.push event, pad, :alt
-              ed.push_block event do
-                event.x += pad.x
-                event.y += pad.y
+          else
+            ed.stem do
+              ancs.reverse_each do |pad|
+                ed.push event, pad, true
+              end
+              ancs.each do |pad|
+                ed.push event, pad, false
               end
             end
           end
         else
-          ed.stem do
-            ancs.reverse_each do |pad|
-              ed.push event, pad, :aim
-            end
-            ancs.each do |pad|
-              ed.push event, pad, :alt
-            end
-          end
+          ed.push event, self, true
+          ed.push event, self, false
         end
       end
 
-      def resolve event, mode = :default
-        @event_manager.resolve event, mode
+      def resolve event, aim = false
+        @event_manager.resolve event, aim
       end
 
       def set_parent parent

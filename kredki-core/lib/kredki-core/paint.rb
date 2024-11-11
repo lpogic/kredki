@@ -65,20 +65,20 @@ module Kredki
       set_opacity opacity
     end, :opacity=
 
-    class CompositeMethod
-      enum :none, :clip, :alpha, :inverse_alpha, :luma, :inverse_luma
-    end
+    # class CompositeMethod
+    #   enum :none, :clip, :alpha, :inverse_alpha, :luma, :inverse_luma
+    # end
 
-    def composite! method, mask = nil
-      if !method || method == :none
-        set_composite_method nil, CompositeMethod[:none].to_i
-      else
-        set_composite_method mask, CompositeMethod[method].to_i
-      end
-    end
+    # def composite! method, mask = nil
+    #   if !method || method == :none
+    #     set_composite_method nil, CompositeMethod[:none].to_i
+    #   else
+    #     set_composite_method mask, CompositeMethod[method].to_i
+    #   end
+    # end
 
     def clip! mask
-      composite! :clip, mask
+      set_clip mask
     end
 
     class BlendMethod
@@ -124,6 +124,7 @@ module Kredki
 
     def update
       @owner&.update_paint self
+      true
     end
 
     def set_show show
@@ -134,8 +135,13 @@ module Kredki
       @owner&.paint_shown? self
     end
 
-    def set_composite_method mask, method
-      Abi.paint_set_composite_method @pointer, mask&.pointer, method
+    # def set_composite_method mask, method
+    #   Abi.paint_set_composite_method @pointer, mask&.pointer, method
+    #   update
+    # end
+
+    def set_clip mask
+      Abi.paint_set_clip @pointer, mask&.pointer
       update
     end
 

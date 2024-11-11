@@ -1,4 +1,3 @@
-require_relative 'alterable'
 require_relative 'paint'
 
 module Kredki

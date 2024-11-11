@@ -38,7 +38,7 @@ module Kredki
       attr :handle
     end
 
-    class XSlide < Slide
+    class HorizontalSlide < Slide
 
       def sketch p0
         super
@@ -88,7 +88,7 @@ module Kredki
       end
     end
 
-    class YSlide < Slide
+    class VerticalSlide < Slide
 
       def sketch p0
         super

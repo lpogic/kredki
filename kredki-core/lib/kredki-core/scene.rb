@@ -1,4 +1,3 @@
-require_relative 'alterable'
 require_relative 'paint'
 
 module Kredki
@@ -16,35 +15,43 @@ module Kredki
       @paints = {}
     end
 
-    def shape! ...
-      push_paint(Shape.new).paint.alter(...)
+    def new_paint klass, *a, _show: true, _index: nil, **na, &b
+      push_paint(klass.new, _show, _index).paint.alter!(*a, **na, &b)
+    end
+    
+    def def_paint name, klass = nil, &block
+      if block
+        Scene.define_method name do |*a, **na, &b|
+          paint = instance_exec self, a, b, **na, &block
+          paint.alter! *a, **na, &b if klass
+          paint
+        end
+      else
+        Scene.define_method name do |*a, **na, &b|
+          new_paint klass, *a, **na, &b
+        end
+      end
     end
 
-    def ellipse! ...
-      push_paint(Ellipse.new).paint.alter(...)
+    def self.def_paint name, klass = nil, &block
+      if block
+        define_method name do |*a, **na, &b|
+          paint = instance_exec self, a, b, **na, &block
+          paint.alter! *a, **na, &b if klass
+          paint
+        end
+      else
+        define_method name do |*a, **na, &b|
+          new_paint klass, *a, **na, &b
+        end
+      end
     end
 
-    def rectangle! ...
-      push_paint(Rectangle.new).paint.alter(...)
-    end
-
-    def picture! ...
-      push_paint(Picture.new).paint.alter(...)
-    end
-
-    def text! ...
-      push_paint(Text.new).paint.alter(...)
-    end
-
-    def animation! ...
-      animation = Animation.new(...)
+    def new_animation show, index
+      animation = Animation.new
       animation.owner = action
-      push_paint animation.picture
+      push_paint animation.picture, show, index
       animation
-    end
-
-    def scene! ...
-      push_paint(Scene.new).paint.alter(...)
     end
 
     def clear!
@@ -60,6 +67,10 @@ module Kredki
     end
 
     attr_accessor :owner
+    
+    def paint_hash
+      @paints
+    end
 
     def update_paint paint
       @owner&.update_paint self

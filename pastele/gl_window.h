@@ -8,7 +8,7 @@ namespace pas {
 class GlWindow : Window
 {
     SDL_GLContext context;
-    unique_ptr<tvg::GlCanvas> canvas = nullptr;
+    tvg::GlCanvas* canvas = nullptr;
 
     public:
 
