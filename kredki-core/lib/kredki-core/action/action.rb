@@ -117,7 +117,7 @@ module Kredki
       Kredki.event_director.push event, self
     end
 
-    def resolve event
+    def resolve event, aim = false
       @event_manager.resolve event
     end
 
@@ -129,6 +129,9 @@ module Kredki
       @animations.each{ _1.step ms }
       resolve StepEvent.new
     end
-    
+
+    def build &block
+      instance_exec &block if block
+    end
   end
 end

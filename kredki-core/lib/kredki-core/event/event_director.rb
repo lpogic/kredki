@@ -6,6 +6,7 @@ module Kredki
     model do
       @stops = []
       @stem = false
+      @i = -1
     end
 
     def stem &block
@@ -19,37 +20,48 @@ module Kredki
       "#{self.class}:#{object_id}"
     end
 
-    def push event, stop, mode
-      @stops << [stop, event, mode]
+    def push event, stop, aim = false, instant = false
+      if instant
+        @stops[@i += 1] = [stop, event, aim]
+      else
+        @stops << [stop, event, aim]
+      end
       resolve if !@stem
     end
 
-    def push_block event, &stop
-      @stops << [stop, event]
+    def push_block event = nil, instant = false, &stop
+      if instant
+        @stops[@i += 1] = [stop, event]
+      else
+        @stops << [stop, event]
+      end
     end
 
     def resolve
       stem, @stem = @stem, true
       (0..).each do |i|
+        @i = i
         if i > EVENT_LOOP_LIMIT
           begin
             return loop_safe_resolve i
           ensure
             @stops = []
             @stem = stem
+            @i = -1
           end
         end
         stop = @stops[i]
         unless stop
           @stops = []
           @stem = stem
+          @i = -1
           return
         end
-        stop, event, mode = *stop
+        stop, event, aim = *stop
         if stop.is_a? Proc
           stop.call event
         else
-          stop.resolve event, mode
+          stop.resolve event, aim
         end
       end
     end
@@ -66,6 +78,7 @@ module Kredki
     def loop_safe_resolve start = 0
       proceed = {}
       (start..).each do |i|
+        @i = i
         return unless stop = @stops[i]
         if j = proceed[stop]
           loop_error j..i

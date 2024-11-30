@@ -6,7 +6,7 @@ module Kredki
       extend Forwardable
       model :context, :keyboard
 
-      def keycodes *input
+      def keycodes input
         input.flatten.map{ _1.is_a?(String) ? _1.downcase.codepoints : _1 }.flatten.map{ @keyboard.key(_1).to_i }.uniq
       end
 

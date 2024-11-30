@@ -13,13 +13,13 @@ module Kredki
       @source = nil
     end
 
-    aliasing def s! source
+    aliasing def source! source
       set_source source.to_s
-    end, :s=, :source!, :source=
+    end, :source=
 
-    aliasing def s
+    def source
       @source
-    end, :source
+    end
 
     aliasing def w! w
       set_w w

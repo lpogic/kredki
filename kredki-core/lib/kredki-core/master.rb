@@ -26,7 +26,7 @@ module Kredki
         window = @arena.window
         action = action ? window.action!(action) : window.action
       end
-      action.instance_exec @arena, &block if block
+      action.build &block
       @runned = true
       @arena.run!
     end

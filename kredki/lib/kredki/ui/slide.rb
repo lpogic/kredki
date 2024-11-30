@@ -2,20 +2,6 @@ module Kredki
   module UI
     class Slide < Pad
 
-      def sketch p0
-        super
-
-        @value = 0.0
-      end
-
-      def value
-        @value
-      end
-
-      def set_value v
-        @value = v
-      end
-
       def on_change! &block
         on! ChangeEvent, &block
       end
@@ -35,7 +21,105 @@ module Kredki
         end
       end, :value=
 
+      def value
+        @value
+      end
+
+      module Theme
+      end
+
+      class ColorBasedTheme
+        include Theme
+        model :base_color_avr!, :proc_a!
+
+        def to_proc
+          color = @base_color
+          @proc ||= proc do
+            @handle.color = mouse_in? ? color.light : color.dark
+          end
+        end
+      end
+
+      aliasing def theme! theme
+        theme = case theme
+        when Proc, Theme
+          theme
+        when Symbol, Array
+          ColorBasedTheme.new Kredki.color theme
+        else raise_ia theme 
+        end
+        @theme != theme && begin
+          @theme = theme
+          repaint
+        end
+      end, :theme=
+
+      def theme
+        @theme
+      end
+
+      #internal api
+
+      def initialize
+        super
+
+        @value = 0.0
+      end
+
+      def sketch p0
+        super
+
+        on_repaint! do |e|
+          repaint
+          e.resolve
+        end
+      end
+
+      def sketch2 p0
+        theme! :gray
+
+        @handle.alter do
+          on_drop! do |e|
+            p0.report ChangeEvent.new
+            e.resolve
+          end
+
+          on_mouse_button! do |e|
+            drag! e.xy
+            e.resolve
+          end
+        end
+      end
+
+      def set_value v
+        @value = v
+      end
+
       attr :handle
+
+      def repaint
+        instance_exec &@theme
+      end
+
+      def mouse_button_down e
+        super
+        report RepaintEvent.new
+      end
+
+      def mouse_enter e
+        super
+        report RepaintEvent.new
+      end
+
+      def mouse_leave e
+        super
+        report RepaintEvent.new
+      end
+
+      def mouse_button_up e
+        super
+        report RepaintEvent.new
+      end
     end
 
     class HorizontalSlide < Slide
@@ -56,18 +140,8 @@ module Kredki
             e.resolve
           end
     
-          on_drop! do |e|
-            p0.report ChangeEvent.new
-            e.resolve
-          end
-
           on_resize! do |e|
             x! (p0.w - w) * p0.value
-            e.resolve
-          end
-
-          on_mouse_button! do |e|
-            drag! e.xy
             e.resolve
           end
         end
@@ -81,6 +155,8 @@ module Kredki
           e.resolve
           e.break
         end
+
+        sketch2 p0
       end
 
       def set_offset o
@@ -105,19 +181,9 @@ module Kredki
             p0.report EditEvent.new
             e.resolve
           end
-    
-          on_drop! do |e|
-            p0.report ChangeEvent.new
-            e.resolve
-          end
 
           on_resize! do |e|
             y! (p0.h - h) * p0.value
-            e.resolve
-          end
-
-          on_mouse_button! do |e|
-            drag! e.xy
             e.resolve
           end
         end
@@ -131,6 +197,9 @@ module Kredki
           e.resolve
           e.break
         end
+
+        
+        sketch2 p0
       end
 
       def set_offset o

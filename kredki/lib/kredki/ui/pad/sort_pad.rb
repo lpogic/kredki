@@ -7,11 +7,11 @@ module Kredki
       def sketch p0
         super
 
-        body.hide!
+        area.hide!
       end
 
       def point_pads x, y, pads, force = false
-        if force || (mousy? && show? && include?(x, y))
+        if force || (mousy? && show? && include_point?(x, y))
           pads << self
           return true if @pads.reverse_each.find{ _1.point_pads x - _1.x, y - _1.y, pads }
           pads >> 1

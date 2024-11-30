@@ -5,10 +5,10 @@ module Kredki
     class ImagePad < Pad
       extend Forwardable
 
-      aliasing def s! source
-        @picture.s! source
+      aliasing def source! source
+        @picture.source! source
         wh! *@picture.wh
-      end, :s=, :source!, :source=
+      end, :source=
 
       def_delegators :@picture,
         :s, :source
@@ -16,7 +16,7 @@ module Kredki
       def << arg
         case arg
         when String
-          s! arg
+          source! arg
         else
           super
         end
@@ -27,9 +27,9 @@ module Kredki
       def sketch p0
         super
 
-        @picture = @scene.picture! clip!: @body
+        @picture = @scene.picture! clip!: @area
 
-        @body.hide!
+        @area.hide!
       end
 
     end

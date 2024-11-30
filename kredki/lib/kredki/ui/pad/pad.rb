@@ -1,6 +1,7 @@
 require_relative 'pad_event_manager'
 require_relative 'pad_events'
 require_relative 'pad_base'
+require_relative 'pad_inherited'
 require 'forwardable'
 require 'kredki-core/context/context'
 require 'kredki-core/has_flags'
@@ -14,13 +15,14 @@ module Kredki
       include PadEvents
       extend Forwardable
       extend HasFlags
+      extend PadInherited
 
       def initialize
         super
         @action = nil
         @parent = nil
         @scene = Scene.new
-        @body = @scene.rectangle!
+        @area = @scene.rectangle!
         @names = {}
         @event_manager = PadEventManager.new
         @pads = []
@@ -60,12 +62,17 @@ module Kredki
         else
           raise "Unsupported << (#{arg} : #{arg.class})"
         end
+        self
       end
 
       def =~(filter)
         case filter
         when Symbol
           !!@names[filter]
+        when Module
+          filter === self
+        when Proc
+          filter.call self
         else
           raise "Unsupported =~ (#{filter} : #{filter.class})"
         end
@@ -75,16 +82,18 @@ module Kredki
         @names
       end
 
-      aliasing def name! name
+      aliasing def n! name
         self << name
-      end, :name=
+      end, :n=, :name!, :name=
 
       def_flag :keyboardy, true
 
       def mouse_button_down e
-        gain_keyboard if keyboardy?
-        gain_button e.xy
-        e.resolve
+        if e.button == :primary
+          gain_keyboard if keyboardy?
+          gain_button e.xy
+          e.resolve
+        end
       end
 
       def mouse_enter e
@@ -100,7 +109,7 @@ module Kredki
         if @drag
           @drag = false
           report DropEvent.new e.origin
-        elsif include? e.x, e.y
+        elsif include_point?(e.x, e.y) && p(e.button) == :primary
           report ClickEvent.new e
         end
         e.resolve
@@ -122,46 +131,66 @@ module Kredki
         e.resolve if e.target != self
       end
       
-      attr :parent, :action, :scene, :body, :pads
+      attr :parent, :action, :scene, :area, :pads
       alias_method :a, :action
+
+      def s
+        self
+      end
 
       def_delegators :@scene,
         :show?, :show!, :show=
 
-      def include? x, y
-        x >= 0 && y >= 0 && x <= @body.w && y <= @body.h
+      def include_point? x, y
+        x >= 0 && y >= 0 && x <= @area.w && y <= @area.h
       end
 
       def anc
-        to_en{|e, b| e.parent || b }
+        to_en{|e, b| e.parent&.then{ _1 unless _1.is_a? Action } || b }
       end
 
       def sanc
-        to_e{|e, b| e.parent || b }
+        to_e{|e, b| e.parent&.then{ _1 unless _1.is_a? Action } || b }
+      end
+
+      def grand filter
+        sanc.find{ _1 =~ filter }
+      end
+
+      def layer
+        grand Layer
+      end
+
+      def included? parent
+        anc.include? parent
+      end
+
+      def include? child
+        child.included? self
       end
 
       def mouse_in?
-        action&.mouse_pad&.sanc&.any?{ _1 == self } || false
+        layer&.mouse_pad&.sanc&.any?{ _1 == self } || false
       end
 
       def mouse_top?
-        action&.mouse_pad == self
+        layer&.mouse_pad == self
       end
 
       def keyboard_in?
-        action&.keyboard_pad&.sanc&.any?{ _1 == self } || false
+        layer&.keyboard_pad&.sanc&.any?{ _1 == self } || false
       end
 
       def keyboard_top?
-        action&.keyboard_pad == self
+        layer&.keyboard_pad == self
       end
 
       def button_in?
-        action&.button_pad&.sanc&.any?{ _1 == self } || false
+        layer&.button_pad&.sanc&.any?{ _1 == self } || false
       end
 
       def button_top?
-        action&.button_pad == self
+        layer&.button_pad == self
       end
 
       def_flag :mousy!, true
@@ -207,12 +236,10 @@ module Kredki
       end
 
       aliasing def w! w = nil
-        w = yield self.w, w if block_given?
         set_size(w, h) && resize_common
       end, :w=, :width!, :width=
 
       aliasing def h! h = nil
-        h = yield self.h, h if block_given?
         set_size(w, h) && resize_common
       end, :h=, :height!, :height=
 
@@ -230,26 +257,10 @@ module Kredki
       end, :size=
 
       def new_pad klass = Pad, *a, _index: nil, **na, &b
-        push_pad(klass.new.sketch_base, _index).alter(*a, **na, &b).alter_commit
-      end
-
-      class Next
-        model :pad
-
-        def respond_to? name
-          pad.parent&.respond_to? name
-        end
-
-        def method_missing name, *a, **na, &b
-          index = pad.parent&.paint_index pad
-          if index
-            pad.parent&.send name, *a, _index: index + 1, **na, &b
-          end
-        end
-      end
-
-      def next!
-        Next.new self
+        pad = klass.new
+        push_pad(pad.sketch_base, _index)
+        pad.alter(*a, **na, &b).alter_commit
+        pad
       end
 
       def pad_index
@@ -271,13 +282,13 @@ module Kredki
           @pads << pad
         end
         if clip
-          pad.scene.clip! body
+          pad.scene.clip! area
         elsif pad_parent
           pad.scene.clip! nil
         end
         report ContentChangeEvent.new
         event_director.stem do
-          action.update_mouse_pad
+          layer.update_mouse_pad
         end if mousy? && mouse_in? || pad.mousy? && pad.mouse_in?
         pad
       end
@@ -285,10 +296,10 @@ module Kredki
       def remove_pad pad, transfer
         removed = @pads.delete pad
         if removed && !transfer
-          pad.scene.composite! false
+          pad.scene.clip! false
           report ContentChangeEvent.new
           event_director.stem do
-            action.update_mouse_pad
+            layer.update_mouse_pad
           end if mousy? && mouse_in?
         end
         removed
@@ -298,12 +309,12 @@ module Kredki
         pads, @pads = @pads, []
         pads.each do |pad|
           pad.detach! true
-          pad.scene.composite! false
+          pad.scene.clip! false
         end
         unless pads.empty?
           report ContentChangeEvent.new
           event_director.stem do
-            action.update_mouse_pad
+            layer.update_mouse_pad
           end if mousy? && mouse_in?
         end
       end
@@ -330,10 +341,10 @@ module Kredki
       def color! *color, &block
         case color
         in [false]
-          body.hide!
+          area.hide!
         else
-          body.show!
-          body.color! *color, &block
+          area.show!
+          area.color! *color, &block
         end
       end
 
@@ -345,10 +356,11 @@ module Kredki
         end
       end
 
-      def_delegators :@body,
+      def_delegators :@area,
         :h, :height, 
         :w, :width,
         :wh, :size,
+        :color,
         :r!, :r=, :radius!, :radius=,
         :stroke_width!, :stroke_width=, :stroke_color!, :stroke_color=
 
@@ -366,7 +378,7 @@ module Kredki
       end
       
       def set_size w, h
-        body.wh! w, h
+        area.wh! w, h
       end
       
       def set_x x
@@ -391,7 +403,7 @@ module Kredki
 
       def move_common
         event_director.stem do
-          action.update_mouse_pad if mousy? && show?
+          layer.update_mouse_pad if mousy? && show?
           report MoveEvent.new
         end if sketched?
         true
@@ -400,7 +412,7 @@ module Kredki
       def resize_common
         event_director.stem do
           report ResizeEvent.new
-          action.update_mouse_pad if mousy? && show?
+          layer.update_mouse_pad if mousy? && show?
         end
         true
       end
@@ -431,7 +443,7 @@ module Kredki
       end
 
       def point_pads x, y, pads, force = false
-        if force || (mousy? && show? && include?(x, y))
+        if force || (mousy? && show? && include_point?(x, y))
           pads << self
           @pads.reverse_each.find{ _1.point_pads x - _1.x, y - _1.y, pads }
           return true
@@ -441,11 +453,11 @@ module Kredki
 
       def gain_keyboard
         pad = keyboardy? ? self : each_pad(deep_first: true).find{ _1.keyboardy? }
-        action.update_keyboard_pad pad
+        layer.update_keyboard_pad pad
       end
 
       def lose_keyboard
-        action.update_keyboard_pad nil if keyboard_in?
+        layer.update_keyboard_pad nil if keyboard_in?
       end
 
       def focus_lose
@@ -462,12 +474,12 @@ module Kredki
 
       def gain_button xy = nil
         @button_down_xy = xy
-        action.gain_button self
+        layer.update_button_pad self, self
       end
 
       def lose_button
         @button_down_xy = nil
-        action.lose_button self
+        layer.update_button_pad self, nil
       end
 
       def set_button set
@@ -498,7 +510,7 @@ module Kredki
         false
       end
 
-      def report event, path = true
+      def report event, path = true, instant = false
         event.target = self
         ed = event_director
         if path
@@ -506,15 +518,15 @@ module Kredki
           if event.is_a? PositionEvent
             ed.stem do
               ancs.reverse_each do |pad|
-                ed.push_block event do
+                ed.push_block event, instant do
                   event.x -= pad.x
                   event.y -= pad.y
                 end
-                ed.push event, pad, true
+                ed.push event, pad, true, instant
               end
               ancs.each do |pad|
-                ed.push event, pad, false
-                ed.push_block event do
+                ed.push event, pad, false, instant
+                ed.push_block event, instant do
                   event.x += pad.x
                   event.y += pad.y
                 end
@@ -523,16 +535,16 @@ module Kredki
           else
             ed.stem do
               ancs.reverse_each do |pad|
-                ed.push event, pad, true
+                ed.push event, pad, true, instant
               end
               ancs.each do |pad|
-                ed.push event, pad, false
+                ed.push event, pad, false, instant
               end
             end
           end
         else
-          ed.push event, self, true
-          ed.push event, self, false
+          ed.push event, self, true, instant
+          ed.push event, self, false, instant
         end
       end
 

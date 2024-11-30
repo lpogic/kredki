@@ -5,10 +5,10 @@ module Kredki
         send :<<, a
       end
       narg.each do |k, v|
-        if k.end_with? "!"
-          send k, v
-        else
+        if k =~ /^\w+$/
           send "#{k}=", v
+        else
+          send k, v
         end
       end
       instance_exec self, &block if block

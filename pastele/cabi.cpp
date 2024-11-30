@@ -830,8 +830,6 @@ CABI void scene_delete(Scene* self) {
     userEvent.data1 = self;
     event.user = userEvent;
     SDL_PushEvent(&event);
-    // self->clear(false);
-    // delete(self);
 }
 
 CABI void scene_push(Scene* self, Paint* paint)

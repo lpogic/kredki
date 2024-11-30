@@ -11,7 +11,7 @@ module Kredki
         Mouse.init_flags self
       end
 
-      def indexes *input
+      def indexes input
         input.flatten.map{ @mouse.button(_1).to_i }.uniq
       end
 

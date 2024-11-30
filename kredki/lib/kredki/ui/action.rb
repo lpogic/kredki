@@ -1,5 +1,5 @@
 require_relative 'pad/pad_base'
-require_relative 'pad/root_pad'
+require_relative 'layer'
 require 'forwardable'
 
 module Kredki
@@ -11,132 +11,114 @@ module Kredki
       def initialize
         super
         
-        @button_pad = nil
-        @keyboard_pads = []
-        @mouse_pads = []
+        @layers = []
       end
 
       def a
         self
       end
 
+      def s
+        self
+      end
+
+      def def_pad name, klass = nil, &block
+        if block
+          PadBase.define_method name do |*a, **na, &b|
+            pad = instance_exec a, na, b, self, &block
+            pad.alter! name, *a, **na, &b if klass
+            pad
+          end
+        else
+          PadBase.define_method name do |*a, **na, &b|
+            new_pad klass, name, *a, **na, &b
+          end
+        end
+      end
+
       def parent
         nil
       end
 
-      def mouse_pad
-        @button_pad || @mouse_pads.last
+      def layer! klass = Layer, *a, **na, &b
+        layer = klass.new.sketch_base
+        push_pad layer
+        layer.alter *a, **na, &b
+        layer
       end
-
-      def keyboard_pad
-        @keyboard_pads.last
-      end
-
-      attr :button_pad
-
-      def pad
-        @background
-      end
-      
-      def_delegators :@background,
-        :[], :each_pad,
-        :color!, :color=,
-        :push_pad, :remove_pad, :new_pad,
-        :on_mouse_button!, 
-        :on_scroll!,
-        :on_key!,
-        :on_click!,
-        :use!
 
       #internal api
-
-      def gain_button pad
-        @button_pad = pad
-      end
-
-      def lose_button pad
-        @button_pad = nil if @button_pad == pad
-        update_mouse_pad
-      end
 
       def sketch p0
         super
 
-        @event_manager.manager Kredki::MouseMoveEvent, proc{|e| p0.update_mouse_pad e }
-        @event_manager.manager Kredki::WindowEnterEvent, proc{|e| p0.update_mouse_pad }
-        @event_manager.manager Kredki::WindowLeaveEvent, proc{|e| p0.update_mouse_pad }
-        @event_manager.mouse_manager Kredki::MouseButtonDownEvent, [], proc{|e| p0.mouse_pad&.report MouseButtonDownEvent.new e }
-        @event_manager.mouse_manager Kredki::MouseButtonUpEvent, [], proc{|e| p0.mouse_pad&.report MouseButtonUpEvent.new e }
-        @event_manager.manager Kredki::MouseScrollEvent, proc{|e| p0.mouse_pad&.report e }
+        @event_manager.manager Kredki::MouseMoveEvent, proc{|e| update_mouse_pad e }
+        @event_manager.manager Kredki::WindowEnterEvent, proc{|e| update_mouse_pad }
+        @event_manager.manager Kredki::WindowLeaveEvent, proc{|e| update_mouse_pad }
+        @event_manager.mouse_manager Kredki::MouseButtonDownEvent, [], proc{|e| mouse_event MouseButtonDownEvent.new e }
+        @event_manager.mouse_manager Kredki::MouseButtonUpEvent, [], proc{|e| mouse_event MouseButtonUpEvent.new e }
+        @event_manager.manager Kredki::MouseScrollEvent, proc{|e| mouse_event e }
 
         keyboard do
           on_down! do |e|
-            p0.keyboard_pad&.report e
+            p0.keyboard_event e
           end
-
           on_up! do |e|
-            p0.keyboard_pad&.report e
+            p0.keyboard_event e
           end
-
           on_text! do |e|
-            p0.keyboard_pad&.report e
+            p0.keyboard_event e
           end
         end
 
-        @background = RootPad.new.sketch_base
-        push_paint @background.scene
-        @background.alter color: :black do
-          set_action p0
-          focus!
-        end
         on_resize! do
-          @background.size = window.size
-        end.resolve
-        @background.alter_commit
+          w, h = *wh
+          @layers.each{ _1.wh! w, h }
+        end
+
+        layer!.focus!
+      end
+
+      def build &block
+        @layers.last.instance_exec &block if block
+      end
+
+      def mouse_event event
+        @layers.reverse_each do |layer|
+          layer.mouse_pad&.report event
+        end
       end
 
       def update_mouse_pad event = nil
-        xy = nil
-        if event
-          xy = event.xy
-        elsif mouse.in_window?
-          xy = mouse.position
-        end
-
-        if @button_pad && event
-          @button_pad.report MouseMoveEvent.new(event, *xy) if xy
-        else
-          if xy
-            @background.point_pads *xy, mouse_pads = []
-            @mouse_pads.reverse_each do |pad| 
-              pad.report LeaveEvent.new unless mouse_pads.include? pad
-            end
-            mouse_pads.each do |pad|
-              pad.report EnterEvent.new unless @mouse_pads.include? pad
-            end
-            mouse_top = mouse_pads.last
-            mouse_top.report MouseMoveEvent.new(event, *xy) if mouse_top && event
-            @mouse_pads = mouse_pads
-          else
-            @mouse_pads.reverse_each do |pad| 
-              pad.report LeaveEvent.new
-            end
-            @mouse_pads = []
-          end
+        @layers.reverse_each do |layer|
+          layer.update_mouse_pad event
         end
       end
 
-      def update_keyboard_pad keyboard_pad
-        if !keyboard_pad
-          @keyboard_pads.each{|pad| pad.report FocusLoseEvent.new }
-          @keyboard_pads = []
-        else
-          keyboard_pads = keyboard_pad.sanc.to_a.reverse
-          pol = keyboard_pads.polarize @keyboard_pads
-          pol.last.reverse_each{|pad| pad.report FocusLoseEvent.new }
-          pol.first.each{|pad| pad.report FocusGainEvent.new }
-          @keyboard_pads = keyboard_pads
+      def keyboard_event event
+        @layers.reverse_each do |layer|
+          layer.keyboard_pad&.report event
         end
+      end
+
+      def push_pad layer
+        push_paint layer.scene
+        layer.set_parent self
+        layer.wh! *wh
+        @layers << layer
+        layer
+      end
+
+      def remove_pad layer, transfer = false
+        @layers.delete layer
+      end
+
+      def sanc
+        []
+      end
+
+      def anc
+        []
       end
     end
   end

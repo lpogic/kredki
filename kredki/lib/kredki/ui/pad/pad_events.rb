@@ -82,9 +82,13 @@ module Kredki
     end
 
     class MouseButtonDownEvent < MouseEvent
+      def_delegators :@origin,
+        :button_number
     end
 
     class MouseButtonUpEvent < MouseEvent
+      def_delegators :@origin,
+        :button_number
     end
 
     class DropEvent < MouseEvent

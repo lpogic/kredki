@@ -1,6 +1,6 @@
 module Kredki
   class EventResolver
-    model :block, :@manager, :force
+    model :block, :manager_av!, :force
 
     def on_resolve! &block
       @block = block

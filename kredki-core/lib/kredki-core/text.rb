@@ -6,32 +6,13 @@ module Kredki
   class Text < Paint
     include Alterable
 
-    def initialize
-      super Abi.text_new
-      ObjectSpace.define_finalizer(self, Text.proc.finalize(@pointer))
+    aliasing def string! string
+      string = string.to_s
+      string != @string and set_string string
+    end, :string=
 
-      string! "TEXT"
-      font! :arial
-      height! 16
-      color! :white
-    end
-
-    aliasing def s! string 
-      set_string string.to_s
-    end, :s=, :string!, :string=
-
-    aliasing def s 
+    def string
       @string
-    end, :string
-
-    def substring_width index = nil, string = @string
-      str = string.to_s
-      Abi.text_get_text_width(@pointer, str, index || -1).ceil
-    end
-
-    def nearest_character_index width, string = @string
-      return 0 if width <= 0
-      Abi.text_nearest_character_index @pointer, string.to_s, width
     end
 
     aliasing def h! h
@@ -72,19 +53,37 @@ module Kredki
 
     #internal api
 
+    def initialize
+      super Abi.text_new
+      ObjectSpace.define_finalizer(self, Text.proc.finalize(@pointer))
+
+      string! "TEXT"
+      font! :arial
+      height! 16
+      color! :white
+    end
+
     def self.finalize pointer
       Abi.text_delete pointer
+    end
+
+    def substring_width index = nil, string = @string
+      str = string.to_s
+      Abi.text_get_text_width(@pointer, str, index || -1)
+    end
+
+    def nearest_character_index width, string = @string
+      return 0 if width <= 0
+      Abi.text_nearest_character_index @pointer, string.to_s, width
     end
 
     private
 
     def set_string string
-      if string != @string
-        Abi.text_set_text @pointer, string
-        @string = string
-        update
-        @w = substring_width
-      end
+      Abi.text_set_text @pointer, string
+      @string = string
+      update
+      @w = substring_width
     end
 
     def set_font font

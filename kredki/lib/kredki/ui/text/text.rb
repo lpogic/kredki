@@ -1,12 +1,12 @@
 module Kredki
   module UI
     class Text < Pad
-      attr :selection_min, :selection_max, :cursor_position
+      attr :selection_min, :selection_max, :cursor_position, :cursor
 
       def sketch p0
         super
 
-        body.hide!
+        area.hide!
         keyboardy!
     
         on_key! :left do |e|
@@ -91,7 +91,7 @@ module Kredki
       def << arg
         case arg
         when String
-          s! arg
+          string! arg
         else
           super
         end

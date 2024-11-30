@@ -5,7 +5,7 @@ module Kredki
     extend HasFlags
 
     model :buttons, :scrollbar_speed, :scrollbar_alt_speed do
-      @inverted_buttons = @buttons.invert
+      @inverted_buttons = @buttons.reverse_each.map{ [_2, _1] }.to_h
 
       Mouse.init_flags self
     end

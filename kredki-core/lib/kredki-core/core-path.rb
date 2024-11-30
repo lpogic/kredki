@@ -21,6 +21,10 @@ class Object
       end
     end
   end
+
+  def raise_ia argument
+    raise "Invalid argument #{argument} of #{argument.class} class."
+  end
 end
 
 class Module

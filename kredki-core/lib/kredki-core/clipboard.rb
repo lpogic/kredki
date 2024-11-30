@@ -1,13 +1,13 @@
 module Kredki
   class Clipboard
 
-    aliasing def s! string
+    aliasing def string! string
       set_text string.to_s
-    end, :s=, :string!, :string=
+    end, :string=
 
-    aliasing def s
+    def string
       get_text
-    end, :string
+    end
 
     #internal api
 

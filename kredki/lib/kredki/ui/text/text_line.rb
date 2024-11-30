@@ -4,19 +4,44 @@ module Kredki
   module UI
     class TextLine < Text
 
+      aliasing def string! string = "", reset_cursor = true
+        @text.string! string and update_size reset_cursor
+      end, :string=
+
+      def_delegators :@text,
+        :string, 
+        :color!, :color=, :color,
+        :font!, :font=, :font
+
+      aliasing def fh! height
+        height != @text.h && begin
+          @cursor.h = @text.h = @selection.h = height
+          w = @text.w.ceil
+          update_text
+          wh! w + @cursor.w, @text.h
+          true
+        end
+      end, :fh=, :font_height!, :font_height=
+
+      aliasing def fh
+        @text.h
+      end, :font_height
+
+      # internal api
+
       def initialize
         super
         
         @cursor_position = @selection_min = @selection_max = 0
-        @cursor = @scene.rectangle! x: 1, y: 0, color: :black, w: 2, h: 30
-        @selection = @scene.rectangle! x: 0, y: 0, w: 0, h: 30, color: :blue, clip!: @body
-        @text = @scene.text! x: @cursor.w / 2, y: 0, color: :white, font: :arial, h: 30, clip!: @body
+        @selection = @scene.rectangle! x: 0, y: 0, w: 0, h: 24, color: :blue, clip!: @area
+        @cursor = @scene.rectangle! x: 1, y: 0, color: :white, w: 2, h: 24
+        @text = @scene.text! x: @cursor.w / 2, y: 0, color: :white, font: :arial, h: 24, clip!: @area
       end
 
       def sketch p0
         super
 
-        p0.wh = @text.wh
+        update_size false
 
         on_focus_lose! do |e|
           @cursor.hide!
@@ -33,6 +58,13 @@ module Kredki
 
       def cursor_position x, y
         @text.nearest_character_index x - @text.x
+      end
+
+      def update_size reset_cursor
+        update_text
+        wh! @text.w + @cursor.w, @text.h
+        self.reset_cursor if reset_cursor
+        true
       end
 
       def update_text
@@ -79,37 +111,6 @@ module Kredki
           reset_cursor cursor_position
         end
       end
-
-      aliasing def s! str = "", reset_cursor = true, &block
-        string = self.string
-        str = block.call string, str if block
-        string != str && begin
-          @text.s! str
-          w = @text.w.ceil
-          update_text
-          wh! w + @cursor.w, @text.h
-          self.reset_cursor if reset_cursor
-          true
-        end
-      end, :s=, :string!, :string=
-
-      def_delegators :@text,
-        :s, :string, 
-        :color!, :color=, :color
-
-      aliasing def fh! height
-        height != @text.h && begin
-          @cursor.h = @text.h = @selection.h = height
-          w = @text.w.ceil
-          update_text
-          wh! w + @cursor.w, @text.h
-          true
-        end
-      end, :fh=, :font_height!, :font_height=
-
-      aliasing def fh
-        @text.h
-      end, :font_height
 
       def string_length
         @text.string.length

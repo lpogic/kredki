@@ -5,15 +5,15 @@ module Kredki
     class SlicePad < SortPad
 
       aliasing def x! x = nil
-        set_x_slice((x || 0).to_f) && pad_update
+        set_x_slice((x || 0).to_f) && update_size
       end, :x=
 
       aliasing def y! y = nil
-        set_y_slice((y || 0).to_f) && pad_update
+        set_y_slice((y || 0).to_f) && update_size
       end, :y=
 
       def xy! x = nil, y = nil
-        (set_x_slice((x || 0).to_f) | set_y_slice((y || x || 0).to_f)) && pad_update
+        (set_x_slice((x || 0).to_f) | set_y_slice((y || x || 0).to_f)) && update_size
       end
 
       def xy=(xy)
@@ -26,15 +26,15 @@ module Kredki
       end
 
       aliasing def w! w = nil
-        set_w_slice((w || 1.0).to_f) && pad_update
+        set_w_slice((w || 1.0).to_f) && update_size
       end, :width!, :w=, :width=
 
       aliasing def h! h = nil
-        set_h_slice((h || 1.0).to_f) && pad_update
+        set_h_slice((h || 1.0).to_f) && update_size
       end, :height!, :h=, :height=
 
       aliasing def wh! w = nil, h = nil
-        (set_w_slice((w || 1.0).to_f) | set_h_slice((h || w || 1.0).to_f)) && pad_update
+        (set_w_slice((w || 1.0).to_f) | set_h_slice((h || w || 1.0).to_f)) && update_size
       end, :size!
 
       aliasing def wh=(wh)
@@ -82,11 +82,9 @@ module Kredki
           else
             @parent_resize = parent.on_resize! do
               update_size
-              update_pads
             end
           end
           update_size
-          update_pads
         end
       end
 
@@ -123,20 +121,14 @@ module Kredki
       end
 
       def push_pad ...
-        super.tap do
-          update_pads
-        end
-      end
-
-      def pad_update
-        update_size
-        update_pads
-        true
+        super.tap{ update_pads }
       end
 
       def update_size
         set_xy @x_slice.abs > 1.0 ? @x_slice : parent.w * @x_slice, @y_slice.abs > 1.0 ? @y_slice : parent.h * @y_slice
         set_size(@w_slice > 1.0 ? @w_slice : parent.w * @w_slice, @h_slice > 1.0 ? @h_slice : parent.h * @h_slice) && resize_common
+        update_pads
+        true
       end
 
       def update_pads

@@ -112,7 +112,13 @@ module Kredki
         pad
       end
 
-      attr_accessor :direction
+      aliasing def direction! direction
+        @direction = direction
+      end, :direction=
+      
+      def direction
+        @direction
+      end
 
       def set_autosized sized
         @autosized != sized && begin
@@ -159,7 +165,6 @@ module Kredki
 
       def update_pads
         return if altered? :update_pads
-        p "XD"
   
         @cols.each_value{ _1.reset }
         @rows.each_value{ _1.reset }

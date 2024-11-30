@@ -10,7 +10,7 @@ if RUBY_PLATFORM =~ /cygwin|mswin|mingw|bccwin|wince|emx/
   $kredki_pastele = ext "dll/pastele.dll"
 end
 
-require 'kredki-core'
+require 'kredki-core/lib/kredki-core'
 
 Kredki.colors = {
   red: Kredki::Color.new(222, 0, 0, 255),
@@ -76,6 +76,7 @@ Kredki.mouse = Kredki::Mouse.new(
   buttons: {
     primary: 1,
     secondary: 3,
+    scroll: 2,
 
     left: 1,
     center: 2,

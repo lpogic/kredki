@@ -12,37 +12,40 @@ module Kredki
 
   require_relative 'ui/pad/pad'
   require_relative 'ui/action'
-  require_relative 'ui/input'
-  require_relative 'ui/button'
   require_relative 'ui/slide'
   require_relative 'ui/scroll_pad'
-  require_relative 'ui/spacer_pad'
   require_relative 'ui/slice_pad'
   require_relative 'ui/place_pad'
+  require_relative 'ui/space_pad'
   require_relative 'ui/image_pad'
+  require_relative 'ui/span_pad'
   require_relative 'ui/text/text_line'
-  require_relative 'ui/text/text_column'
-  require_relative 'ui/editor'
+  require_relative 'ui/text/text_area'
   require_relative 'ui/grid/grid_pad'
+  require_relative 'ui/input'
+  require_relative 'ui/input_area'
+  require_relative 'ui/button'
 
   module UI
     module PadBase
       def_pad :pad!, Pad
+      def_pad :span!, SpanPad
       def_pad :slice!, SlicePad
       def_pad :place!, PlacePad
+      def_pad :space!, SpacePad
       def_pad :grid!, GridPad
       def_pad :scroll!, ScrollPad
-      def_pad :margin!, SpacerPad
       def_pad :image!, ImagePad
       def_pad :xslide!, HorizontalSlide
       def_pad :yslide!, VerticalSlide
       def_pad :text_line!, TextLine
-      def_pad :text_column!, TextColumn
-      def_pad :text!, TextColumn
-      def_pad :editor!, TextLineEditor
-      def_pad :column_editor!, TextColumnEditor
+      def_pad :text_area!, TextArea
+      def_pad :text!, TextLine
       def_pad :button!, ButtonPad
       def_pad :input!, Input
+      def_pad :in!, Input
+      def_pad :input_area!, InputArea
+      def_pad :ina!, InputArea
 
       def_pad :list! do |a, na, b|
         grid! *a, direction: :row, autosized: true, **na, &b
@@ -67,10 +70,12 @@ module Kredki
   Window.default_action = UI::Action
 end
 
+include Kredki::UI
+
 class CarryFocusOnTab
   def self.plug_into target
     target.on_key! :tab do |event|
-      next_pad = target.action.keyboard_pad&.then do |p0|
+      next_pad = target.layer.keyboard_pad&.then do |p0|
         target.each_pad(reverse: event.shift?, deep_first: true)
           .lazy
           .drop_while{|p1| p0 != p1 }

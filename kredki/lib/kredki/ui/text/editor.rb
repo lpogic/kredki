@@ -1,5 +1,5 @@
-require_relative 'text/text_line'
-require_relative 'text/text_column'
+require_relative 'text_line'
+require_relative 'text_area'
 
 module Kredki
   module UI
@@ -53,7 +53,7 @@ module Kredki
         else
           s[...selection_min] + string
         end
-        s! s, false
+        string! s, false
         reset_cursor selection_min + string.length
       end
 
@@ -88,7 +88,7 @@ module Kredki
       include Editor
     end
 
-    class TextColumnEditor < TextColumn
+    class TextAreaEditor < TextArea
       include Editor
 
       def sketch p0

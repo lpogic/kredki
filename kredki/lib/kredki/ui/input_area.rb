@@ -1,9 +1,9 @@
 require 'forwardable'
-require_relative 'text/text_line_editor_clip'
+require_relative 'text/text_area_editor_clip'
 
 module Kredki
   module UI
-    class Input < SpacePad
+    class InputArea < SpacePad
       extend Forwardable
 
       module Theme
@@ -49,8 +49,7 @@ module Kredki
         end
       end
 
-      defw_resp :string!, :string=, :string
-      defw_resp :on_edit!
+      defw_resp :tx!, :tx=, :string!, :string=, :string
 
       #internal api
 
@@ -58,7 +57,7 @@ module Kredki
         super
       
         @theme = nil
-        new_pad TextLineEditorClip
+        new_pad TextAreaEditorClip
       end
 
 

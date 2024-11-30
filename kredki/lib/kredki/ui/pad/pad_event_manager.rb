@@ -34,7 +34,12 @@ module Kredki
     end
 
     def resolve event, aim
-      @managers[aim][event.class]&.resolve event
+      cl = event.class
+      manager = @managers[aim]
+      while cl != Object
+        manager[cl]&.resolve event
+        cl = cl.superclass
+      end
     end
   end
 end

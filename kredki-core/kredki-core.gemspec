@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.license       = "Zlib"
   s.required_ruby_version     = ">= 3.2.2"
   s.add_runtime_dependency("fiddle", "~> 1.1")
-  s.add_runtime_dependency("modeling", "~> 0.0.5")
+  s.add_runtime_dependency("modeling")
   s.add_runtime_dependency("procify", "~> 0.1")
   s.metadata = {
     "documentation_uri" => "https://github.com/lpogic/kredki/blob/main/doc/wiki/README.md",

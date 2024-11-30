@@ -1,10 +1,8 @@
-require 'forwardable'
-require_relative 'text/text_line'
+require_relative '../text/text_line'
 
 module Kredki
   module UI
-    class ButtonPad < SpacePad
-      extend Forwardable
+    class Option < Pad
 
       def << arg
         case arg
@@ -13,6 +11,9 @@ module Kredki
         else
           super
         end
+      end
+
+      class PickEvent < Kredki::UI::Event
       end
 
       module Theme
@@ -25,8 +26,7 @@ module Kredki
         def to_proc
           color = @base_color
           @proc ||= proc do
-            area.color = button_top? ? color.dark : mouse_in? ? color.light : color
-            area.stroke_color = keyboard_top? ? Kredki.color(:yellow) : color
+            area.color = button_top? ? color.dark : keyboard_in? ? :green : color
           end
         end
       end
@@ -53,23 +53,26 @@ module Kredki
         @theme
       end
 
+      def on_pick! ...
+        on!(PickEvent, ...)
+      end
+
       #internal api
 
       def initialize
         super
 
         @theme = nil
+        Option.init_flags self
       end
+
+      def_flag :selected
 
       def sketch p0
         super
 
-        new_pad TextLine, mousy: false, keyboardy: false
-
-        area.show!
-        wh! 5
         keyboardy!
-        stroke_width! 1
+        new_pad TextLine, mousy: false, keyboardy: false
         theme! :gray
 
         on_repaint! do |e|
@@ -77,36 +80,35 @@ module Kredki
           e.resolve
         end
 
-        on_focus_gain! do |e|
-          report RepaintEvent.new
+        on_enter! do
+          gain_keyboard
+        end
+
+        on_click! do
+          report PickEvent.new
+        end
+
+        on_key! :space do
+          report PickEvent.new
           e.resolve
         end
 
-        on_focus_lose! do |e|
-          report RepaintEvent.new
-          e.resolve
+        on_focus_gain! do
+          repaint
         end
 
-        string! "Button"
+        on_focus_lose! do
+          repaint
+        end
+
+        string! "Option"
       end
 
       defw_resp :string!, :string=, :string
+      defw_resp :fh!, :fh=, :font!, :font=
 
       def pad
         @pads.first
-      end
-
-      def push_pad ...
-        pad&.detach! true
-        result = super
-        update_pad
-        result
-      end
-
-      def remove_pad pad, transfer
-        result = super
-        update_pad unless transfer
-        result
       end
 
       def repaint

@@ -1,3 +1,4 @@
+
 module Kredki
   class Keyboard
     model :keys do
@@ -63,6 +64,10 @@ module Kredki
     end
 
     #internal api
+
+    def inspect
+      "#{self.class}:#{object_id}"
+    end
 
     private
 

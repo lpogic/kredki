@@ -11,7 +11,7 @@ module Kredki
         def sketch p0
           super
 
-          body.hide!
+          area.hide!
 
           on_resize! do |e|
             if e.target != self

@@ -18,13 +18,13 @@ module Kredki
 
     attr :picture
 
-    aliasing def s! source
+    aliasing def source! source
       set_source source
-    end, :s=, :source!, :source=
+    end, :source=
 
-    aliasing def s
+    def source
       @source
-    end, :source
+    end
 
     aliasing def frame! no
       set_frame no

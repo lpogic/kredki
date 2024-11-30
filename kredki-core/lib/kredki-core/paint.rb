@@ -78,7 +78,7 @@ module Kredki
     # end
 
     def clip! mask
-      set_clip mask
+      set_clip mask || nil
     end
 
     class BlendMethod

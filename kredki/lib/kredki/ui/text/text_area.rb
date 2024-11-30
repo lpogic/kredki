@@ -2,7 +2,7 @@ require_relative 'text'
 
 module Kredki
   module UI
-    class TextColumn < Text
+    class TextArea < Text
 
       class Line
         model :selection, :text
@@ -13,7 +13,7 @@ module Kredki
 
         @text_x = POSITION_START
         @cursor_position = @selection_min = @selection_max = 0
-        @cursor = @scene.rectangle! x: 1, y: 0, color: :black, w: 2, h: 30
+        @cursor = @scene.rectangle! x: 1, y: 0, color: :white, w: 2, h: 30
         @lines = []
       end
 
@@ -58,11 +58,11 @@ module Kredki
         end
 
         selection = @scene.rectangle! x: 0, y:, w: 0, h:, color: :blue do
-          clip! p0.body
+          clip! p0.area
         end
 
         text = @scene.text! x: @cursor.w / 2, y:, color: :white, font: :arial, h: do
-          clip! p0.body
+          clip! p0.area
         end
 
         line = Line.new selection, text
@@ -253,17 +253,15 @@ module Kredki
         end
       end
 
-      aliasing def s! str = "", reset_cursor = true, &block
-        string = self.string
-        str = block.call string, str if block
-        str = str.to_s
-        string != str && begin
-          str += "\n" if str.empty? || str.end_with?("\n")
-          texts = str.each_line chomp: true
+      aliasing def string! string = "", reset_cursor = true, &block
+        string = string.to_s
+        self.string != string && begin
+          string += "\n" if string.empty? || string.end_with?("\n")
+          texts = string.each_line chomp: true
           @lines = Enumerable.zip @lines, texts do |line, s|
             if line
               if s
-                line.text.s! s
+                line.text.string! s
                 line
               else
                 line.text.detach!
@@ -272,21 +270,21 @@ module Kredki
               end
             else
               line = push_line
-              line.text.s! s
+              line.text.string! s
               line
             end
           end.compact
-          w = @lines.map{ _1.text.w.ceil }.max
+          w = @lines.map{ _1.text.w }.max
           update_text w
           wh! w + @cursor.w, @lines.last.text.then{ _1.y + _1.h }
           self.reset_cursor if reset_cursor
           true
         end
-      end, :s=, :string!, :string=
+      end, :string=
 
-      aliasing def s
+      def string
         @lines.map{ _1.text.string }.join "\n"
-      end, :string
+      end
 
       aliasing def color! ...
         @lines.each{ _1.text.color! ... }
@@ -294,6 +292,14 @@ module Kredki
 
       def color
         @lines.first.text.color
+      end
+
+      aliasing def font! font
+        @lines.each{ _1.text.font! font }
+      end, :font=
+
+      def font
+        @lines.first.text.font
       end
 
       aliasing def tx! position
@@ -321,7 +327,7 @@ module Kredki
             line.text.h = line.selection.h = height
           end
           @cursor.h = height
-          w = @lines.map{ _1.text.w.ceil }.max
+          w = @lines.map{ _1.text.w }.max
           update_text w
           wh! w + @cursor.w, @lines.last.text.then{ _1.y + _1.h }
           true

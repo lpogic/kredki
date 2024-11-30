@@ -5,7 +5,7 @@ module Kredki
     end
 
     def resolve event
-      @resolvers[event.button]&.resolve event
+      @resolvers[event.button_number]&.resolve event
       @resolvers[nil]&.resolve event
     end
 
