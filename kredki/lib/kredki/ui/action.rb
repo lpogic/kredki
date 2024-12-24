@@ -11,7 +11,7 @@ module Kredki
       def initialize
         super
         
-        @layers = []
+        @pads = []
       end
 
       def a
@@ -38,6 +38,18 @@ module Kredki
 
       def parent
         nil
+      end
+
+      def cw
+        w
+      end
+
+      def ch
+        h
+      end
+
+      def cwh
+        wh
       end
 
       def layer! klass = Layer, *a, **na, &b
@@ -73,30 +85,30 @@ module Kredki
 
         on_resize! do
           w, h = *wh
-          @layers.each{ _1.wh! w, h }
+          @pads.each{ _1.wh! w, h }
         end
 
         layer!.focus!
       end
 
       def build &block
-        @layers.last.instance_exec &block if block
+        @pads.last.instance_exec &block if block
       end
 
       def mouse_event event
-        @layers.reverse_each do |layer|
+        @pads.reverse_each do |layer|
           layer.mouse_pad&.report event
         end
       end
 
       def update_mouse_pad event = nil
-        @layers.reverse_each do |layer|
+        @pads.reverse_each do |layer|
           layer.update_mouse_pad event
         end
       end
 
       def keyboard_event event
-        @layers.reverse_each do |layer|
+        @pads.reverse_each do |layer|
           layer.keyboard_pad&.report event
         end
       end
@@ -105,12 +117,12 @@ module Kredki
         push_paint layer.scene
         layer.set_parent self
         layer.wh! *wh
-        @layers << layer
+        @pads << layer
         layer
       end
 
       def remove_pad layer, transfer = false
-        @layers.delete layer
+        @pads.delete layer
       end
 
       def sanc

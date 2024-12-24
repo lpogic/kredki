@@ -8,9 +8,8 @@ module Kredki
     def initialize
       super Abi.shape_new
       ObjectSpace.define_finalizer(self, Shape.proc.finalize(@pointer))
-
-      Shape.init_flags self
       
+      @stroke_width = 0
       color! :white
     end
 
@@ -49,12 +48,8 @@ module Kredki
       update
     end
 
-    aliasing def color! *color, &block
-      if block
-        color = Kredki.color(block.call self.color)
-      else
-        color = Kredki.color(color.extract)
-      end
+    aliasing def color! *color
+      color = Kredki.color(color.extract)
       set_fill_color color
     end, :fill_color!
     
@@ -87,8 +82,12 @@ module Kredki
     end
 
     aliasing def stroke_width! width
-      set_stroke_width width
+      @stroke_width != width and set_stroke_width width
     end, :stroke_width=
+
+    def stroke_width
+      @stroke_width
+    end
 
     class StrokeCap
       enum :square, :round, :butt
@@ -114,7 +113,7 @@ module Kredki
       set_stroke_dash_pattern dash_pattern
     end
 
-    def_flag :stroke_first
+    def_flag :stroke_first, set: :set_stroke_first
 
     # class StrokeTrim
     #   struct :begin, :end, :simultaneous
@@ -133,7 +132,7 @@ module Kredki
     private
 
     def set_fill_color color
-      @color != color && begin
+      @color != color and begin
         Abi.shape_set_fill_color @pointer, *color.to_rgba_array
         @color = color
         update
@@ -152,6 +151,7 @@ module Kredki
 
     def set_stroke_width w
       Abi.shape_set_stroke_width @pointer, w
+      @stroke_width = w
       update
     end
 
@@ -171,7 +171,8 @@ module Kredki
     end
 
     def set_stroke_first stroke_first
-      Abi.shape_set_paint_order @pointer, stroke_first
+      @stroke_first = stroke_first
+      Abi.shape_set_paint_order @pointer, stroke_first ? 1 : 0
       update
     end
 

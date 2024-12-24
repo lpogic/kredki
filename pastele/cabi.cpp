@@ -427,7 +427,9 @@ CABI void paint_set_blend_method(Paint* self, int method) {
 
 CABI void* shape_new()
 {
-    return Shape::gen();
+    auto self = Shape::gen();
+    self->ref();
+    return self;
 }
 
 CABI void shape_delete(Shape* self) {
@@ -668,7 +670,9 @@ CABI void shape_set_paint_order(Shape* self, int strokeFirst) {
 // /************************************************************************/
 
 CABI Picture* picture_new(void) {
-    return Picture::gen();
+    auto self = Picture::gen();
+    self->ref();
+    return self;
 }
 
 CABI int picture_load(Picture* self, const char* path) {
@@ -818,11 +822,12 @@ CABI void picture_get_size(Picture* self, Point* size) {
 
 CABI void* scene_new()
 {
-    return Scene::gen();
+    auto self = Scene::gen();
+    self->ref();
+    return self;
 }
 
 CABI void scene_delete(Scene* self) {
-    self->paints().clear();
     union SDL_Event event;
     event.type = SDL_USEREVENT_DELETESCENE;
     SDL_UserEvent userEvent;
@@ -832,36 +837,22 @@ CABI void scene_delete(Scene* self) {
     SDL_PushEvent(&event);
 }
 
-CABI void scene_push(Scene* self, Paint* paint)
-{
-    self->push(paint); 
-    paint->markTransformed();
-}
-
-CABI void scene_insert(Scene* self, int index, Paint* paint) {
-    auto &paints = self->paints();
-    auto it = paints.begin();
-    advance(it, index);
-    paints.insert(it, paint);
-    paint->markTransformed();
+CABI void scene_push(Scene* self, Paint* paint, Paint* at) {
+    self->push(paint, at);
 }
 
 CABI void scene_remove(Scene* self, Paint* paint) {
-    self->paints().remove(paint);
+    self->remove(paint);
 }
-
-CABI void scene_clear(Scene* self, int free)
-{
-    self->clear(free);
-}
-
 
 // /************************************************************************/
 // /* Text API                                                            */
 // /************************************************************************/
 
 CABI void* text_new(void) {
-    return Text::gen();
+    auto self = Text::gen();
+    self->ref();
+    return self;
 }
 
 CABI void text_delete(Text* self) {

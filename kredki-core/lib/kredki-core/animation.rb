@@ -1,9 +1,9 @@
-require_relative 'has_flags'
+require_relative 'flagship'
 
 module Kredki
   class Animation
     include Alterable
-    extend HasFlags
+    extend Flagship
 
     def initialize
       @pointer = Abi.animation_new
@@ -13,7 +13,6 @@ module Kredki
       @owner = nil
       @ms = nil
       @on_end = EventManager.new
-      Animation.init_flags self
     end
 
     attr :picture
@@ -46,8 +45,8 @@ module Kredki
       Abi.animation_set_segment @pointer, *segment
     end
 
-    def_flag :loop, true, true
-    def_flag :play, nil, true
+    def_flag :loop
+    def_flag :play
 
     def on_end! &block
       @on_end << block
@@ -56,19 +55,19 @@ module Kredki
     def reset!
       self.frame = 0
       @ms = nil
-      set_play 0
+      play! false
     end
 
     def detach!
-      set_play 0
+      play! false
       @picture.detach!
     end
 
-    def_flag :show, :set_show, :get_show
+    def_flag :show, set: :set_show, get: :get_show
 
     def finish!
       if @play
-        set_play 0
+        play! false
         @on_end.resolve Event.new
       end
     end
@@ -123,15 +122,13 @@ module Kredki
     end
 
     def set_play play
-      if @play != play
-        @play = play
-        if @play == 1
-          @ms = @owner.last_frame_ms - @ms if @ms
-          @owner&.push_animation self
-        else
-          @ms = @owner.last_frame_ms - @ms if @ms
-          @owner&.remove_animation self
-        end
+      @play = play
+      if @play
+        @ms = @owner.last_frame_ms - @ms if @ms
+        @owner&.push_animation self
+      else
+        @ms = @owner.last_frame_ms - @ms if @ms
+        @owner&.remove_animation self
       end
     end
 

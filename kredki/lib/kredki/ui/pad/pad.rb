@@ -4,7 +4,7 @@ require_relative 'pad_base'
 require_relative 'pad_inherited'
 require 'forwardable'
 require 'kredki-core/context/context'
-require 'kredki-core/has_flags'
+require 'kredki-core/flagship'
 
 module Kredki
   module UI
@@ -14,7 +14,7 @@ module Kredki
       include Context
       include PadEvents
       extend Forwardable
-      extend HasFlags
+      extend Flagship
       extend PadInherited
 
       def initialize
@@ -23,12 +23,17 @@ module Kredki
         @parent = nil
         @scene = Scene.new
         @area = @scene.rectangle!
+        @clip_scene = @scene.scene!
+        @clip_area = @clip_scene.rectangle! do
+          hide!
+        end
         @names = {}
         @event_manager = PadEventManager.new
         @pads = []
         @button_down_xy = nil
-
-        Pad.init_flags self
+        @x = @y = 0
+        @w = @h = 100
+        @me = @mn = @mw = @ms = 0
       end
 
       def sketch p0
@@ -51,6 +56,12 @@ module Kredki
         case arg
         when Symbol
           @names[arg] = true
+          if arg.start_with? "@"
+            p0 = self
+            a&.define_singleton_method arg[1..] do |&b|
+              b ? p0.instance_eval(&b) : p0
+            end
+          end
         when Pad
           arg.attach! self
         when Hash
@@ -86,7 +97,7 @@ module Kredki
         self << name
       end, :n=, :name!, :name=
 
-      def_flag :keyboardy, true
+      def_flag :keyboardy
 
       def mouse_button_down e
         if e.button == :primary
@@ -109,7 +120,7 @@ module Kredki
         if @drag
           @drag = false
           report DropEvent.new e.origin
-        elsif include_point?(e.x, e.y) && p(e.button) == :primary
+        elsif include_point?(e.x, e.y) && e.button == :primary
           report ClickEvent.new e
         end
         e.resolve
@@ -131,7 +142,7 @@ module Kredki
         e.resolve if e.target != self
       end
       
-      attr :parent, :action, :scene, :area, :pads
+      attr :parent, :action, :scene, :area, :pads, :clip_area
       alias_method :a, :action
 
       def s
@@ -139,7 +150,15 @@ module Kredki
       end
 
       def_delegators :@scene,
-        :show?, :show!, :show=
+        :show?, :show!, :show=,
+        :x, :y
+
+      aliasing def area! area
+        area.wh! *@area.wh
+        @scene.push_paint area, true, @area
+        @scene.remove_paint @area
+        @area = area
+      end, :area=
 
       def include_point? x, y
         x >= 0 && y >= 0 && x <= @area.w && y <= @area.h
@@ -193,9 +212,9 @@ module Kredki
         layer&.button_pad == self
       end
 
-      def_flag :mousy!, true
-      def_flag :focus, :set_focus, :keyboard_top?
-      def_flag :mouse_focus, :set_button, :button_top?
+      def_flag :mousy, nil: true
+      def_flag :focus, set: :set_focus, get: :keyboard_top?
+      def_flag :mouse_focus, set: :set_button, get: :button_top?
 
       def drag! start_point = nil
         gain_button start_point
@@ -208,43 +227,100 @@ module Kredki
       end
 
       aliasing def x! x
-        set_x(x) && move_common
+        eqr(@x, x) and set_xy x, @y
       end, :x=
 
       aliasing def y! y
-        set_y(y) && move_common
+        eqr(@y, y) and set_xy @x, y
       end, :y=
 
-      def xy! x, y
-        set_xy(x, y) && move_common
+      def xy! x, y = nil
+        y ||= x
+        eqr(@x, x) || eqr(@y, y) and set_xy x, y
       end
 
-      def xy=(xy)
-        xy! *xy
+      def xy= xy 
+        case xy
+        when Array
+          xy! *xy
+        else
+          xy! xy
+        end
       end
 
-      def x
-        @scene.x
+      aliasing def me! me
+        eqr(@me, me) and set_margin me, @mn, @mw, @ms
+      end, :me=, :margin_east!, :margin_east=
+
+      aliasing def mn! mn
+        eqr(@mn, mn) and set_margin @me, mn, @mw, @ms
+      end, :mn=, :margin_north!, :margin_north=
+
+      aliasing def mw! mw
+        eqr(@mw, mw) and set_margin @me, @mn, mw, @ms
+      end, :mw=, :margin_west!, :margin_west=
+
+      aliasing def ms! ms
+        eqr(@ms, ms) and set_margin @me, @ms, @mw, ms
+      end, :ms=, :margin_south!, :margin_south=
+
+      aliasing def mx! me, mw = nil
+        mw ||= me
+        eqr(@me, me) || eqr(@mw, mw) and set_margin me, @mn, mw, @ms
+      end, :mx=, :margin_x!, :margin_x=
+
+      aliasing def my! mn, ms = nil
+        ms ||= mn
+        eqr(@mn, mn) || eqr(@ms, ms) and set_margin @me, mn, @mw, ms
+      end, :my=, :margin_y!, :margin_y=
+
+      aliasing def m! me, mn = nil, mw = nil, ms = nil
+        mn ||= me
+        mw ||= me
+        ms ||= mn
+        eqr(@me, me) || eqr(@mw, mw) || eqr(@mn, mn) || eqr(@ms, ms) and set_margin me, mn, mw, ms
+      end, :margin
+
+      def m= m
+        case m
+        when Array
+          m! *m
+        else
+          m! m
+        end
       end
 
-      def y
-        @scene.y
+      def me
+        @me
       end
 
-      def xy
-        @scene.xy
+      def mn
+        @mn
       end
 
-      aliasing def w! w = nil
-        set_size(w, h) && resize_common
+      def mw
+        @mw
+      end
+
+      def ms
+        @ms
+      end
+
+      def eqr a, b
+        a != b || (Rational === a) != (Rational === b)
+      end
+
+      aliasing def w! w
+        eqr @w, w and set_size w, @h
       end, :w=, :width!, :width=
 
-      aliasing def h! h = nil
-        set_size(w, h) && resize_common
+      aliasing def h! h
+        eqr @h, h and set_size @w, h
       end, :h=, :height!, :height=
 
       aliasing def wh! w, h = nil
-        set_size(w, h || w) && resize_common
+        h ||= w
+        eqr(@w, w) || eqr(@h, h) and set_size w, h
       end, :size!
 
       aliasing def wh=(wh)
@@ -256,33 +332,52 @@ module Kredki
         end
       end, :size=
 
-      def new_pad klass = Pad, *a, _index: nil, **na, &b
+      def cw
+        @clip_area.w
+      end
+
+      def ch
+        @clip_area.h
+      end
+
+      def cwh
+        @clip_area.wh
+      end
+
+      def cx
+        @scene.x + @clip_scene.x
+      end
+
+      def cy
+        @scene.y + @clip_scene.y
+      end
+
+      def cxy
+        [cx, cy]
+      end
+
+      def new_pad klass = Pad, *a, _at: nil, **na, &b
         pad = klass.new
-        push_pad(pad.sketch_base, _index)
+        push_pad(pad.sketch_base, _at)
         pad.alter(*a, **na, &b).alter_commit
         pad
       end
 
       def pad_index
-        parent&.paint_index self
+        parent&.pads.index self
       end
 
-      def push_pad pad, paint_index = nil, clip = true
+      def push_pad pad, at = nil, clip = true
         pad_parent = pad.parent
-        paint_state = @scene.push_paint pad.scene, true, paint_index
+        paint_state = @clip_scene.push_paint pad.scene, true, at&.scene
         pad.set_parent self
-        if paint_index
-          start = [paint_state.index, @pads.size - 1].min
-          paints = @scene.paint_hash
-          pad_index = (start..0).step(-1).find do |i|
-            paints[@pads[i].scene].index < paint_state.index
-          end || -1
-          @pads.insert pad_index + 1, pad
+        if at
+          @pads.insert @pads.index(at), pad
         else
           @pads << pad
         end
         if clip
-          pad.scene.clip! area
+          pad.scene.clip! @clip_area
         elsif pad_parent
           pad.scene.clip! nil
         end
@@ -323,8 +418,7 @@ module Kredki
         return if @parent == parent
         raise "LOOP" if parent.sanc.find{ _1 == self }
         detach! true if @parent
-        @parent = parent
-        @parent&.push_pad self
+        parent&.push_pad self
       end
 
       def detach! transfer = false
@@ -356,12 +450,16 @@ module Kredki
         end
       end
 
+      def roi!
+        report ROIEvent.new *wh, *translate
+      end
+
       def_delegators :@area,
         :h, :height, 
         :w, :width,
         :wh, :size,
         :color,
-        :r!, :r=, :radius!, :radius=,
+        :blunt!, :blunt=,
         :stroke_width!, :stroke_width=, :stroke_color!, :stroke_color=
 
       #internal api
@@ -378,43 +476,181 @@ module Kredki
       end
       
       def set_size w, h
-        area.wh! w, h
-      end
-      
-      def set_x x
-        @scene.set_x x
+        @w = w
+        @h = h
+        update_size true
       end
 
-      def set_y y
-        @scene.set_y y
+      def update_size mouse_pad = false
+        set_size_impl and event_director.stem do
+          report ResizeEvent.new
+          update_xy and report MoveEvent.new
+          layer&.update_mouse_pad if mouse_pad && sketched? && mousy? && show?
+          true
+        end
       end
 
       def set_xy x, y
-        @scene.set_xy x, y
+        @x = x
+        @y = y
+        update_xy and event_director.stem do
+          report MoveEvent.new
+          layer&.update_mouse_pad if sketched? && mousy? && show?
+          true
+        end
       end
 
+      def set_margin e, n, w, s
+        @me = e
+        @mn = n
+        @mw = w
+        @ms = s
+        update_margin and event_director.stem do
+          layer&.update_mouse_pad if sketched? && mousy? && show?
+          true
+        end
+      end
+
+      def set_size_impl
+        mx = @me + @mw
+        my = @mn + @ms
+
+        sw = case @w
+        when Rational
+          pw = parent&.cw || 0
+          r = pw * @w.to_f
+          @w.denominator == 1 ? r / 100 : r
+        when Proc
+          pw = parent&.cw || 0
+          @w[pw]
+        else
+          if @w < 0
+            pw = parent&.cw || 0
+            pw + @w
+          else
+            @w
+          end
+        end
+        
+        sh = case @h
+        when Rational
+          ph = parent&.ch || 0
+          r = ph * @h.to_f
+          @h.denominator == 1 ? r / 100 : r
+        when Proc
+          ph = parent&.ch || 0
+          @h[ph]
+        else
+          if @h < 0
+            ph = parent&.ch || 0
+            ph + @h
+          else
+            @h
+          end
+        end
+
+        ((area.wh! sw, sh) | (@clip_area.wh! sw - mx, sh - my)) and propagate_resize
+      end
+
+      def update_xy
+        sw = area.w
+        sh = area.h
+        pw = parent&.cw || 0
+        ph = parent&.ch || 0
+
+        sx = case @x
+        when Rational 
+          r = (pw - sw) * @x.to_f
+          @x.denominator == 1 ? r / 100 : r
+        when Proc
+          @x[pw, sw]
+        else
+          @x
+        end
+
+        sy = case @y
+        when Rational 
+          r = (ph - sh) * @y.to_f
+          @y.denominator == 1 ? r / 100 : r
+        when Proc
+          @y[ph, sh]
+        else
+          @y
+        end
+
+        @scene.xy! sx, sy
+      end
+
+      def update_margin
+        (@clip_scene.xy! @me, @mn) | (@clip_area.wh! w - @me - @mw, h - @mn - @ms and propagate_resize)
+      end
+
+      def propagate_resize
+        @pads.each(&:parent_resize)
+        true
+      end
+
+      def parent_resize
+        set_size_impl
+        update_xy
+      end
+
+      def fit_wh
+        sw = case @w
+        when Rational
+          0
+        when Proc
+          0
+        else
+          if @w < 0
+            -@w
+          else
+            0
+          end
+        end
+
+        sh = case @h
+        when Rational
+          0
+        when Proc
+          0
+        else
+          if @h < 0
+            -@h
+          else
+            0
+          end
+        end
+
+        (@pads.map{ _1.opt_h }.max || 0) + sh
+
+        (@pads.map{ _1.opt_w }.max || 0) + sw
+      end
+
+      def opt_h
+        sh = case @h
+        when Rational
+          0
+        when Proc
+          0
+        else
+          if @h < 0
+            -@h
+          else
+            0
+          end
+        end
+
+        (@pads.map{ _1.opt_h }.max || 0) + sh
+      end
+
+
       def max_x
-        x + w
+        @scene.x + area.w
       end
 
       def max_y
-        y + h
-      end
-
-      def move_common
-        event_director.stem do
-          layer.update_mouse_pad if mousy? && show?
-          report MoveEvent.new
-        end if sketched?
-        true
-      end
-
-      def resize_common
-        event_director.stem do
-          report ResizeEvent.new
-          layer.update_mouse_pad if mousy? && show?
-        end
-        true
+        @scene.y + area.h
       end
 
       def set_show show
@@ -491,12 +727,12 @@ module Kredki
           return [x, y]
         elsif target == nil
           if pa = parent
-            return parent.translate x + self.x, y + self.y
+            return pa.translate x + self.cx, y + self.cy
           else 
             return [x, y] 
           end
         else
-          xy = parent.translate x + self.x, y + self.y
+          xy = parent.translate x + self.cx, y + self.cy
           xy = target.translate -xy[0], -xy[1]
           return [-xy[0], -xy[1]]
         end
@@ -506,12 +742,8 @@ module Kredki
         false
       end
 
-      def update_child_xy_on_resize?
-        false
-      end
-
       def report event, path = true, instant = false
-        event.target = self
+        event.target ||= self
         ed = event_director
         if path
           ancs = sanc.to_a
@@ -519,16 +751,16 @@ module Kredki
             ed.stem do
               ancs.reverse_each do |pad|
                 ed.push_block event, instant do
-                  event.x -= pad.x
-                  event.y -= pad.y
+                  event.x -= pad.cx
+                  event.y -= pad.cy
                 end
                 ed.push event, pad, true, instant
               end
               ancs.each do |pad|
                 ed.push event, pad, false, instant
                 ed.push_block event, instant do
-                  event.x += pad.x
-                  event.y += pad.y
+                  event.x += pad.cx
+                  event.y += pad.cy
                 end
               end
             end
@@ -555,6 +787,7 @@ module Kredki
       def set_parent parent
         @parent = parent
         set_action parent&.action
+        parent_resize
       end
 
       def set_action action

@@ -13,7 +13,7 @@ module Kredki
 
         @text_x = POSITION_START
         @cursor_position = @selection_min = @selection_max = 0
-        @cursor = @scene.rectangle! x: 1, y: 0, color: :white, w: 2, h: 30
+        @cursor = @clip_scene.rectangle! x: 1, y: 0, color: :white, w: 2, h: 30
         @lines = []
       end
 
@@ -57,13 +57,9 @@ module Kredki
           y = 0
         end
 
-        selection = @scene.rectangle! x: 0, y:, w: 0, h:, color: :blue do
-          clip! p0.area
-        end
-
-        text = @scene.text! x: @cursor.w / 2, y:, color: :white, font: :arial, h: do
-          clip! p0.area
-        end
+        selection = @clip_scene.rectangle! x: 0, y:, w: 0, h:, color: :blue, clip!: clip_area
+        
+        text = @clip_scene.text! x: @cursor.w / 2, y:, color: :white, font: :arial, h:, clip!: clip_area
 
         line = Line.new selection, text
         @lines << line
@@ -88,7 +84,7 @@ module Kredki
         cw = @cursor.w / 2
         y = 0
         @lines.each do |line|
-          line.text.xy! @text_x.call(line.text.w, w) + cw, y
+          line.text.xy! @text_x.call(w, line.text.w) + cw, y
           line.selection.y! y
           y += line.text.h
         end

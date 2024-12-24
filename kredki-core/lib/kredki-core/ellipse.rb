@@ -10,7 +10,7 @@ module Kredki
     end
 
     aliasing def rx! rx
-      set_rx rx
+      @rx != rx and set_r rx, @ry
     end, :rx=, :radius_x!, :radius_x=
 
     aliasing def rx
@@ -18,7 +18,7 @@ module Kredki
     end, :radius_x
 
     aliasing def ry! ry
-      set_ry ry
+      @ry != ry and set_r @rx, ry
     end, :ry=, :radius_y!, :radius_y=
 
     aliasing def ry
@@ -26,20 +26,31 @@ module Kredki
     end, :radius_y
 
     aliasing def r! r
-      set_r r
+      @rx != r || @ry != r and set_r r, r
     end, :r=, :radius!, :radius=
 
     aliasing def r
-      @rx == @ry ? @rx : [@rx, @ry].max
+      [@rx, @ry].max
     end, :radius
 
     aliasing def d! d
-      set_r d / 2
+      r = d * 0.5
+      set_r r, r
     end, :d=, :diameter!, :diameter=
     
     aliasing def d 
       r * 2
     end, :diameter
+
+    def <<(arg)
+      case arg
+      in [x, y, r]
+        xy! x, y
+        r! r
+      else
+        raise ArgumentError.new "#{arg} #{arg.class}"
+      end
+    end
 
     #internal api
 
@@ -47,34 +58,20 @@ module Kredki
 
     def reset!
       super
-      result = false
-      if @rx && @ry
-        ellipse_at! 0, 0, @rx, @ry
-        result = true
-      end
+      half_sw = @stroke_width * 0.5
+      ellipse_at! @rx, @ry, @rx - half_sw, @ry - half_sw if @rx && @ry
       update
-      result
     end
 
-    def set_rx rx
-      rx != @rx && begin
-        @rx = rx
-        reset!
-      end
+    def set_r rx, ry
+      @rx = rx
+      @ry = ry
+      reset!
     end
-
-    def set_ry ry
-      ry != @ry && begin
-        @ry = ry
-        reset!
-      end
-    end
-
-    def set_r r
-      (r != @rx || r != @ry) && begin
-        @rx = @ry = r
-        reset!
-      end
+    
+    def set_stroke_width ...
+      super
+      reset!
     end
   end
 end

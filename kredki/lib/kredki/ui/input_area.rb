@@ -3,7 +3,7 @@ require_relative 'text/text_area_editor_clip'
 
 module Kredki
   module UI
-    class InputArea < SpacePad
+    class InputArea < Pad
       extend Forwardable
 
       module Theme
@@ -11,7 +11,7 @@ module Kredki
 
       class ColorBasedTheme
         include Theme
-        model :base_color_avr!, :proc_a!
+        model :@R_base_color, :@N_proc
 
         def to_proc
           color = @base_color
@@ -57,7 +57,6 @@ module Kredki
         super
       
         @theme = nil
-        new_pad TextAreaEditorClip
       end
 
 
@@ -65,8 +64,6 @@ module Kredki
         super
 
         mousy!
-        area.show!
-        wh! 5
         stroke_width! 1
         theme! :gray
                 
@@ -75,13 +72,18 @@ module Kredki
           on_enter! &repaint_event
           on_leave! &repaint_event
           on_focus_gain! &repaint_event
-          on_focus_lose! &repaint_event
+          on_focus_lose! do
+            @pads.first&.update_text
+            repaint_event.call
+          end
         end
 
         on_repaint! do |e|
           repaint
           e.resolve
         end
+
+        new_pad TextAreaEditorClip, wh: 100r
       end
 
       def repaint
@@ -91,7 +93,7 @@ module Kredki
       def point_pads x, y, pads, force = false
         if force || (mousy? && show? && include_point?(x, y))
           pads << self
-          pad = self.pad
+          pad = @pads.first
           pad.point_pads x - pad.x, y - pad.y, pads, true
           return true
         end

@@ -3,7 +3,7 @@ require_relative 'text/text_line'
 
 module Kredki
   module UI
-    class ButtonPad < SpacePad
+    class ButtonPad < Pad
       extend Forwardable
 
       def << arg
@@ -20,7 +20,7 @@ module Kredki
 
       class ColorBasedTheme
         include Theme
-        model :base_color_avr!, :proc_a!
+        model :@R_base_color, :@N_proc
 
         def to_proc
           color = @base_color
@@ -53,6 +53,8 @@ module Kredki
         @theme
       end
 
+      defw_resp :string!, :string=, :string
+
       #internal api
 
       def initialize
@@ -64,10 +66,6 @@ module Kredki
       def sketch p0
         super
 
-        new_pad TextLine, mousy: false, keyboardy: false
-
-        area.show!
-        wh! 5
         keyboardy!
         stroke_width! 1
         theme! :gray
@@ -87,26 +85,35 @@ module Kredki
           e.resolve
         end
 
+        w! proc{ @me + @mw + (pad&.then{ _1.w } || 0) }
+        h! proc{ @mn + @ms + (pad&.then{ _1.h } || 0) }
+
+        new_pad TextLine, mousy: false, keyboardy: false, xy: 50r
+
         string! "Button"
       end
 
-      defw_resp :string!, :string=, :string
+      def resize e
+        if e.target != self
+          e.resolve
+          update_size
+        end
+      end
 
       def pad
         @pads.first
       end
 
+      def update_margin
+        super.tap{ update_size }
+      end
+
       def push_pad ...
-        pad&.detach! true
-        result = super
-        update_pad
-        result
+        super.tap{ update_size }
       end
 
       def remove_pad pad, transfer
-        result = super
-        update_pad unless transfer
-        result
+        super.tap{ update_size }
       end
 
       def repaint

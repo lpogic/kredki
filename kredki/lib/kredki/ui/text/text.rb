@@ -45,9 +45,7 @@ module Kredki
 
         on_key! :a do |e|
           if e.ctrl?
-            @selection_min = 0
-            @selection_max = @cursor_position = string_length
-            update_cursor
+            select 0, string_length
             e.resolve
           end
         end
@@ -59,12 +57,14 @@ module Kredki
           end
         end
 
-        on_mouse_button! do |e|
+        on_mouse_button! :primary do |e|
           if keyboard.shift?
             drag e.x, e.y
           else
-            cursor_position = self.cursor_position e.x, e.y
-            reset_cursor cursor_position
+            if e.clicks < 2
+              cursor_position = self.cursor_position e.x, e.y
+              reset_cursor cursor_position
+            end
           end
         end
 
@@ -79,12 +79,13 @@ module Kredki
         end
 
         on_click! do |e|
-          if e.clicks > 1 && !keyboard.shift?
-            @selection_min = 0
-            @cursor_position = @selection_max = string_length
-            update_cursor
+          if e.clicks == 2 && !keyboard.shift?
+            sl = string_length
+            unless @selection_min == 0 && sl == @selection_max && sl == @cursor_position
+              select 0, sl
+              e.resolve
+            end
           end
-          e.resolve
         end
       end
 
@@ -166,6 +167,12 @@ module Kredki
             @cursor_position = @selection_min = @selection_max
           end
         end
+        update_cursor
+      end
+
+      def select min, max
+        @selection_min = min
+        @selection_max = @cursor_position = max
         update_cursor
       end
 

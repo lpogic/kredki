@@ -69,10 +69,6 @@ module Kredki
           end
           removed
         end
-
-        def paint_index pad
-          parent.paint_index self
-        end 
       end
     end
   end

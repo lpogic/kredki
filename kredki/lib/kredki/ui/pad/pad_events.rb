@@ -44,16 +44,16 @@ module Kredki
         @break = false
       end  
 
-      def track
-        @track = true
+      def trace
+        @trace = true
       end
   
-      def track= enabled
-        @track = enabled
+      def trace= enabled
+        @trace = enabled
       end
   
-      def track?
-        !!@track
+      def trace?
+        !!@trace
       end
     end
 
@@ -111,14 +111,6 @@ module Kredki
 
     class ResizeEvent < Event
       model :w, :h
-
-      def w?
-        !!@w
-      end
-
-      def h?
-        !!@h
-      end
     end
 
     class EnterEvent < Event

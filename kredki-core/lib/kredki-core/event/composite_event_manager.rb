@@ -1,6 +1,6 @@
 module Kredki
   class CompositeEventManager
-    model :managers_av!
+    model :@managers
 
     def attach! attached, force = false
       resolver = case attached

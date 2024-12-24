@@ -1,4 +1,4 @@
-require_relative 'has_flags'
+require_relative 'flagship'
 require 'forwardable'
 require_relative 'clipboard'
 require_relative 'keyboard'
@@ -8,14 +8,12 @@ require_relative 'action/action'
 module Kredki
   class Window
     include Alterable
-    extend HasFlags
+    extend Flagship
     extend Forwardable
 
     def initialize w = 400, h = 400
       @pointer = Abi.window_new w, h
       ObjectSpace.define_finalizer(self, Window.proc.finalize(@pointer))
-
-      Window.init_flags self
     end
 
     class << self
@@ -46,8 +44,8 @@ module Kredki
       Abi.window_restore @pointer
     end
 
-    def_flag :bordered!
-    def_flag :grab
+    def_flag :bordered, nil: true, set: :set_bordered
+    def_flag :grab, set: :set_grab
 
     def fullscreen! method = 0
       Abi.window_set_fullscreen @pointer, method
@@ -87,7 +85,7 @@ module Kredki
       set_position *xy
     end, :position=
 
-    def_flag :resizable
+    def_flag :resizable, set: :set_resizable
 
     aliasing def wh! w, h = nil
       set_size w, h || w
@@ -124,7 +122,7 @@ module Kredki
       set_title title.to_s
     end, :title=
 
-    def_flag :always_top
+    def_flag :always_top, set: :set_always_top
 
     aliasing def action! action = nil, &block
       set_action action || Window.default_action.new, &block
@@ -179,12 +177,14 @@ module Kredki
       @action == action && !!@arena
     end
 
-    def set_bordered bordered
-      Abi.window_set_bordered @pointer, bordered
+    def set_bordered set
+      Abi.window_set_bordered @pointer, set ? 1 : 0
+      @bordered = set
     end
 
-    def set_grab grab
-      Abi.window_set_grab @pointer, grab
+    def set_grab set
+      Abi.window_set_grab @pointer, set ? 1 : 0
+      @grab = set
     end
 
     def set_maximum_size width, height
@@ -203,8 +203,9 @@ module Kredki
       Abi.window_set_position @pointer, x, y
     end
 
-    def set_resizable resizable
-      Abi.window_set_resizable @pointer, resizable
+    def set_resizable set
+      Abi.window_set_resizable @pointer, set ? 1 : 0
+      @resizable = set
     end
 
     def set_size width, height
@@ -228,8 +229,9 @@ module Kredki
       Abi.window_set_title @pointer, title
     end
 
-    def set_always_top top
-      Abi.window_set_always_on_top @pointer, top
+    def set_always_top set
+      Abi.window_set_always_on_top @pointer, set ? 1 : 0
+      @always_top = set
     end
   end
 end

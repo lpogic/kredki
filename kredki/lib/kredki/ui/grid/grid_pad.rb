@@ -6,7 +6,7 @@ module Kredki
       require_relative 'cell'
       require_relative 'line'
 
-      def_flag :autosized, :set_autosized
+      def_flag :autosized, set: :set_autosized
 
       def cursor! col = 0, row = 0
         @current_col = col
@@ -89,8 +89,6 @@ module Kredki
         @current_row = 0
         @direction = :col
 
-        GridPad.init_flags self
-
         autosized! true
       end
 
@@ -102,7 +100,7 @@ module Kredki
         end
       end
 
-      def push_pad pad, index = nil
+      def push_pad pad, at = nil
         unless pad.is_a? Cell
           alter!{ cell!.push_pad pad }
           return pad
@@ -121,11 +119,8 @@ module Kredki
       end
 
       def set_autosized sized
-        @autosized != sized && begin
-          @autosized = sized
-          report SizeModeEvent.new
-          true
-        end
+        @autosized = sized
+        report SizeModeEvent.new
       end
 
       def remove_pad pad, transfer = false
@@ -172,12 +167,12 @@ module Kredki
         @pads.sort{|a, b| a.colspan <=> b.colspan }.each do |pad|
           update_lines @cols, pad.min_col, pad.max_col, pad.max_x
         end
-        update_lines @cols, 0, @cols.size - 1, w unless autosized?
+        update_lines @cols, 0, @cols.size - 1, w if !autosized? && !@cols.empty?
 
         @pads.sort{|a, b| a.rowspan <=> b.rowspan }.each do |pad|
           update_lines @rows, pad.min_row, pad.max_row, pad.max_y
         end
-        update_lines @rows, 0, @rows.size - 1, h unless autosized?
+        update_lines @rows, 0, @rows.size - 1, h if !autosized? && !@rows.empty?
         
         w = @cols.keys.sort.reduce 0 do |offset, key|
           @cols[key].then{|col| (col.offset = offset) + col.size }

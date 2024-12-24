@@ -30,7 +30,7 @@ module Kredki
 
       class ColorBasedTheme
         include Theme
-        model :base_color_avr!, :proc_a!
+        model :@R_base_color, :@N_proc
 
         def to_proc
           color = @base_color

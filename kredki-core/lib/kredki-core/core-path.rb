@@ -113,3 +113,9 @@ module Enumerable
     end
   end
 end
+
+class Integer
+  def pc
+    Rational(self, 100)
+  end
+end

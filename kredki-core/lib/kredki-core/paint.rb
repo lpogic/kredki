@@ -1,8 +1,8 @@
-require_relative 'has_flags'
+require_relative 'flagship'
 
 module Kredki
   class Paint
-    extend HasFlags
+    extend Flagship
 
     def initialize pointer
       @pointer = pointer
@@ -11,12 +11,10 @@ module Kredki
       @x = 0
       @y = 0
       @rotation = 0
-
-      Paint.init_flags self
     end
 
     aliasing def x! x 
-      set_x x
+      @x != x and @y and set_translation x, @y
     end, :x=
 
     def x
@@ -24,7 +22,7 @@ module Kredki
     end
 
     aliasing def y! y
-      set_y y
+      @y != y and @x and set_translation @x, y
     end, :y=
 
     def y
@@ -32,11 +30,11 @@ module Kredki
     end
 
     def xy! x, y
-      set_xy x, y
+      @x != x || @y != y and set_translation x, y
     end
 
     def xy= xy
-      set_xy *xy
+      xy! *xy
     end
 
     def xy
@@ -44,7 +42,7 @@ module Kredki
     end
 
     aliasing def rotation! rotation
-      set_rotation rotation
+      @rotation != rotation and set_rotation rotation
     end, :rotation=
 
     def rotation
@@ -99,7 +97,7 @@ module Kredki
       owner.push_paint self
     end
 
-    def_flag :show, :set_show, :get_show
+    def_flag :show, set: :set_show, get: :get_show
 
     def hide!
       set_show false
@@ -145,53 +143,27 @@ module Kredki
       update
     end
 
-    def set_x x
-      x != @x && begin
-        @x = x
-        @x && @y && (set_translation @x, @y)
-      end
-    end
-
-    def set_y y
-      y != @y && begin
-        @y = y
-        @x && @y && (set_translation @x, @y)
-      end
-    end
-
-    def set_xy x, y
-      (x != @x || y != @y) && begin
-        @x = x
-        @y = y
-        @x && @y && (set_translation @x, @y)
-      end
-    end
-
     def set_rotation rotation
-      @rotation != rotation && begin
-        @rotation = rotation
-        Abi.paint_set_rotation @pointer, rotation
-        update
-        true
-      end
+      Abi.paint_set_rotation @pointer, rotation
+      @rotation = rotation
+      update
     end
 
     def set_scale scale
       Abi.paint_set_scale @pointer, scale
       update
-      true
     end
 
     def set_opacity opacity
       Abi.paint_set_opacity @pointer, opacity
       update
-      true
     end
 
     def set_translation x, y
       Abi.paint_set_translation @pointer, x, y
+      @x = x
+      @y = y
       update
-      true
     end
 
     def set_blend blend_method

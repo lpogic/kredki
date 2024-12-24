@@ -1,12 +1,17 @@
+require_relative 'options'
+
 module Kredki
   module UI
-    class OptionsLayer < Layer
+    class ScrollOptionsLayer < Layer
 
-      def attach! action, x, y
-        @options.alter do
+      def attach! action, x, y, w
+        @scroll.alter do
           xy! x, y
+          w! w
+          s[Option..] = {w: w}
         end.attach! self
         super action
+        @scroll[Option]&.focus!
       end
 
       def_forward Options, :option!
@@ -21,7 +26,9 @@ module Kredki
       def sketch p0
         super
 
-        @options = new_pad Options
+        @scroll = new_pad ScrollPad do
+          new_pad Options
+        end
 
         on_key! :escape, &proc.detach_request
         on! Option::PickEvent, &proc.detach_request

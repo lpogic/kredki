@@ -21,19 +21,28 @@ module Kredki
         end
       end
 
-      def def_pad name, klass = nil, &block
-        if block
+      def def_pad name, klass = nil, *def_a, **def_na, &def_b
+        case klass
+        when Class
           define_method name do |*a, **na, &b|
-            pad = instance_exec a, na, b, self, &block
-            pad.alter! name, *a, **na, &b if klass
-            pad
+            pad = new_pad klass, name, *def_a, **def_na, &def_b
+            pad.alter *a, **na, &b
+          end
+        when true
+          define_method name do |*a, **na, &b|
+            a = [name, *def_a, *a]
+            na = {**def_na, **na}
+            pad = instance_exec a, na, b, self, &def_b
+            pad.alter *a, **na, &b
           end
         else
           define_method name do |*a, **na, &b|
-            new_pad klass, name, *a, **na, &b
+            a = [name, *def_a, *a]
+            na = {**def_na, **na}
+            instance_exec a, na, b, self, &def_b
           end
         end
       end
-    end
-  end
-end
+    end#PadInherited
+  end#UI
+end#Kredki

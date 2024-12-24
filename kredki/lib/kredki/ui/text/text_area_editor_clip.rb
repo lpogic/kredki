@@ -47,7 +47,7 @@ module Kredki
           end
         end
 
-        on_mouse_button_up! aim: true do |e|
+        on_mouse_button_up! :primary, aim: true do |e|
           if !@editor.drag? && include_point?(e.x, e.y)
             @editor.lose_button
             e.x -= self.x
@@ -59,9 +59,8 @@ module Kredki
 
         on! ROIEvent do |e|
           pad = @editor
-          x = if pad.w < w then @editor.tx.call pad.w, w
-          elsif (l = e.x) < 0
-            pad.x - l
+          x = if pad.w < w then @editor.tx.call w, pad.w
+          elsif (l = e.x) < 0 then pad.x - l
           elsif (r = e.w + e.x) > w then pad.x - r + w
           else pad.x
           end
@@ -107,7 +106,7 @@ module Kredki
       end
 
       def update_text
-        @editor.xy! @editor.tx.call(@editor.w, w), 0
+        @editor.xy! @editor.tx.call(w, @editor.w), 0
       end
     end
   end

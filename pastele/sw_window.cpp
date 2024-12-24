@@ -10,9 +10,6 @@ SwWindow::SwWindow(uint32_t width, uint32_t height) : Window()
 
 SwWindow::~SwWindow()
 {
-    if(canvas) {
-        canvas->paints().clear(); // prevent free duplicate (all paints are freed by host)
-    }
 }
 
 void SwWindow::initialize()

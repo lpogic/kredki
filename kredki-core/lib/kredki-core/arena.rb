@@ -20,6 +20,7 @@ module Kredki
       @windows = {}
       @window_threads = {}
       @event_director = EventDirector.new
+      @resolve_next_text_event = false
     end
 
     def window! action = nil, *a, **na, &b
@@ -54,7 +55,9 @@ module Kredki
       event = case event_type
       when 768
         abi = Abi::KeyboardEvent.new event_ptr
-        window_event abi.window_id, KeyDownEvent.new(Kredki.keyboard, abi)
+        window_event abi.window_id, KeyDownEvent.new(Kredki.keyboard, abi) do |event|
+          @resolve_next_text_event = event.resolved? && (32..122).include?(event.keycode)
+        end
       when 769
         abi = Abi::KeyboardEvent.new event_ptr
         window_event abi.window_id, KeyUpEvent.new(Kredki.keyboard, abi)
@@ -72,7 +75,9 @@ module Kredki
         window_event abi.window_id, MouseButtonUpEvent.new(Kredki.mouse, abi)
       when 771
         abi = Abi::TextInputEvent.new event_ptr
-        window_event abi.window_id, TextEvent.new(event_ptr, abi)
+        text_event = TextEvent.new(event_ptr, abi)
+        @resolve_next_text_event &&= text_event.resolve && false
+        window_event abi.window_id, text_event
       when 4096
         abi = Abi::DropEvent event_ptr
         window_event abi.window_id, FileDropEvent.new(abi)
@@ -104,8 +109,11 @@ module Kredki
         when 12 then window_event abi_event.window_id, WindowFocusGainEvent.new(abi_event)
         when 13 then window_event abi_event.window_id, WindowFocusLoseEvent.new(abi_event)
         when 14 
-          window_event abi_event.window_id, WindowCloseEvent.new(abi_event) do
-            @windows[abi_event.window_id]&.destroy!
+          window_event abi_event.window_id, WindowCloseEvent.new(abi_event) do |event|
+            unless event.resolved?
+              @windows[abi_event.window_id]&.destroy!
+              event.resolve
+            end
           end
         when 15 then window_event abi_event.window_id, WindowTakeFocusEvent.new(abi_event)
         when 16 then window_event abi_event.window_id, WindowHitTestEvent.new(abi_event)
@@ -126,18 +134,24 @@ module Kredki
       when 1541
         abi_event = Abi::JoyDeviceEvent.new event_ptr
         joystick = (Kredki.joysticks - Kredki.opened_joysticks.values).max{ _1.match abi_event.which } || Joystick.new
-        arena_event JoystickConnectEvent.new(joystick, abi_event) do
-          device_id = Abi.joystick_open abi_event.which
-          Kredki.opened_joysticks[device_id] = joystick
-          joystick.device_id = device_id
+        arena_event JoystickConnectEvent.new(joystick, abi_event) do |event|
+          unless event.resolved?
+            device_id = Abi.joystick_open abi_event.which
+            Kredki.opened_joysticks[device_id] = joystick
+            joystick.device_id = device_id
+            event.resolve
+          end
         end
       when 1542
         abi_event = Abi::JoyDeviceEvent.new event_ptr
         device_id = abi_event.which
         joystick = Kredki.opened_joysticks[device_id]
-        arena_event JoystickDisconnectEvent.new(joystick, abi_event) do
-          joystick = Kredki.opened_joysticks.delete device_id
-          joystick&.device_id = nil
+        arena_event JoystickDisconnectEvent.new(joystick, abi_event) do |event|
+          unless event.resolved?
+            joystick = Kredki.opened_joysticks.delete device_id
+            joystick&.device_id = nil
+            event.resolve
+          end
         end
       else # unsupported event
         # p event_type
@@ -174,25 +188,19 @@ module Kredki
 
     private
 
-    def window_event window_id, event, &autoresolve
+    def window_event window_id, event, &post_process
       @event_director.stem do
         @windows[window_id]&.resolve event
       end
-      if !event.resolved? && autoresolve
-        autoresolve.call event
-        event.resolve
-      end
+      post_process&.call event
       event
     end
 
-    def arena_event event, &autoresolve
+    def arena_event event, &post_process
       @event_director.stem do
         @windows.values.each{ _1.resolve event }
       end
-      if !event.resolved? && autoresolve
-        autoresolve.call event
-        event.resolve
-      end
+      post_process&.call event
       event
     end
   end

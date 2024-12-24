@@ -30,6 +30,15 @@ module Kredki
         @parent&.push_pad self
       end
 
+      def detach! transfer = false
+        unless transfer
+          update_keyboard_pad nil
+          @button_pad = nil
+          update_mouse_pad false
+        end
+        super
+      end
+
       #internal api
 
       def initialize
@@ -60,7 +69,7 @@ module Kredki
         xy = nil
         if event
           xy = event.xy
-        elsif mouse.in_window?
+        elsif event.nil? && mouse.in_window?
           xy = mouse.position
         end
 

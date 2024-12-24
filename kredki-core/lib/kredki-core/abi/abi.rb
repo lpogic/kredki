@@ -6,10 +6,6 @@ module Kredki
     
     current_lib = nil
     begin
-      dlload (current_lib = $kredki_libsharp || raise("$kredki_libsharp not configured"))
-      dlload (current_lib = $kredki_libwebp || raise("$kredki_libwebp not configured"))
-      dlload (current_lib = $kredki_zlib || raise("$kredki_zlib not configured"))
-      dlload (current_lib = $kredki_libpng || raise("$kredki_libpng not configured"))
       dlload (current_lib = $kredki_sdl || raise("$kredki_sdl not configured"))
       dlload (current_lib = $kredki_thorvg || raise("$kredki_thorvg not configured"))
       dlload (current_lib = $kredki_pastele || raise("$kredki_pastele not configured"))

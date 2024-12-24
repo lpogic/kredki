@@ -11,7 +11,7 @@ module Kredki
       end, :source=
 
       def_delegators :@picture,
-        :s, :source
+        :source
 
       def << arg
         case arg

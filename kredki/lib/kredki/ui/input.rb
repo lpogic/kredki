@@ -3,7 +3,7 @@ require_relative 'text/text_line_editor_clip'
 
 module Kredki
   module UI
-    class Input < SpacePad
+    class Input < Pad
       extend Forwardable
 
       module Theme
@@ -11,7 +11,7 @@ module Kredki
 
       class ColorBasedTheme
         include Theme
-        model :base_color_avr!, :proc_a!
+        model :@R_base_color, :@N_proc
 
         def to_proc
           color = @base_color
@@ -49,7 +49,7 @@ module Kredki
         end
       end
 
-      defw_resp :string!, :string=, :string
+      defw_resp :string!, :string=, :string, :tx=, :tx!, :tx
       defw_resp :on_edit!
 
       #internal api
@@ -58,7 +58,6 @@ module Kredki
         super
       
         @theme = nil
-        new_pad TextLineEditorClip
       end
 
 
@@ -66,8 +65,6 @@ module Kredki
         super
 
         mousy!
-        area.show!
-        wh! 5
         stroke_width! 1
         theme! :gray
                 
@@ -83,6 +80,34 @@ module Kredki
           repaint
           e.resolve
         end
+
+        h! proc{ @mn + @ms + (pad&.then{ _1.h } || 0) }
+
+        new_pad TextLineEditorClip, w: 100r, y: 50r
+        
+      end
+
+      def resize e
+        if e.target != self
+          e.resolve
+          update_size
+        end
+      end
+
+      def pad
+        @pads.first
+      end
+
+      def update_margin
+        super.tap{ update_size }
+      end
+
+      def push_pad ...
+        super.tap{ update_size }
+      end
+
+      def remove_pad pad, transfer
+        super.tap{ update_size }
       end
 
       def repaint
@@ -92,8 +117,7 @@ module Kredki
       def point_pads x, y, pads, force = false
         if force || (mousy? && show? && include_point?(x, y))
           pads << self
-          pad = self.pad
-          pad.point_pads x - pad.x, y - pad.y, pads, true
+          @pads.reverse_each.find{ _1.point_pads x - _1.x, y - _1.y, pads, true }
           return true
         end
         return false

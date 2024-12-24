@@ -78,10 +78,10 @@ module Kredki
       def mouse_button_up e
       end
 
-      def push_pad pad, index = nil
+      def push_pad pad, at = nil
         if sketched?
           pad&.detach! true
-          super pad, index || -4
+          super pad, at || @corner
           update_pad
           pad
         else

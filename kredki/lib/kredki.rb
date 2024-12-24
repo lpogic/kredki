@@ -1,10 +1,6 @@
 def ext(path) = File.expand_path "../../ext/#{path}", __FILE__
 
 if RUBY_PLATFORM =~ /cygwin|mswin|mingw|bccwin|wince|emx/
-  $kredki_libsharp = ext "dll/libsharpyuv.dll"
-  $kredki_libwebp = ext "dll/libwebp.dll"
-  $kredki_zlib = ext "dll/zlib1.dll"
-  $kredki_libpng = ext "dll/libpng16.dll"
   $kredki_sdl = ext "dll/SDL2.dll"
   $kredki_thorvg = ext "dll/thorvg-1.dll"
   $kredki_pastele = ext "dll/pastele.dll"

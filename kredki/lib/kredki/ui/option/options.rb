@@ -17,11 +17,11 @@ module Kredki
           case e.symbol
           when :up
             option = update_select_option :previous
-            option&.report ROIEvent.new *option.wh, *option.translate(*option.xy)
+            option&.roi!
             e.resolve
           when :down
             option = update_select_option :next
-            option&.report ROIEvent.new *option.wh, *option.translate(*option.xy)
+            option&.roi!
             e.resolve
           end
         end
@@ -46,6 +46,7 @@ module Kredki
           option
         end
       end
-    end
-  end
+
+    end#Options
+  end#UI
 end

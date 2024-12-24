@@ -1,130 +1,48 @@
 require_relative 'color'
-require_relative 'shape'
+require_relative 'area'
 
 module Kredki
-  class Rectangle < Shape
+  class Rectangle < Area
 
     def initialize
       super
-      @rx = 0
-      @ry = 0
+      @blunt = 0
       size! 100, 100
     end
 
-    aliasing def w! w
-      set_w w
-    end, :w=, :width!, :width=
+    aliasing def blunt! blunt
+      @blunt != blunt and set_blunt blunt
+    end, :blunt=
 
-    aliasing def w
-      @w
-    end, :width
+    aliasing def blunt
+      @blunt
+    end
 
-    aliasing def h! h
-      set_h h
-    end, :h=, :height!, :height=
-
-    aliasing def h
-      @h
-    end, :height
-
-    aliasing def wh! w, h = nil
-      set_size w, h || w
-    end, :size!
-
-    aliasing def wh=(wh)
-      case wh
-      when Array
-        wh! *wh
+    def <<(arg)
+      case arg
+      in [x, y, w, h]
+        xy! x, y
+        wh! w, h
       else
-        wh! wh
+        raise ArgumentError.new "#{arg} #{arg.class}"
       end
-    end, :size=
+    end
 
-    aliasing def wh
-      [w, h]
-    end, :size
+    #internal api
 
-    aliasing def rx! rx
-      set_rx rx
-    end, :rx=, :radius_x!, :radius_x=
+    def repaint
+      half_sw = @stroke_width * 0.5
+      rectangle_at! half_sw, half_sw, @w - @stroke_width, @h - @stroke_width, @blunt || 0
+    end
 
-    aliasing def rx
-      @rx
-    end, :radius_x
+    def set_blunt blunt
+      @blunt = blunt
+      reset!
+    end
 
-    aliasing def ry! ry
-      set_ry ry
-    end, :ry=, :radius_y!, :radius_y=
-
-    aliasing def ry
-      @ry
-    end, :radius_y
-
-    aliasing def r! r
-      set_r r
-    end, :r=, :radius!, :radius=
-
-    aliasing def r
-      [@rx, @ry].max
-    end, :radius
-
-    private
-
-    def reset!
+    def set_stroke_width ...
       super
-      if @w && @h
-        rectangle_at! 0, 0, @w, @h, @rx || 0, @ry || 0
-      end
-      update
-    end
-
-    def set_w w
-      w != @w && begin
-        @w = w
-        reset!
-        true
-      end
-    end
-
-    def set_h h
-      h != @h && begin
-        @h = h
-        reset!
-        true
-      end
-    end
-
-    def set_size w, h
-      (w != @w || h != @h) && begin
-        @w = w
-        @h = h
-        reset!
-        true
-      end
-    end
-
-    def set_rx rx
-      rx != @rx && begin
-        @rx = rx
-        reset!
-        true
-      end
-    end
-
-    def set_ry ry
-      ry != @ry && begin
-        @ry = ry
-        reset!
-        true
-      end
-    end
-
-    def set_r r
-      (r != @rx || r != @ry) && begin
-        @rx = @ry = r
-        reset!
-        true
-      end
+      reset!
     end
   end
 end

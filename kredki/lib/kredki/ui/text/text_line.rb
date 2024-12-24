@@ -5,7 +5,7 @@ module Kredki
     class TextLine < Text
 
       aliasing def string! string = "", reset_cursor = true
-        @text.string! string and update_size reset_cursor
+        @text.string! string and update_line_size reset_cursor
       end, :string=
 
       def_delegators :@text,
@@ -33,15 +33,15 @@ module Kredki
         super
         
         @cursor_position = @selection_min = @selection_max = 0
-        @selection = @scene.rectangle! x: 0, y: 0, w: 0, h: 24, color: :blue, clip!: @area
-        @cursor = @scene.rectangle! x: 1, y: 0, color: :white, w: 2, h: 24
-        @text = @scene.text! x: @cursor.w / 2, y: 0, color: :white, font: :arial, h: 24, clip!: @area
+        @selection = @clip_scene.rectangle! x: 0, y: 0, h: 24, color: :blue, clip!: @clip_area
+        @cursor = @clip_scene.rectangle! x: 1, y: 0, color: :white, w: 2, h: 24
+        @text = @clip_scene.text! x: @cursor.w / 2, color: :white, font: :arial, h: 24, clip!: @clip_area
       end
 
       def sketch p0
         super
 
-        update_size false
+        update_line_size false
 
         on_focus_lose! do |e|
           @cursor.hide!
@@ -60,10 +60,14 @@ module Kredki
         @text.nearest_character_index x - @text.x
       end
 
-      def update_size reset_cursor
+      def update_line_size cursor_position
         update_text
         wh! @text.w + @cursor.w, @text.h
-        self.reset_cursor if reset_cursor
+        case cursor_position
+        when true, :begin then reset_cursor
+        when :end then reset_cursor string_length
+        when Integer then reset_cursor cursor_position
+        end
         true
       end
 

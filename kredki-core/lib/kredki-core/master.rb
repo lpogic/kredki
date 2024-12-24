@@ -102,6 +102,8 @@ module Kredki
         param
       when :rand
         Color.new rand(255), rand(255), rand(255)
+      when false
+        Color.new 0, 0, 0, 0
       when Array
         Color.new *param
       else
@@ -127,6 +129,7 @@ require_relative 'mouse'
 require_relative 'joystick'
 require_relative 'shape'
 require_relative 'scene'
+require_relative 'area'
 require_relative 'ellipse'
 require_relative 'rectangle'
 require_relative 'text'

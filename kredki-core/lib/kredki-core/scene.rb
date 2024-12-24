@@ -5,18 +5,20 @@ module Kredki
     include Alterable
 
     class PaintState
-      struct :paint, :index, :shown
+      struct :paint, :before, :after, :shown
     end
 
     def initialize
       super Abi.scene_new
       ObjectSpace.define_finalizer(self, self.class.proc.finalize(@pointer))
 
-      @paints = {}
+      nil_paint = PaintState.new
+      nil_paint.before = nil_paint.after = nil_paint
+      @paints = {nil => nil_paint}
     end
 
-    def new_paint klass, *a, _show: true, _index: nil, **na, &b
-      push_paint(klass.new, _show, _index).paint.alter!(*a, **na, &b)
+    def new_paint klass, *a, _show: true, _at: nil, **na, &b
+      push_paint(klass.new, _show, _at).paint.alter!(*a, **na, &b)
     end
     
     def def_paint name, klass = nil, &block
@@ -55,7 +57,7 @@ module Kredki
     end
 
     def clear!
-      Abi.scene_clear @pointer, 0
+      Abi.scene_remove @pointer, nil
       @paints.clear
       update
     end
@@ -76,21 +78,15 @@ module Kredki
       @owner&.update_paint self
     end
 
-    def push_paint paint, show = true, index = nil
+    def push_paint paint, show = true, at = nil
       paint.detach! if paint.owner
       paint.owner = self
-      index = @paints.size if !index || index > @paints.size
-      index = @paints.size + index + 1 if index < 0
       if show
-        if index < @paints.size
-          Abi.scene_insert @pointer, @paints.each_value.count{|state| state.shown && state.index < index }, paint.pointer
-        else
-          Abi.scene_push @pointer, paint.pointer
-        end
+        Abi.scene_push @pointer, paint.pointer, at&.pointer
         update
       end
-      @paints.each_value{|paint| paint.index += 1 if paint.index >= index } if index < @paints.size
-      @paints[paint] = PaintState.new paint, index, show
+      ats = @paints[at]
+      ats.before = ats.before.after = @paints[paint] = PaintState.new paint, ats.before, ats, show
     end
 
     def remove_paint paint
@@ -100,7 +96,8 @@ module Kredki
           Abi.scene_remove @pointer, paint.pointer
           update
         end
-        @paints.each_value{|paint| paint.index -= 1 if paint.index > state.index }
+        state.before.after = state.after
+        state.after.before = state.before
       end
       paint
     end
@@ -115,11 +112,14 @@ module Kredki
 
     def show_paint paint
       if (state = @paints[paint])&.shown.!
-        if state.index + 1 < @paints.size
-          Abi.scene_insert @pointer, @paints.each_value.count{|s| s.shown && s.index < state.index }, paint.pointer
-        else
-          Abi.scene_push @pointer, paint.pointer
-        end
+        at = Enumerator.new do |e|
+          n = state.after
+          while n.paint
+            e << n
+            n = n.after
+          end
+        end.find{ _1.shown }
+        Abi.scene_push @pointer, paint.pointer, at&.paint.pointer
         update
         state.shown = true
       end
@@ -127,10 +127,6 @@ module Kredki
 
     def paint_shown? paint
       !!@paints[paint]&.shown && show?
-    end
-
-    def paint_index paint
-      @paints[paint]&.index
     end
   end
 end

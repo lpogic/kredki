@@ -121,8 +121,6 @@ module Kredki
       @event_manager.resolve event
     end
 
-    private
-
     def step ms
       @last_frame_ms = ms
       @jobs.filter!(&:audit)

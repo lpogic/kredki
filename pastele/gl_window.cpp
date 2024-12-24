@@ -24,9 +24,6 @@ void GlWindow::initialize()
 GlWindow::~GlWindow()
 {
     SDL_GL_DeleteContext(context);
-    if(canvas) {
-        canvas->paints().clear(); // prevent free duplicate (all paints are freed by host)
-    }
 }
 
 tvg::Canvas* GlWindow::getCanvas() 
@@ -40,7 +37,7 @@ void GlWindow::resize()
     SDL_GetWindowSize(sdl_window, &width, &height);
 
     canvas->sync();
-    verify(canvas->target(0, width, height));
+    verify(canvas->target(0, width, height, tvg::ColorSpace::ABGR8888S));
     canvas->update(nullptr);
 }
 

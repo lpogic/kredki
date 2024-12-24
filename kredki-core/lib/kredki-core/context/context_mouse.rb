@@ -1,15 +1,13 @@
 require 'forwardable'
-require_relative '../has_flags'
+require_relative '../flagship'
 
 module Kredki
   module Context
     class Mouse
       extend Forwardable
-      extend HasFlags
+      extend Flagship
 
-      model :context, :mouse do
-        Mouse.init_flags self
-      end
+      model :context, :mouse
 
       def indexes input
         input.flatten.map{ @mouse.button(_1).to_i }.uniq
@@ -43,8 +41,8 @@ module Kredki
         @context.on_leave!(...)
       end
 
-      def_flag :capture, :set_capture, :get_capture
-      def_flag :grab, :set_grab, :get_grab
+      def_flag :capture, set: :set_capture, get: :get_capture
+      def_flag :grab, set: :set_grab, get: :get_grab
 
       def x
         xy[0]
