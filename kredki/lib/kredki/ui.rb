@@ -67,9 +67,7 @@ module Kredki
         end
       end
 
-      def_pad :option!, Option, fh: 16, h: 20 do
-        pad.xy! 3, 2
-      end
+      def_pad :option!, Option, fh: 16
 
       def_pad :context_menu!, true do
         p0 = self

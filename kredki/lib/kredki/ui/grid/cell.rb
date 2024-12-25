@@ -54,14 +54,6 @@ module Kredki
           @row + @rowspan - 1
         end
 
-        def max_x
-          pads.map{ _1.max_x }.max || 0
-        end
-
-        def max_y
-          pads.map{ _1.max_y }.max || 0
-        end
-
         def remove_pad ...
           removed = super
           if pads.empty?

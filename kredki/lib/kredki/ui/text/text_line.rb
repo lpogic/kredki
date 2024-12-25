@@ -71,6 +71,16 @@ module Kredki
         true
       end
 
+      def pref_min_w
+        w
+        # @me + @mw + @text.w + @cursor.w
+      end
+
+      def pref_min_h
+        h
+        # @mn + @ms + @text.h
+      end
+
       def update_text
         @text.x! @cursor.w / 2
         update_cursor

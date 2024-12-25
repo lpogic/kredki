@@ -21,13 +21,12 @@ module Kredki
 
       class ColorBasedTheme
         include Theme
-        model :@R_base_color, :R_selection_color, :@N_proc
+        model :@R_base_color, :@N_proc
 
         def to_proc
           color = @base_color
-          selection_color = @selection_color
           @proc ||= proc do
-            area.color = button_top? ? selection_color.dark : keyboard_in? ? selection_color : color
+            area.color = button_top? ? color.dark : keyboard_in? ? color.light : color
           end
         end
       end
@@ -69,12 +68,10 @@ module Kredki
       def_flag :submenu_arrow, nil: true
 
       def submenu!
-        p0 = self
         if !@submenu
+          p0 = self
           @submenu = orphan!.new_pad OptionsLayer do
             attach = proc do
-              w = @options.pads.map(&:max_x).max
-              @options[Option..]{ w! w }
               attach! p0.action, *p0.position_options(@options)
             end
 
@@ -98,7 +95,7 @@ module Kredki
             end
           end
 
-          new_pad Pad, area: RightTriangle.new, wh: 10, x: pad.x + pad.w + 20, y: 5 if submenu_arrow?
+          new_pad Pad, area: RightTriangle.new, wh: 10, x: 100r, y: 50r if submenu_arrow?
         end
         @submenu
       end
@@ -137,16 +134,16 @@ module Kredki
         super
 
         keyboardy!
-        new_pad TextLine, mousy: false, keyboardy: false
-        theme! :gray, :green
+        theme! :gray
 
         on_repaint! do |e|
           repaint
           e.resolve
         end
 
-        on_enter! do
+        on_enter! do |e|
           gain_keyboard
+          e.resolve
         end
 
         on_click! do
@@ -167,7 +164,17 @@ module Kredki
           repaint
         end
 
+        w! proc{ pref_min_w }
+        h! proc{ pref_min_h }
+
+        new_pad TextLine, mousy: false, keyboardy: false, y: 50r
+
         string! "Option"
+      end
+
+      def pref_min_w
+        arrow_w = submenu_arrow? ? 16 : 0
+        @me + @mw + (@pads.first&.pref_min_w || 0) + arrow_w
       end
 
       def position_options options
@@ -193,22 +200,31 @@ module Kredki
         end
       end
 
+      def resize e
+        if e.target != self
+          e.resolve
+          update_size
+        end
+      end
+
       def pad
         @pads.first
       end
 
-      def repaint
-        instance_exec &@theme
+      def update_margin
+        super.tap{ update_size }
       end
 
-      def resize e
-        if e.target != self
-          if autosized?
-            w! max_x
-            e.resolve
-          end
-          report RepaintEvent.new
-        end
+      def push_pad ...
+        super.tap{ update_size }
+      end
+
+      def remove_pad pad, transfer
+        super.tap{ update_size }
+      end
+
+      def repaint
+        instance_exec &@theme
       end
 
       def mouse_button_down e
@@ -229,10 +245,6 @@ module Kredki
       def mouse_leave e
         super
         report RepaintEvent.new
-      end
-
-      def max_x
-        @pads.map(&:max_x).max + pad.x
       end
     end
   end

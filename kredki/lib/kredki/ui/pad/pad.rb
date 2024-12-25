@@ -142,7 +142,7 @@ module Kredki
         e.resolve if e.target != self
       end
       
-      attr :parent, :action, :scene, :area, :pads, :clip_area
+      attr :parent, :action, :scene, :area, :pads, :clip_area, :clip_scene
       alias_method :a, :action
 
       def s
@@ -595,62 +595,12 @@ module Kredki
         update_xy
       end
 
-      def fit_wh
-        sw = case @w
-        when Rational
-          0
-        when Proc
-          0
-        else
-          if @w < 0
-            -@w
-          else
-            0
-          end
-        end
-
-        sh = case @h
-        when Rational
-          0
-        when Proc
-          0
-        else
-          if @h < 0
-            -@h
-          else
-            0
-          end
-        end
-
-        (@pads.map{ _1.opt_h }.max || 0) + sh
-
-        (@pads.map{ _1.opt_w }.max || 0) + sw
+      def pref_min_w
+        @me + @mw + (@pads.first&.pref_min_w || 0)
       end
 
-      def opt_h
-        sh = case @h
-        when Rational
-          0
-        when Proc
-          0
-        else
-          if @h < 0
-            -@h
-          else
-            0
-          end
-        end
-
-        (@pads.map{ _1.opt_h }.max || 0) + sh
-      end
-
-
-      def max_x
-        @scene.x + area.w
-      end
-
-      def max_y
-        @scene.y + area.h
+      def pref_min_h
+        @mn + @ms + (@pads.first&.pref_min_h || 0)
       end
 
       def set_show show
@@ -681,6 +631,8 @@ module Kredki
       def point_pads x, y, pads, force = false
         if force || (mousy? && show? && include_point?(x, y))
           pads << self
+          x -= @clip_scene.x
+          y -= @clip_scene.y
           @pads.reverse_each.find{ _1.point_pads x - _1.x, y - _1.y, pads }
           return true
         end
@@ -727,7 +679,7 @@ module Kredki
           return [x, y]
         elsif target == nil
           if pa = parent
-            return pa.translate x + self.cx, y + self.cy
+            return pa.translate x + self.x, y + self.y
           else 
             return [x, y] 
           end
@@ -748,12 +700,16 @@ module Kredki
         if path
           ancs = sanc.to_a
           if event.is_a? PositionEvent
+            x = y = 0
             ed.stem do
               ancs.reverse_each do |pad|
+                cx = x
+                cy = y
                 ed.push_block event, instant do
-                  event.x -= pad.cx
-                  event.y -= pad.cy
+                  event.x -= pad.x + cx
+                  event.y -= pad.y + cy
                 end
+                x, y = *pad.clip_scene.xy
                 ed.push event, pad, true, instant
               end
               ancs.each do |pad|

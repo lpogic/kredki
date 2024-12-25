@@ -165,12 +165,12 @@ module Kredki
         @rows.each_value{ _1.reset }
 
         @pads.sort{|a, b| a.colspan <=> b.colspan }.each do |pad|
-          update_lines @cols, pad.min_col, pad.max_col, pad.max_x
+          update_lines @cols, pad.min_col, pad.max_col, pad.pref_min_w
         end
         update_lines @cols, 0, @cols.size - 1, w if !autosized? && !@cols.empty?
 
         @pads.sort{|a, b| a.rowspan <=> b.rowspan }.each do |pad|
-          update_lines @rows, pad.min_row, pad.max_row, pad.max_y
+          update_lines @rows, pad.min_row, pad.max_row, pad.pref_min_h
         end
         update_lines @rows, 0, @rows.size - 1, h if !autosized? && !@rows.empty?
         

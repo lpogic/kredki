@@ -187,6 +187,16 @@ module Kredki
       def autosized?
         true
       end
+
+      def pref_min_w
+        w
+        # @me + @mw + @text.w + @cursor.w
+      end
+
+      def pref_min_h
+        h
+        # @mn + @ms + @text.h
+      end
     end
   end
 end
