@@ -4,7 +4,7 @@ namespace pas {
 
 GlWindow::GlWindow(uint32_t width, uint32_t height) : Window()
 {
-    sdl_window = SDL_CreateWindow("Titless", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
+    sdl_window = SDL_CreateWindow("Titless", width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
     context = SDL_GL_CreateContext(sdl_window);
     this->initialize();
 }
@@ -23,7 +23,7 @@ void GlWindow::initialize()
 
 GlWindow::~GlWindow()
 {
-    SDL_GL_DeleteContext(context);
+    SDL_GL_DestroyContext(context);
 }
 
 tvg::Canvas* GlWindow::getCanvas() 
@@ -37,7 +37,7 @@ void GlWindow::resize()
     SDL_GetWindowSize(sdl_window, &width, &height);
 
     canvas->sync();
-    verify(canvas->target(0, width, height, tvg::ColorSpace::ABGR8888S));
+    verify(canvas->target(context, 0, width, height, tvg::ColorSpace::ABGR8888S));
     canvas->update(nullptr);
 }
 

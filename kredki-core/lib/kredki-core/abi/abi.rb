@@ -17,115 +17,121 @@ module Kredki
 
     KeyboardEvent = struct [
       'uint32_t type',
-      'uint32_t timestamp',
+      'uint32_t reserved',
+      'uint64_t timestamp',
       'uint32_t window_id',
-      'uint8_t state',
-      'uint8_t repeat',
-      'uint8_t padding2', #unused
-      'uint8_t padding3', #unused
+      'uint32_t keyboard_id',
       'int scancode',
       'int sym',
       'uint16_t mod',
+      'uint16_t raw',
+      # 'bool down',
+      # 'bool repeat',
     ]
 
     MouseMotionEvent = struct [
       'uint32_t type',
-      'uint32_t timestamp',
+      'uint32_t reserved',
+      'uint64_t timestamp',
       'uint32_t window_id',
       'uint32_t which',
       'uint32_t state',
-      'int32_t x',
-      'int32_t y',
-      'int32_t xrel',
-      'int32_t yrel',
+      'float x',
+      'float y',
+      'float xrel',
+      'float yrel',
     ]
 
     MouseButtonEvent = struct [
       'uint32_t type',
-      'uint32_t timestamp',
+      'uint32_t reserved',
+      'uint64_t timestamp',
       'uint32_t window_id',
       'uint32_t which',
       'uint8_t button',
-      'uint8_t state',
+      'uint8_t down', # bool
       'uint8_t clicks',
       'uint8_t padding1', #unused
-      'int32_t x',
-      'int32_t y',
+      'float x',
+      'float y',
     ]
 
     MouseWheelEvent = struct [
       'uint32_t type',
-      'uint32_t timestamp',
+      'uint32_t reserved',
+      'uint64_t timestamp',
       'uint32_t window_id',
       'uint32_t which',
-      'int32_t x',
-      'int32_t y',
+      'float x',
+      'float y',
       'uint32_t direction',
-      'float precise_x',
-      'float precise_y',
-      'int32_t mouse_x',
-      'int32_t mouse_y',
+      'float mouse_x',
+      'float mouse_y',
     ]
 
     WindowEvent = struct [
       'uint32_t type',
-      'uint32_t timestamp',
+      'uint32_t reserved',
+      'uint64_t timestamp',
       'uint32_t window_id',
-      'uint8_t event',
-      'uint8_t padding1', #unused
-      'uint8_t padding2', #unused
-      'uint8_t padding3', #unused
       'int32_t data1',
       'int32_t data2',
     ]
 
     DisplayEvent = struct [
       'uint32_t type',
-      'uint32_t timestamp',
+      'uint32_t reserved',
+      'uint64_t timestamp',
       'uint32_t display',
-      'uint8_t event',
-      'uint8_t padding1', #unused
-      'uint8_t padding2', #unused
-      'uint8_t padding3', #unused
       'int32_t data1',
+      'int32_t data2',
     ]
 
     TextInputEvent = struct [
       'uint32_t type',
-      'uint32_t timestamp',
+      'uint32_t reserved',
+      'uint64_t timestamp',
       'uint32_t window_id',
-      # char text[] acquired by pointer arithmetic
+      'char* text'
     ]
 
     DropEvent = struct [
       'uint32_t type',
-      'uint32_t timestamp',
-      'char* file',
-      'uint32_t window_id'
+      'uint32_t reserved',
+      'uint64_t timestamp',
+      'uint32_t window_id',
+      'float x',
+      'float y',
+      # 'char* file',
+      # 'uint32_t window_id'
     ]
 
     QuitEvent = struct [
       'uint32_t type',
-      'uint32_t timestamp',
+      'uint32_t reserved',
+      'uint64_t timestamp',
     ]
 
     JoyDeviceEvent = struct [
       'uint32_t type',
-      'uint32_t timestamp',
+      'uint32_t reserved',
+      'uint64_t timestamp',
       'uint32_t which',
     ]
     
     JoyButtonEvent = struct [
       'uint32_t type',
-      'uint32_t timestamp',
+      'uint32_t reserved',
+      'uint64_t timestamp',
       'uint32_t which',
       'uint8_t button',
-      'uint8_t state'
+      'uint8_t down' # bool
     ]
 
     JoyAxisEvent = struct [
       'uint32_t type',
-      'uint32_t timestamp',
+      'uint32_t reserved',
+      'uint64_t timestamp',
       'uint32_t which',
       'uint8_t axis',
       'uint8_t padding1', #unused

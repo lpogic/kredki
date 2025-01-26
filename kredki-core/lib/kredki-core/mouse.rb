@@ -70,7 +70,7 @@ module Kredki
     end
 
     def get_cursor_position
-      point = Abi::IntPoint.malloc(Fiddle::RUBY_FREE)
+      point = Abi::Point.malloc(Fiddle::RUBY_FREE)
       Abi.mouse_get_cursor_position point
       [point.x, point.y]
     end

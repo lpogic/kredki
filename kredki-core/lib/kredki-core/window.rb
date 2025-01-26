@@ -46,10 +46,9 @@ module Kredki
 
     def_flag :bordered, nil: true, set: :set_bordered
     def_flag :grab, set: :set_grab
+    def_flag :fullscreen, nil: false, set: :set_fullscreen
 
-    def fullscreen! method = 0
-      Abi.window_set_fullscreen @pointer, method
-    end
+    def_flag :text_input, nil: false, set: :set_text_input, get: :get_text_input
 
     aliasing def min_wh! w, h = nil
       set_minimum_size w, h || w
@@ -187,6 +186,11 @@ module Kredki
       @grab = set
     end
 
+    def set_fullscreen set
+      Abi.window_set_fullscreen @pointer, set ? 1 : 0
+      @fullscreen = set
+    end
+
     def set_maximum_size width, height
       Abi.window_set_maximum_size @pointer, width, height
     end
@@ -210,13 +214,6 @@ module Kredki
 
     def set_size width, height
       Abi.window_set_size @pointer, width, height
-      Abi::WindowEvent.malloc Fiddle::RUBY_FREE do |abi|
-        abi.type = 512
-        abi.event = 5
-        abi.data1 = width
-        abi.data2 = height
-        resolve WindowResizeEvent.new abi 
-      end
     end
 
     def get_size
@@ -232,6 +229,14 @@ module Kredki
     def set_always_top set
       Abi.window_set_always_on_top @pointer, set ? 1 : 0
       @always_top = set
+    end
+
+    def set_text_input set
+      Abi.window_set_text_input @pointer, set ? 1 : 0
+    end
+
+    def get_text_input
+      Abi.window_get_text_input(@pointer) != 0
     end
   end
 end

@@ -69,6 +69,7 @@ module Kredki
         keyboardy!
         stroke_width! 1
         theme! :gray
+        layout! Aim[]
 
         on_repaint! do |e|
           repaint
@@ -88,7 +89,7 @@ module Kredki
         w! proc{ @me + @mw + (pad&.then{ _1.w } || 0) }
         h! proc{ @mn + @ms + (pad&.then{ _1.h } || 0) }
 
-        new_pad TextLine, mousy: false, keyboardy: false, xy: 50r
+        new_pad TextLine, mousy: false, keyboardy: false
 
         string! "Button"
       end

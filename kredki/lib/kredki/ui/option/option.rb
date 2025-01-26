@@ -1,4 +1,5 @@
 require_relative '../text/text_line'
+require_relative 'options'
 
 module Kredki
   module UI
@@ -53,74 +54,24 @@ module Kredki
         @theme
       end
 
+      aliasing def group! group
+        @group&.remove self
+        group&.append self
+        @group = group
+      end, :group=
+
+      def group
+        @group
+      end
+
       def on_pick! ...
         on!(PickEvent, ...)
       end
 
-      aliasing def submenu_position! position
-        @submenu_position = position
-      end, :submenu_position=
-
-      def submenu_position
-        @submenu_position
-      end
-
-      def_flag :submenu_arrow, nil: true
-
-      def submenu!
-        if !@submenu
-          p0 = self
-          @submenu = orphan!.new_pad OptionsLayer do
-            attach = proc do
-              attach! p0.action, *p0.position_options(@options)
-            end
-
-            on! Option::PickEvent do |e|
-              p0.report e
-            end
-
-            p0.on_pick! do |e|
-              if e.target == p0
-                attach.call
-                e.resolve
-              end
-            end
-
-            p0.on_focus_gain! do |e|
-              attach.call
-            end
-
-            p0.on_key! :left, :right do |e|
-              s[Option]&.focus! and e.resolve
-            end
-          end
-
-          new_pad Pad, area: RightTriangle.new, wh: 10, x: 100r, y: 50r if submenu_arrow?
-        end
-        @submenu
-      end
-
-      class RightTriangle < Kredki::Area
-
-        def repaint
-          stroke_width! 3
-          move_to! 0, 0
-          line_to! @w, @h / 2
-          line_to! 0, @h
-        end
-      end
-    
-    
-    
-
-      def_pad :option!, true do
-        submenu!.option! autosized: false
-      end
+      def_flag :arrow, nil: true
 
       defw_resp :string!, :string=, :string
       defw_resp :fh!, :fh=, :font!, :font=
-
-      def_flag :autosized, nil: true
 
       #internal api
 
@@ -141,11 +92,6 @@ module Kredki
           e.resolve
         end
 
-        on_enter! do |e|
-          gain_keyboard
-          e.resolve
-        end
-
         on_click! do
           report PickEvent.new
         end
@@ -155,49 +101,29 @@ module Kredki
           e.resolve
         end
 
+        on_key! do |e|
+          @group&.key e
+        end
+
         on_focus_gain! do
           repaint
         end
 
         on_focus_lose! do
-          @submenu&.detach!
           repaint
         end
 
-        w! proc{ pref_min_w }
-        h! proc{ pref_min_h }
+        w! proc{ pw }
+        h! proc{ ph }
 
         new_pad TextLine, mousy: false, keyboardy: false, y: 50r
 
         string! "Option"
       end
 
-      def pref_min_w
-        arrow_w = submenu_arrow? ? 16 : 0
-        @me + @mw + (@pads.first&.pref_min_w || 0) + arrow_w
-      end
-
-      def position_options options
-        case @submenu_position
-        when :vertical
-          x, y = *translate(0, h)
-          if x + options.w > action.w
-            x = [action.w - options.w, 0].max
-          end
-          if y + options.h > action.h
-            y = [y - options.h, 0].max
-          end
-          [x, y]
-        else
-          x, y = *translate(w, 0)
-          if x + options.w > action.w
-            x = [x - w - options.w, 0].max
-          end
-          if y + options.h > action.h
-            y = [action.h - options.h, 0].max
-          end
-          [x, y]
-        end
+      def pw
+        arrow_w = arrow? ? 16 : 0
+        @me + @mw + (@pads.first&.pw || 0) + arrow_w
       end
 
       def resize e

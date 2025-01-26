@@ -20,65 +20,64 @@ CABI char* clipboard_get_text(void) {
 }
 
 CABI uint8_t keyboard_get_key_state(int keycode) {
-    auto scancode = SDL_GetScancodeFromKey(keycode);
+    auto scancode = SDL_GetScancodeFromKey(keycode, 0); // TODO
     auto state = SDL_GetKeyboardState(nullptr);
     return state[scancode];
 }
 
 CABI uint16_t keyboard_get_shift_state(void) {
-    return SDL_GetModState() & KMOD_SHIFT;
+    return SDL_GetModState() & SDL_KMOD_SHIFT;
 }
 
 CABI uint16_t keyboard_get_ctrl_state(void) {
-    return SDL_GetModState() & KMOD_CTRL;
+    return SDL_GetModState() & SDL_KMOD_CTRL;
 }
 
 CABI uint16_t keyboard_get_alt_state(void) {
-    return SDL_GetModState() & KMOD_ALT;
+    return SDL_GetModState() & SDL_KMOD_ALT;
 }
 
 CABI uint16_t keyboard_get_num_state(void) {
-    return SDL_GetModState() & KMOD_NUM;
+    return SDL_GetModState() & SDL_KMOD_NUM;
 }
 
 CABI uint16_t keyboard_get_caps_state(void) {
-    return SDL_GetModState() & KMOD_CAPS;
+    return SDL_GetModState() & SDL_KMOD_CAPS;
 }
 
 CABI uint16_t keyboard_get_scroll_state(void) {
-    return SDL_GetModState() & KMOD_SCROLL;
+    return SDL_GetModState() & SDL_KMOD_SCROLL;
 }
 
 CABI uint32_t mouse_get_button_state(int index) {
     auto buttons_state = SDL_GetMouseState(nullptr, nullptr);
-    return buttons_state & SDL_BUTTON(index);
+    return buttons_state & SDL_BUTTON_MASK(index);
 }
 
-CABI void mouse_get_cursor_position(IntPoint* point) {
+CABI void mouse_get_cursor_position(Point* point) {
     SDL_GetMouseState(&point->x, &point->y);
 }
 
 CABI void mouse_set_relative_mode(int set) {
-    SDL_SetRelativeMouseMode((SDL_bool)set);
+    // SDL_SetWindowRelativeMouseMode(set); TODO
 }
 
 CABI void mouse_set_capture(int set) {
-    SDL_CaptureMouse((SDL_bool)set);
+    SDL_CaptureMouse(set);
 }
 
 CABI uint32_t joystick_open(int index) {
-    auto sdl_joystick = SDL_JoystickOpen(index);
-    return SDL_JoystickInstanceID(sdl_joystick);
+    auto sdl_joystick = SDL_OpenJoystick(index);
+    return SDL_GetJoystickID(sdl_joystick);
 }
 
 CABI uint8_t joystick_get_button_state(int device_id, int button_index) {
-    return SDL_JoystickGetButton(SDL_JoystickFromInstanceID(device_id), button_index);
+    return SDL_GetJoystickButton(SDL_GetJoystickFromID(device_id), button_index);
 }
 
 CABI int16_t joystick_get_axis_value(int device_id, int axis_index) {
-    return SDL_JoystickGetAxis(SDL_JoystickFromInstanceID(device_id), axis_index);
+    return SDL_GetJoystickAxis(SDL_GetJoystickFromID(device_id), axis_index);
 }
-
 
 CABI void* arena_new(void) {
     return new pas::Arena;
@@ -164,8 +163,8 @@ CABI void window_set_bordered(pas::Window* self, int bordered) {
     self->setBordered(bordered);
 }
 
-CABI void window_set_fullscreen(pas::Window* self, int fullscreenMethod) {
-    self->setFullscreen(fullscreenMethod);
+CABI void window_set_fullscreen(pas::Window* self, int fullscreen) {
+    self->setFullscreen(fullscreen);
 }
 
 CABI void window_set_grab(pas::Window* self, int grab) {
@@ -208,8 +207,16 @@ CABI void window_get_size(pas::Window* self, IntPoint* point) {
     self->getSize(&point->x, &point->y);
 }
 
+CABI void window_set_text_input(pas::Window* self, int input) {
+    self->setTextInput(input);
+}
+
+CABI int window_get_text_input(pas::Window* self) {
+    return (int) self->getTextInput();
+}
+
 CABI int window_get_flags(pas::Window* self) {
-    return SDL_GetWindowFlags(self->sdl_window);
+    return (int) SDL_GetWindowFlags(self->sdl_window);
 }
 
 /************************************************************************/
@@ -234,10 +241,10 @@ CABI void sdl_init(int joystick_enabled) {
     }
     SDL_Init(flags);
     if(joystick_enabled) {
-        SDL_JoystickEventState(SDL_ENABLE);
+        SDL_SetJoystickEventsEnabled(true);
     }
     SDL_GL_SetSwapInterval(1);
-    SDL_RegisterEvents(SDL_USEREVENTS_COUNT);
+    SDL_RegisterEvents(USEREVENT_S_COUNT);
 }
 
 
@@ -329,9 +336,9 @@ CABI void sdl_init(int joystick_enabled) {
 CABI void paint_delete(Paint* self)
 {
     union SDL_Event event;
-    event.type = SDL_USEREVENT_DELETEPAINT;
+    event.type = USEREVENT_DELETEPAINT;
     SDL_UserEvent userEvent;
-    userEvent.type = SDL_USEREVENT_DELETEPAINT;
+    userEvent.type = USEREVENT_DELETEPAINT;
     userEvent.data1 = self;
     event.user = userEvent;
     SDL_PushEvent(&event);
@@ -434,9 +441,9 @@ CABI void* shape_new()
 
 CABI void shape_delete(Shape* self) {
     union SDL_Event event;
-    event.type = SDL_USEREVENT_DELETESHAPE;
+    event.type = USEREVENT_DELETESHAPE;
     SDL_UserEvent userEvent;
-    userEvent.type = SDL_USEREVENT_DELETESHAPE;
+    userEvent.type = USEREVENT_DELETESHAPE;
     userEvent.data1 = self;
     event.user = userEvent;
     SDL_PushEvent(&event);
@@ -829,9 +836,9 @@ CABI void* scene_new()
 
 CABI void scene_delete(Scene* self) {
     union SDL_Event event;
-    event.type = SDL_USEREVENT_DELETESCENE;
+    event.type = USEREVENT_DELETESCENE;
     SDL_UserEvent userEvent;
-    userEvent.type = SDL_USEREVENT_DELETESCENE;
+    userEvent.type = USEREVENT_DELETESCENE;
     userEvent.data1 = self;
     event.user = userEvent;
     SDL_PushEvent(&event);
@@ -857,9 +864,9 @@ CABI void* text_new(void) {
 
 CABI void text_delete(Text* self) {
     union SDL_Event event;
-    event.type = SDL_USEREVENT_DELETETEXT;
+    event.type = USEREVENT_DELETETEXT;
     SDL_UserEvent userEvent;
-    userEvent.type = SDL_USEREVENT_DELETETEXT;
+    userEvent.type = USEREVENT_DELETETEXT;
     userEvent.data1 = self;
     event.user = userEvent;
     SDL_PushEvent(&event);
@@ -991,9 +998,9 @@ CABI void animation_set_segment(Animation* self, float begin, float end) {
 
 CABI void animation_delete(Animation* self) {
     union SDL_Event event;
-    event.type = SDL_USEREVENT_DELETEANIMATION;
+    event.type = USEREVENT_DELETEANIMATION;
     SDL_UserEvent userEvent;
-    userEvent.type = SDL_USEREVENT_DELETEANIMATION;
+    userEvent.type = USEREVENT_DELETEANIMATION;
     userEvent.data1 = self;
     event.user = userEvent;
     SDL_PushEvent(&event);

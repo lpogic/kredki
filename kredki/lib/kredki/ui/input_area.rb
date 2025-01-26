@@ -93,8 +93,9 @@ module Kredki
       def point_pads x, y, pads, force = false
         if force || (mousy? && show? && include_point?(x, y))
           pads << self
-          pad = @pads.first
-          pad.point_pads x - pad.x, y - pad.y, pads, true
+          x -= @clip_scene.x
+          y -= @clip_scene.y
+          @pads.reverse_each.find{ _1.point_pads x - _1.x, y - _1.y, pads, true }
           return true
         end
         return false

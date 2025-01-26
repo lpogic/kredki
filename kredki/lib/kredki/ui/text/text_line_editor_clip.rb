@@ -47,6 +47,10 @@ module Kredki
         super && update_text
       end, :h=, :height!, :height=
 
+      def text
+        @editor
+      end
+
       #internal api
 
       def initialize
@@ -95,7 +99,7 @@ module Kredki
         end
 
         on_scroll! do |e|
-          if keyboard_in?
+          if keyboard_in? && keyboard.shift?
             pad = @editor
             if (diff = w - pad.w) < 0
               jump = pad.fh / 2

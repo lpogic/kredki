@@ -87,41 +87,63 @@ module Kredki
       when 4099
         abi = Abi::DropEvent event_ptr
         window_event abi.window_id, DropEndEvent.new(abi)
-      when 512
-        abi_event = Abi::WindowEvent.new event_ptr
-        
-        case abi_event.event
-        when 1 then window_event abi_event.window_id, WindowShowEvent.new(abi_event)
-        when 2 then window_event abi_event.window_id, WindowHideEvent.new(abi_event)
-        when 3 then window_event abi_event.window_id, WindowExposeEvent.new(abi_event)
-        when 4 then window_event abi_event.window_id, WindowMoveEvent.new(abi_event)
-        when 5 then window_event abi_event.window_id, WindowResizeEvent.new(abi_event)
-        when 6 then window_event abi_event.window_id, WindowSizeChangeEvent.new(abi_event)
-        when 7 then window_event abi_event.window_id, WindowMinimizeEvent.new(abi_event)
-        when 8 then window_event abi_event.window_id, WindowMaximizeEvent.new(abi_event)
-        when 9 then window_event abi_event.window_id, WindowRestoreEvent.new(abi_event)
-        when 10
-          Kredki.mouse.in_window = true
-          window_event abi_event.window_id, WindowEnterEvent.new(abi_event)
-        when 11
-          Kredki.mouse.in_window = false
-          window_event abi_event.window_id, WindowLeaveEvent.new(abi_event)
-        when 12 then window_event abi_event.window_id, WindowFocusGainEvent.new(abi_event)
-        when 13 then window_event abi_event.window_id, WindowFocusLoseEvent.new(abi_event)
-        when 14 
-          window_event abi_event.window_id, WindowCloseEvent.new(abi_event) do |event|
-            unless event.resolved?
-              @windows[abi_event.window_id]&.destroy!
-              event.resolve
-            end
+      when 0x202
+        abi = Abi::WindowEvent.new event_ptr
+        window_event abi.window_id, WindowShowEvent.new(abi)
+      when 0x203
+        abi = Abi::WindowEvent.new event_ptr
+        window_event abi.window_id, WindowHideEvent.new(abi)
+      when 0x204
+        abi = Abi::WindowEvent.new event_ptr
+        window_event abi.window_id, WindowExposeEvent.new(abi)
+      when 0x205
+        abi = Abi::WindowEvent.new event_ptr
+        window_event abi.window_id, WindowMoveEvent.new(abi)
+      when 0x206
+        abi = Abi::WindowEvent.new event_ptr
+        p ["R", abi.window_id]
+        window_event abi.window_id, WindowResizeEvent.new(abi)
+      when 0x209
+        abi = Abi::WindowEvent.new event_ptr
+        window_event abi.window_id, WindowMinimizeEvent.new(abi)
+      when 0x20A
+        abi = Abi::WindowEvent.new event_ptr
+        window_event abi.window_id, WindowMaximizeEvent.new(abi)
+      when 0x20B
+        abi = Abi::WindowEvent.new event_ptr
+        window_event abi.window_id, WindowRestoreEvent.new(abi)
+      when 0x20C
+        Kredki.mouse.in_window = true
+        abi = Abi::WindowEvent.new event_ptr
+        window_event abi.window_id, WindowEnterEvent.new(abi)
+      when 0x20D
+        Kredki.mouse.in_window = false
+        abi = Abi::WindowEvent.new event_ptr
+        window_event abi.window_id, WindowLeaveEvent.new(abi)
+      when 0x20E
+        abi = Abi::WindowEvent.new event_ptr
+        window_event abi.window_id, WindowFocusGainEvent.new(abi)
+      when 0x20F
+        abi = Abi::WindowEvent.new event_ptr
+        window_event abi.window_id, WindowFocusLoseEvent.new(abi)
+      when 0x210
+        abi = Abi::WindowEvent.new event_ptr
+        window_event abi.window_id, WindowCloseEvent.new(abi) do |event|
+          unless event.resolved?
+            @windows[abi.window_id]&.destroy!
+            event.resolve
           end
-        when 15 then window_event abi_event.window_id, WindowTakeFocusEvent.new(abi_event)
-        when 16 then window_event abi_event.window_id, WindowHitTestEvent.new(abi_event)
-        when 17 then window_event abi_event.window_id, WindowIccprofChangeEvent.new(abi_event)
-        when 18 then window_event abi_event.window_id, WindowDisplayChangeEvent.new(abi_event)
-        else 0
         end
-      when 256 then arena_event QuitEvent.new(abi_event)
+      when 0x211
+        abi = Abi::WindowEvent.new event_ptr
+        window_event abi.window_id, WindowHitTestEvent.new(abi)
+      when 0x212
+        abi = Abi::WindowEvent.new event_ptr
+        window_event abi.window_id, WindowIccprofChangeEvent.new(abi)
+      when 0x213
+        abi = Abi::WindowEvent.new event_ptr
+        window_event abi.window_id, WindowDisplayChangeEvent.new(abi)
+      when 256 then arena_event QuitEvent.new(Abi::QuitEvent.new event_ptr)
       when 1539
         abi_event = Abi::JoyButtonEvent.new event_ptr
         arena_event JoystickButtonDownEvent.new(Kredki.opened_joysticks[abi_event.which], abi_event)

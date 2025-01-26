@@ -38,6 +38,10 @@ module Kredki
       [@w, @h]
     end, :size
 
+    def contain? x, y
+      x >= 0 && y >= 0 && x <= @w && y <= @h
+    end
+
     #internal api
 
     def reset!

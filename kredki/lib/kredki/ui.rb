@@ -25,9 +25,15 @@ module Kredki
   require_relative 'ui/button'
   require_relative 'ui/input_list'
 
+  require_relative "ui/layout/aim"
+  require_relative "ui/layout/row"
+  require_relative "ui/layout/column"
+  require_relative "ui/layout/aim"
   require_relative "ui/option/option"
-  require_relative 'ui/option/options_layer'
-  require_relative 'ui/option/tool_menu'
+  require_relative 'ui/option/dropdown_layer'
+  require_relative 'ui/option/dropright_layer'
+  require_relative 'ui/option/context_layer'
+  require_relative 'ui/option/scroll_dropdown_layer'
 
   module UI
     module PadBase
@@ -49,18 +55,6 @@ module Kredki
       def_pad :input_list!, InputList
       def_pad :inl!, InputList
 
-      def_pad :list! do |a, na, b|
-        grid! *a, direction: :row, autosized: true, **na, &b
-      end
-
-      def_pad :xlist! do |a, na, b|
-        grid! *a, direction: :col, autosized: true, **na, &b
-      end
-
-      def_pad :ylist! do |a, na, b|
-        grid! *a, direction: :row, autosized: true, **na, &b
-      end
-
       def_pad :btn! do |a, na, b|
         button! *a, **na do
           on_click! &b
@@ -69,34 +63,34 @@ module Kredki
 
       def_pad :option!, Option, fh: 16
 
-      def_pad :context_menu!, true do
-        p0 = self
-        @context_menu ||= orphan!.new_pad OptionsLayer do
-          p0.on_mouse_button! :secondary do |e|
-            attach! p0.action, *p0.translate(*e.xy)
-            s[Option]&.focus!
-            e.resolve
-          end
-    
-          p0.on_key! :context do |e|
-            attach! p0.action, *p0.translate(p0.w / 2, p0.h / 2)
-            s[Option]&.focus!
-            e.resolve
-          end
-    
-          on! Option::PickEvent do |e|
-            detach!
-            e.resolve
-          end
-    
-          on_key! :escape do |e|
-            detach!
-            e.resolve
-          end
+      class RightTriangle < Kredki::Area
+        def repaint
+          stroke_width! 3
+          move_to! 0, 0
+          line_to! @w, @h / 2
+          line_to! 0, @h
         end
       end
 
-      def_pad :tool_menu!, ToolMenu
+      def_pad :dropdown!, true do
+        @dropdown ||= orphan!.new_pad DropdownLayer, master: self
+        @dropdown.options
+      end
+        
+      def_pad :dropright!, true do
+        @dropright ||= orphan!.new_pad DroprightLayer, master: self
+        @dropright.options
+      end
+
+      def_pad :context_menu!, true do
+        @context ||= orphan!.new_pad ContextLayer, master: self
+        @context.options
+      end
+
+      def_pad :scroll_dropdown!, true do
+        @scroll_dropdown ||= orphan!.new_pad ScrollDropdownLayer, master: self
+        @scroll_dropdown.options
+      end
 
     end#PadBase
   end#UI

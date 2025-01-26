@@ -184,16 +184,12 @@ module Kredki
         @cursor.color
       end, :cursor_color
 
-      def autosized?
-        true
-      end
-
-      def pref_min_w
+      def pw
         w
         # @me + @mw + @text.w + @cursor.w
       end
 
-      def pref_min_h
+      def ph
         h
         # @mn + @ms + @text.h
       end

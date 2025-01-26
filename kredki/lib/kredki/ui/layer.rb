@@ -24,7 +24,7 @@ module Kredki
 
       def attach! parent
         return if @parent == parent
-        raise "LOOP" if parent.sanc.find{ _1 == self }
+        raise "LOOP" if parent.lineage.find{ _1 == self }
         detach! true if @parent
         @parent = parent
         @parent&.push_pad self
@@ -34,7 +34,7 @@ module Kredki
         unless transfer
           update_keyboard_pad nil
           @button_pad = nil
-          update_mouse_pad false
+          update_mouse_location false
         end
         super
       end
@@ -59,13 +59,14 @@ module Kredki
       def update_button_pad pad, new_button_pad
         if new_button_pad
           @button_pad = new_button_pad
-        elsif @button_pad == pad
-          @button_pad = nil
-          update_mouse_pad
+        else
+          if @button_pad == pad
+            @button_pad = nil
+          end
         end
       end
 
-      def update_mouse_pad event = nil
+      def update_mouse_location event = nil
         xy = nil
         if event
           xy = event.xy
@@ -74,10 +75,15 @@ module Kredki
         end
 
         if @button_pad && event
-          @button_pad.report MouseMoveEvent.new(event, *xy) if xy
+          if xy
+            @button_pad.report MouseMoveEvent.new(event, *xy)
+            return true
+          else
+            return false
+          end
         else
           if xy
-            point_pads *xy, mouse_pads = []
+            included = point_pads *xy, mouse_pads = []
             @mouse_pads.reverse_each do |pad| 
               pad.report LeaveEvent.new unless mouse_pads.include? pad
             end
@@ -87,11 +93,13 @@ module Kredki
             mouse_top = mouse_pads.last
             mouse_top.report MouseMoveEvent.new(event, *xy) if mouse_top && event
             @mouse_pads = mouse_pads
+            return included
           else
             @mouse_pads.reverse_each do |pad| 
               pad.report LeaveEvent.new
             end
             @mouse_pads = []
+            return false
           end
         end
       end
@@ -101,12 +109,23 @@ module Kredki
           @keyboard_pads.each{|pad| pad.report FocusLoseEvent.new }
           @keyboard_pads = []
         else
-          keyboard_pads = keyboard_pad.sanc.to_a.reverse
+          keyboard_pads = keyboard_pad.lineage.to_a.reverse
           left, both, right = *keyboard_pads.polarize(@keyboard_pads)
           right.reverse_each{|pad| pad.report FocusLoseEvent.new }
           left.each{|pad| pad.report FocusGainEvent.new }
           @keyboard_pads = keyboard_pads
         end
+      end
+
+      def point_pads x, y, pads, force = false
+        if force || (mousy? && show? && include_point?(x, y))
+          pads << self
+          x -= @clip_scene.x
+          y -= @clip_scene.y
+          return true if @pads.reverse_each.find{ _1.point_pads x - _1.x, y - _1.y, pads }
+          # pads >> 1
+        end
+        return false
       end
     end
   end

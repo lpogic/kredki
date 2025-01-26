@@ -57,6 +57,7 @@ module Kredki
       def initialize
         super
       
+        @editor = new_pad TextLineEditorClip, w: 100r, y: 50r
         @theme = nil
       end
 
@@ -82,8 +83,6 @@ module Kredki
         end
 
         h! proc{ @mn + @ms + (pad&.then{ _1.h } || 0) }
-
-        new_pad TextLineEditorClip, w: 100r, y: 50r
         
       end
 
@@ -117,6 +116,8 @@ module Kredki
       def point_pads x, y, pads, force = false
         if force || (mousy? && show? && include_point?(x, y))
           pads << self
+          x -= @clip_scene.x
+          y -= @clip_scene.y
           @pads.reverse_each.find{ _1.point_pads x - _1.x, y - _1.y, pads, true }
           return true
         end

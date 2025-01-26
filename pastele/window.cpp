@@ -4,9 +4,9 @@ namespace pas {
 
 void Window::planDelete(void) {
     union SDL_Event event;
-    event.type = SDL_USEREVENT_DELETEWINDOW;
+    event.type = USEREVENT_DELETEWINDOW;
     SDL_UserEvent userEvent;
-    userEvent.type = SDL_USEREVENT_DELETEWINDOW;
+    userEvent.type = USEREVENT_DELETEWINDOW;
     userEvent.data1 = this;
     event.user = userEvent;
     SDL_PushEvent(&event);
@@ -14,9 +14,9 @@ void Window::planDelete(void) {
 
 void Window::planUpdate(void) {
     union SDL_Event event;
-    event.type = SDL_USEREVENT_UPDATEWINDOW;
+    event.type = USEREVENT_UPDATEWINDOW;
     SDL_UserEvent userEvent;
-    userEvent.type = SDL_USEREVENT_UPDATEWINDOW;
+    userEvent.type = USEREVENT_UPDATEWINDOW;
     userEvent.data1 = this;
     event.user = userEvent;
     SDL_PushEvent(&event);
@@ -33,7 +33,7 @@ void Window::setStepHandler(void(*stepHandler)(int)) {
     this->stepHandler = stepHandler;
 }
 
-void Window::step(uint32_t ms) {
+void Window::step(Uint64 ms) {
     auto canvas = getCanvas();
 
     if (needResize) {
@@ -43,7 +43,7 @@ void Window::step(uint32_t ms) {
     }
 
     if(stepHandler) {
-        stepHandler(ms);
+        stepHandler((int)ms);
     }
 
     if(update(canvas)) {
@@ -106,15 +106,15 @@ void Window::restore(void) {
 }
 
 void Window::setBordered(bool bordered) {
-    SDL_SetWindowBordered(sdl_window, (SDL_bool)bordered);
+    SDL_SetWindowBordered(sdl_window, bordered);
 }
 
-void Window::setFullscreen(int fullscreenMethod) {
-    SDL_SetWindowFullscreen(sdl_window, fullscreenMethod);
+void Window::setFullscreen(bool fullscreen) {
+    SDL_SetWindowFullscreen(sdl_window, fullscreen);
 }
 
 void Window::setGrab(bool grab) {
-    SDL_SetWindowGrab(sdl_window, (SDL_bool)grab);
+    SDL_SetWindowMouseGrab(sdl_window, grab);
 }
 
 void Window::setMaximumSize(int w, int h) {
@@ -134,7 +134,7 @@ void Window::setPosition(int x, int y) {
 }
 
 void Window::setResizable(bool resizable) {
-    SDL_SetWindowResizable(sdl_window, (SDL_bool)resizable);
+    SDL_SetWindowResizable(sdl_window, resizable);
 }
 
 void Window::setSize(int w, int h) {
@@ -146,11 +146,23 @@ void Window::setTitle(char* title) {
 }
 
 void Window::setAlwaysOnTop(bool on_top) {
-    SDL_SetWindowAlwaysOnTop(sdl_window, (SDL_bool)on_top);
+    SDL_SetWindowAlwaysOnTop(sdl_window, on_top);
 }
 
 void Window::getSize(int* x, int* y) {
     SDL_GetWindowSize(sdl_window, x, y);
+}
+
+void Window::setTextInput(bool text_input) {
+    if(text_input) {
+        SDL_StartTextInput(sdl_window);
+    } else {
+        SDL_StopTextInput(sdl_window);
+    }
+}
+
+bool Window::getTextInput() {
+    return SDL_TextInputActive(sdl_window);
 }
 
 }

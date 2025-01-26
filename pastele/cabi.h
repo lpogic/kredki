@@ -78,7 +78,7 @@ CABI uint16_t keyboard_get_caps_state(void);
 CABI uint16_t keyboard_get_scroll_state(void);
 
 CABI uint32_t mouse_get_button_state(int index);
-CABI void mouse_get_cursor_position(IntPoint* point);
+CABI void mouse_get_cursor_position(Point* point);
 CABI void mouse_set_relative_mode(int set);
 CABI void mouse_set_capture(int set);
 
@@ -106,7 +106,7 @@ CABI void window_minimize(pas::Window* self);
 CABI void window_focus(pas::Window* self);
 CABI void window_restore(pas::Window* self);
 CABI void window_set_bordered(pas::Window* self, int bordered);
-CABI void window_set_fullscreen(pas::Window* self, int fullscreenMethod);
+CABI void window_set_fullscreen(pas::Window* self, int fullscreen);
 CABI void window_set_grab(pas::Window* self, int grab);
 CABI void window_set_maximum_size(pas::Window* self, int w, int h);
 CABI void window_set_minimum_size(pas::Window* self, int w, int h);
@@ -117,6 +117,8 @@ CABI void window_set_size(pas::Window* self, int w, int h);
 CABI void window_set_title(pas::Window* self, char* title);
 CABI void window_set_always_on_top(pas::Window* self, int on_top);
 CABI void window_get_size(pas::Window* self, IntPoint* point);
+CABI void window_set_text_input(pas::Window* self, int input);
+CABI int window_get_text_input(pas::Window* self);
 CABI int window_get_flags(pas::Window* self);
 
 // CABI void* tvg_swcanvas_new(void);

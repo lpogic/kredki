@@ -4,7 +4,7 @@ namespace pas {
 
 SwWindow::SwWindow(uint32_t width, uint32_t height) : Window()
 {
-    sdl_window = SDL_CreateWindow("Titless", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_HIDDEN);
+    sdl_window = SDL_CreateWindow("Titless", width, height, SDL_WINDOW_HIDDEN);
     this->initialize();
 }
 
@@ -41,7 +41,6 @@ void SwWindow::resize()
 
 bool SwWindow::syncAndUpdateSurface()
 {
-    //Draw the contents to the Canvas
     if (verify(canvas->sync())) {
         SDL_UpdateWindowSurface(sdl_window);
         return true;

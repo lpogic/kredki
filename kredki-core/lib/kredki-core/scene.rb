@@ -111,7 +111,8 @@ module Kredki
     end
 
     def show_paint paint
-      if (state = @paints[paint])&.shown.!
+      state = @paints[paint]
+      if state && !state.shown
         at = Enumerator.new do |e|
           n = state.after
           while n.paint
@@ -119,7 +120,7 @@ module Kredki
             n = n.after
           end
         end.find{ _1.shown }
-        Abi.scene_push @pointer, paint.pointer, at&.paint.pointer
+        Abi.scene_push @pointer, paint.pointer, at&.paint&.pointer
         update
         state.shown = true
       end

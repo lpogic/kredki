@@ -29,7 +29,8 @@ module Kredki
       @y
     end
 
-    def xy! x, y
+    def xy! x, y = nil
+      y ||= x
       @x != x || @y != y and set_translation x, y
     end
 

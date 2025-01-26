@@ -1,5 +1,5 @@
 require 'forwardable'
-require_relative 'option/scroll_options_layer'
+require_relative 'option/scroll_dropdown_layer'
 
 module Kredki
   module UI
@@ -18,7 +18,7 @@ module Kredki
           @proc ||= proc do
             area.color = mouse_in? ? color.light : color
             area.stroke_color = keyboard_in? ? Kredki.color(:yellow) : color
-            pad.editor.color! @picked ? :white : Kredki.color(:white).dark(70)
+            @editor.text.color! @picked ? :white : Kredki.color(:white).dark(70)
           end
         end
       end
@@ -41,16 +41,11 @@ module Kredki
         @theme
       end
 
-      def option! *a, **na, &b
-        @options.option! *a, w: w, **na, &b
-      end
-
       #internal api
 
       def initialize
         super
 
-        @options = nil
         @picked = nil
       end
 
@@ -58,21 +53,9 @@ module Kredki
       def sketch p0
         super
   
-        @options = orphan!.new_pad ScrollOptionsLayer do
-          autodetach! false
-
-          on_key! :escape do |e|
-            detach!
-            e.resolve
-          end
-        end
-          
-        on_focus_gain! do |e|
-          @options.attach! action, *translate(0, h), w
-        end
+        scroll_dropdown!
   
         on_focus_lose! do
-          @options.detach!
           string! "" if !@picked
         end
   
@@ -80,33 +63,32 @@ module Kredki
           @picked = nil
           repaint
         end
-    
-        on_click! do |e|
-          @options.attach! action, *translate(0, h), w unless @options.show?
-          e.resolve
-        end
 
-        on_mouse_button! :scroll do |e|
-          if @options.show?
-            @options.detach!
-            e.resolve
-          end
-        end
-  
-        on_key! :down, :up do |e|
-          unless @options.show?
-            @options.attach! action, *translate(0, h), w
-            e.resolve
-          end
-        end
-
-        @options.on! Option::PickEvent do |e|
+        on! Option::PickEvent do |e|
           s = e.target.string
           @picked = s
           string! s, :end
-          @options.detach!
           repaint
         end
+    
+        # on_click! do |e|
+        #   @options.load! unless @options.show?
+        #   e.resolve
+        # end
+
+        # on_mouse_button! :scroll do |e|
+        #   if @options.show?
+        #     @options.detach!
+        #     e.resolve
+        #   end
+        # end
+  
+        # on_key! :down, :up do |e|
+        #   unless @options.show?
+        #     @options.load!
+        #     e.resolve
+        #   end
+        # end
       end
     end
   end

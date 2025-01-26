@@ -56,6 +56,7 @@ module Kredki
         layer = klass.new.sketch_base
         push_pad layer
         layer.alter *a, **na, &b
+        layer.alter_commit
         layer
       end
 
@@ -64,9 +65,9 @@ module Kredki
       def sketch p0
         super
 
-        @event_manager.manager Kredki::MouseMoveEvent, proc{|e| update_mouse_pad e }
-        @event_manager.manager Kredki::WindowEnterEvent, proc{|e| update_mouse_pad }
-        @event_manager.manager Kredki::WindowLeaveEvent, proc{|e| update_mouse_pad }
+        @event_manager.manager Kredki::MouseMoveEvent, proc{|e| update_mouse_location e }
+        @event_manager.manager Kredki::WindowEnterEvent, proc{|e| update_mouse_location }
+        @event_manager.manager Kredki::WindowLeaveEvent, proc{|e| update_mouse_location }
         @event_manager.mouse_manager Kredki::MouseButtonDownEvent, [], proc{|e| mouse_event MouseButtonDownEvent.new e }
         @event_manager.mouse_manager Kredki::MouseButtonUpEvent, [], proc{|e| mouse_event MouseButtonUpEvent.new e }
         @event_manager.manager Kredki::MouseScrollEvent, proc{|e| mouse_event e }
@@ -101,9 +102,9 @@ module Kredki
         end
       end
 
-      def update_mouse_pad event = nil
-        @pads.reverse_each do |layer|
-          layer.update_mouse_pad event
+      def update_mouse_location event = nil
+        @pads.reverse_each.find do |layer|
+          layer.update_mouse_location event
         end
       end
 
@@ -125,11 +126,7 @@ module Kredki
         @pads.delete layer
       end
 
-      def sanc
-        []
-      end
-
-      def anc
+      def lineage include_self = false
         []
       end
     end

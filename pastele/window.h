@@ -5,7 +5,6 @@
 #include <iostream>
 #include <thorvg.h>
 #include <SDL.h>
-#include <SDL_syswm.h>
 #ifdef _WIN32
     #include <windows.h>
     #ifndef PATH_MAX
@@ -26,8 +25,8 @@
     #endif
 #endif
 
-#define SDL_USEREVENT_DELETEWINDOW (SDL_USEREVENT + 0)
-#define SDL_USEREVENT_UPDATEWINDOW (SDL_USEREVENT + 1)
+#define USEREVENT_DELETEWINDOW (SDL_EVENT_USER + 0)
+#define USEREVENT_UPDATEWINDOW (SDL_EVENT_USER + 1)
 
 using namespace std;
 
@@ -75,7 +74,7 @@ class Window
 
     void setScene(tvg::Scene* scene);
     void setStepHandler(void(*stepHandler)(int));
-    void step(uint32_t ms);
+    void step(Uint64 ms);
     void sync(void);
     bool update(tvg::Canvas* canvas);
     bool paintDelete(tvg::Paint* paint);
@@ -88,7 +87,7 @@ class Window
     void focus();
     void restore(void);
     void setBordered(bool bordered);
-    void setFullscreen(int fullscreenMethod);
+    void setFullscreen(bool fullscreen);
     void setGrab(bool grab);
     void setMaximumSize(int w, int h);
     void setMinimumSize(int w, int h);
@@ -99,6 +98,8 @@ class Window
     void setTitle(char* title);
     void setAlwaysOnTop(bool on_top);
     void getSize(int* x, int* y);
+    void setTextInput(bool text_input);
+    bool getTextInput();
 
     virtual tvg::Canvas* getCanvas() { return nullptr; }
     virtual void resize() {}

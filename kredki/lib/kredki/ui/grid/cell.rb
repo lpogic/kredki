@@ -2,8 +2,7 @@ module Kredki
   module UI
     class GridPad
       class Cell < Pad
-        model :col, :row, :colspan, :rowspan do |sup|
-          sup.call
+        model :col, :row, :colspan, :rowspan do
           @colspan ||= 1
           @rowspan ||= 1
         end

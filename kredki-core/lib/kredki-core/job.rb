@@ -6,7 +6,7 @@ module Kredki
       @mutex = Thread::Mutex.new
       @repeat = repeat
       @job = b
-      @on_tip = EventCallings.new
+      @on_tip = EventManager.new
       self.run if run
     end
 
@@ -54,7 +54,7 @@ module Kredki
     def audit
       while !@tips.empty?
         tip = @tips.pop
-        @on_tip.call tip
+        @on_tip.resolve Event.new
       end
       @thread ? @thread.alive? : !!@job
     end

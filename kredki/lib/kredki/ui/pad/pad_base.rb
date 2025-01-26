@@ -12,8 +12,7 @@ module Kredki
           end
         when Range
           if filter.begin.nil?
-            anc.find{ _1 =~ filter.end }&.then do |pad|
-              p pad
+            lineage(false).find{ _1 =~ filter.end }&.then do |pad|
               block ? pad.instance_exec(pad, &block) : pad
             end
           elsif filter.end.nil?

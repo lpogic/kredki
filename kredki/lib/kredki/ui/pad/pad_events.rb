@@ -68,8 +68,7 @@ module Kredki
     class MouseEvent < PositionEvent
       extend Forwardable
 
-      model :origin do |su|
-        su.call
+      model :origin do
         @x ||= @origin.x
         @y ||= @origin.y
       end
@@ -137,9 +136,6 @@ module Kredki
     end
 
     class ChangeEvent < Event
-    end
-    
-    class ContentChangeEvent < Event
     end
 
     class ROIEvent < PositionEvent
