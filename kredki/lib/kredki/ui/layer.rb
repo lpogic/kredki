@@ -39,6 +39,13 @@ module Kredki
         super
       end
 
+      def pad_defaults pad
+        case pad
+        when Option
+          {fh: 16, m: 5}
+        end
+      end
+
       #internal api
 
       def initialize
@@ -54,6 +61,12 @@ module Kredki
 
         keyboardy!
         color! false
+      end
+
+      def keyboard_event event
+        if !event.resolved? && show?
+          keyboard_pad&.report event
+        end
       end
 
       def update_button_pad pad, new_button_pad

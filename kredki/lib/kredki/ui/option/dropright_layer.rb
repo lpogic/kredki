@@ -35,10 +35,14 @@ module Kredki
         super
 
         @options = new_pad Pad, wh: :fit, color: :gray, layout: Column do
-          options = Options[]
+          options = OptionGroup[]
 
           define_singleton_method :option! do |*a, **na, &b|
             super *a, group: options, **na, &b
+          end
+
+          define_singleton_method :opt! do |*a, **na, &b|
+            option!(*a, w: 100r, m: 5, **na).dropright! &b
           end
         end
 
@@ -59,12 +63,14 @@ module Kredki
         @master_events[] = @master.on_pick! do |e|
           if e.target == @master
             load!
+            s[Option]&.focus!
             e.resolve
           end
         end
 
         @master_events[] = @master.on_focus_gain! do |e|
           load!
+          s[Option]&.focus!
         end
 
         @master_events[] = @master.on_focus_lose! do |e|
@@ -77,7 +83,10 @@ module Kredki
         end
 
         @master_events[] = @master.on_key! :left do |e|
-          detach!
+          if show?
+            detach!
+            e.resolve
+          end
         end
       end
 

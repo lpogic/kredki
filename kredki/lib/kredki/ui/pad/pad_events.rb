@@ -146,9 +146,6 @@ module Kredki
       end
     end
 
-    class SizeModeEvent < Event
-    end
-
     module PadEvents
 
       aliasing def on_key! *filtered_keys, aim: false, force: false, &block
@@ -221,11 +218,11 @@ module Kredki
         on! ResizeEvent, aim:, force:, &block
       end
 
-      def on_enter! aim: false, force: false, &block
+      def on_mouse_enter! aim: false, force: false, &block
         on! EnterEvent, aim:, force:, &block
       end
 
-      def on_leave! aim: false, force: false, &block
+      def on_mouse_leave! aim: false, force: false, &block
         on! LeaveEvent, aim:, force:, &block
       end
 

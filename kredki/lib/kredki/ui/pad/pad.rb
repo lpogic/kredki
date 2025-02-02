@@ -304,11 +304,18 @@ module Kredki
         @mn + @ms + (@pads.first&.ph || 0)
       end
 
-      def new_pad klass = Pad, *a, _at: nil, **na, &b
+      aliasing def new_pad klass = Pad, *a, _at: nil, **na, &b
         pad = klass.new
         push_pad(pad.sketch_base, _at)
-        pad.alter(*a, **na, &b).alter_commit
+        pad.alter(*a, **_pad_defaults(pad), **na, &b).alter_commit
         pad
+      end, :put
+
+      def _pad_defaults pad
+        {**parent&._pad_defaults(pad), **pad_defaults(pad)}
+      end
+
+      def pad_defaults pad
       end
 
       def pad_index
@@ -439,15 +446,12 @@ module Kredki
       end
 
       def sketch p0
-        on_enter!{ mouse_enter _1 }
-        on_leave!{ mouse_leave _1 }
+        on_mouse_enter!{ mouse_enter _1 }
+        on_mouse_leave!{ mouse_leave _1 }
         on_mouse_button!{ mouse_button_down _1 }
         on_mouse_button_up!{ mouse_button_up _1 }
         on_mouse_move!{ mouse_move _1 }
         on_resize!{ resize _1 }
-        on! SizeModeEvent do |e|
-          size_mode e
-        end
       end
 
       def sketched?
@@ -492,10 +496,6 @@ module Kredki
       def resize e
         e.resolve if e.target != self
         resize_arrange
-      end
-
-      def size_mode e
-        e.resolve if e.target != self
       end
 
       def inspect

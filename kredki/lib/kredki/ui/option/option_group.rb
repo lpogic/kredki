@@ -1,6 +1,6 @@
 module Kredki
   module UI
-    class Options
+    class OptionGroup
       include Alterable
 
       class << self
@@ -45,26 +45,28 @@ module Kredki
         end
       end
 
+      def mouse_enter pad
+        current_open = @options.find{ it.keyboard_in? }
+        if current_open && current_open != pad
+          current_open.focus! false
+          pad.focus!
+        end
+      end
+
       def update_select_option option
         case option
         when :previous
-          if option = @options.lazy.each_cons(2).find{ _1[1].keyboard_in? }&.slice(0)
-            update_select_option option
-          else
-            update_select_option @options.first
-          end
+          index = (@options.index{ it.keyboard_in? } || 1) - 1
+          update_select_option @options[index]
         when :next
-          if option = @options.lazy.each_cons(2).find{ _1[0].keyboard_in? }&.slice(1)
-            update_select_option option
-          else
-            update_select_option @options.first unless @options.last.keyboard_in?
-          end
+          index = (@options.index{ it.keyboard_in? } || -1) + 1
+          update_select_option @options[index < @options.length ? index : 0]
         else
           option&.gain_keyboard
           option
         end
       end
 
-    end#Options
+    end#OptionGroup
   end#UI
 end

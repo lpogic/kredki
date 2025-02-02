@@ -36,6 +36,19 @@ module Kredki
         end
       end
 
+      def _pad_defaults pad
+        pad_defaults pad
+      end
+
+      def pad_defaults pad
+        p pad
+        nil
+        # case pad
+        # when Option
+        #   {fh: 16, m: 5}
+        # end
+      end
+
       def parent
         nil
       end
@@ -66,8 +79,8 @@ module Kredki
         super
 
         @event_manager.manager Kredki::MouseMoveEvent, proc{|e| update_mouse_location e }
-        @event_manager.manager Kredki::WindowEnterEvent, proc{|e| update_mouse_location }
-        @event_manager.manager Kredki::WindowLeaveEvent, proc{|e| update_mouse_location }
+        @event_manager.manager Kredki::WindowMouseEnterEvent, proc{|e| update_mouse_location }
+        @event_manager.manager Kredki::WindowMouseLeaveEvent, proc{|e| update_mouse_location }
         @event_manager.mouse_manager Kredki::MouseButtonDownEvent, [], proc{|e| mouse_event MouseButtonDownEvent.new e }
         @event_manager.mouse_manager Kredki::MouseButtonUpEvent, [], proc{|e| mouse_event MouseButtonUpEvent.new e }
         @event_manager.manager Kredki::MouseScrollEvent, proc{|e| mouse_event e }
@@ -110,7 +123,7 @@ module Kredki
 
       def keyboard_event event
         @pads.reverse_each do |layer|
-          layer.keyboard_pad&.report event
+          layer.keyboard_event event
         end
       end
 

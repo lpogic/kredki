@@ -71,8 +71,8 @@ module Kredki
                 
         begin
           repaint_event = proc{ report RepaintEvent.new }
-          on_enter! &repaint_event
-          on_leave! &repaint_event
+          on_mouse_enter! &repaint_event
+          on_mouse_leave! &repaint_event
           on_focus_gain! &repaint_event
           on_focus_lose! &repaint_event
         end

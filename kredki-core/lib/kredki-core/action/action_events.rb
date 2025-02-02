@@ -114,12 +114,12 @@ module Kredki
       on! WindowRestoreEvent, &block
     end
 
-    def on_enter! &block
-      on! WindowEnterEvent, &block
+    def on_mouse_enter! &block
+      on! WindowMouseEnterEvent, &block
     end
 
-    def on_leave! &block
-      on! WindowLeaveEvent, &block
+    def on_mouse_leave! &block
+      on! WindowMouseLeaveEvent, &block
     end
 
     def on_focus_gain! &block

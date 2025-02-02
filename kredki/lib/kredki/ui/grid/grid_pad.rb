@@ -6,8 +6,6 @@ module Kredki
       require_relative 'cell'
       require_relative 'line'
 
-      def_flag :autosized, set: :set_autosized
-
       def cursor! col = 0, row = 0
         @current_col = col
         @current_row = row
@@ -88,16 +86,10 @@ module Kredki
         @current_col = 0
         @current_row = 0
         @direction = :col
-
-        autosized! true
       end
 
       def sketch p0
         super
-
-        on_resize! do |e|
-          update_pads unless autosized?
-        end
       end
 
       def push_pad pad, at = nil
@@ -116,11 +108,6 @@ module Kredki
       
       def direction
         @direction
-      end
-
-      def set_autosized sized
-        @autosized = sized
-        report SizeModeEvent.new
       end
 
       def remove_pad pad, transfer = false
@@ -167,12 +154,12 @@ module Kredki
         @pads.sort{|a, b| a.colspan <=> b.colspan }.each do |pad|
           update_lines @cols, pad.min_col, pad.max_col, pad.pw
         end
-        update_lines @cols, 0, @cols.size - 1, w if !autosized? && !@cols.empty?
+        update_lines @cols, 0, @cols.size - 1, w if !@cols.empty?
 
         @pads.sort{|a, b| a.rowspan <=> b.rowspan }.each do |pad|
           update_lines @rows, pad.min_row, pad.max_row, pad.ph
         end
-        update_lines @rows, 0, @rows.size - 1, h if !autosized? && !@rows.empty?
+        update_lines @rows, 0, @rows.size - 1, h if !@rows.empty?
         
         w = @cols.keys.sort.reduce 0 do |offset, key|
           @cols[key].then{|col| (col.offset = offset) + col.size }
@@ -194,7 +181,6 @@ module Kredki
               mouse_pad_refresh = true
             end
           end
-          wh! w, h if autosized?
           action.update_mouse_location if mouse_pad_refresh && mousy? && show?
         end
       end

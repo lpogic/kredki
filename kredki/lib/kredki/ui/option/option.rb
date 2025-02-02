@@ -1,5 +1,5 @@
 require_relative '../text/text_line'
-require_relative 'options'
+require_relative 'option_group'
 
 module Kredki
   module UI
@@ -54,10 +54,11 @@ module Kredki
         @theme
       end
 
-      aliasing def group! group
+      aliasing def group! group, custom = true
         @group&.remove self
         group&.append self
         @group = group
+        @custom_group = custom
       end, :group=
 
       def group
@@ -103,6 +104,10 @@ module Kredki
 
         on_key! do |e|
           @group&.key e
+        end
+
+        on_mouse_enter! do |e|
+          @group&.mouse_enter self
         end
 
         on_focus_gain! do

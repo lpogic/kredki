@@ -61,7 +61,7 @@ module Kredki
         end
       end
 
-      def_pad :option!, Option, fh: 16
+      def_pad :option!, Option
 
       class RightTriangle < Kredki::Area
         def repaint
@@ -72,9 +72,11 @@ module Kredki
         end
       end
 
-      def_pad :dropdown!, true do
+      def_pad :dropdown! do |a, na, b|
         @dropdown ||= orphan!.new_pad DropdownLayer, master: self
-        @dropdown.options
+        options = @dropdown.options.alter(*a, **na)
+        options.instance_exec options, @dropdown, &b if b
+        options
       end
         
       def_pad :dropright!, true do

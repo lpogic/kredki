@@ -129,7 +129,7 @@ module Kredki
 
         h! 10
 
-        @handle = new_pad.alter w: 20, color: :gray do
+        @handle = new_pad.alter w: 20, h: 100r, color: :gray do
         
           on_drag! do |e|
             start_x = @button_down_xy[0]
@@ -171,7 +171,7 @@ module Kredki
 
         w! 10
 
-        @handle = pad! h: 20, color: :gray do
+        @handle = pad! h: 20, w: 100r, color: :gray do
         
           on_drag! do |e|
             start_y = @button_down_xy[1]

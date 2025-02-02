@@ -42,10 +42,10 @@ module Kredki
   class WindowRestoreEvent < WindowEvent
   end
 
-  class WindowEnterEvent < WindowEvent
+  class WindowMouseEnterEvent < WindowEvent
   end
 
-  class WindowLeaveEvent < WindowEvent
+  class WindowMouseLeaveEvent < WindowEvent
   end
 
   class WindowFocusGainEvent < WindowEvent

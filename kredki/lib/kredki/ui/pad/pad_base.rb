@@ -89,17 +89,19 @@ module Kredki
 
       def orphan! &block
         orphan = Orphan.new
+        orphan.patron = self
         block ? orphan.instance_exec(&block) : orphan
       end
     end
 
     class Orphan
       include PadBase
+      attr_accessor :patron
       
       def new_pad klass = Pad, *a, **na, &b
         pad = klass.new
         pad.sketch_base
-        pad.alter(*a, **na, &b).alter_commit
+        pad.alter(*a, **patron&._pad_defaults(pad), **na, &b).alter_commit
         pad
       end
     end

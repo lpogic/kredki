@@ -115,11 +115,11 @@ module Kredki
       when 0x20C
         Kredki.mouse.in_window = true
         abi = Abi::WindowEvent.new event_ptr
-        window_event abi.window_id, WindowEnterEvent.new(abi)
+        window_event abi.window_id, WindowMouseEnterEvent.new(abi)
       when 0x20D
         Kredki.mouse.in_window = false
         abi = Abi::WindowEvent.new event_ptr
-        window_event abi.window_id, WindowLeaveEvent.new(abi)
+        window_event abi.window_id, WindowMouseLeaveEvent.new(abi)
       when 0x20E
         abi = Abi::WindowEvent.new event_ptr
         window_event abi.window_id, WindowFocusGainEvent.new(abi)
