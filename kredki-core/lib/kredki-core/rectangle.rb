@@ -6,23 +6,21 @@ module Kredki
 
     def initialize
       super
-      @blunt = 0
       size! 100, 100
     end
 
-    aliasing def blunt! blunt
+    param def blunt! blunt
       @blunt != blunt and set_blunt blunt
-    end, :blunt=
-
-    aliasing def blunt
-      @blunt
+    end, get: def blunt
+      @blunt || 0
     end
 
     def <<(arg)
       case arg
-      in [x, y, w, h]
-        xy! x, y
+      in [w, h]
         wh! w, h
+      in Numeric
+        wh! arg
       else
         raise ArgumentError.new "#{arg} #{arg.class}"
       end
@@ -31,8 +29,9 @@ module Kredki
     #internal api
 
     def repaint
-      half_sw = @stroke_width * 0.5
-      rectangle_at! half_sw, half_sw, @w - @stroke_width, @h - @stroke_width, @blunt || 0
+      sw = stroke_width
+      half_sw = sw * 0.5
+      rectangle_at! half_sw, half_sw, @w - sw, @h - sw, blunt
     end
 
     def set_blunt blunt

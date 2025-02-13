@@ -123,8 +123,18 @@ module Kredki
 
     def_flag :always_top, set: :set_always_top
 
-    aliasing def action! action = nil, &block
-      set_action action || Window.default_action.new, &block
+    aliasing def action! action = nil, *a, **na, &block
+      action ||= Window.default_action
+      if action.is_a? Class
+        action = action.new
+        set_action action
+        action.sketch action
+      else
+        set_action action
+      end
+      
+      action.build *a, **na, &block
+      
     end, :action=
 
     def action
@@ -167,7 +177,6 @@ module Kredki
       @action.owner = self
       Abi.window_set_scene @pointer, action.pointer
       Abi.window_set_step_handler @pointer, action.step_callback
-      @action.sketch_base.alter(&block).alter_commit
       update_paint @action
       @action
     end

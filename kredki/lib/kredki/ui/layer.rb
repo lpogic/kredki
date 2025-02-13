@@ -39,13 +39,6 @@ module Kredki
         super
       end
 
-      def pad_defaults pad
-        case pad
-        when Option
-          {fh: 16, m: 5}
-        end
-      end
-
       #internal api
 
       def initialize

@@ -100,8 +100,10 @@ module Kredki
       
       def new_pad klass = Pad, *a, **na, &b
         pad = klass.new
-        pad.sketch_base
-        pad.alter(*a, **patron&._pad_defaults(pad), **na, &b).alter_commit
+        pad.alter_begin
+        pad.sketch pad
+        pad.alter *a, **na, &b
+        pad.alter_commit
         pad
       end
     end

@@ -17,17 +17,14 @@ module Kredki
 
     attr :picture
 
-    aliasing def source! source
-      set_source source
-    end, :source=
-
-    def source
-      @source
+    param def source! source
+      source = source.to_s
+      @source != source and set_source source
     end
 
-    aliasing def frame! no
+    param def frame! no
       set_frame no
-    end, :frame=
+    end, get: false
 
     def total_frame
       Abi.animation_get_total_frame @pointer
@@ -37,16 +34,12 @@ module Kredki
       Abi.animation_get_duration @pointer
     end
 
-    def segment! *segment
-      Abi.animation_set_segment @pointer, *segment
-    end
-
-    def segment= segment
+    param def segment! *segment
       Abi.animation_set_segment @pointer, *segment
     end
 
     def_flag :loop
-    def_flag :play
+    def_flag :play, set: :set_play
 
     def on_end! &block
       @on_end << block
@@ -107,13 +100,9 @@ module Kredki
     private
 
     def set_source source
-      if source != @source
-        @source = source
-        if @source
-          Abi.picture_load @picture.pointer, @source
-          @picture.update
-        end
-      end
+      Abi.picture_load @picture.pointer, source
+      @source = source
+      @picture.update
     end
 
     def set_frame no

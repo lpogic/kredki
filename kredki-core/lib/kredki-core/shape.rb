@@ -9,7 +9,6 @@ module Kredki
       super Abi.shape_new
       ObjectSpace.define_finalizer(self, Shape.proc.finalize(@pointer))
       
-      @stroke_width = 0
       color! :white
     end
 
@@ -48,80 +47,83 @@ module Kredki
       update
     end
 
-    aliasing def color! *color
-      color = Kredki.color(color.extract)
-      set_fill_color color
-    end, :fill_color!
-    
-    aliasing def color= color
-      if color.is_a? Array
-        color! *color
-      else
-        color! color
-      end
-    end, :fill_color=
-    
-    def color
-      @color
-    end
+    param_prefix :fill
+
+    param def color! *color
+      color = Kredki.color color.extract
+      @color != color and set_fill_color color
+    end, :fill_color
 
     class FillRule
       enum :winding, :even_odd
     end
 
-    aliasing def fill_rule! rule
-      set_fill_rule FillRule[rule || :winding].to_i
-    end, :fill_rule=
-    
-    def stroke_color! *color
-      set_stroke_color *Kredki.color(color.extract).to_rgba_array
+    param def fill_rule! rule
+      rule = FillRule[rule || :winding]
+      fill_rule != rule and set_fill_rule rule
+    end, get: def fill_rule
+      FillRule[@fill_rule || :winding]
     end
 
-    def stroke_color= color
-      set_stroke_color *Kredki.color(color).to_rgba_array
+    param_prefix :stroke
+
+    param def stroke_color! *color
+      color = Kredki.color color.extract
+      @stroke_color != color and set_stroke_color color
     end
 
-    aliasing def stroke_width! width
+    param def stroke_width! width
       @stroke_width != width and set_stroke_width width
-    end, :stroke_width=
-
-    def stroke_width
-      @stroke_width
+    end, get: def stroke_width
+      @stroke_width || 0
     end
 
     class StrokeCap
       enum :square, :round, :butt
     end
 
-    aliasing def stroke_cap! cap
-      set_stroke_cap StrokeCap[cap].to_i
-    end, :stroke_cap=
+    param def stroke_cap! cap
+      cap = StrokeCap[cap || :square]
+      stroke_cap != cap and set_stroke_cap cap
+    end, get: def stroke_cap
+      StrokeCap[@stroke_cap || :square]
+    end
 
     class StrokeJoin
-      enum :bevel, :round, :miter
+      enum :bevel, :miter, :round
     end
 
-    aliasing def stroke_join! join
-      set_stroke_join StrokeJoin[join].to_i
-    end, :stroke_join=
-
-    def stroke_dash! *dash_pattern
-      set_stroke_dash_pattern dash_pattern
+    param def stroke_join! join
+      join = StrokeJoin[join || :bevel]
+      stroke_join != join and set_stroke_join join
+    end, get: def stroke_join
+      StrokeJoin[@stroke_join || :bevel]
     end
 
-    def stroke_dash= dash_pattern
-      set_stroke_dash_pattern dash_pattern
+
+    param def stroke_dash! *dash_pattern
+      @stroke_dash != dash_pattern and set_stroke_dash_pattern dash_pattern
     end
 
-    def_flag :stroke_first, set: :set_stroke_first
+    def_flag :stroke_behind, set: :set_stroke_behind
 
-    # class StrokeTrim
-    #   struct :begin, :end, :simultaneous
-    # end
+    class StrokeTrim
+      model :start, :finish, :simultaneous
 
-    # def stroke_trim(trim)
-    #   set_stroke_trim *StrokeTrim[trim].to_a
-    # end
+      def self.[](*params)
+        case params
+        in [self]
+          params
+        else
+          self.new *params
+        end
+      end
+    end
+
+    param def stroke_trim! *trim
+      trim = StrokeTrim[*trim]
+      @stroke_trim != trim and set_stroke_trim trim
+    end
 
     #internal api
 
@@ -132,20 +134,20 @@ module Kredki
     private
 
     def set_fill_color color
-      @color != color and begin
-        Abi.shape_set_fill_color @pointer, *color.to_rgba_array
-        @color = color
-        update
-      end
-    end
-
-    def set_fill_rule rule
-      Abi.shape_set_fill_rule @pointer, rule
+      Abi.shape_set_fill_color @pointer, *color.to_rgba_array
+      @color = color
       update
     end
 
-    def set_stroke_color r, g, b, a
-      Abi.shape_set_stroke_color @pointer, r, g, b, a
+    def set_fill_rule rule
+      Abi.shape_set_fill_rule @pointer, rule.to_i
+      @fill_rule = rule
+      update
+    end
+
+    def set_stroke_color color
+      Abi.shape_set_stroke_color @pointer, *color.to_rgba_array
+      @stroke_color = color
       update
     end
 
@@ -156,28 +158,33 @@ module Kredki
     end
 
     def set_stroke_join join
-      Abi.shape_set_stroke_join @pointer, join
+      Abi.shape_set_stroke_join @pointer, join.to_i
+      @stroke_join = join
       update
     end
 
     def set_stroke_cap cap
-      Abi.shape_set_stroke_cap @pointer, cap
+      Abi.shape_set_stroke_cap @pointer, cap.to_i
+      @stroke_cap = cap
       update
     end
 
-    def set_stroke_dash_pattern dash_pattern
-      Abi.shape_set_stroke_dash @pointer, Fiddle::Pointer[dash_pattern.pack "f*"], dash_pattern.length, 0
+    def set_stroke_dash_pattern pattern
+      Abi.shape_set_stroke_dash @pointer, Fiddle::Pointer[pattern.pack "f*"], pattern.length, 0
+      @stroke_dash = pattern
       update
     end
 
-    def set_stroke_first stroke_first
-      @stroke_first = stroke_first
-      Abi.shape_set_paint_order @pointer, stroke_first ? 1 : 0
+    def set_stroke_behind behind
+      Abi.shape_set_paint_order @pointer, behind ? 1 : 0
+      @stroke_behind = behind
       update
     end
 
-    # def set_stroke_trim begin, end, simultaneous
-    #   Abi.shape_set_stroke_trim
-    # end
+    def set_stroke_trim trim
+      Abi.shape_set_stroke_trim @pointer, trim.start, trim.finish, trim.simultaneous ? 1 : 0
+      @stroke_trim = trim
+      update
+    end
   end
 end 

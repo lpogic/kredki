@@ -6,21 +6,37 @@ module Kredki
   class Text < Paint
     include Alterable
 
-    aliasing def string! string
-      string = string.to_s
-      string != @string and set_string string
-    end, :string=
+    def initialize
+      super Abi.text_new
+      ObjectSpace.define_finalizer(self, Text.proc.finalize(@pointer))
 
-    def string
-      @string
+      string! "TEXT"
+      font! :arial
+      height! 16
+      color! :white
     end
 
-    aliasing def h! h
-      set_height h
-    end, :h=, :height!, :height=
+    def <<(arg)
+      case arg
+      in [string, height]
+        string! string
+        height! height
+      in String
+        string! arg
+      in Numeric
+        height! arg
+      else
+        raise ArgumentError.new "#{arg} #{arg.class}"
+      end
+    end
 
-    aliasing def h
-      @h
+    param def string! string
+      string = string.to_s
+      string != @string and set_string string
+    end
+
+    param def h! h
+      @h != h and set_height h
     end, :height
 
     aliasing def w
@@ -31,37 +47,17 @@ module Kredki
       [@w, @h]
     end, :size
 
-    aliasing def font! font
-      set_font Kredki.font(font)
-    end, :font=
-
-    def font
-      @font
+    param def font! font
+      font = Kredki.font font
+      @font != font and set_font font
     end
 
-    def color! *color
-      self.color = color.extract
-    end
-
-    def color= color
-      set_fill_color Kredki.color(color)
-    end
-
-    def color
-      @color
+    param def color! *color
+      color = Kredki.color color.extract
+      @color != color and set_fill_color color
     end
 
     #internal api
-
-    def initialize
-      super Abi.text_new
-      ObjectSpace.define_finalizer(self, Text.proc.finalize(@pointer))
-
-      string! "TEXT"
-      font! :arial
-      height! 16
-      color! :white
-    end
 
     def self.finalize pointer
       Abi.text_delete pointer
@@ -82,38 +78,32 @@ module Kredki
     def set_string string
       Abi.text_set_text @pointer, string
       @string = string
-      update
       @w = substring_width
+      update
     end
 
     def set_font font
-      if @font != font
-        @font = font
-        update_font
-      end
+      @font = font
+      update_font
     end
 
     def set_height h
-      if @h != h
-        @h = h
-        update_font
-      end
+      @h = h
+      update_font
     end
 
     def update_font
       if @font && @h
         Abi.text_set_font @pointer, @font.name, @h, @style&.encode || ""
-        update
         @w = substring_width
+        update
       end
     end
 
     def set_fill_color color
-      if @color != color
-        @color = color
-        Abi.text_set_fill_color @pointer, *@color.to_rgb_array if @color
-        update
-      end
+      @color = color
+      Abi.text_set_fill_color @pointer, *@color.to_rgb_array
+      update
     end
   end
 end

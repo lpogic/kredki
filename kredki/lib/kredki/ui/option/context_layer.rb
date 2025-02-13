@@ -75,13 +75,6 @@ module Kredki
       def group
         @group ||= OptionGroup[:up, :down]
       end
-
-      def pad_defaults pad
-        case pad
-        when Option
-          {group: group, w: 100r, fh: 16, m: 5}
-        end
-      end
     end
   end
 end

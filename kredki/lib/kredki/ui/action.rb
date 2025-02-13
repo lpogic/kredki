@@ -36,19 +36,6 @@ module Kredki
         end
       end
 
-      def _pad_defaults pad
-        pad_defaults pad
-      end
-
-      def pad_defaults pad
-        p pad
-        nil
-        # case pad
-        # when Option
-        #   {fh: 16, m: 5}
-        # end
-      end
-
       def parent
         nil
       end
@@ -66,7 +53,9 @@ module Kredki
       end
 
       def layer! klass = Layer, *a, **na, &b
-        layer = klass.new.sketch_base
+        layer = klass.new
+        layer.alter_begin
+        layer.sketch layer
         push_pad layer
         layer.alter *a, **na, &b
         layer.alter_commit
@@ -105,8 +94,8 @@ module Kredki
         layer!.focus!
       end
 
-      def build &block
-        @pads.last.instance_exec &block if block
+      def build *a, **na, &block
+        @pads.last.alter *a, **na, &block
       end
 
       def mouse_event event

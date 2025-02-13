@@ -36,6 +36,31 @@ module Kredki
   require_relative 'ui/option/scroll_dropdown_layer'
 
   module UI
+
+    class Attribute
+      model :value, :updater do
+        @links = []
+      end
+    
+      def link link
+        @links << link
+      end
+    
+      def update
+        @links.each{|link| link.update }
+        @updater&.call
+      end
+    
+      def set value
+        @value = value
+        update
+      end
+    
+      def get
+        @value
+      end
+    end
+
     module PadBase
       def_pad :pad!, Pad
       def_pad :space!, SpacePad

@@ -80,6 +80,7 @@ module Kredki
     extern 'int shape_get_stroke_cap(Shape* self)'
     extern 'void shape_set_stroke_join(Shape* self, int join)'
     extern 'int shape_get_stroke_join(Shape* self)'
+    extern 'void shape_set_stroke_trim(Shape* self, float begin, float end, int simultaneous)'
     extern 'void shape_set_fill_color(Shape* self, uint8_t r, uint8_t g, uint8_t b, uint8_t a)'
     extern 'void shape_set_fill_rule(Shape* self, int rule)'
     extern 'void shape_set_paint_order(Shape* self, int strokeFirst)'

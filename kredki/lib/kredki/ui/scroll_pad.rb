@@ -10,9 +10,10 @@ module Kredki
       def sketch p0
         super
         
-        @corner = new_pad(Pad).alter color: :light_gray, h: 10, w: 10
+        corner = new_pad(Pad).alter color: :light_gray, h: 10, w: 10
         @xslide = new_pad(HorizontalSlide).alter h: 10, x: 0, y: h - 10
         @yslide = new_pad(VerticalSlide).alter w: 10, y: 0, x: w - 10
+        @corner = corner
 
         @yslide.on_edit! do |e|
           if pad = p0.pad
@@ -79,7 +80,7 @@ module Kredki
       end
 
       def push_pad pad, at = nil
-        if sketched?
+        if @corner
           pad&.detach! true
           super pad, at || @corner
           update_pad

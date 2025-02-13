@@ -93,7 +93,7 @@ module Kredki
         @layout != layout and begin
           @layout = layout
           arrange
-          layer&.update_mouse_location if sketched? && mousy? && show?
+          layer&.update_mouse_location if mousy? && show?
           true
         end
       end, :layout=
@@ -306,17 +306,13 @@ module Kredki
 
       aliasing def new_pad klass = Pad, *a, _at: nil, **na, &b
         pad = klass.new
-        push_pad(pad.sketch_base, _at)
-        pad.alter(*a, **_pad_defaults(pad), **na, &b).alter_commit
+        pad.alter_begin
+        pad.sketch pad
+        push_pad pad, _at
+        pad.alter *a, **na, &b
+        pad.alter_commit
         pad
       end, :put
-
-      def _pad_defaults pad
-        {**parent&._pad_defaults(pad), **pad_defaults(pad)}
-      end
-
-      def pad_defaults pad
-      end
 
       def pad_index
         parent&.pads.index self
@@ -386,21 +382,15 @@ module Kredki
         extension.plug_into self, *a, **na, &b if extension.respond_to? :plug_into
       end
       
-      def color! *color, &block
+      param def color! *color
         case color
+        in [Attribute]
+          set_attribute(:color!, color.first).update
         in [false]
           area.hide!
         else
           area.show!
-          area.color! *color, &block
-        end
-      end
-
-      def color= color
-        if color.is_a? Array
-          color! *color
-        else
-          color! color
+          area.color! *color
         end
       end
 
@@ -430,19 +420,13 @@ module Kredki
         end
         @names = {}
         @event_manager = PadEventManager.new
+        @attributes = {}
         @pads = []
         @button_down_xy = nil
         @x = @y = :auto
         @w = @h = 100
         @me = @mn = @mw = @ms = 0
         @layout = Layout::INSTANCE
-      end
-
-      def sketch_base
-        alter_begin
-        sketch self unless @sketched
-        @sketched = true
-        self
       end
 
       def sketch p0
@@ -452,10 +436,6 @@ module Kredki
         on_mouse_button_up!{ mouse_button_up _1 }
         on_mouse_move!{ mouse_move _1 }
         on_resize!{ resize _1 }
-      end
-
-      def sketched?
-        @sketched
       end
 
       def mouse_button_down e
@@ -512,7 +492,7 @@ module Kredki
         set_size_impl and event_director.stem do
           report ResizeEvent.new
           update_xy and report MoveEvent.new
-          layer&.update_mouse_location if update_mouse_pad && sketched? && mousy? && show?
+          layer&.update_mouse_location if update_mouse_pad && mousy? && show?
           true
         end
       end
@@ -522,7 +502,7 @@ module Kredki
         @y = y
         update_xy and event_director.stem do
           report MoveEvent.new
-          layer&.update_mouse_location if sketched? && mousy? && show?
+          layer&.update_mouse_location if mousy? && show?
           true
         end
       end
@@ -533,7 +513,7 @@ module Kredki
         @mw = w
         @ms = s
         update_margin and event_director.stem do
-          layer&.update_mouse_location if sketched? && mousy? && show?
+          layer&.update_mouse_location if mousy? && show?
           true
         end
       end
@@ -775,6 +755,15 @@ module Kredki
       def set_action action
         @action = action
         @pads.each{ _1.set_action action }
+      end
+
+      def set_attribute name, attribute
+        self_attribute = @attributes[name] ||= Attribute.new
+        self_attribute.updater = proc do
+          send name, attribute.get
+        end
+        attribute.link self_attribute
+        self_attribute
       end
     end
   end

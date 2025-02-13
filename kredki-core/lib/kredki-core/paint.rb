@@ -13,46 +13,28 @@ module Kredki
       @rotation = 0
     end
 
-    aliasing def x! x 
+    param def x! x 
       @x != x and @y and set_translation x, @y
-    end, :x=
-
-    def x
-      @x
     end
 
-    aliasing def y! y
+    param def y! y
       @y != y and @x and set_translation @x, y
-    end, :y=
-
-    def y
-      @y
     end
 
-    def xy! x, y = nil
+    param def xy! x, y = nil
       y ||= x
       @x != x || @y != y and set_translation x, y
-    end
-
-    def xy= xy
-      xy! *xy
-    end
-
-    def xy
+    end, get: def xy
       [@x, @y]
     end
 
-    aliasing def rotation! rotation
+    param def rotation! rotation
       @rotation != rotation and set_rotation rotation
-    end, :rotation=
-
-    def rotation
-      @rotation
     end
 
-    aliasing def scale! scale
-      set_scale scale
-    end, :scale=
+    param def scale! scale
+      @scale != scale and set_scale scale
+    end
 
     def bounds
       bounds = Abi::Bounds.malloc(Fiddle::RUBY_FREE)
@@ -60,9 +42,22 @@ module Kredki
       bounds
     end
 
-    aliasing def opacity! opacity
-      set_opacity opacity
-    end, :opacity=
+    param def opacity! opacity
+      @opacity != opacity and set_opacity opacity
+    end, get: def opacity
+      @opacity || 255
+    end
+
+    class BlendMethod
+      enum :normal, :add, :screen, :multiply, :overlay, :difference,
+        :exclusion, :srcover, :darken, :lighten, :colordodge, :colorburn,
+        :hardlight, :softlight
+    end
+
+    param def blend! blend
+      blend = BlendMethod[blend || :normal]
+      @blend != blend and set_blend blend
+    end
 
     # class CompositeMethod
     #   enum :none, :clip, :alpha, :inverse_alpha, :luma, :inverse_luma
@@ -79,16 +74,6 @@ module Kredki
     def clip! mask
       set_clip mask || nil
     end
-
-    class BlendMethod
-      enum :normal, :add, :screen, :multiply, :overlay, :difference,
-        :exclusion, :srcover, :darken, :lighten, :colordodge, :colorburn,
-        :hardlight, :softlight
-    end
-
-    aliasing def blend! blend
-      set_blend BlendMethod[blend || :normal].to_i
-    end, :blend=
     
     def detach!
       @owner&.remove_paint self
@@ -152,11 +137,13 @@ module Kredki
 
     def set_scale scale
       Abi.paint_set_scale @pointer, scale
+      @scale = scale
       update
     end
 
     def set_opacity opacity
       Abi.paint_set_opacity @pointer, opacity
+      @opacity = opacity
       update
     end
 
@@ -167,8 +154,9 @@ module Kredki
       update
     end
 
-    def set_blend blend_method
-      Abi.paint_set_blend_method @pointer, blend_method
+    def set_blend blend
+      Abi.paint_set_blend_method @pointer, blend.to_i
+      @blend = blend
       update
     end
   end

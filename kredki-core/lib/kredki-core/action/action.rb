@@ -37,8 +37,8 @@ module Kredki
       self
     end
 
-    def color! *color
-      fill = shape! x: 0, y: 0, color: color.extract;
+    param def color! *color
+      fill = shape! x: 0, y: 0, color: color.extract
       on_resize = proc do
         fill.alter do
           reset!
@@ -48,10 +48,6 @@ module Kredki
       on_resize! &on_resize
       on_resize.call
       fill
-    end
-
-    def color=(color)
-      color! *color
     end
 
     def job! repeat: false, run: true, &b
@@ -84,16 +80,7 @@ module Kredki
     end
 
     def sketch p0
-    end
-
-    def sketch_base
-      sketch self unless sketched?
-      @sketched = true
-      self
-    end
-
-    def sketched?
-      @sketched
+      color! 0, 0, 0
     end
 
     def translate x, y, target = nil
@@ -128,8 +115,8 @@ module Kredki
       resolve StepEvent.new
     end
 
-    def build &block
-      instance_exec &block if block
+    def build *a, **na, &block
+      alter *a, **na, &block
     end
   end
 end

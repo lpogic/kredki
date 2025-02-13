@@ -24,7 +24,7 @@ module Kredki
     end
 
     def window! action = nil, *a, **na, &b
-      push_window(Window.new).action!(action).alter(*a, **na, &b)
+      push_window(Window.new).action!(action, *a, **na, &b)
     end
 
     def window key = nil

@@ -7,7 +7,7 @@ module Kredki
     class PaintState
       struct :paint, :before, :after, :shown
     end
-
+    
     def initialize
       super Abi.scene_new
       ObjectSpace.define_finalizer(self, self.class.proc.finalize(@pointer))

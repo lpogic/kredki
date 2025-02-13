@@ -18,15 +18,13 @@ module Kredki
       @arena
     end
  
-    def run! action = nil, &block
+    def run! action = nil, *a, **na, &block
       if !@arena
         init
-        action = @arena.window! action
+        @arena.window! action, *a, **na, &block
       else
-        window = @arena.window
-        action = action ? window.action!(action) : window.action
+        @arena.window.action! action, *a, **na, &block
       end
-      action.build &block
       @runned = true
       @arena.run!
     end
@@ -96,7 +94,7 @@ module Kredki
       end.to_h
     end
 
-    def color(param)
+    def color param
       case param
       when Color
         param

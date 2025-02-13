@@ -610,9 +610,9 @@ CABI int shape_get_stroke_join(Shape* self)
 //     return TVG_RESULT_SUCCESS;
 // }
 
-// CABI void shape_set_stroke_trim(Shape* self, float begin, float end, int simultaneous) {
-//     self->strokeTrim(begin, end, simultaneous);
-// }
+CABI void shape_set_stroke_trim(Shape* self, float begin, float end, int simultaneous) {
+    self->strokeTrim(begin, end, simultaneous);
+}
 
 // CABI int tvg_shape_get_stroke_trim(Tvg_Paint* paint, float* begin, float* end, bool* simultaneous)
 // {

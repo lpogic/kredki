@@ -176,7 +176,7 @@ CABI void shape_set_stroke_join(Shape* self, int join);
 CABI int shape_get_stroke_join(Shape* self);
 // CABI int tvg_shape_set_stroke_miterlimit(Shape* self, float miterlimit);
 // CABI int tvg_shape_get_stroke_miterlimit(const Shape* self, float* miterlimit);
-// CABI void shape_set_stroke_trim(Shape* self, float begin, float end, int simultaneous);
+CABI void shape_set_stroke_trim(Shape* self, float begin, float end, int simultaneous);
 // CABI int tvg_shape_get_stroke_trim(Shape* self, float* begin, float* end, bool* simultaneous);
 CABI void shape_set_fill_color(Shape* self, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 // CABI int tvg_shape_get_fill_color(const Shape* self, uint8_t* r, uint8_t* g, uint8_t* b, uint8_t* a);

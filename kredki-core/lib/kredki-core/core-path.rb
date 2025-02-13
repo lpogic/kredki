@@ -5,8 +5,51 @@ class Object
 end
 
 class Module
-  def aliasing name, *a
-    a.each{ alias_method _1, name }
+  def aliasing name, *aliases
+    aliases.each{ alias_method it, name }
+  end
+
+  def param name, *aliases, get: true
+    aliasing name, *aliases.map{ "#{it}!" }
+    multi_attr = self.instance_method(name).parameters.then{ it.size > 1 || it.first.first == :rest }
+    param_name = name.to_s[...-1]
+    if multi_attr
+      setter_name = "#{param_name}="
+      class_eval <<~00
+        def #{setter_name} param
+          Array === param ? (#{name} *param) : (#{name} param)
+        end
+      00
+      aliasing setter_name, *aliases.map{ "#{it}=" }
+    else
+      aliasing name, *[param_name, *aliases].map{ "#{it}=" }
+    end
+    if get
+      if get == true
+        class_eval <<~00
+          def #{param_name}
+            @#{param_name}
+          end
+        00
+        getter_name = param_name
+      else
+        getter_name = get
+      end
+      aliasing getter_name, *aliases
+    end
+  end
+
+  def param_prefix prefix
+    class_eval <<~00
+      def #{prefix}! **param
+        param.map{ send "#{prefix}_\#{_1}=", _2 }.reduce(false){ _1 || _2 }
+      end
+    00
+    class_eval <<~00
+      def #{prefix}= param
+        #{prefix}! **param
+      end
+    00
   end
 end
 
