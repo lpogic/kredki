@@ -112,7 +112,7 @@ module Kredki
       @last_frame_ms = ms
       @jobs.filter!(&:audit)
       @animations.each{ _1.step ms }
-      resolve StepEvent.new
+      resolve StepEvent.new ms
     end
 
     def build *a, **na, &block

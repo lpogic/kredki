@@ -4,6 +4,81 @@ module Kredki
   module UI
     class TextArea < Text
 
+      param def string! string = "", reset_cursor = true
+        string = string.to_s
+        self.string != string && begin
+          string += "\n" if string.empty? || string.end_with?("\n")
+          texts = string.each_line chomp: true
+          @lines = Enumerable.zip @lines, texts do |line, s|
+            if line
+              if s
+                line.text.string! s
+                line
+              else
+                line.text.detach!
+                line.selection.detach!
+                nil
+              end
+            else
+              line = push_line
+              line.text.string! s
+              line
+            end
+          end.compact
+          w = @lines.map{ _1.text.w }.max
+          update_text w
+          wh! w + @cursor.w, @lines.last.text.then{ _1.y + _1.h }
+          self.reset_cursor if reset_cursor
+          true
+        end
+      end, get: def string
+        @lines.map{ _1.text.string }.join "\n"
+      end
+
+      param def color! ...
+        @lines.each{ _1.text.color! ... }
+      end, get: def color
+        @lines.first.text.color
+      end
+
+      param def font! font
+        @lines.each{ _1.text.font! font }
+      end, get: def font
+        @lines.first.text.font
+      end
+
+      param def tx! position
+        position = case position
+        when :l, :left then POSITION_START
+        when :c, :center then POSITION_CENTER
+        when :r, :right then POSITION_END
+        when Proc then position
+        else raise "Invalid #{position.class}[#{position}] given"
+        end
+        position != @tx && begin
+          @tx = position
+          update_text w - @cursor.w
+          true
+        end
+      end, :text_x
+
+      param def font_height! height
+        height != @lines.first.text.h && begin
+          @lines.each do |line|
+            line.text.h = line.selection.h = height
+          end
+          @cursor.h = height
+          w = @lines.map{ _1.text.w }.max
+          update_text w
+          wh! w + @cursor.w, @lines.last.text.then{ _1.y + _1.h }
+          true
+        end
+      end, get: def font_height
+        @lines.first.text.h
+      end
+
+      #internal api
+
       class Line
         model :selection, :text
       end
@@ -11,7 +86,7 @@ module Kredki
       def initialize
         super
 
-        @text_x = POSITION_START
+        @tx = POSITION_START
         @cursor_position = @selection_min = @selection_max = 0
         @cursor = @clip_scene.rectangle! x: 1, y: 0, color: :white, w: 2, h: 30
         @lines = []
@@ -84,7 +159,7 @@ module Kredki
         cw = @cursor.w / 2
         y = 0
         @lines.each do |line|
-          line.text.xy! @text_x.call(w, line.text.w) + cw, y
+          line.text.xy! @tx.call(w, line.text.w) + cw, y
           line.selection.y! y
           y += line.text.h
         end
@@ -248,91 +323,6 @@ module Kredki
           reset_cursor cursor_position
         end
       end
-
-      aliasing def string! string = "", reset_cursor = true, &block
-        string = string.to_s
-        self.string != string && begin
-          string += "\n" if string.empty? || string.end_with?("\n")
-          texts = string.each_line chomp: true
-          @lines = Enumerable.zip @lines, texts do |line, s|
-            if line
-              if s
-                line.text.string! s
-                line
-              else
-                line.text.detach!
-                line.selection.detach!
-                nil
-              end
-            else
-              line = push_line
-              line.text.string! s
-              line
-            end
-          end.compact
-          w = @lines.map{ _1.text.w }.max
-          update_text w
-          wh! w + @cursor.w, @lines.last.text.then{ _1.y + _1.h }
-          self.reset_cursor if reset_cursor
-          true
-        end
-      end, :string=
-
-      def string
-        @lines.map{ _1.text.string }.join "\n"
-      end
-
-      aliasing def color! ...
-        @lines.each{ _1.text.color! ... }
-      end, :color=
-
-      def color
-        @lines.first.text.color
-      end
-
-      aliasing def font! font
-        @lines.each{ _1.text.font! font }
-      end, :font=
-
-      def font
-        @lines.first.text.font
-      end
-
-      aliasing def tx! position
-        position = case position
-        when :l, :left then POSITION_START
-        when :c, :center then POSITION_CENTER
-        when :r, :right then POSITION_END
-        when Proc then position
-        else raise "Invalid #{position.class}[#{position}] given"
-        end
-        position != @text_x && begin
-          @text_x = position
-          update_text w - @cursor.w
-          true
-        end
-      end, :tx=, :text_x!, :text_x=
-
-      aliasing def tx
-        @text_x
-      end, :text_x
-
-      aliasing def fh! height
-        height != @lines.first.text.h && begin
-          @lines.each do |line|
-            line.text.h = line.selection.h = height
-          end
-          @cursor.h = height
-          w = @lines.map{ _1.text.w }.max
-          update_text w
-          wh! w + @cursor.w, @lines.last.text.then{ _1.y + _1.h }
-          true
-        end
-      end, :fh=, :font_height!, :font_height=
-
-      aliasing def fh
-        @lines.first.text.h
-      end, :font_height
 
       def string_length
         @lines.map{ _1.text.string.length }.sum + @lines.length - 1

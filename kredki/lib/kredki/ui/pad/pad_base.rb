@@ -2,51 +2,123 @@ module Kredki
   module UI
     module PadBase
 
-      def [](filter, reverse: false, deep_first: false, &block)
+      def [](filter, *extra_filters, &block)
         case filter
         when Integer
-          if block
-            pads.find{ _1.pad_index == filter }&.then{ _1.instance_exec _1, &block }
-          else
-            pads.find{ _1.pad_index == filter }
+          each_pad(deep: false).find{|pad| pad.pad_index == filter and extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+            block ? pad.instance_exec(pad, &block) : pad
           end
         when Range
           if filter.begin.nil?
-            lineage(false).find{ _1 =~ filter.end }&.then do |pad|
+            lineage(!filter.exclude_end?).find{|pad| pad =~ filter.end and extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
               block ? pad.instance_exec(pad, &block) : pad
             end
           elsif filter.end.nil?
-            each_pad(reverse:, deep_first:).filter{ _1 =~ filter.begin }.then do |pads|
-              block ? pads.each{ _1.instance_exec _1, &block } : pads
+            case filter.begin
+            when :>
+              each_pad(deep: false).filter{|pad| extra_filters.all?{|ef| pad =~ ef } }.then do |pads|
+                block ? pads.each{ _1.instance_exec _1, &block } : pads
+              end
+            when :>>
+              if filter.exclude_end?
+                each_pad.filter{|pad| extra_filters.all?{|ef| pad =~ ef } }.then do |pads|
+                  block ? pads.each{ _1.instance_exec _1, &block } : pads
+                end
+              else
+                ([self].each + each_pad).filter{|pad| extra_filters.all?{|ef| pad =~ ef } }.then do |pads|
+                  block ? pads.each{ _1.instance_exec _1, &block } : pads
+                end
+              end
+            when :<<
+              lineage(!filter.exclude_end?).filter{|pad| extra_filters.all?{|ef| pad =~ ef } }.then do |pads|
+                block ? pads.each{ _1.instance_exec _1, &block } : pads
+              end
+            when :-
+              if filter.exclude_end?
+                parent&.each_pad(deep: false, reverse: true)&.drop_while{|a| a != self }&.drop(1)
+                &.filter{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+                  block ? pad.instance_exec(pad, &block) : pad
+                end
+              else
+                parent&.each_pad(deep: false, reverse: true)&.drop_while{|a| a != self }
+                &.filter{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+                  block ? pad.instance_exec(pad, &block) : pad
+                end
+              end
+            when :+
+              if filter.exclude_end?
+                parent&.each_pad(deep: false)&.drop_while{|a| a != self }&.drop(1)
+                &.filter{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+                  block ? pad.instance_exec(pad, &block) : pad
+                end
+              else
+                parent&.each_pad(deep: false)&.drop_while{|a| a != self }
+                &.filter{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+                  block ? pad.instance_exec(pad, &block) : pad
+                end
+              end
+            else
+              each_pad.filter{|pad| pad =~ filter.begin and extra_filters.all?{|ef| pad =~ ef } }.then do |pads|
+                block ? pads.each{ _1.instance_exec _1, &block } : pads
+              end
             end
           end
+        when :>
+          each_pad(deep: false).find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+            block ? pad.instance_exec(pad, &block) : pad
+          end
+        when :>>
+          each_pad.find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+            block ? pad.instance_exec(pad, &block) : pad
+          end
+        when :<
+          parent&.then do |pad|
+            block ? pad.instance_exec(pad, &block) : pad
+          end
+        when :<<
+          lineage(false).find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+            block ? pad.instance_exec(pad, &block) : pad
+          end
+        when :-
+          parent&.each_pad(deep: false, reverse: true)&.drop_while{|a| a != self }&.drop(1)
+          &.find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+            block ? pad.instance_exec(pad, &block) : pad
+          end
+        when :+
+          parent&.each_pad(deep: false)&.drop_while{|a| a != self }&.drop(1)
+          &.find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+            block ? pad.instance_exec(pad, &block) : pad
+          end
         else
-          each_pad(reverse:, deep_first:).find{ _1 =~ filter }&.then do |pad|
+          each_pad.find{|pad| pad =~ filter and extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
             block ? pad.instance_exec(pad, &block) : pad
           end
         end
       end
 
-      def []=(filter, value)
-        self[filter]{ _1 << value }
+      def []=(*filters, value)
+        self[*filters]{ _1 << value }
         value
       end
 
-      def each_pad enum = nil, reverse: false, deep_first: false
+      def each_pad enum = nil, reverse: false, deep: true
         if enum
           method = reverse ? :reverse_each : :each
-          if deep_first
+          case deep
+          when false
+            @pads.send(method){ enum << _1 }
+          when :first
             @pads.send method do
               enum << _1
               _1.each_pad enum, reverse:, deep_first:;
             end
           else
             @pads.send(method){ enum << _1 }
-            @pads.send(method){ _1.each_pad enum, reverse:, deep_first: }
+            @pads.send(method){ _1.each_pad enum, reverse:, deep: }
           end
           enum
         else
-          Enumerator.new{|enum| each_pad enum, reverse:, deep_first: }
+          Enumerator.new{|enum| each_pad enum, reverse:, deep: }
         end
       end
 
@@ -76,7 +148,9 @@ module Kredki
       def def_forward filter, *methods
         methods.each do |method|
           define_singleton_method method do |*a, **na, &b|
-            self[filter].send method, *a, **na, &b
+            target = self[filter]
+            raise "Cant find target for ::#{method}" unless target
+            target.send method, *a, **na, &b
           end
         end
       end
@@ -87,16 +161,21 @@ module Kredki
         end
       end
 
+      def defw_param *params, get: true
+        params.each do |param|
+          defw_resp "#{param}!".to_sym, "#{param}=".to_sym
+          defw_resp param if get
+        end
+      end
+
       def orphan! &block
         orphan = Orphan.new
-        orphan.patron = self
         block ? orphan.instance_exec(&block) : orphan
       end
     end
 
     class Orphan
       include PadBase
-      attr_accessor :patron
       
       def new_pad klass = Pad, *a, **na, &b
         pad = klass.new

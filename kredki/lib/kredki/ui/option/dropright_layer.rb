@@ -21,9 +21,9 @@ module Kredki
         @options
       end
 
-      aliasing def master! master
+      param def master! master
         @master != master and set_master master
-      end, :master=
+      end
 
       #internal api
 

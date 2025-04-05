@@ -176,22 +176,18 @@ module Kredki
         update_cursor
       end
 
-      aliasing def cc! color
-        @cursor.color! color
-      end, :cc=, :cursor_color!, :cursor_color=
-
-      aliasing def cc
+      param def cursor_color! *color
+        @cursor.color! *color
+      end, get: def cursor_color
         @cursor.color
-      end, :cursor_color
+      end
 
       def pw
         w
-        # @me + @mw + @text.w + @cursor.w
       end
 
       def ph
         h
-        # @mn + @ms + @text.h
       end
     end
   end

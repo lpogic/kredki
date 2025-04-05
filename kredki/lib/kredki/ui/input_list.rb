@@ -1,44 +1,48 @@
 require 'forwardable'
 require_relative 'option/scroll_dropdown_layer'
+require_relative 'theme'
 
 module Kredki
   module UI
     class InputList < Input
       extend Forwardable
 
-      module Theme
-      end
+      class SimpleColorBasedTheme < Theme
+        model :color
 
-      class ColorBasedTheme
-        include Theme
-        model :@R_base_color, :@N_proc
+        def attach! pad
+          super pad,
+            pad.on_focus_gain!,
+            pad.on_focus_lose!,
+            pad.on_mouse_enter!,
+            pad.on_mouse_leave!,
+            pad.on_edit!,
+            pad.on!(Option::PickEvent)
+        end
 
-        def to_proc
-          color = @base_color
-          @proc ||= proc do
-            area.color = mouse_in? ? color.light : color
-            area.stroke_color = keyboard_in? ? Kredki.color(:yellow) : color
-            @editor.text.color! @picked ? :white : Kredki.color(:white).dark(70)
-          end
+        def repaint
+          @pad.area.color = @pad.mouse_in? ? @color.light : @color
+          @pad.area.stroke_color = @pad.keyboard_in? ? Kredki.color(:yellow) : @color
+          @pad.editor.text.color = @pad.picked.nil? ? Kredki.color(:white).dark(70) : :white
         end
       end
+      
+      def color_theme color
+        SimpleColorBasedTheme.new color
+      end
 
-      aliasing def theme! theme
+      param def theme! theme
         theme = case theme
-        when Proc, Theme
+        when Theme
           theme
         when Symbol, Array
-          ColorBasedTheme.new Kredki.color theme
+          color_theme Kredki.color theme
         else raise_ia theme 
         end
         @theme != theme && begin
           @theme = theme
-          repaint
+          theme.attach! self
         end
-      end, :theme=
-
-      def theme
-        @theme
       end
 
       #internal api
@@ -48,6 +52,8 @@ module Kredki
 
         @picked = nil
       end
+
+      attr :picked
 
 
       def sketch p0
@@ -59,16 +65,12 @@ module Kredki
           string! "" if !@picked
         end
   
-        on_edit! do
-          @picked = nil
-          repaint
-        end
+        on_edit!{ @picked = nil }
 
         on! Option::PickEvent do |e|
           s = e.target.string
           @picked = s
           string! s, :end
-          repaint
         end
     
         # on_click! do |e|

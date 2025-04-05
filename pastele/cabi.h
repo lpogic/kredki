@@ -141,7 +141,7 @@ CABI void paint_set_translation(Paint* self, float x, float y);
 CABI void paint_set_opacity(Paint* self, uint8_t opacity);
 CABI int paint_get_opacity(Paint* self);
 // CABI Tvg_Paint* tvg_paint_duplicate(Tvg_Paint* paint);
-CABI void paint_get_bounds(Paint* self, Bounds* bounds, int transformed);
+CABI void paint_get_bounds(Paint* self, Bounds* bounds);
 // CABI void paint_set_mask(Paint* self, Paint* target, int method);
 CABI void paint_set_clip(Paint* self, Paint* clipper);
 // CABI void paint_set_composite_method(Paint* self, Paint* mask, int method);

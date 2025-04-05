@@ -1,5 +1,30 @@
 require_relative '../kredki'
 
+class Module
+  def vparam name, *aliases, get: true, parts: []
+    n = "set_#{name}"
+    alias_method n, name
+    parts_delete = parts.map{ "@vparams.delete(:#{_1}!)&.detach!" }.join ";"
+    class_eval <<~cc
+      def #{name} *param
+        #{parts_delete}
+        case param
+        in [Variable]
+          first = param.first
+          @vparams[:#{name}]&.detach!
+          @vparams[:#{name}] = first.on_change!{|e| v = ~e; Array === v ? (#{n} *v) : (#{n} v) }
+          v = first.get
+          Array === v ? (#{n} *v) : (#{n} v)
+        else
+          @vparams.delete(:#{name})&.detach!
+          #{n} *param
+        end
+      end
+    cc
+    param name, *aliases, get:;
+  end
+end
+
 module Kredki
 
   PS = POSITION_START = proc{ 0 }
@@ -37,28 +62,46 @@ module Kredki
 
   module UI
 
-    class Attribute
-      model :value, :updater do
-        @links = []
+    class Variable
+      model :value, :converter do
+        @event_manager = EventManager.new
+      end
+
+      def self.[](value, &converter)
+        self.new value, converter
+      end
+
+      def inspect
+        "#{self.class}[#{@value}]"
       end
     
-      def link link
-        @links << link
+      def on_change! &block
+        @event_manager.attach! block
       end
-    
-      def update
-        @links.each{|link| link.update }
-        @updater&.call
+
+      def <<(value)
+        value = @converter.call value if @converter
+        @value != value and set value
       end
     
       def set value
+        @event_manager.resolve ChangeEvent.new(value, @value)
         @value = value
-        update
       end
     
       def get
         @value
       end
+
+      def map &block
+        r = Variable[1, &block]
+        on_change! do |e|
+          p ~e
+          r << ~e
+        end
+        r
+      end
+
     end
 
     module PadBase
@@ -119,6 +162,10 @@ module Kredki
         @scroll_dropdown.options
       end
 
+      def_pad :var do |a, na, b|
+        Variable[a[1], &b]
+      end
+
     end#PadBase
   end#UI
 
@@ -141,7 +188,7 @@ class CarryFocusOnTab
         .lazy
         .filter{ _1.keyboardy? }
         .first
-      next_pad.focus_gain if next_pad
+      next_pad.gain_keyboard if next_pad
     end
   end
 end

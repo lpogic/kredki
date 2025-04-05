@@ -15,15 +15,19 @@ module Kredki
       end
     end
 
-    def attach! attached, force = false
+    def attach! attached, always = false, last: false
       resolver = case attached
       when EventResolver
-        attached.attach! self, force;
+        attached.attach! self, always;
       when Proc
-        EventResolver.new attached, self, force
+        EventResolver.new attached, self, always
       else raise "Unsupported attached type (#{attached.class})"
       end
-      @resolvers << resolver
+      if last
+        @resolvers.prepend resolver
+      else
+        @resolvers << resolver
+      end
       resolver
     end
 

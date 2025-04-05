@@ -1,43 +1,45 @@
 require 'forwardable'
 require_relative 'text/text_area_editor_clip'
+require_relative 'theme'
 
 module Kredki
   module UI
     class InputArea < Pad
       extend Forwardable
 
-      module Theme
-      end
+      class SimpleColorBasedTheme < Theme
+        model :color
 
-      class ColorBasedTheme
-        include Theme
-        model :@R_base_color, :@N_proc
+        def attach! pad
+          super pad,
+            pad.on_focus_gain!,
+            pad.on_focus_lose!,
+            pad.on_mouse_enter!,
+            pad.on_mouse_leave!
+        end
 
-        def to_proc
-          color = @base_color
-          @proc ||= proc do
-            area.color = mouse_in? ? color.light : color
-            area.stroke_color = keyboard_in? ? Kredki.color(:yellow) : color
-          end
+        def repaint
+          @pad.area.color = @pad.mouse_in? ? @color.light : @color
+          @pad.area.stroke_color = @pad.keyboard_in? ? Kredki.color(:yellow) : @color
         end
       end
 
-      aliasing def theme! theme
+      def color_theme color
+        SimpleColorBasedTheme.new color
+      end
+
+      param def theme! theme
         theme = case theme
-        when Proc, Theme
+        when Theme
           theme
         when Symbol, Array
-          ColorBasedTheme.new Kredki.color theme
+          color_theme Kredki.color theme
         else raise_ia theme 
         end
         @theme != theme && begin
           @theme = theme
-          repaint
+          theme.attach! self
         end
-      end, :theme=
-
-      def theme
-        @theme
       end
 
       def << arg
@@ -49,7 +51,7 @@ module Kredki
         end
       end
 
-      defw_resp :tx!, :tx=, :string!, :string=, :string
+      defw_param :string, :tx, :text_x
 
       #internal api
 
@@ -67,27 +69,9 @@ module Kredki
         stroke_width! 1
         theme! :gray
                 
-        begin
-          repaint_event = proc{ report RepaintEvent.new }
-          on_mouse_enter! &repaint_event
-          on_mouse_leave! &repaint_event
-          on_focus_gain! &repaint_event
-          on_focus_lose! do
-            @pads.first&.update_text
-            repaint_event.call
-          end
-        end
-
-        on_repaint! do |e|
-          repaint
-          e.resolve
-        end
+        on_focus_lose!{ @pads.first&.update_text }
 
         new_pad TextAreaEditorClip, wh: 100r
-      end
-
-      def repaint
-        instance_exec &@theme
       end
 
       def point_pads x, y, pads, force = false

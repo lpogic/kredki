@@ -1,6 +1,19 @@
+require_relative 'theme'
+
 module Kredki
   module UI
     class Slide < Pad
+
+      param def value! v
+        v = v.to_f.clamp 0.0..1.0
+        @value != v && begin
+          set_value v
+          set_offset v
+          report EditEvent.new
+          report ChangeEvent.new
+          true
+        end
+      end
 
       def on_change! &block
         on! ChangeEvent, &block
@@ -10,52 +23,38 @@ module Kredki
         on! EditEvent, &block
       end
 
-      aliasing def value! v
-        v = v.to_f.clamp 0.0..1.0
-        @value != v && begin
-          set_value v
-          set_offset v
-          report EditEvent.new
-          report ChangeEvent.new
-          true
+      class SimpleColorBasedTheme < Theme
+        model :color
+
+        def attach! pad
+          super pad,
+            pad.on_mouse_button_down!,
+            pad.on_mouse_button_up!,
+            pad.on_mouse_enter!,
+            pad.on_mouse_leave!
         end
-      end, :value=
 
-      def value
-        @value
-      end
-
-      module Theme
-      end
-
-      class ColorBasedTheme
-        include Theme
-        model :@R_base_color, :@N_proc
-
-        def to_proc
-          color = @base_color
-          @proc ||= proc do
-            @handle.color = mouse_in? ? color.light : color.dark
-          end
+        def repaint
+          @pad.handle.area.color = @pad.mouse_in? ? @color.light : @color.dark
         end
       end
 
-      aliasing def theme! theme
+      def color_theme color
+        SimpleColorBasedTheme.new color
+      end
+
+      param def theme! theme
         theme = case theme
-        when Proc, Theme
+        when Theme
           theme
         when Symbol, Array
-          ColorBasedTheme.new Kredki.color theme
+          color_theme Kredki.color theme
         else raise_ia theme 
         end
         @theme != theme && begin
           @theme = theme
-          repaint
+          theme.attach! self
         end
-      end, :theme=
-
-      def theme
-        @theme
       end
 
       #internal api
@@ -64,15 +63,6 @@ module Kredki
         super
 
         @value = 0.0
-      end
-
-      def sketch p0
-        super
-
-        on_repaint! do |e|
-          repaint
-          e.resolve
-        end
       end
 
       def sketch2 p0
@@ -96,30 +86,6 @@ module Kredki
       end
 
       attr :handle
-
-      def repaint
-        instance_exec &@theme
-      end
-
-      def mouse_button_down e
-        super
-        report RepaintEvent.new
-      end
-
-      def mouse_enter e
-        super
-        report RepaintEvent.new
-      end
-
-      def mouse_leave e
-        super
-        report RepaintEvent.new
-      end
-
-      def mouse_button_up e
-        super
-        report RepaintEvent.new
-      end
     end
 
     class HorizontalSlide < Slide

@@ -6,13 +6,13 @@ module Kredki
     class TextLineEditorClip < Pad
       extend Forwardable
 
-      def_delegators :@editor,
-        :string!, :string=, :string,
-        :on_click!, :on_edit!
+
+      def_delegators :@editor, :on_click!, :on_edit!
+      defd_param :@editor, :string
 
       attr :editor
 
-      aliasing def tx! position
+      param def tx! position
         position = case position
         when :l, :left then POSITION_START
         when :c, :center then POSITION_CENTER
@@ -21,31 +21,25 @@ module Kredki
         when Proc then position
         else raise "Invalid #{position.class}[#{position}] given"
         end
-        position != @text_x && begin
-          @text_x = position
+        position != @tx && begin
+          @tx = position
           update_text
           true
         end
-      end, :tx=, :text_x!, :text_x=
-
-      aliasing def tx
-        @text_x
       end, :text_x
 
-      aliasing def fh! height
-        height != @editor.fh && begin
-          @editor.fh = height
+      param def font_height! height
+        height != @editor.font_height and begin
+          @editor.font_height! height
           update_text
         end
-      end, :fh=, :font_height!, :font_height=
+      end, get: def font_height
+        @editor.font_height
+      end
 
-      aliasing def fh
-        @editor.fh
-      end, :font_height
-
-      aliasing def h! height
-        super && update_text
-      end, :h=, :height!, :height=
+      param def h! height
+        super and update_text
+      end, :height, get: false
 
       def text
         @editor
@@ -56,7 +50,7 @@ module Kredki
       def initialize
         super
         
-        @text_x = POSITION_START
+        @tx = POSITION_START
         @editor = new_pad TextLineEditor
       end
 
@@ -68,12 +62,12 @@ module Kredki
         h! @editor.h
         
         on_focus_lose! do
-          @editor.x = @text_x.call w, @editor.w
+          @editor.x = @tx.call w, @editor.w
         end
 
         on! EditEvent do |e|
           if @editor.w < w
-            @editor.x = @text_x.call w, @editor.w
+            @editor.x = @tx.call w, @editor.w
           end
         end
 
@@ -90,7 +84,7 @@ module Kredki
         on! ROIEvent do |e|
           pad = @editor
           if pad.w < w
-            pad.x = @text_x.call w, pad.w
+            pad.x = @tx.call w, pad.w
           elsif (l = e.x) < 0
             pad.x -= l
           elsif (r = e.w + e.x) > w
@@ -121,7 +115,7 @@ module Kredki
       end
 
       def update_text
-        @editor.xy! @text_x.call(w, @editor.w), (h - @editor.h) / 2
+        @editor.xy! @tx.call(w, @editor.w), (h - @editor.h) / 2
       end
     end
   end

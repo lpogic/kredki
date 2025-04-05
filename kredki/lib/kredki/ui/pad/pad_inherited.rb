@@ -10,7 +10,9 @@ module Kredki
       def def_forward filter, *methods
         methods.each do |method|
           define_method method do |*a, **na, &b|
-            self[filter].send method, *a, **na, &b
+            target = self[filter]
+            raise "Cant find target for ::#{method}" unless target
+            target.send method, *a, **na, &b
           end
         end
       end
@@ -18,6 +20,20 @@ module Kredki
       def defw_resp *methods
         methods.each do |method|
           def_forward proc{ _1.respond_to? method }, method
+        end
+      end
+
+      def defw_param *params, get: true
+        params.each do |param|
+          defw_resp "#{param}!".to_sym, "#{param}=".to_sym
+          defw_resp param if get
+        end
+      end
+
+      def defd_param target, *params, get: true
+        params.each do |param|
+          def_delegators target, "#{param}!".to_sym, "#{param}=".to_sym
+          def_delegator target, param if get
         end
       end
 

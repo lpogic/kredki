@@ -1,5 +1,6 @@
 require 'forwardable'
 require_relative 'text/text_line'
+require_relative 'theme'
 
 module Kredki
   module UI
@@ -15,45 +16,50 @@ module Kredki
         end
       end
 
-      module Theme
-      end
+      class SimpleColorBasedTheme < Theme
+        model :color
 
-      class ColorBasedTheme
-        include Theme
-        model :@R_base_color, :@N_proc
+        def attach! pad
+          super pad,
+            pad.on_focus_gain!,
+            pad.on_focus_lose!,
+            pad.on_mouse_button_down!,
+            pad.on_mouse_button_up!,
+            pad.on_mouse_enter!,
+            pad.on_mouse_leave!
+        end
 
-        def to_proc
-          color = @base_color
-          @proc ||= proc do
-            area.color = button_top? ? color.dark : mouse_in? ? color.light : color
-            area.stroke_color = keyboard_top? ? Kredki.color(:yellow) : color
-          end
+        def repaint
+          @pad.area.color = @pad.button_top? ? @color.dark : @pad.mouse_in? ? @color.light : @color
         end
       end
 
       def color_theme color
-        ColorBasedTheme.new color
+        SimpleColorBasedTheme.new color
       end
 
-      aliasing def theme! theme
+      vparam def theme! theme
         theme = case theme
-        when Proc, Theme
+        when Theme
           theme
-        when Symbol, Array
+        when Symbol, Array, Color
           color_theme Kredki.color theme
         else raise_ia theme 
         end
-        @theme != theme && begin
-          @theme = theme
-          repaint
-        end
-      end, :theme=
-
-      def theme
-        @theme
+        @theme != theme and set_theme theme
       end
 
-      defw_resp :string!, :string=, :string
+      param def color! *color
+        case color
+        in [false]
+          area.hide!
+        else
+          area.show!
+          theme! *color
+        end
+      end, get: false
+
+      attr :text
 
       #internal api
 
@@ -69,29 +75,12 @@ module Kredki
         keyboardy!
         stroke_width! 1
         theme! :gray
-        layout! Aim[]
-
-        on_repaint! do |e|
-          repaint
-          e.resolve
-        end
-
-        on_focus_gain! do |e|
-          report RepaintEvent.new
-          e.resolve
-        end
-
-        on_focus_lose! do |e|
-          report RepaintEvent.new
-          e.resolve
-        end
+        layout! Aim
 
         w! proc{ @me + @mw + (pad&.then{ _1.w } || 0) }
         h! proc{ @mn + @ms + (pad&.then{ _1.h } || 0) }
 
-        new_pad TextLine, mousy: false, keyboardy: false
-
-        string! "Button"
+        @text = new_pad TextLine, "Button", mousy: false, keyboardy: false
       end
 
       def resize e
@@ -117,28 +106,11 @@ module Kredki
         super.tap{ update_size }
       end
 
-      def repaint
-        instance_exec &@theme
-      end
-
-      def mouse_button_down e
-        super
-        report RepaintEvent.new
-      end
-
-      def mouse_button_up e
-        super
-        report RepaintEvent.new
-      end
-
-      def mouse_enter e
-        super
-        report RepaintEvent.new
-      end
-
-      def mouse_leave e
-        super
-        report RepaintEvent.new
+      def set_theme theme
+        @theme&.detach!
+        theme.attach! self
+        @theme = theme
+        true
       end
     end
   end

@@ -390,8 +390,8 @@ CABI int paint_get_opacity(Paint* self) {
     return self->opacity();
 }
 
-CABI void paint_get_bounds(Paint* self, Bounds* bounds, int transformed) {
-    self->bounds(&bounds->x, &bounds->y, &bounds->w, &bounds->h, transformed);
+CABI void paint_get_bounds(Paint* self, Bounds* bounds) {
+    self->bounds(&bounds->x, &bounds->y, &bounds->w, &bounds->h);
 }
 
 CABI void paint_set_clip(Paint* self, Paint* clipper) {
@@ -611,7 +611,7 @@ CABI int shape_get_stroke_join(Shape* self)
 // }
 
 CABI void shape_set_stroke_trim(Shape* self, float begin, float end, int simultaneous) {
-    self->strokeTrim(begin, end, simultaneous);
+    self->trimpath(begin, end, simultaneous);
 }
 
 // CABI int tvg_shape_get_stroke_trim(Tvg_Paint* paint, float* begin, float* end, bool* simultaneous)

@@ -6,22 +6,24 @@ module Kredki
     class TextAreaEditorClip < Pad
       extend Forwardable
 
-      def_delegators :@editor,
-        :string!, :string=, :string,
-        :tx, :text_x, :fh, :font_height,
-        :on_click!, :on_edit!
-
-      aliasing def tx! position
+      def_delegators :@editor, :on_click!, :on_edit!
+      defd_param :@editor, :string
+        
+      param def tx! position
         @editor.tx! position and update_text
-      end, :tx=, :text_x!, :text_x=
+      end, :text_x, get: def tx
+        @editor.tx
+      end
 
-      aliasing def fh! height
-        @editor.fh! height and update_text
-      end, :fh=, :font_height!, :font_height=
+      param def font_height! height
+        @editor.font_height! height and update_text
+      end, get: def font_height
+        @editor.font_height
+      end
 
-      aliasing def h! height
+      param def h! height
         super and update_text
-      end, :h=, :height!, :height=
+      end, :height, get: false
 
       #internal api
 

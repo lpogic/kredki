@@ -19,16 +19,16 @@ module Kredki
           w! w
         end.attach! self
         attach! action
-        @scroll.options[Option]&.focus!
+        @scroll[Option]&.focus!
       end
 
       def options
-        scroll.options
+        @scroll[Pad]
       end
 
-      aliasing def master! master
+      param def master! master
         @master != master and set_master master
-      end, :master=
+      end
 
       #internal api
 
@@ -39,8 +39,8 @@ module Kredki
       def sketch p0
         super
 
-        @scroll = new_pad ScrollPad, :@scroll do
-          new_pad Pad, :@options, wh: :fit, color: :gray, layout: Column
+        @scroll = new_pad ScrollPad do
+          new_pad Pad, wh: :fit, color: :gray, layout: Column
         end
 
         on_key! :escape do

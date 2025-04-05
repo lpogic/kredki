@@ -5,6 +5,8 @@ module Kredki
   module UI
     module Editor
 
+      #internal api
+
       def sketch p0
         super
 
@@ -90,6 +92,8 @@ module Kredki
 
     class TextAreaEditor < TextArea
       include Editor
+
+      #internal api
 
       def sketch p0
         super

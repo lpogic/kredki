@@ -38,7 +38,7 @@ module Kredki
 
     def bounds
       bounds = Abi::Bounds.malloc(Fiddle::RUBY_FREE)
-      Abi.paint_get_bounds @pointer, bounds, 1
+      Abi.paint_get_bounds @pointer, bounds
       bounds
     end
 
@@ -55,6 +55,7 @@ module Kredki
     end
 
     param def blend! blend
+      # @params[:blend] = blend
       blend = BlendMethod[blend || :normal]
       @blend != blend and set_blend blend
     end

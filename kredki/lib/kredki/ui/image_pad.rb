@@ -5,10 +5,10 @@ module Kredki
     class ImagePad < Pad
       extend Forwardable
 
-      aliasing def source! source
+      param def source! source
         @picture.source! source
         wh! *@picture.wh
-      end, :source=
+      end, get: false
 
       def_delegators :@picture,
         :source

@@ -124,9 +124,6 @@ module Kredki
     class FocusLoseEvent < Event
     end
 
-    class RepaintEvent < Event
-    end
-
     class EditEvent < Event
       model :selection_min, :selection_max, :string, :type
 
@@ -136,6 +133,15 @@ module Kredki
     end
 
     class ChangeEvent < Event
+      model :new_value, :old_value
+
+      def [](key = :new_value)
+        send key
+      end
+
+      def ~()
+        @new_value
+      end
     end
 
     class ROIEvent < PositionEvent
@@ -148,110 +154,106 @@ module Kredki
 
     module PadEvents
 
-      aliasing def on_key! *filtered_keys, aim: false, force: false, &block
+      aliasing def on_key! *filtered_keys, aim: false, always: false, &block
         keycodes = keyboard.keycodes filtered_keys
-        @event_manager.keyboard_manager KeyDownEvent, keycodes, block, aim, force
+        @event_manager.keyboard_manager KeyDownEvent, keycodes, block, aim, always
       end, :on_key_down!
 
-      def on_key_up! *filtered_keys, aim: false, force: false, &block
+      def on_key_up! *filtered_keys, aim: false, always: false, &block
         keycodes = keyboard.keycodes filtered_keys
-        @event_manager.keyboard_manager KeyUpEvent, keycodes, block, aim, force
+        @event_manager.keyboard_manager KeyUpEvent, keycodes, block, aim, always
       end
 
-      def on_text! aim: false, force: false, &block
-        on! TextEvent, aim:, force:, &block
+      def on_text! aim: false, always: false, &block
+        on! TextEvent, aim:, always:, &block
       end
   
-      aliasing def on_mouse_button! *filtered_buttons, aim: false, force: false, &block
+      aliasing def on_mouse_button! *filtered_buttons, aim: false, always: false, &block
         indexes = mouse.indexes filtered_buttons
-        @event_manager.mouse_manager MouseButtonDownEvent, indexes, block, aim, force
+        @event_manager.mouse_manager MouseButtonDownEvent, indexes, block, aim, always
       end, :on_mouse_button_down!
   
-      def on_mouse_button_up! *filtered_buttons, aim: false, force: false, &block
+      def on_mouse_button_up! *filtered_buttons, aim: false, always: false, &block
         indexes = mouse.indexes filtered_buttons
-        @event_manager.mouse_manager MouseButtonUpEvent, indexes, block, aim, force
+        @event_manager.mouse_manager MouseButtonUpEvent, indexes, block, aim, always
       end
   
-      def on_mouse_move! aim: false, force: false, &block
-        on! MouseMoveEvent, aim:, force:, &block
+      def on_mouse_move! aim: false, always: false, &block
+        on! MouseMoveEvent, aim:, always:, &block
       end
 
-      aliasing def on_scroll! aim: false, force: false, &block
-        on! MouseScrollEvent, aim:, force:, &block
+      aliasing def on_scroll! aim: false, always: false, &block
+        on! MouseScrollEvent, aim:, always:, &block
       end, :on_mouse_scroll!
 
-      def on_external_drop! aim: false, force: false, &block
-        on! FileDropEvent, aim:, force:, &block
+      def on_external_drop! aim: false, always: false, &block
+        on! FileDropEvent, aim:, always:, &block
       end
 
-      aliasing def on_joystick_button! joystick, *filtered_buttons, aim: false, force: false, &block
+      aliasing def on_joystick_button! joystick, *filtered_buttons, aim: false, always: false, &block
         action_joystick = self.joystick joystick
         indexes = action_joystick.buttons filtered_buttons
-        @event_manager.joystick_manager JoystickButtonDownEvent, action_joystick.joystick, indexes, block, aim, force
+        @event_manager.joystick_manager JoystickButtonDownEvent, action_joystick.joystick, indexes, block, aim, always
       end, :on_joystick_button_down!
 
-      def on_joystick_button_up! joystick, *filtered_buttons, aim: false, force: false, &block
+      def on_joystick_button_up! joystick, *filtered_buttons, aim: false, always: false, &block
         action_joystick = self.joystick joystick
         indexes = action_joystick.buttons filtered_buttons
-        @event_manager.joystick_manager JoystickButtonUpEvent, action_joystick.joystick, indexes, block, aim, force
+        @event_manager.joystick_manager JoystickButtonUpEvent, action_joystick.joystick, indexes, block, aim, always
       end
 
-      def on_joystick_axis! joystick, *filtered_axes, aim: false, force: false, &block
+      def on_joystick_axis! joystick, *filtered_axes, aim: false, always: false, &block
         action_joystick = self.joystick joystick
         indexes = action_joystick.axes filtered_axes
-        @event_manager.joystick_manager JoystickAxisEvent, action_joystick.joystick, indexes, block, aim, force
+        @event_manager.joystick_manager JoystickAxisEvent, action_joystick.joystick, indexes, block, aim, always
       end
 
-      def on_show! aim: false, force: false, &block
-        on! ShowEvent, aim:, force:, &block
+      def on_show! aim: false, always: false, &block
+        on! ShowEvent, aim:, always:, &block
       end 
 
-      def on_hide! aim: false, force: false, &block
-        on! HideEvent, aim:, force:, &block
+      def on_hide! aim: false, always: false, &block
+        on! HideEvent, aim:, always:, &block
       end
 
-      def on_move! aim: false, force: false, &block
-        on! MoveEvent, aim:, force:, &block
+      def on_move! aim: false, always: false, &block
+        on! MoveEvent, aim:, always:, &block
       end
 
-      def on_resize! aim: false, force: false, &block
-        on! ResizeEvent, aim:, force:, &block
+      def on_resize! aim: false, always: false, &block
+        on! ResizeEvent, aim:, always:, &block
       end
 
-      def on_mouse_enter! aim: false, force: false, &block
-        on! EnterEvent, aim:, force:, &block
+      def on_mouse_enter! aim: false, always: false, &block
+        on! EnterEvent, aim:, always:, &block
       end
 
-      def on_mouse_leave! aim: false, force: false, &block
-        on! LeaveEvent, aim:, force:, &block
+      def on_mouse_leave! aim: false, always: false, &block
+        on! LeaveEvent, aim:, always:, &block
       end
 
-      def on_focus_gain! aim: false, force: false, &block
-        on! FocusGainEvent, aim:, force:, &block
+      def on_focus_gain! aim: false, always: false, &block
+        on! FocusGainEvent, aim:, always:, &block
       end
 
-      def on_focus_lose! aim: false, force: false, &block
-        on! FocusLoseEvent, aim:, force:, &block
+      def on_focus_lose! aim: false, always: false, &block
+        on! FocusLoseEvent, aim:, always:, &block
       end
 
-      def on_click! aim: false, force: false, &block
-        on! ClickEvent, aim:, force:, &block
+      def on_click! aim: false, always: false, &block
+        on! ClickEvent, aim:, always:, &block
       end
 
-      def on_drag! aim: false, force: false, &block
-        on! DragEvent, aim:, force:, &block
+      def on_drag! aim: false, always: false, &block
+        on! DragEvent, aim:, always:, &block
       end
 
-      def on_drop! aim: false, force: false, &block
-        on! DropEvent, aim:, force:, &block
+      def on_drop! aim: false, always: false, &block
+        on! DropEvent, aim:, always:, &block
       end
 
-      def on_repaint! aim: false, force: false, &block
-        on! RepaintEvent, aim:, force:, &block
-      end
-
-      def on! event_type, aim: false, force: false, &block
-        @event_manager.manager event_type, block, aim, force
+      def on! event_type, aim: false, always: false, &block
+        @event_manager.manager event_type, block, aim, always
       end
 
       def event_director

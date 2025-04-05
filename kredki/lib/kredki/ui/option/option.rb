@@ -1,5 +1,6 @@
 require_relative '../text/text_line'
 require_relative 'option_group'
+require_relative '../theme'
 
 module Kredki
   module UI
@@ -17,28 +18,31 @@ module Kredki
       class PickEvent < Kredki::UI::Event
       end
 
-      module Theme
-      end
+      class SimpleColorBasedTheme < Theme
+        model :color
 
-      class ColorBasedTheme
-        include Theme
-        model :@R_base_color, :@N_proc
+        def attach! pad
+          super pad,
+            pad.on_focus_gain!,
+            pad.on_focus_lose!,
+            pad.on_mouse_button_down!,
+            pad.on_mouse_button_up!,
+            pad.on_mouse_enter!,
+            pad.on_mouse_leave!
+        end
 
-        def to_proc
-          color = @base_color
-          @proc ||= proc do
-            area.color = button_top? ? color.dark : keyboard_in? ? color.light : color
-          end
+        def repaint
+          @pad.area.color = @pad.button_top? ? @color.dark : @pad.mouse_in? ? @color.light : @color
         end
       end
 
       def color_theme color
-        ColorBasedTheme.new color
+        SimpleColorBasedTheme.new color
       end
 
-      aliasing def theme! theme
+      param def theme! theme
         theme = case theme
-        when Proc, Theme
+        when Theme
           theme
         when Symbol, Array
           color_theme Kredki.color theme
@@ -46,23 +50,15 @@ module Kredki
         end
         @theme != theme && begin
           @theme = theme
-          repaint
+          theme.attach! self
         end
-      end, :theme=
-
-      def theme
-        @theme
       end
 
-      aliasing def group! group, custom = true
+      param def group! group, custom = true
         @group&.remove self
         group&.append self
         @group = group
         @custom_group = custom
-      end, :group=
-
-      def group
-        @group
       end
 
       def on_pick! ...
@@ -71,8 +67,7 @@ module Kredki
 
       def_flag :arrow, nil: true
 
-      defw_resp :string!, :string=, :string
-      defw_resp :fh!, :fh=, :font!, :font=
+      defw_param :font_height, :font, :string
 
       #internal api
 
@@ -87,11 +82,6 @@ module Kredki
 
         keyboardy!
         theme! :gray
-
-        on_repaint! do |e|
-          repaint
-          e.resolve
-        end
 
         on_click! do
           report PickEvent.new
@@ -108,14 +98,6 @@ module Kredki
 
         on_mouse_enter! do |e|
           @group&.mouse_enter self
-        end
-
-        on_focus_gain! do
-          repaint
-        end
-
-        on_focus_lose! do
-          repaint
         end
 
         w! proc{ pw }
@@ -152,30 +134,6 @@ module Kredki
 
       def remove_pad pad, transfer
         super.tap{ update_size }
-      end
-
-      def repaint
-        instance_exec &@theme
-      end
-
-      def mouse_button_down e
-        super
-        report RepaintEvent.new
-      end
-
-      def mouse_button_up e
-        super
-        report RepaintEvent.new
-      end
-
-      def mouse_enter e
-        super
-        report RepaintEvent.new
-      end
-
-      def mouse_leave e
-        super
-        report RepaintEvent.new
       end
     end
   end

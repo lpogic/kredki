@@ -4,16 +4,14 @@ module Kredki
   module UI
     class TextLine < Text
 
-      aliasing def string! string = "", reset_cursor = true
+      param def string! string = "", reset_cursor = true
         @text.string! string and update_line_size reset_cursor
-      end, :string=
+      end, get: false
 
-      def_delegators :@text,
-        :string, 
-        :color!, :color=, :color,
-        :font!, :font=, :font
+      def_delegators :@text, :string
+      defd_param :@text, :color, :font
 
-      aliasing def fh! height
+      param def font_height! height
         height != @text.h && begin
           @cursor.h = @text.h = @selection.h = height
           w = @text.w.ceil
@@ -21,11 +19,9 @@ module Kredki
           wh! w + @cursor.w, @text.h
           true
         end
-      end, :fh=, :font_height!, :font_height=
-
-      aliasing def fh
+      end, get: def font_height
         @text.h
-      end, :font_height
+      end
 
       # internal api
 
