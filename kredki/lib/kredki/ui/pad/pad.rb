@@ -31,7 +31,11 @@ module Kredki
         when Proc
           alter &arg
         when Module
-          use! arg
+          if arg <= Layout
+            layout! arg
+          else
+            use! arg
+          end
         else
           raise "Unsupported << (#{arg} : #{arg.class})"
         end
@@ -152,7 +156,7 @@ module Kredki
       def drag! start_point = nil
         gain_button start_point
         @drag = true
-        report DragEvent.new(nil, *action.mouse.xy)
+        report DragEvent.new(start_point, nil, *action.mouse.xy)
       end
 
       def drag?
@@ -332,7 +336,6 @@ module Kredki
       end
 
       def mouse_button_down e
-        p e.button
         if e.button == :primary
           gain_keyboard if keyboardy?
           gain_button e.xy
@@ -350,6 +353,7 @@ module Kredki
 
       def mouse_button_up e
         lose_button
+        layer.update_mouse_location
         if @drag
           @drag = false
           report DropEvent.new e.origin
@@ -362,7 +366,7 @@ module Kredki
       def mouse_move e
         if @drag || (@button_down_xy && ((@button_down_xy[0] - e.x) ** 2 + (@button_down_xy[1] - e.y) ** 2 > 100))
           @drag = true
-          report DragEvent.new e.origin
+          report DragEvent.new @button_down_xy, e.origin
         end
         e.resolve
       end
@@ -486,7 +490,7 @@ module Kredki
           pw = parent&.cw || 0
           @w[pw]
         when :fit
-          @layout.fit_w self
+          mx + @layout.fit_w(self)
         else
           if @w < 0
             pw = parent&.cw || 0
@@ -505,7 +509,7 @@ module Kredki
           ph = parent&.ch || 0
           @h[ph]
         when :fit
-          @layout.fit_h self
+          my + @layout.fit_h(self)
         else
           if @h < 0
             ph = parent&.ch || 0
@@ -556,12 +560,12 @@ module Kredki
       end
 
       def arrange
-        return if altered? :arrange
+        return if alter_filter :arrange
         @layout.arrange self
       end
 
       def resize_arrange
-        return if altered? :resize_arrange
+        return if alter_filter :resize_arrange
         @w == :fit || @h == :fit and update_size or arrange
       end
 
@@ -602,7 +606,7 @@ module Kredki
       end
 
       def gain_keyboard
-        pad = keyboardy? ? self : each_pad(deep_first: true).find{ _1.keyboardy? }
+        pad = keyboardy? ? self : each_pad(deep: true).find{ _1.keyboardy? }
         layer.update_keyboard_pad pad
       end
 

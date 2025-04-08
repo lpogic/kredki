@@ -1,24 +1,35 @@
-require_relative 'color'
 require_relative 'shape'
 
 module Kredki
   class Ellipse < Shape
 
     def initialize
-      super
-      radius! 50
+      super true
+
+      @rx = @ry = 50
+      @redraw_flag = true
+      update
     end
 
     param def rx! rx
-      @rx != rx and set_r rx, @ry
+      return if @rx == rx
+      @rx = rx
+      @redraw_flag = true
+      update
     end, :radius_x
 
     param def ry! ry
-      @ry != ry and set_r @rx, ry
+      return if @ry == ry
+      @ry = ry
+      @redraw_flag = true
+      update
     end, :radius_y
 
     param def r! r
-      @rx != r || @ry != r and set_r r, r
+      return if @rx == r && @ry == r
+      @rx = @ry = r
+      @redraw_flag = true
+      update
     end, :radius, get: def r
       [@rx, @ry].max
     end
@@ -29,15 +40,15 @@ module Kredki
       r * 2
     end
 
-    def <<(arg)
-      case arg
+    def << param
+      case param
       in [rx, ry]
         rx! rx
         ry! ry
       in Numeric
-        r! arg
+        r! param
       else
-        raise ArgumentError.new "#{arg} #{arg.class}"
+        raise ArgumentError.new "#{param} #{param.class}"
       end
     end
 
@@ -45,22 +56,26 @@ module Kredki
 
     private
 
-    def reset!
-      super
-      half_sw = stroke_width * 0.5
-      ellipse_at! @rx, @ry, @rx - half_sw, @ry - half_sw if @rx && @ry
-      update
+    def update
+      if @redraw_flag
+        @redraw_flag = false
+        redraw
+        true
+      else
+        super
+      end
     end
 
-    def set_r rx, ry
-      @rx = rx
-      @ry = ry
-      reset!
+    def redraw
+      half_sw = @stroke_width.to_f * 0.5
+      rx = @rx.to_f
+      ry = @ry.to_f
+      draw!.ellipse_at! rx, ry, rx - half_sw, ry - half_sw
     end
-    
+
     def set_stroke_width ...
       super
-      reset!
+      @redraw_flag = true
     end
   end
 end

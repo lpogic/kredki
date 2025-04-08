@@ -22,11 +22,11 @@ module Kredki
       a == other.a
     end
 
-    def light level = 10
+    def lighten level = 10
       Color.new *to_rgb_array.map{ (_1 + level).clamp(0, 255) }, @a
     end
 
-    def dark level = 10
+    def darken level = 10
       Color.new *to_rgb_array.map{ (_1 - level).clamp(0, 255) }, @a
     end
 

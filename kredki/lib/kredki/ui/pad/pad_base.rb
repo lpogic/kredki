@@ -110,7 +110,7 @@ module Kredki
           when :first
             @pads.send method do
               enum << _1
-              _1.each_pad enum, reverse:, deep_first:;
+              _1.each_pad enum, reverse:, deep:;
             end
           else
             @pads.send(method){ enum << _1 }

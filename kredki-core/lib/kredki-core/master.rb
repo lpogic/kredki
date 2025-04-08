@@ -66,8 +66,10 @@ module Kredki
       end.to_h
     end
 
-    def font param
+    def font param = nil
       case param
+      when nil
+        @fonts&.each_value&.first || (raise "No fonts loaded")
       when Font
         param
       when :rand
@@ -75,9 +77,9 @@ module Kredki
       when Symbol
         @fonts&.itself[param] || (raise "Unknown font '#{param}'")
       when String
-        @fonts&.values.find{|font| font.name == param || font.path == param } || (raise "Unknown font '#{param}'")
+        @fonts&.each_value&.find{|font| font.name == param || font.path == param } || (raise "Unknown font '#{param}'")
       else
-        raise "Unknown font '#{param.class}'"
+        raise "Unknown font '#{param}'"
       end
     end
 
@@ -94,8 +96,10 @@ module Kredki
       end.to_h
     end
 
-    def color param
+    def color param = nil
       case param
+      when nil
+        @colors&.each_value&.first || Color.new(255, 255, 255)
       when Color
         param
       when :rand

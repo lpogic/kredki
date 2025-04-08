@@ -15,22 +15,22 @@ class Module
     param_name = name.to_s[...-1]
     if multi_attr
       setter_name = "#{param_name}="
-      class_eval <<~__
+      class_eval <<~XX
         def #{setter_name} param
           Array === param ? (#{name} *param) : (#{name} param)
         end
-      __
+      XX
       aliasing setter_name, *aliases.map{ "#{it}=" }
     else
       aliasing name, *[param_name, *aliases].map{ "#{it}=" }
     end
     if get
       if get == true
-        class_eval <<~__
+        class_eval <<~XX
           def #{param_name}
             @#{param_name}
           end
-        __
+        XX
         getter_name = param_name
       else
         getter_name = get
@@ -40,16 +40,16 @@ class Module
   end
 
   def param_prefix prefix
-    class_eval <<~__
+    class_eval <<~XX
       def #{prefix}! **param
         param.map{ send "#{prefix}_\#{_1}=", _2 }.reduce(false){ _1 || _2 }
       end
-    __
-    class_eval <<~__
+    XX
+    class_eval <<~XX
       def #{prefix}= param
         #{prefix}! **param
       end
-    __
+    XX
   end
 end
 
@@ -103,10 +103,6 @@ class Class
 end
 
 class Array
-  def extract
-    size > 1 ? self : first
-  end
-
   def polarize other
     both = []
     others = other.reject{|item| both << item if include? item }

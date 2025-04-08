@@ -101,7 +101,6 @@ module Kredki
         window_event abi.window_id, WindowMoveEvent.new(abi)
       when 0x206
         abi = Abi::WindowEvent.new event_ptr
-        p ["R", abi.window_id]
         window_event abi.window_id, WindowResizeEvent.new(abi)
       when 0x209
         abi = Abi::WindowEvent.new event_ptr

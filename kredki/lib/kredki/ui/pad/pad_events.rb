@@ -46,10 +46,11 @@ module Kredki
 
       def trace
         @trace = true
+        self
       end
   
-      def trace= enabled
-        @trace = enabled
+      def trace= trace
+        @trace = trace
       end
   
       def trace?
@@ -97,6 +98,19 @@ module Kredki
     end
 
     class DragEvent < MouseEvent
+      model :@xy0
+
+      def x0
+        @xy0[0]
+      end
+
+      def y0
+        @xy0[1]
+      end
+
+      def xy0
+        @xy0
+      end
     end
 
     class ShowEvent < Event

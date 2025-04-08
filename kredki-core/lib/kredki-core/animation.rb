@@ -10,7 +10,7 @@ module Kredki
       ObjectSpace.define_finalizer(self, Animation.proc.finalize(@pointer))
 
       @picture = Paint.new Abi.animation_get_picture @pointer
-      @owner = nil
+      @base = nil
       @ms = nil
       @on_end = EventManager.new
     end
@@ -18,12 +18,15 @@ module Kredki
     attr :picture
 
     param def source! source
-      source = source.to_s
-      @source != source and set_source source
+      return if @source == source
+      set_source source
+      @source = source
+      @picture.update
     end
 
-    param def frame! no
-      set_frame no
+    param def frame! frame_index
+      set_frame frame_index
+      @picture.update
     end, get: false
 
     def total_frame
@@ -66,7 +69,7 @@ module Kredki
     end
 
     def window
-      @owner&.window
+      @base&.window
     end
 
     #internal api
@@ -77,12 +80,12 @@ module Kredki
 
     attr :pointer
 
-    attr :owner
-    def owner= owner
-      owner, @owner = @owner, owner
+    attr :base
+    def base= base
+      base, @base = @base, base
       if @play
-        owner&.remove_animation self
-        @owner&.push_animation self
+        base&.remove_animation self
+        @base&.push_animation self
       end
     end
 
@@ -101,23 +104,20 @@ module Kredki
 
     def set_source source
       Abi.picture_load @picture.pointer, source
-      @source = source
-      @picture.update
     end
 
-    def set_frame no
-      Abi.animation_set_frame @pointer, no
-      @picture.update
+    def set_frame frame
+      Abi.animation_set_frame @pointer, frame
     end
 
     def set_play play
       @play = play
       if @play
-        @ms = @owner.last_frame_ms - @ms if @ms
-        @owner&.push_animation self
+        @ms = @base.last_frame_ms - @ms if @ms
+        @base&.push_animation self
       else
-        @ms = @owner.last_frame_ms - @ms if @ms
-        @owner&.remove_animation self
+        @ms = @base.last_frame_ms - @ms if @ms
+        @base&.remove_animation self
       end
     end
 

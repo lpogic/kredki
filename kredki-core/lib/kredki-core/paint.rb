@@ -6,34 +6,52 @@ module Kredki
 
     def initialize pointer
       @pointer = pointer
-      @owner = nil
-
+      @base = nil
       @x = 0
       @y = 0
       @rotation = 0
+      @scale = 1
+      @opacity = 255
+      @blend = nil
     end
 
-    param def x! x 
-      @x != x and @y and set_translation x, @y
+    param def x! x
+      return if @x == x
+      set_translation x.to_i, @y.to_f
+      @x = x
+      update
     end
 
     param def y! y
-      @y != y and @x and set_translation @x, y
+      return if @y == y
+      set_translation @x.to_i, y.to_f
+      @y = y
+      update
     end
 
     param def xy! x, y = nil
       y ||= x
-      @x != x || @y != y and set_translation x, y
+      return if @x == x && @y == y
+      set_translation x.to_f, y.to_f
+      @x = x
+      @y = y
+      update
     end, get: def xy
       [@x, @y]
     end
 
     param def rotation! rotation
-      @rotation != rotation and set_rotation rotation
+      return if @rotation == rotation
+      set_rotation rotation.to_f
+      @rotation = rotation
+      update
     end
 
     param def scale! scale
-      @scale != scale and set_scale scale
+      return if @scale == scale
+      set_scale scale.to_f
+      @scale = scale
+      update
     end
 
     def bounds
@@ -43,9 +61,10 @@ module Kredki
     end
 
     param def opacity! opacity
-      @opacity != opacity and set_opacity opacity
-    end, get: def opacity
-      @opacity || 255
+      return if @opacity == opacity
+      set_opacity opacity.to_i
+      @opacity = opacity
+      update
     end
 
     class BlendMethod
@@ -55,9 +74,10 @@ module Kredki
     end
 
     param def blend! blend
-      # @params[:blend] = blend
-      blend = BlendMethod[blend || :normal]
-      @blend != blend and set_blend blend
+      return if @blend == blend
+      set_blend BlendMethod[blend || :normal].to_i
+      @blend = blend
+      update
     end
 
     # class CompositeMethod
@@ -73,15 +93,16 @@ module Kredki
     # end
 
     def clip! mask
-      set_clip mask || nil
+      set_clip mask&.pointer
+      update
     end
     
     def detach!
-      @owner&.remove_paint self
+      @base&.remove_paint self
     end
 
-    def attach! owner
-      owner.push_paint self
+    def attach! base
+      base.push_paint self
     end
 
     def_flag :show, set: :set_show, get: :get_show
@@ -91,33 +112,33 @@ module Kredki
     end
 
     def window
-      @owner&.window
+      @base&.window
     end
 
     def action
-      @owner&.action
+      @base&.action
     end
 
     #internal api
 
     attr :pointer
-    attr_accessor :owner
+    attr_accessor :base
 
     def inspect
       "#{self.class}:#{object_id}"
     end
 
     def update
-      @owner&.update_paint self
+      @base&.update_paint self
       true
     end
 
     def set_show show
-      show ? @owner&.show_paint(self) : @owner&.hide_paint(self)
+      show ? @base&.show_paint(self) : @base&.hide_paint(self)
     end
 
     def get_show
-      @owner&.paint_shown? self
+      @base&.paint_shown? self
     end
 
     # def set_composite_method mask, method
@@ -126,39 +147,27 @@ module Kredki
     # end
 
     def set_clip mask
-      Abi.paint_set_clip @pointer, mask&.pointer
-      update
+      Abi.paint_set_clip @pointer, mask
     end
 
     def set_rotation rotation
       Abi.paint_set_rotation @pointer, rotation
-      @rotation = rotation
-      update
     end
 
     def set_scale scale
       Abi.paint_set_scale @pointer, scale
-      @scale = scale
-      update
     end
 
     def set_opacity opacity
       Abi.paint_set_opacity @pointer, opacity
-      @opacity = opacity
-      update
     end
 
     def set_translation x, y
       Abi.paint_set_translation @pointer, x, y
-      @x = x
-      @y = y
-      update
     end
 
     def set_blend blend
-      Abi.paint_set_blend_method @pointer, blend.to_i
-      @blend = blend
-      update
+      Abi.paint_set_blend_method @pointer, blend
     end
   end
 end

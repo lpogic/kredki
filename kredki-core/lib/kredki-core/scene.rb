@@ -51,7 +51,7 @@ module Kredki
 
     def new_animation show, index
       animation = Animation.new
-      animation.owner = action
+      animation.base = action
       push_paint animation.picture, show, index
       animation
     end
@@ -68,19 +68,15 @@ module Kredki
       Abi.scene_delete pointer
     end
 
-    attr_accessor :owner
+    attr_accessor :base
     
-    def paint_hash
-      @paints
-    end
-
     def update_paint paint
-      @owner&.update_paint self
+      @base&.update_paint self
     end
 
     def push_paint paint, show = true, at = nil
-      paint.detach! if paint.owner
-      paint.owner = self
+      paint.detach! if paint.base
+      paint.base = self
       if show
         Abi.scene_push @pointer, paint.pointer, at&.pointer
         update
@@ -91,7 +87,7 @@ module Kredki
 
     def remove_paint paint
       if (state = @paints.delete paint)
-        paint.owner = nil
+        paint.base = nil
         if state.shown
           Abi.scene_remove @pointer, paint.pointer
           update

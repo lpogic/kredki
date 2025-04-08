@@ -19,7 +19,7 @@ module Kredki
         end
 
         def repaint
-          @pad.area.color = @pad.mouse_in? ? @color.light : @color
+          @pad.area.color = @pad.mouse_in? ? @color.lighten : @color
           @pad.area.stroke_color = @pad.keyboard_in? ? Kredki.color(:yellow) : @color
         end
       end

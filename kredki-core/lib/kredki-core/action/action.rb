@@ -30,7 +30,7 @@ module Kredki
     end
 
     def window ...
-      @owner&.alter!(...)
+      @base&.alter!(...)
     end
 
     def action
@@ -38,11 +38,10 @@ module Kredki
     end
 
     param def color! *color
-      fill = shape! x: 0, y: 0, color: color.extract
+      fill = shape! x: 0, y: 0, color: (color.size > 1 ? color : color.first)
       on_resize = proc do
-        fill.alter do
-          reset!
-          rectangle_at! 0, 0, *window.size, 0, 0
+        fill.draw! do
+          rectangle! 0, 0, *fill.window.size, 0, 0
         end
       end
       on_resize! &on_resize
@@ -76,7 +75,7 @@ module Kredki
     attr :step_callback, :event_manager
 
     def update_paint paint
-      @owner&.update_paint paint
+      @base&.update_paint paint
     end
 
     def sketch p0

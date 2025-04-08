@@ -7,35 +7,35 @@ module Kredki
       case get
       when Symbol
         class_eval "def #{name}?; not not #{get}(); end"
-        set_common = <<~EOT
+        set_common = <<~XX
           cv = (not not #{get}())
           v = value == :~ ? !cv : (not not value)
-        EOT
+        XX
       when false
-        set_common = <<~EOT
+        set_common = <<~XX
           raise ArgumentError.new "Flag can't be negated - no getter available" if value == :~
           cv = nil
           v = (not not value)
-        EOT
+        XX
       when true, nil
         class_eval "def #{name}?; @#{name}.nil? ? #{init} : @#{name} ? true : false; end"
-        set_common = <<~EOT
+        set_common = <<~XX
           cv = @#{name}.nil? ? #{init} : @#{name} ? true : false
           v = value == :~ ? !cv : (not not value)
-        EOT
+        XX
       else
         raise ArgumentError.new "#{get.class}"
       end
 
       case set
       when Symbol
-        class_eval <<~EOT
+        class_eval <<~XX
           def #{name}=(value)
             #{set_common}
             #{set} v if v != cv
           end
-        EOT
-        class_eval <<~EOT
+        XX
+        class_eval <<~XX
           def #{name}!(value = true)
             #{set_common}
             if v != cv
@@ -45,23 +45,23 @@ module Kredki
               false
             end
           end
-        EOT
+        XX
       when false
         false
       when true, nil
-        class_eval <<~EOT
+        class_eval <<~XX
           def #{name}=(value)
             #{set_common}
             @#{name} = v
           end
-        EOT
-        class_eval <<~EOT
+        XX
+        class_eval <<~XX
           def #{name}!(value = true)
             #{set_common}
             @#{name} = v
             v != cv
           end
-        EOT
+        XX
       else 
         raise ArgumentError.new "#{set.class}"
       end

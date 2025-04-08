@@ -21,9 +21,9 @@ module Kredki
         end
 
         def repaint
-          @pad.area.color = @pad.mouse_in? ? @color.light : @color
+          @pad.area.color = @pad.mouse_in? ? @color.lighten : @color
           @pad.area.stroke_color = @pad.keyboard_in? ? Kredki.color(:yellow) : @color
-          @pad.editor.text.color = @pad.picked.nil? ? Kredki.color(:white).dark(70) : :white
+          @pad.editor.text.color = @pad.picked.nil? ? Kredki.color(:white).darken(70) : :white
         end
       end
       

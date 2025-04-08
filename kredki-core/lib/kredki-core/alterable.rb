@@ -25,22 +25,21 @@ module Kredki
       @altered = {} unless @altered
     end
 
-    def alter_commit keep_open = false
+    def alter_commit
       altered, @altered = @altered, nil
-      if altered
-        after_alter altered
-        @altered = {} if keep_open
-      end
+      after_alter altered if altered
       self
     end
 
     def after_alter altered
-      altered.each do |k, v|
-        send k
-      end
+      altered.each_key{ send it }
     end
 
-    def altered? sending = nil
+    def altered?
+      !!@altered
+    end
+
+    def alter_filter sending = nil
       !sending || (@altered[sending] = true) if @altered
     end
   end

@@ -50,80 +50,49 @@ module Kredki
 
     def_flag :text_input, nil: false, set: :set_text_input, get: :get_text_input
 
-    aliasing def min_wh! w, h = nil
+    param def min_wh! w, h = nil
       set_minimum_size w, h || w
-    end, :min_size!
+    end, :min_size
 
-    aliasing def min_wh= wh
-      case wh
-      when Array then min_wh! *wh
-      else min_wh! wh
-      end
-    end, :min_size=
-
-    aliasing def max_wh! w, h = nil
+    param def max_wh! w, h = nil
       set_maximum_size w, h || w
-    end, :max_size!
-
-    aliasing def max_wh= wh
-      case wh
-      when Array then max_wh! *wh
-      else max_wh! wh
-      end
-    end, :max_size=
+    end, :max_size
     
-    aliasing def opacity! opacity
+    param def opacity! opacity
       set_opacity opacity > 1 ? opacity / 255.0 : opacity
-    end, :opacity=
+    end
 
-    aliasing def xy! x, y
+    param def xy! x, y
       set_position x, y
-    end, :position!
-
-    aliasing def xy= xy
-      set_position *xy
-    end, :position=
+    end, :position
 
     def_flag :resizable, set: :set_resizable
 
-    aliasing def wh! w, h = nil
+    param def wh! w, h = nil
       set_size w, h || w
-    end, :size!
-
-    aliasing def wh= wh
-      case wh
-      when Array then wh! *wh
-      else wh! wh
-      end
-    end, :size=
-
-    aliasing def wh
+    end, :size, get: def wh
       get_size
-    end, :size
+    end
 
-    aliasing def w! w
+    param def w! w
       set_size w, h
-    end, :w=, :width!, :width=
-
-    aliasing def w
+    end, :width, get: def w
       get_size[0]
-    end, :width
+    end
 
-    aliasing def h! h
+    param def h! h
       set_size w, h
-    end, :h=, :height!, :height=
-
-    aliasing def h
+    end, :height, get: def h
       get_size[1]
-    end, :height
+    end
 
-    aliasing def title! title
+    param def title! title
       set_title title.to_s
-    end, :title=
+    end
 
     def_flag :always_top, set: :set_always_top
 
-    aliasing def action! action = nil, *a, **na, &block
+    param def action! action = nil, ...
       action ||= Window.default_action
       if action.is_a? Class
         action = action.new
@@ -133,12 +102,7 @@ module Kredki
         set_action action
       end
       
-      action.build *a, **na, &block
-      
-    end, :action=
-
-    def action
-      @action
+      action.build(...)
     end
 
     def window
@@ -174,7 +138,7 @@ module Kredki
 
     def set_action action, &block
       @action = action
-      @action.owner = self
+      @action.base = self
       Abi.window_set_scene @pointer, action.pointer
       Abi.window_set_step_handler @pointer, action.step_callback
       update_paint @action
@@ -233,6 +197,7 @@ module Kredki
 
     def set_title title
       Abi.window_set_title @pointer, title
+      @title = title
     end
 
     def set_always_top set

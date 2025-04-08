@@ -10,10 +10,15 @@ module Kredki
       super Abi.text_new
       ObjectSpace.define_finalizer(self, Text.proc.finalize(@pointer))
 
-      string! "TEXT"
-      font! :arial
-      height! 16
-      color! :white
+      @string = "TEXT"
+      @font = Kredki.font
+      @color = Kredki.color
+      @h = 16
+      set_string @string
+      set_font @font.name, @h, ""
+      set_fill_color *@color.to_rgb_array
+      @w = substring_width
+      update
     end
 
     def <<(arg)
@@ -31,12 +36,19 @@ module Kredki
     end
 
     param def string! string
-      string = string.to_s
-      string != @string and set_string string
+      return if @string == string
+      set_string string.to_s
+      @string = string
+      @w = substring_width
+      update
     end
 
     param def h! h
-      @h != h and set_height h
+      return if @h == h
+      set_font Kredki.font(@font).name, h, ""
+      @h = h
+      @w = substring_width
+      update
     end, :height
 
     aliasing def w
@@ -48,13 +60,19 @@ module Kredki
     end, :size
 
     param def font! font
-      font = Kredki.font font
-      @font != font and set_font font
+      return if @font == font
+      set_font Kredki.font(font).name, @h, ""
+      @font = font
+      @w = substring_width
+      update
     end
 
     param def color! *color
-      color = Kredki.color color.extract
-      @color != color and set_fill_color color
+      color = color.size > 1 ? color : color.first
+      return if @color == color
+      set_fill_color *Kredki.color(color).to_rgb_array
+      @color = color
+      update
     end
 
     #internal api
@@ -64,8 +82,7 @@ module Kredki
     end
 
     def substring_width index = nil, string = @string
-      str = string.to_s
-      Abi.text_get_text_width(@pointer, str, index || -1)
+      Abi.text_get_text_width(@pointer, string.to_s, index || -1)
     end
 
     def nearest_character_index width, string = @string
@@ -73,37 +90,16 @@ module Kredki
       Abi.text_nearest_character_index @pointer, string.to_s, width
     end
 
-    private
-
     def set_string string
       Abi.text_set_text @pointer, string
-      @string = string
-      @w = substring_width
-      update
     end
 
-    def set_font font
-      @font = font
-      update_font
+    def set_font font_name, height, style
+      Abi.text_set_font @pointer, font_name, height, style
     end
 
-    def set_height h
-      @h = h
-      update_font
-    end
-
-    def update_font
-      if @font && @h
-        Abi.text_set_font @pointer, @font.name, @h, @style&.encode || ""
-        @w = substring_width
-        update
-      end
-    end
-
-    def set_fill_color color
-      @color = color
-      Abi.text_set_fill_color @pointer, *@color.to_rgb_array
-      update
+    def set_fill_color r, g, b
+      Abi.text_set_fill_color @pointer, r, g, b
     end
   end
 end

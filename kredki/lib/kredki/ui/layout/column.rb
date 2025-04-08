@@ -4,8 +4,8 @@ module Kredki
   module UI
     class Column < Layout
       class << self
-        def [](x: :begin, y: :begin)
-          self.new.alter x:, y:;
+        def [](x = :begin, y = :begin)
+          self.new.alter xy: [x, y]
         end
       end
 
@@ -74,5 +74,11 @@ module Kredki
         pad.pads.map{|p1| p1.ph }.sum || 0
       end
     end#Column
+
+    class ColumnCenter < Column
+      def initialize
+        xy! :center, :begin
+      end
+    end#ColumnCenter
   end#UI
 end#Kredki

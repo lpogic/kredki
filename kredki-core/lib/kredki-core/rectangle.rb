@@ -1,4 +1,3 @@
-require_relative 'color'
 require_relative 'area'
 
 module Kredki
@@ -6,42 +5,49 @@ module Kredki
 
     def initialize
       super
-      size! 100, 100
+
+      @blunt = 0
+      update
     end
 
     param def blunt! blunt
-      @blunt != blunt and set_blunt blunt
-    end, get: def blunt
-      @blunt || 0
+      return if @blunt == blunt
+      @blunt = blunt
+      @redraw_flag = true
+      update
     end
 
-    def <<(arg)
-      case arg
+    def << param
+      case param
       in [w, h]
         wh! w, h
       in Numeric
-        wh! arg
+        wh! param
       else
-        raise ArgumentError.new "#{arg} #{arg.class}"
+        raise ArgumentError.new "#{param} #{param.class}"
       end
     end
 
     #internal api
 
-    def repaint
-      sw = stroke_width
-      half_sw = sw * 0.5
-      rectangle_at! half_sw, half_sw, @w - sw, @h - sw, blunt
+    def update
+      if @redraw_flag
+        @redraw_flag = false
+        redraw
+        true
+      else
+        super
+      end
     end
 
-    def set_blunt blunt
-      @blunt = blunt
-      reset!
+    def redraw
+      half_sw = @stroke_width * 0.5
+      draw!.rectangle! half_sw, half_sw, @w - @stroke_width, @h - @stroke_width, @blunt.to_f
     end
 
     def set_stroke_width ...
       super
-      reset!
+      @redraw_flag = true
     end
   end
 end

@@ -35,7 +35,7 @@ module Kredki
         end
 
         def repaint
-          @pad.handle.area.color = @pad.mouse_in? ? @color.light : @color.dark
+          @pad.handle.area.color = @pad.mouse_in? ? @color.lighten : @color.darken
         end
       end
 

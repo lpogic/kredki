@@ -50,10 +50,10 @@ module Kredki
   require_relative 'ui/button'
   require_relative 'ui/input_list'
 
-  require_relative "ui/layout/aim"
+  require_relative "ui/layout/center"
   require_relative "ui/layout/row"
   require_relative "ui/layout/column"
-  require_relative "ui/layout/aim"
+  require_relative "ui/layout/center"
   require_relative "ui/option/option"
   require_relative 'ui/option/dropdown_layer'
   require_relative 'ui/option/dropright_layer'
@@ -96,7 +96,6 @@ module Kredki
       def map &block
         r = Variable[1, &block]
         on_change! do |e|
-          p ~e
           r << ~e
         end
         r
@@ -178,13 +177,13 @@ class CarryFocusOnTab
   def self.plug_into target
     target.on_key! :tab do |event|
       next_pad = target.layer.keyboard_pad&.then do |p0|
-        target.each_pad(reverse: event.shift?, deep_first: true)
+        target.each_pad(reverse: event.shift?, deep: true)
           .lazy
           .drop_while{|p1| p0 != p1 }
           .drop(1)
           .filter{ _1.keyboardy? }
           .first
-      end || target.each_pad(reverse: event.shift?, deep_first: true)
+      end || target.each_pad(reverse: event.shift?, deep: true)
         .lazy
         .filter{ _1.keyboardy? }
         .first

@@ -15,7 +15,7 @@ module Kredki
       end
     end
 
-    def attach! attached, always = false, last: false
+    def attach! attached, always: false, last: false
       resolver = case attached
       when EventResolver
         attached.attach! self, always;

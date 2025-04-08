@@ -7,15 +7,6 @@ module Kredki
     class ButtonPad < Pad
       extend Forwardable
 
-      def << arg
-        case arg
-        when String
-          string! arg
-        else
-          super
-        end
-      end
-
       class SimpleColorBasedTheme < Theme
         model :color
 
@@ -30,7 +21,8 @@ module Kredki
         end
 
         def repaint
-          @pad.area.color = @pad.button_top? ? @color.dark : @pad.mouse_in? ? @color.light : @color
+          @pad.area.color = @pad.button_top? ? @color.darken : @pad.mouse_in? ? @color.lighten : @color
+          @pad.area.stroke_color = @pad.keyboard_in? ? :yellow : @color.darken
         end
       end
 
@@ -38,26 +30,18 @@ module Kredki
         SimpleColorBasedTheme.new color
       end
 
-      vparam def theme! theme
-        theme = case theme
+      param def theme! theme
+        theme = theme.size > 1 ? theme : theme.first
+        return if @theme == theme
+        set_theme case theme
         when Theme
           theme
         when Symbol, Array, Color
           color_theme Kredki.color theme
         else raise_ia theme 
         end
-        @theme != theme and set_theme theme
+        @theme = theme
       end
-
-      param def color! *color
-        case color
-        in [false]
-          area.hide!
-        else
-          area.show!
-          theme! *color
-        end
-      end, get: false
 
       attr :text
 
@@ -67,26 +51,23 @@ module Kredki
         super
 
         @theme = nil
+        @text = new_pad TextLine, "Button", mousy: false, keyboardy: false
       end
 
       def sketch p0
         super
 
         keyboardy!
-        stroke_width! 1
+        stroke_width! 2
         theme! :gray
-        layout! Aim
-
-        w! proc{ @me + @mw + (pad&.then{ _1.w } || 0) }
-        h! proc{ @mn + @ms + (pad&.then{ _1.h } || 0) }
-
-        @text = new_pad TextLine, "Button", mousy: false, keyboardy: false
+        layout! Center
+        wh! :fit
       end
 
       def resize e
         if e.target != self
           e.resolve
-          update_size
+          update_size or arrange
         end
       end
 
@@ -107,9 +88,9 @@ module Kredki
       end
 
       def set_theme theme
-        @theme&.detach!
+        @_theme&.detach!
         theme.attach! self
-        @theme = theme
+        @_theme = theme
         true
       end
     end

@@ -146,7 +146,7 @@ module Kredki
       end
 
       def update_pads
-        return if altered? :update_pads
+        return if alter_filter :update_pads
   
         @cols.each_value{ _1.reset }
         @rows.each_value{ _1.reset }

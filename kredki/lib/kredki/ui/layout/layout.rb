@@ -8,7 +8,7 @@ module Kredki
         xy! :center, :center
       end
 
-      aliasing def x! x
+      param def x! x
         x = case x
         when :begin then 0
         when :center then PC
@@ -16,9 +16,9 @@ module Kredki
         else x
         end
         (neqr @x, x) and set_xy x, @y
-      end, :x=
+      end
 
-      aliasing def y! y
+      param def y! y
         y = case y
         when :begin then 0
         when :center then PC
@@ -26,9 +26,9 @@ module Kredki
         else y
         end
         (neqr @y, y) and set_xy @x, y
-      end, :y=
+      end
 
-      def xy! x, y = nil
+      param def xy! x, y = nil
         x = case x
         when :begin then 0
         when :center then PC
