@@ -7,7 +7,12 @@ module Kredki
       extend Forwardable
 
       def_delegators :@editor, :on_click!, :on_edit!
-      defd_param :@editor, :string
+      
+      param def string! string
+        @editor.string! string
+      end, get: def string
+        @editor.string
+      end
         
       param def tx! position
         @editor.tx! position and update_text

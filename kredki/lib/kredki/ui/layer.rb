@@ -128,7 +128,7 @@ module Kredki
           pads << self
           x -= @clip_scene.x
           y -= @clip_scene.y
-          return true if @pads.reverse_each.find{ _1.point_pads x - _1.x, y - _1.y, pads }
+          return true if @pads.reverse_each.find{ _1.point_pads x - _1.sx, y - _1.sy, pads }
         end
         return false
       end

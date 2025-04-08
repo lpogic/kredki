@@ -51,6 +51,13 @@ class Module
       end
     XX
   end
+
+  def param_delegate target, *params, get: true
+    params.each do |param|
+      def_delegators target, "#{param}!".to_sym, "#{param}=".to_sym
+      def_delegator target, param if get
+    end
+  end
 end
 
 class Class

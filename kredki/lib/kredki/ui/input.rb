@@ -78,7 +78,7 @@ module Kredki
       def resize e
         if e.target != self
           e.resolve
-          update_size
+          set_size or arrange
         end
       end
 
@@ -87,15 +87,15 @@ module Kredki
       end
 
       def update_margin
-        super.tap{ update_size }
+        super.tap{ set_size }
       end
 
       def push_pad ...
-        super.tap{ update_size }
+        super.tap{ set_size }
       end
 
       def remove_pad pad, transfer
-        super.tap{ update_size }
+        super.tap{ set_size }
       end
 
       def point_pads x, y, pads, force = false

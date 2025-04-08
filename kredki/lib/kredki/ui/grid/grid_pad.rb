@@ -170,13 +170,13 @@ module Kredki
         event_director.stem do
           mouse_pad_refresh = false
           @pads.each do |pad|
-            if pad.set_size @cols[pad.max_col].then{ _1.offset + _1.size } - @cols[pad.min_col].offset, 
+            if pad.wh! @cols[pad.max_col].then{ _1.offset + _1.size } - @cols[pad.min_col].offset, 
               @rows[pad.max_row].then{ _1.offset + _1.size } - @rows[pad.min_row].offset
             then
               pad.report ResizeEvent.new, false
               mouse_pad_refresh = true
             end
-            if pad.set_xy @cols[pad.min_col].offset, @rows[pad.min_row].offset
+            if pad.xy! @cols[pad.min_col].offset, @rows[pad.min_row].offset
               pad.report MoveEvent.new, false
               mouse_pad_refresh = true
             end

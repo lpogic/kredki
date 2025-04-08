@@ -16,12 +16,12 @@ module Kredki
       def arrange pad
         sw = sh = 0
         pad.pads.each do |p1|
-          p1.set_size_impl
-          sw += p1.w
-          sh += p1.h
+          p1.update_size
+          sw += p1.sw
+          sh += p1.sh
         end
-        pw = pad.w
-        ph = pad.h
+        pw = pad.sw
+        ph = pad.sh
 
         x = case @x
         when Rational 
@@ -54,7 +54,7 @@ module Kredki
       end
 
       def arrange_pad pad, x, y, pw, ph
-        sh = pad.h
+        sh = pad.sh
         y = case @y
         when Rational 
           r = (ph - sh) * @y.to_f
@@ -68,7 +68,7 @@ module Kredki
         end
         
         pad.update_xy x, y
-        return [x ? x + pad.w : x, y]
+        return [x ? x + pad.sw : x, y]
       end
 
       def fit_w pad

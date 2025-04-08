@@ -64,27 +64,27 @@ module Kredki
         pw = pad.cw
         ph = pad.ch
         pad.pads.each do |p1|
-          p1.set_size_impl
+          p1.update_size
           x = case @x
           when Rational 
-            r = (pw - p1.w) * @x.to_f
+            r = (pw - p1.sw) * @x.to_f
             @x.denominator == 1 ? r / 100 : r
           when Proc
-            @x[pw, p1.w]
+            @x[pw, p1.sw]
           when false
-            p1.x
+            p1.sx
           else
             @x
           end
 
           y = case @y
           when Rational 
-            r = (ph - p1.h) * @y.to_f
+            r = (ph - p1.sh) * @y.to_f
             @y.denominator == 1 ? r / 100 : r
           when Proc
-            @y[ph, p1.h]
+            @y[ph, p1.sh]
           when false
-            p1.y
+            p1.sy
           else
             @y
           end

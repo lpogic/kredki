@@ -8,7 +8,12 @@ module Kredki
 
 
       def_delegators :@editor, :on_click!, :on_edit!
-      defd_param :@editor, :string
+
+      param def string! string
+        @editor.string! string
+      end, get: def string
+        @editor.string
+      end
 
       attr :editor
 

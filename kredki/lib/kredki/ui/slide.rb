@@ -99,25 +99,25 @@ module Kredki
         
           on_drag! do |e|
             start_x = @button_down_xy[0]
-            x = [[0, self.x + e.x - start_x].max, p0.w - w].min
+            x = [[0, self.sx + e.x - start_x].max, p0.sw - w].min
             x! x
-            p0.set_value 1.0 * x / (p0.w - w)
+            p0.set_value 1.0 * x / (p0.sw - w)
             p0.report EditEvent.new
             e.resolve
           end
     
           on_resize! do |e|
-            x! (p0.w - w) * p0.value
+            x! (p0.sw - w) * p0.value
             e.resolve
           end
         end
 
         on_resize! do
-          @handle.x! (w - @handle.w) * value
+          @handle.x! (w - @handle.sw) * value
         end
     
         on_mouse_button! do |e|
-          @handle.drag! [@handle.w / 2, 0]
+          @handle.drag! [@handle.sw / 2, 0]
           e.resolve
           e.break
         end
@@ -126,7 +126,7 @@ module Kredki
       end
 
       def set_offset o
-        @handle.x = o * (w - @handle.w)
+        @handle.x = o * (w - @handle.sw)
       end
     end
 
@@ -141,25 +141,25 @@ module Kredki
         
           on_drag! do |e|
             start_y = @button_down_xy[1]
-            y = [[0, self.y + e.y - start_y].max, p0.h - h].min
+            y = [[0, self.y + e.y - start_y].max, p0.sh - h].min
             y! y
-            p0.set_value 1.0 * y / (p0.h - h)
+            p0.set_value 1.0 * y / (p0.sh - h)
             p0.report EditEvent.new
             e.resolve
           end
 
           on_resize! do |e|
-            y! (p0.h - h) * p0.value
+            y! (p0.sh - h) * p0.value
             e.resolve
           end
         end
 
         on_resize! do
-          @handle.y! (h - @handle.h) * value
+          @handle.y! (h - @handle.sh) * value
         end
 
         on_mouse_button! do |e|
-          @handle.drag! [0, @handle.h / 2]
+          @handle.drag! [0, @handle.sh / 2]
           e.resolve
           e.break
         end
@@ -169,7 +169,7 @@ module Kredki
       end
 
       def set_offset o
-        @handle.y = o * (h - @handle.h)
+        @handle.y = o * (h - @handle.sh)
       end
     end
   end

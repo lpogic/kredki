@@ -30,13 +30,6 @@ module Kredki
         end
       end
 
-      def defd_param target, *params, get: true
-        params.each do |param|
-          def_delegators target, "#{param}!".to_sym, "#{param}=".to_sym
-          def_delegator target, param if get
-        end
-      end
-
       def def_pad name, klass = nil, *def_a, **def_na, &def_b
         case klass
         when Class

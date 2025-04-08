@@ -1,29 +1,29 @@
 require_relative '../kredki'
 
-class Module
-  def vparam name, *aliases, get: true, parts: []
-    n = "set_#{name}"
-    alias_method n, name
-    parts_delete = parts.map{ "@vparams.delete(:#{_1}!)&.detach!" }.join ";"
-    class_eval <<~cc
-      def #{name} *param
-        #{parts_delete}
-        case param
-        in [Variable]
-          first = param.first
-          @vparams[:#{name}]&.detach!
-          @vparams[:#{name}] = first.on_change!{|e| v = ~e; Array === v ? (#{n} *v) : (#{n} v) }
-          v = first.get
-          Array === v ? (#{n} *v) : (#{n} v)
-        else
-          @vparams.delete(:#{name})&.detach!
-          #{n} *param
-        end
-      end
-    cc
-    param name, *aliases, get:;
-  end
-end
+# class Module
+#   def vparam name, *aliases, get: true, parts: []
+#     n = "set_#{name}"
+#     alias_method n, name
+#     parts_delete = parts.map{ "@vparams.delete(:#{_1}!)&.detach!" }.join ";"
+#     class_eval <<~cc
+#       def #{name} *param
+#         #{parts_delete}
+#         case param
+#         in [Variable]
+#           first = param.first
+#           @vparams[:#{name}]&.detach!
+#           @vparams[:#{name}] = first.on_change!{|e| v = ~e; Array === v ? (#{n} *v) : (#{n} v) }
+#           v = first.get
+#           Array === v ? (#{n} *v) : (#{n} v)
+#         else
+#           @vparams.delete(:#{name})&.detach!
+#           #{n} *param
+#         end
+#       end
+#     cc
+#     param name, *aliases, get:;
+#   end
+# end
 
 module Kredki
 

@@ -6,10 +6,21 @@ module Kredki
 
       param def string! string = "", reset_cursor = true
         @text.string! string and update_line_size reset_cursor
-      end, get: false
+      end, get: def string
+        @text.string
+      end
 
-      def_delegators :@text, :string
-      defd_param :@text, :color, :font
+      param def color! *color
+        @text.color! *color
+      end, get: def color
+        @text.color
+      end
+
+      param def font! font
+        @text.font! font
+      end, get: def font
+        @text.font
+      end
 
       param def font_height! height
         height != @text.h && begin
