@@ -93,16 +93,20 @@ module Kredki
     # end
 
     def clip! mask
+      mask&.detach!
       set_clip mask&.pointer
       update
     end
     
     def detach!
       @base&.remove_paint self
+      @base = nil
     end
 
     def attach! base
+      @base&.remove_paint self
       base.push_paint self
+      @base = base
     end
 
     def_flag :show, set: :set_show, get: :get_show

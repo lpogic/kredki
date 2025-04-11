@@ -57,8 +57,8 @@ module Kredki
         on_mouse_button_up! :primary, aim: true do |e|
           if !@editor.drag? && include_point?(e.x, e.y)
             @editor.lose_button
-            e.x -= self.x
-            e.y -= self.y
+            e.x -= sx
+            e.y -= sy
             @editor.report ClickEvent.new e
             e.resolve
           end
@@ -66,14 +66,16 @@ module Kredki
 
         on! ROIEvent do |e|
           pad = @editor
+          w = sw
           x = if pad.w < w then @editor.tx.call w, pad.w
-          elsif (l = e.x) < 0 then pad.x - l
-          elsif (r = e.w + e.x) > w then pad.x - r + w
-          else pad.x
+          elsif (l = e.x) < 0 then pad.sx - l
+          elsif (r = e.w + e.x) > w then pad.sx - r + w
+          else pad.sx
           end
+          h = sh
           y = if pad.h < h then 0
-          elsif (t = e.y) < 0 then pad.y - t
-          elsif (b = e.h + e.y) > h then pad.y - b + h
+          elsif (t = e.y) < 0 then pad.sy - t
+          elsif (b = e.h + e.y) > h then pad.sy - b + h
           else pad.y
           end
           pad.xy! x, y
@@ -83,8 +85,8 @@ module Kredki
         on_scroll! do |e|
           if keyboard_in?
             pad = @editor
-            dw = w - pad.w
-            dh = h - pad.h
+            dw = sw - pad.w
+            dh = sh - pad.h
             xo, yo = if dw < 0 && dh < 0
               keyboard.shift? ? [e.y, e.x] : e.xy
             elsif dw < 0
@@ -94,7 +96,7 @@ module Kredki
             else
               [0, 0]
             end
-            jump = pad.fh / 2
+            jump = pad.font_height / 2
             x = dw < 0 ? (pad.x + xo * jump).clamp(dw, 0) : pad.x
             y = dh < 0 ? (pad.y + yo * jump).clamp(dh, 0) : pad.y
             pad.xy! x, y
@@ -106,7 +108,7 @@ module Kredki
       def point_pads x, y, pads, force = false
         if force || (mousy? && show? && include_point?(x, y))
           pads << self
-          @editor.point_pads x - @editor.x, y - @editor.y, pads, true
+          @editor.point_pads x - @editor.sx, y - @editor.sy, pads, true
           return true
         end
         return false

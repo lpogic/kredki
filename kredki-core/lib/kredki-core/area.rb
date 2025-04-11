@@ -1,16 +1,5 @@
-require_relative 'color'
-require_relative 'shape'
-
 module Kredki
-  class Area < Shape
-
-    def initialize
-      super true
-
-      @w = 100
-      @h = 100
-      @redraw_flag = true
-    end
+  module Area
 
     param def w! w
       return if @w == w

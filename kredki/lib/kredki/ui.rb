@@ -130,12 +130,14 @@ module Kredki
 
       def_pad :option!, Option
 
-      class RightTriangle < Kredki::Area
-        def repaint
+      class RightTriangle < Kredki::ShapeArea
+        def redraw w, h
           stroke_width! 3
-          move_to! 0, 0
-          line_to! @w, @h / 2
-          line_to! 0, @h
+          draw! do
+            move_to! 0, 0
+            line_to! w, h / 2
+            line_to! 0, h
+          end
         end
       end
 

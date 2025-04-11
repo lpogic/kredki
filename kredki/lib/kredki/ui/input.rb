@@ -71,8 +71,7 @@ module Kredki
         mousy!
         stroke_width! 1
         theme! :gray
-
-        h! proc{ @mn + @ms + (pad&.then{ _1.h } || 0) }
+        h! :fit
       end
 
       def resize e
@@ -103,7 +102,7 @@ module Kredki
           pads << self
           x -= @clip_scene.x
           y -= @clip_scene.y
-          @pads.reverse_each.find{ _1.point_pads x - _1.x, y - _1.y, pads, true }
+          @pads.reverse_each.find{ _1.point_pads x - _1.sx, y - _1.sy, pads, true }
           return true
         end
         return false

@@ -6,12 +6,10 @@ module Kredki
       extend Forwardable
 
       param def source! source
-        @picture.source! source
-        wh! *@picture.wh
-      end, get: false
-
-      def_delegators :@picture,
-        :source
+        @area.source! source, false
+      end, get: def source
+        @area.source
+      end
 
       def << arg
         case arg
@@ -27,9 +25,7 @@ module Kredki
       def sketch p0
         super
 
-        @picture = @scene.picture! clip!: @area
-
-        @area.hide!
+        area! @scene.picture! wh: [sw, sh]
       end
 
     end

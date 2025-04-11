@@ -79,8 +79,8 @@ module Kredki
         on_mouse_button_up! :primary, aim: true do |e|
           if !@editor.drag? && include_point?(e.x, e.y)
             @editor.lose_button
-            e.x -= self.x
-            e.y -= self.y
+            e.x -= sx
+            e.y -= sy
             @editor.report ClickEvent.new e
             e.resolve
           end
@@ -88,7 +88,7 @@ module Kredki
 
         on! ROIEvent do |e|
           pad = @editor
-          if pad.w < w
+          if pad.sw < w
             pad.x = @tx.call w, pad.w
           elsif (l = e.x) < 0
             pad.x -= l
@@ -113,14 +113,14 @@ module Kredki
       def point_pads x, y, pads, force = false
         if force || (mousy? && show? && include_point?(x, y))
           pads << self
-          @editor.point_pads x - @editor.x, y - @editor.y, pads, true
+          @editor.point_pads x - @editor.sx, y - @editor.sy, pads, true
           return true
         end
         return false
       end
 
       def update_text
-        @editor.xy! @tx.call(w, @editor.w), (h - @editor.h) / 2
+        @editor.xy! @tx.call(w, @editor.sw), (h - @editor.sh) / 2
       end
     end
   end

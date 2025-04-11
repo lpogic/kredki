@@ -26,7 +26,7 @@ module Kredki
 
       attr_accessor :autoupdate
 
-      def jump_to! x, y
+      def move_to! x, y
         Abi.shape_move_to @shape.pointer, x, y
         self
       end

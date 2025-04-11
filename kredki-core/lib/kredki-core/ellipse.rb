@@ -54,8 +54,6 @@ module Kredki
 
     #internal api
 
-    private
-
     def update
       if @redraw_flag
         @redraw_flag = false
@@ -70,7 +68,7 @@ module Kredki
       half_sw = @stroke_width.to_f * 0.5
       rx = @rx.to_f
       ry = @ry.to_f
-      draw!.ellipse_at! rx, ry, rx - half_sw, ry - half_sw
+      draw!.ellipse! rx, ry, rx - half_sw, ry - half_sw
     end
 
     def set_stroke_width ...

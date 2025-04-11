@@ -1,7 +1,7 @@
-require_relative 'area'
+require_relative 'shape_area'
 
 module Kredki
-  class Rectangle < Area
+  class Rectangle < ShapeArea
 
     def initialize
       super
@@ -30,19 +30,9 @@ module Kredki
 
     #internal api
 
-    def update
-      if @redraw_flag
-        @redraw_flag = false
-        redraw
-        true
-      else
-        super
-      end
-    end
-
-    def redraw
+    def redraw w, h
       half_sw = @stroke_width * 0.5
-      draw!.rectangle! half_sw, half_sw, @w - @stroke_width, @h - @stroke_width, @blunt.to_f
+      draw!.rectangle! half_sw, half_sw, w - @stroke_width, h - @stroke_width, @blunt.to_f
     end
 
     def set_stroke_width ...

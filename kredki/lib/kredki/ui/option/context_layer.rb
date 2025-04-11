@@ -6,12 +6,10 @@ module Kredki
 
       def load! x, y
         action = @master.action
-        if x + @options.w > action.w
-          x = [action.w - @options.w, 0].max
-        end
-        if y + @options.h > action.h
-          y = [y - @options.h, 0].max
-        end
+        x_max = action.w - @options.sw 
+        x = [x_max, 0].max if x > x_max
+        sh = @options.sh
+        y = [y - sh, 0].max if y + sh > action.h
         @options.alter do
           xy! x, y
         end.attach! self

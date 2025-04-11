@@ -8,9 +8,7 @@ module Kredki
         super
         
         area.hide!
-
-        w! proc{ @me + @mw + (pad&.then{ _1.w } || 0) }
-        h! proc{ @mn + @ms + (pad&.then{ _1.h } || 0) }
+        wh! :fit
       end
 
       def resize e

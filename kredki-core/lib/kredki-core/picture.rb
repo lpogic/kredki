@@ -1,52 +1,43 @@
 require_relative 'paint'
+require_relative 'area'
 
 module Kredki
   class Picture < Paint
     include Alterable
+    include Area
 
     def initialize
       super Abi.picture_new
       ObjectSpace.define_finalizer(self, self.class.proc.finalize(@pointer))
 
-      @w = nil
-      @h = nil
+      @w = 100
+      @h = 100
+      @redraw_flag = true
     end
 
-    param def source! source, resize: false
+    def << param
+      case param
+      in [w, h]
+        wh! w, h
+      in Numeric
+        wh! param
+      in String
+        source! param
+      else
+        raise ArgumentError.new "#{param} #{param.class}"
+      end
+    end
+
+    param def source! source, pull_size = false
       return if @source == source
       set_source source.to_s
       @source = source
-      if resize
-        set_size @w, @h
+      if pull_size
+        @w, @h = *get_size 
       else
-        @w, @h = *get_size
+        @redraw_flag = true
       end
       update
-    end
-
-    param def w! w
-      return if @w == w
-      set_size w, @h
-      @w = w
-      update
-    end, :width
-
-    param def h! h
-      return if @h == h
-      set_size @w, h
-      @h = h
-      update
-    end, :height
-
-    param def wh! w, h = nil
-      h ||= w
-      return if @w == w && @h == h
-      set_size w, h
-      @w = w
-      @h = h
-      update
-    end, :size, get: def wh
-      [@width, @height]
     end
 
     #internal api
@@ -56,24 +47,6 @@ module Kredki
     end
 
     private
-
-    # def set_width width
-    #   if @width && @height
-    #     @height = width * @height / @width
-    #     @width = width
-    #     Abi.picture_set_size @pointer, @width, @height
-    #     update
-    #   end
-    # end
-
-    # def set_height height
-    #   if @width && @height
-    #     @width = height * @width / @height
-    #     @height = height
-    #     Abi.picture_set_size @pointer, @width, @height
-    #     update
-    #   end
-    # end
 
     def set_size width, height
       Abi.picture_set_size @pointer, width, height
@@ -87,6 +60,14 @@ module Kredki
 
     def set_source source
       Abi.picture_load @pointer, source
+    end
+
+    def update
+      if @redraw_flag
+        @redraw_flag = false
+        set_size @w, @h
+      end
+      super
     end
   end
 end

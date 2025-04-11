@@ -5,6 +5,7 @@ require_relative 'pad_inherited'
 require 'forwardable'
 require 'kredki-core/context/context'
 require 'kredki-core/flagship'
+require 'kredki-core/block_shape_area'
 require_relative '../layout/layout'
 
 module Kredki
@@ -217,12 +218,22 @@ module Kredki
         @area.color
       end
 
-      param def area! area
+      param def area! area = nil, &block
+        area = BlockShapeArea.new block if block
         return if @area == area
         area.wh! *@area.wh
         @scene.push_paint area, true, @area
         @scene.remove_paint @area
         @area = area
+        true
+      end
+
+      param def clip_area! area = nil, &block
+        area = BlockShapeArea.new block if block
+        return if @clip_area == area
+        area&.wh! *@clip_area.wh
+        @clip_scene.clip! area
+        @clip_area = area
         true
       end
 
@@ -378,6 +389,8 @@ module Kredki
       end
 
       def sketch p0
+        @clip_scene.clip! @clip_area
+
         on_mouse_enter!{ mouse_enter _1 }
         on_mouse_leave!{ mouse_leave _1 }
         on_mouse_button!{ mouse_button_down _1 }
@@ -445,7 +458,7 @@ module Kredki
         parent&.pads.index self
       end
 
-      def push_pad pad, at = nil, clip = true
+      def push_pad pad, at = nil
         pad_parent = pad.parent
         paint_state = @clip_scene.push_paint pad.scene, true, at&.scene
         pad.set_parent self
@@ -453,11 +466,6 @@ module Kredki
           @pads.insert @pads.index(at), pad
         else
           @pads << pad
-        end
-        if clip
-          pad.scene.clip! @clip_area
-        elsif pad_parent
-          pad.scene.clip! nil
         end
         resize_arrange
         event_director.stem do
