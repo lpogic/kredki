@@ -56,7 +56,7 @@ module Kredki
         end
   
         @master_events[] = @master.on_key! :context do |e|
-          load! *@master.translate(@master.w / 2, @master.h / 2)
+          load! *@master.translate(@master.sw / 2, @master.sh / 2)
           s[Option]&.focus!
           e.resolve
         end

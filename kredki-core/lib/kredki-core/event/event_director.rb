@@ -14,6 +14,7 @@ module Kredki
       block.call
       @stem = stem
       resolve if !@stem
+      true
     end
 
     def inspect

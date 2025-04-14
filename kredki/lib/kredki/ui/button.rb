@@ -64,28 +64,28 @@ module Kredki
         wh! :fit
       end
 
-      def resize e
-        if e.target != self
-          e.resolve
-          set_size or arrange
-        end
-      end
+      # def resize e
+      #   if e.target != self
+      #     e.resolve
+      #     set_size or arrange
+      #   end
+      # end
 
       def pad
         @pads.first
       end
 
-      def update_margin
-        super.tap{ set_size }
-      end
+      # def update_margin
+      #   super.tap{ set_size }
+      # end
 
-      def push_pad ...
-        super.tap{ set_size }
-      end
+      # def push_pad ...
+      #   super.tap{ set_size }
+      # end
 
-      def remove_pad pad, transfer
-        super.tap{ set_size }
-      end
+      # def remove_pad pad, transfer
+      #   super.tap{ set_size }
+      # end
 
       def set_theme theme
         @_theme&.detach!

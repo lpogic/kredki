@@ -5,7 +5,8 @@ module Kredki
     class Slide < Pad
 
       param def value! v
-        v = v.to_f.clamp 0.0..1.0
+        f = v.to_f 
+        v = f.nan? ? 0 : f.clamp(0..1)
         @value != v && begin
           set_value v
           set_offset v

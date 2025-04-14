@@ -93,6 +93,7 @@ module Kredki
     # end
 
     def clip! mask
+      mask = nil unless mask
       mask&.detach!
       set_clip mask&.pointer
       update

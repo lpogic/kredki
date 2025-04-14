@@ -64,7 +64,6 @@ module Kredki
         pw = pad.cw
         ph = pad.ch
         pad.pads.each do |p1|
-          p1.update_size
           x = case @x
           when Rational 
             r = (pw - p1.sw) * @x.to_f
@@ -88,7 +87,7 @@ module Kredki
           else
             @y
           end
-          p1.update_xy x, y
+          p1.set_xy_s x, y
         end
         true
       end

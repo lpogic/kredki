@@ -4,7 +4,7 @@ require_relative 'theme'
 
 module Kredki
   module UI
-    class Input < Pad
+    class Note < Pad
       extend Forwardable
 
       class SimpleColorBasedTheme < Theme
@@ -74,27 +74,8 @@ module Kredki
         h! :fit
       end
 
-      def resize e
-        if e.target != self
-          e.resolve
-          set_size or arrange
-        end
-      end
-
       def pad
         @pads.first
-      end
-
-      def update_margin
-        super.tap{ set_size }
-      end
-
-      def push_pad ...
-        super.tap{ set_size }
-      end
-
-      def remove_pad pad, transfer
-        super.tap{ set_size }
       end
 
       def point_pads x, y, pads, force = false

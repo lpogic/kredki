@@ -65,7 +65,7 @@ module Kredki
         on!(PickEvent, ...)
       end
 
-      def_flag :arrow, nil: true
+      def_flag :arrow
 
       defw_param :font_height, :font, :string
 
@@ -100,40 +100,20 @@ module Kredki
           @group&.mouse_enter self
         end
 
-        w! proc{ pw }
-        h! proc{ ph }
+        wh! :fit
 
         new_pad TextLine, mousy: false, keyboardy: false, y: 50r
 
         string! "Option"
       end
 
-      def pw
+      def pw fit = false
         arrow_w = arrow? ? 16 : 0
-        @me + @mw + (@pads.first&.pw || 0) + arrow_w
-      end
-
-      def resize e
-        if e.target != self
-          e.resolve
-          set_size
-        end
+        super + arrow_w
       end
 
       def pad
         @pads.first
-      end
-
-      def update_margin
-        super.tap{ set_size }
-      end
-
-      def push_pad ...
-        super.tap{ set_size }
-      end
-
-      def remove_pad pad, transfer
-        super.tap{ set_size }
       end
     end
   end

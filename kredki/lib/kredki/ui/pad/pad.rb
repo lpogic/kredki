@@ -68,13 +68,13 @@ module Kredki
       param def w! w
         return if eqr @w, w
         @w = w
-        set_size true
+        set_size
       end, :width
 
       param def h! h
         return if eqr @h, h
         @h = h
-        set_size true
+        set_size
       end, :height
 
       param def wh! w, h = nil
@@ -82,7 +82,7 @@ module Kredki
         return if (eqr @w, w) && (eqr @h, h)
         @w = w
         @h = h
-        set_size true
+        set_size
       end, :size, get: def wh
         [@w, @h]
       end
@@ -189,12 +189,42 @@ module Kredki
         @clip_area.wh
       end
 
-      def pw
-        @me + @mw + (@pads.first&.pw || 0)
+      def pw fit = false
+        mx = @me + @mw
+        return mx + @layout.fit_w(self) if fit
+        case @w
+        when Rational
+          mx
+        when Proc
+          mx
+        when :fit
+          mx + @layout.fit_w(self)
+        else
+          if @w < 0
+            mx
+          else
+            @w + mx
+          end
+        end
       end
 
-      def ph
-        @mn + @ms + (@pads.first&.ph || 0)
+      def ph fit = false
+        my = @mn + @ms
+        return my + mx + @layout.fit_h(self) if fit
+        case @h
+        when Rational
+          my
+        when Proc
+          my
+        when :fit
+          my + @layout.fit_h(self)
+        else
+          if @h < 0
+            my
+          else
+            @h + my
+          end
+        end
       end
 
       param_prefix :stroke
@@ -297,8 +327,15 @@ module Kredki
         self
       end
 
-      def_delegators :@scene,
-        :show?, :show!, :show=
+      param def show! show = true
+        set_show show
+      end, get: def show
+        get_show
+      end
+
+      def show?
+        get_show
+      end
 
       def include_point? x, y
         @area.contain? x, y
@@ -396,7 +433,6 @@ module Kredki
         on_mouse_button!{ mouse_button_down _1 }
         on_mouse_button_up!{ mouse_button_up _1 }
         on_mouse_move!{ mouse_move _1 }
-        on_resize!{ resize _1 }
       end
 
       def mouse_button_down e
@@ -435,11 +471,6 @@ module Kredki
         e.resolve
       end
 
-      def resize e
-        e.resolve if e.target != self
-        resize_arrange
-      end
-
       def inspect
         "#{self.class}:#{object_id}"
       end
@@ -467,10 +498,7 @@ module Kredki
         else
           @pads << pad
         end
-        resize_arrange
-        event_director.stem do
-          layer.update_mouse_location
-        end if mousy? && mouse_in? || pad.mousy? && pad.mouse_in?
+        pad.set_size or arrange
         pad
       end
 
@@ -478,10 +506,7 @@ module Kredki
         removed = @pads.delete pad
         if removed && !transfer
           pad.scene.clip! false
-          resize_arrange
-          event_director.stem do
-            layer.update_mouse_location
-          end if mousy? && mouse_in?
+          set_size or arrange
         end
         removed
       end
@@ -492,24 +517,19 @@ module Kredki
           pad.detach! true
           pad.scene.clip! false
         end
-        unless pads.empty?
-          resize_arrange
-          event_director.stem do
-            layer.update_mouse_location
-          end if mousy? && mouse_in?
-        end
+        (set_size or arrange) unless pads.empty?
       end
 
       def eqr a, b
         a == b and (Rational === b) != (Rational === b)
       end
-      
+
       def set_xy
-        update_xy and event_director.stem do
-          report MoveEvent.new
-          layer&.update_mouse_location if mousy? && show?
-          true
-        end
+        set_xy_s and event_director.stem{ layer&.update_mouse_location if mousy? && show? }
+      end
+      
+      def set_xy_s ax = nil, ay = nil
+        update_xy ax, ay and event_director.stem{ report MoveEvent.new }
       end
 
       def update_xy ax = nil, ay = nil
@@ -555,23 +575,47 @@ module Kredki
         end
       end
 
-      def set_size update_mouse_pad = false
+      def set_size
+        parent&.set_size_p or (
+          set_size_d and (
+            parent&.arrange
+            event_director.stem{ layer&.update_mouse_location if mousy? && show? }
+          )
+        )
+      end
+
+      def set_size_p
+        @w == :fit || @h == :fit and set_size
+      end
+
+      def set_size_d
+        set_size_s and set_size_c and arrange
+      end
+
+      def set_size_s
         update_size and event_director.stem do
           report ResizeEvent.new
           update_xy and report MoveEvent.new
-          layer&.update_mouse_location if update_mouse_pad && mousy? && show?
-          true
         end
+      end
+
+      def set_size_c
+        @pads.each{ it.set_size_d }
+        true
       end
 
       def update_size
         mx = @me + @mw
         my = @mn + @ms
-
         sw = get_w mx
         sh = get_h my
-        
-        ((area.wh! sw, sh) | (@clip_area.wh! sw - mx, sh - my)) and arrange
+
+        (@area.wh! sw, sh) | (@clip_area.wh! sw - mx, sh - my)
+      end
+
+      def arrange
+        return if alter_filter :arrange
+        @layout.arrange self
       end
 
       def get_w mx
@@ -617,24 +661,11 @@ module Kredki
       end
 
       def set_margin
-        update_margin and event_director.stem do
-          layer&.update_mouse_location if mousy? && show?
-          true
-        end
+        update_margin and event_director.stem{ layer&.update_mouse_location if mousy? && show? }
       end
 
       def update_margin
         (@clip_scene.xy! @me, @mn) | (@clip_area.wh! sw - @me - @mw, sh - @mn - @ms and arrange)
-      end
-
-      def arrange
-        return if alter_filter :arrange
-        @layout.arrange self
-      end
-
-      def resize_arrange
-        return if alter_filter :resize_arrange
-        @w == :fit || @h == :fit and set_size or arrange
       end
 
       def set_show show
@@ -646,6 +677,10 @@ module Kredki
           @pads.each &:hide_propagate
         end
         @scene.set_show show
+      end
+
+      def get_show
+        @scene.show?
       end
 
       def show_propagate
@@ -769,7 +804,6 @@ module Kredki
         return if @parent == parent
         @parent = parent
         set_action parent&.action
-        set_size true
       end
 
       def set_action action

@@ -1,10 +1,10 @@
 require 'forwardable'
-require_relative 'option/scroll_dropdown_layer'
+require_relative 'text/text_area_editor_clip'
 require_relative 'theme'
 
 module Kredki
   module UI
-    class InputList < Input
+    class Notes < Pad
       extend Forwardable
 
       class SimpleColorBasedTheme < Theme
@@ -15,18 +15,15 @@ module Kredki
             pad.on_focus_gain!,
             pad.on_focus_lose!,
             pad.on_mouse_enter!,
-            pad.on_mouse_leave!,
-            pad.on_edit!,
-            pad.on!(Option::PickEvent)
+            pad.on_mouse_leave!
         end
 
         def repaint
           @pad.area.color = @pad.mouse_in? ? @color.lighten : @color
           @pad.area.stroke_color = @pad.keyboard_in? ? Kredki.color(:yellow) : @color
-          @pad.editor.text.color = @pad.picked.nil? ? Kredki.color(:white).darken(70) : :white
         end
       end
-      
+
       def color_theme color
         SimpleColorBasedTheme.new color
       end
@@ -45,52 +42,47 @@ module Kredki
         end
       end
 
+      def << arg
+        case arg
+        when String
+          string! arg
+        else
+          super
+        end
+      end
+
+      defw_param :string, :tx, :text_x
+
       #internal api
 
       def initialize
         super
-
-        @picked = nil
+      
+        @theme = nil
       end
-
-      attr :picked
 
 
       def sketch p0
         super
-  
-        scroll_dropdown!
-  
-        on_focus_lose! do
-          string! "" if !@picked
-        end
-  
-        on_edit!{ @picked = nil }
 
-        on! Option::PickEvent do |e|
-          s = e.target.string
-          @picked = s
-          string! s, :end
-        end
-    
-        # on_click! do |e|
-        #   @options.load! unless @options.show?
-        #   e.resolve
-        # end
+        mousy!
+        stroke_width! 1
+        theme! :gray
+                
+        on_focus_lose!{ @pads.first&.update_text }
 
-        # on_mouse_button! :scroll do |e|
-        #   if @options.show?
-        #     @options.detach!
-        #     e.resolve
-        #   end
-        # end
-  
-        # on_key! :down, :up do |e|
-        #   unless @options.show?
-        #     @options.load!
-        #     e.resolve
-        #   end
-        # end
+        new_pad TextAreaEditorClip, wh: 100r
+      end
+
+      def point_pads x, y, pads, force = false
+        if force || (mousy? && show? && include_point?(x, y))
+          pads << self
+          x -= @clip_scene.x
+          y -= @clip_scene.y
+          @pads.reverse_each.find{ _1.point_pads x - _1.sx, y - _1.sy, pads, true }
+          return true
+        end
+        return false
       end
     end
   end

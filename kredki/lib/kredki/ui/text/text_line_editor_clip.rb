@@ -9,8 +9,8 @@ module Kredki
 
       def_delegators :@editor, :on_click!, :on_edit!
 
-      param def string! string
-        @editor.string! string
+      param def string! string, cursor = false
+        @editor.string! string, cursor
       end, get: def string
         @editor.string
       end
@@ -100,9 +100,9 @@ module Kredki
         on_scroll! do |e|
           if keyboard_in? && keyboard.shift?
             pad = @editor
-            if (diff = w - pad.w) < 0
-              jump = pad.fh / 2
-              x = pad.x + e.xory * jump
+            if (diff = w - pad.sw) < 0
+              jump = pad.sh / 2
+              x = pad.sx + e.xory * jump
               pad.x = x.clamp(diff, 0)
             end
             e.resolve

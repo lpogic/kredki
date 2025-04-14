@@ -16,7 +16,6 @@ module Kredki
       def arrange pad
         sw = sh = 0
         pad.pads.each do |p1|
-          p1.update_size
           sw += p1.sw
           sh += p1.sh
         end
@@ -66,7 +65,7 @@ module Kredki
         else
           @x
         end
-        pad.update_xy x, y
+        pad.set_xy_s x, y
         return [x, y ? y + pad.sh : y]
       end
 

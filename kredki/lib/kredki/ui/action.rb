@@ -99,6 +99,12 @@ module Kredki
         @pads.last.alter *a, **na, &block
       end
 
+      def set_size_p
+      end
+
+      def arrange
+      end
+
       def mouse_event event
         @pads.reverse_each do |layer|
           layer.mouse_pad&.report event

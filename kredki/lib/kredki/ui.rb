@@ -45,10 +45,10 @@ module Kredki
   require_relative 'ui/text/text_line'
   require_relative 'ui/text/text_area'
   require_relative 'ui/grid/grid_pad'
-  require_relative 'ui/input'
-  require_relative 'ui/input_area'
+  require_relative 'ui/note'
+  require_relative 'ui/notes'
   require_relative 'ui/button'
-  require_relative 'ui/input_list'
+  require_relative 'ui/note_list'
 
   require_relative "ui/layout/center"
   require_relative "ui/layout/row"
@@ -111,22 +111,12 @@ module Kredki
       def_pad :image!, ImagePad
       def_pad :xslide!, HorizontalSlide
       def_pad :yslide!, VerticalSlide
-      def_pad :text_line!, TextLine
-      def_pad :text_area!, TextArea
       def_pad :text!, TextLine
+      def_pad :texts!, TextArea
       def_pad :button!, ButtonPad
-      def_pad :input!, Input
-      def_pad :in!, Input
-      def_pad :input_area!, InputArea
-      def_pad :ina!, InputArea
-      def_pad :input_list!, InputList
-      def_pad :inl!, InputList
-
-      def_pad :btn! do |a, na, b|
-        button! *a, **na do
-          on_click! &b
-        end
-      end
+      def_pad :note!, Note
+      def_pad :notes!, Notes
+      def_pad :note_list!, NoteList
 
       def_pad :option!, Option
 

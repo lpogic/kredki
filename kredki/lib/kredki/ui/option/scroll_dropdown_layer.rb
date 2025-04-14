@@ -6,17 +6,21 @@ module Kredki
 
       def load!
         action = @master.action
-        x, y = *@master.translate(0, @master.h)
-        if x + @scroll.w > action.w
-          x = [action.w - @scroll.w, 0].max
+        x, y = *@master.translate(0, @master.sh)
+        if x + @scroll.sw > action.w
+          x = [action.w - @scroll.sw, 0].max
         end
         if y + @scroll.h > action.h
-          y = [y - @scroll.h, 0].max
+          y = [y - @scroll.sh, 0].max
         end
-        w = @master.w
+        pw = mw = @master.sw
+        pw -= 10 if @scroll.sh < @scroll[Pad].sh
+        options = @scroll[Option..].to_a
+        w = [pw, *options.map{ it.pw true }].max
+        options.each{ it.w = w }
         @scroll.alter do
           xy! x, y
-          w! w
+          w! mw
         end.attach! self
         attach! action
         @scroll[Option]&.focus!
@@ -39,7 +43,7 @@ module Kredki
       def sketch p0
         super
 
-        @scroll = new_pad ScrollPad do
+        @scroll = new_pad ScrollPad, w: :fit do
           new_pad Pad, wh: :fit, color: :gray, layout: Column
         end
 
@@ -79,6 +83,14 @@ module Kredki
   
         @master_events[] = @master.on_key! :down, :up do |e|
           load! unless show?
+        end
+
+        @master_events[] = @master.on_move! always: true do |e|
+          load!
+        end
+
+        @master_events[] = @master.on_resize! always: true do |e|
+          load!
         end
       end
 
