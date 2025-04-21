@@ -11,6 +11,7 @@ module Kredki
 
       @stroke_width = 0
       @color = Kredki.color
+      @is_clip = false
       set_fill_color *@color.to_rgba_array
       update unless extended
     end
@@ -179,8 +180,6 @@ module Kredki
       Abi.shape_delete pointer
     end
 
-    private
-
     def set_fill_color r, g, b, a
       Abi.shape_set_fill_color @pointer, r, g, b, a
     end
@@ -215,6 +214,25 @@ module Kredki
 
     def set_stroke_trim start, finish, simultaneous
       Abi.shape_set_stroke_trim @pointer, start, finish, simultaneous ? 1 : 0
+    end
+
+    def set_self_clip base
+      @base&.remove_paint self unless @is_clip
+      @base = base
+      @is_clip = true
+    end
+
+    def unset_self_clip
+      @base = nil
+      @is_clip = false
+    end
+
+    def update
+      if @is_clip
+        @base.update
+      else
+        super
+      end
     end
   end
 end 

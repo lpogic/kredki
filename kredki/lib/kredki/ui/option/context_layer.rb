@@ -33,7 +33,7 @@ module Kredki
       def sketch p0
         super
 
-        @options = new_pad Pad, wh: :fit, color: :gray, layout: Column
+        @options = new_pad Pad, wh: :fit, color: :gray, layout: :column
 
         on_key! :escape do
           detach!

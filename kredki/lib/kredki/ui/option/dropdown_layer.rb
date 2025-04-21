@@ -34,7 +34,7 @@ module Kredki
       def sketch p0
         super
 
-        @options = new_pad Pad, wh: :fit, color: :gray, layout: Column do
+        @options = new_pad Pad, wh: :fit, color: :gray, layout: :column do
           options = OptionGroup[]
 
           define_singleton_method :option! do |*a, **na, &b|

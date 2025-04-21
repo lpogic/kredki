@@ -122,8 +122,8 @@ module Kredki
       end
     end
 
-    def paint_shown? paint
-      !!@paints[paint]&.shown && show?
+    def paint_shown paint
+      !!@paints[paint]&.shown && get_show
     end
   end
 end

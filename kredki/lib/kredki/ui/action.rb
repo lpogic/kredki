@@ -108,6 +108,7 @@ module Kredki
       def mouse_event event
         @pads.reverse_each do |layer|
           layer.mouse_pad&.report event
+          event.target = nil
         end
       end
 

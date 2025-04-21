@@ -1,8 +1,8 @@
-require_relative 'option_group'
+require_relative '../option/option_group'
 
 module Kredki
   module UI
-    class ScrollDropdownLayer < Layer
+    class NoteListDropdownLayer < Layer
 
       def load!
         action = @master.action
@@ -30,6 +30,10 @@ module Kredki
         @scroll[Pad]
       end
 
+      def option! ...
+        @scroll[Pad].option!(...)
+      end
+
       param def master! master
         @master != master and set_master master
       end
@@ -44,7 +48,7 @@ module Kredki
         super
 
         @scroll = new_pad ScrollPad, w: :fit do
-          new_pad Pad, wh: :fit, color: :gray, layout: Column
+          new_pad Pad, wh: :fit, color: :gray, layout: :column
         end
 
         on_key! :escape do
@@ -76,21 +80,17 @@ module Kredki
         @master_events[] = @master.on_click! do |e|
           load! unless show?
         end
-
-        @master_events[] = @master.on_mouse_button! :scroll do |e|
-          detach!
-        end
   
         @master_events[] = @master.on_key! :down, :up do |e|
           load! unless show?
         end
 
         @master_events[] = @master.on_move! always: true do |e|
-          load!
+          load! if show?
         end
 
         @master_events[] = @master.on_resize! always: true do |e|
-          load!
+          load! if show?
         end
       end
 

@@ -1,6 +1,6 @@
 require 'forwardable'
-require_relative 'option/scroll_dropdown_layer'
-require_relative 'theme'
+require_relative 'note_list_dropdown_layer'
+require_relative '../theme'
 
 module Kredki
   module UI
@@ -45,11 +45,41 @@ module Kredki
         end
       end
 
+      def dropdown! ...
+        @dropdown ||= orphan!.new_pad(NoteListDropdownLayer).alter(...).alter master: self
+        @dropdown.options
+      end
+
       def option! ...
-        scroll_dropdown!.option!(...)
+        dropdown!.option!(...)
       end
 
       #internal api
+
+      class Context
+        extend Forwardable
+
+        model :origin do |m|
+          @options = @origin.dropdown!
+        end
+
+        def note! &block
+          @origin.instance_exec &block
+        end
+
+        # def_delegators :@self, *NoteList.public_instance_methods
+        # p PabBase.public_instance_methods
+        # def_delegators :@options, *PadBase.public_instance_methods
+
+        def method_missing name, *a, **na, &b
+          target = name.end_with?("!") ? @origin.dropdown! : @origin
+          target.send name, *a, **na, &b
+        end
+      end
+
+      def alter_block_context
+        Context.new self
+      end
 
       def initialize
         super
@@ -63,8 +93,6 @@ module Kredki
       def sketch p0
         super
   
-        scroll_dropdown!
-  
         on_focus_lose! do
           string! "" if !@picked
         end
@@ -76,25 +104,6 @@ module Kredki
           @picked = s
           string! s, :end
         end
-    
-        # on_click! do |e|
-        #   @options.load! unless @options.show?
-        #   e.resolve
-        # end
-
-        # on_mouse_button! :scroll do |e|
-        #   if @options.show?
-        #     @options.detach!
-        #     e.resolve
-        #   end
-        # end
-  
-        # on_key! :down, :up do |e|
-        #   unless @options.show?
-        #     @options.load!
-        #     e.resolve
-        #   end
-        # end
       end
     end
   end

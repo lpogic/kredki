@@ -60,7 +60,7 @@ module Kredki
         keyboardy!
         stroke_width! 2
         theme! :gray
-        layout! Center
+        layout! :center
         wh! :fit
       end
 

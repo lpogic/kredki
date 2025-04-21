@@ -22,14 +22,6 @@ module Kredki
         action.def_pad(...)
       end
 
-      def attach! parent
-        return if @parent == parent
-        raise "LOOP" if parent.lineage.find{ _1 == self }
-        detach! true if @parent
-        @parent = parent
-        @parent&.push_pad self
-      end
-
       def detach! transfer = false
         unless transfer
           update_keyboard_pad nil
@@ -37,6 +29,10 @@ module Kredki
           update_mouse_location false
         end
         super
+      end
+
+      def layer! ...
+        action.layer!(...)
       end
 
       #internal api
@@ -69,6 +65,24 @@ module Kredki
           if @button_pad == pad
             @button_pad = nil
           end
+        end
+      end
+
+      def mouse_button_down e
+        if e.button == :primary
+          gain_keyboard if keyboardy?
+          gain_button e.xy
+        end
+      end
+
+      def mouse_button_up e
+        lose_button
+        layer.update_mouse_location
+        if @drag
+          @drag = false
+          report DropEvent.new e.origin
+        elsif include_point?(e.x, e.y) && e.button == :primary
+          report ClickEvent.new e
         end
       end
 

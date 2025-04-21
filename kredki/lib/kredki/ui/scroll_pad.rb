@@ -1,16 +1,21 @@
 require_relative 'pad/sort_pad'
 require_relative 'slide'
+require_relative 'layout/basic'
 
 module Kredki
   module UI
     class ScrollPad < SortPad
-      class ScrollPadLayout < Layout
+      class ScrollPadLayout < Layout::Basic
         def fit_w pad
           super + 10
         end
   
         def fit_h pad
           super + 10
+        end
+
+        def self.instance
+          @instance ||= self.new 0, 0
         end
       end
 
@@ -19,7 +24,7 @@ module Kredki
       def sketch p0
         super
         
-        layout! ScrollPadLayout
+        layout! ScrollPadLayout.instance
         # @corner existence is checked in push_pad
         corner = new_pad Pad, color: :light_gray, h: 10, w: 10, xy: 100r
         @xslide = new_pad HorizontalSlide, h: 10, x: 0, y: 100r

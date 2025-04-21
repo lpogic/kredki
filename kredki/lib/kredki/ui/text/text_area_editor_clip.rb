@@ -45,12 +45,12 @@ module Kredki
         area.hide!
         
         on_focus_lose! do
-          @editor.x = @editor.tx.call @editor.w, w
+          @editor.x = @editor.tx.call @editor.sw, sw
         end
 
         on! EditEvent do |e|
-          if @editor.w < w
-            @editor.x = @editor.tx.call @editor.w, w
+          if @editor.sw < sw
+            @editor.x = @editor.tx.call @editor.sw, sw
           end
         end
 

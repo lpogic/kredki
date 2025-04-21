@@ -1,30 +1,5 @@
 require_relative '../kredki'
 
-# class Module
-#   def vparam name, *aliases, get: true, parts: []
-#     n = "set_#{name}"
-#     alias_method n, name
-#     parts_delete = parts.map{ "@vparams.delete(:#{_1}!)&.detach!" }.join ";"
-#     class_eval <<~cc
-#       def #{name} *param
-#         #{parts_delete}
-#         case param
-#         in [Variable]
-#           first = param.first
-#           @vparams[:#{name}]&.detach!
-#           @vparams[:#{name}] = first.on_change!{|e| v = ~e; Array === v ? (#{n} *v) : (#{n} v) }
-#           v = first.get
-#           Array === v ? (#{n} *v) : (#{n} v)
-#         else
-#           @vparams.delete(:#{name})&.detach!
-#           #{n} *param
-#         end
-#       end
-#     cc
-#     param name, *aliases, get:;
-#   end
-# end
-
 module Kredki
 
   PS = POSITION_START = proc{ 0 }
@@ -34,6 +9,18 @@ module Kredki
   PCE = POSITION_CENTER_END = proc{|a, b| a > b ? POSITION_CENTER[a, b] : POSITION_END[a, b] }
 
   module UI
+    class << self
+      attr_accessor :layouts
+  
+      def layout param = nil
+        case param
+        in Layout::Basic
+          param
+        else
+          @layouts[param] or raise "Unknown layout '#{param}'"
+        end
+      end
+    end
   end
 
   require_relative 'ui/pad/pad'
@@ -48,61 +35,59 @@ module Kredki
   require_relative 'ui/note'
   require_relative 'ui/notes'
   require_relative 'ui/button'
-  require_relative 'ui/note_list'
+  require_relative 'ui/note_list/note_list'
 
-  require_relative "ui/layout/center"
+  require_relative "ui/layout/basic"
   require_relative "ui/layout/row"
   require_relative "ui/layout/column"
-  require_relative "ui/layout/center"
   require_relative "ui/option/option"
   require_relative 'ui/option/dropdown_layer'
   require_relative 'ui/option/dropright_layer'
   require_relative 'ui/option/context_layer'
-  require_relative 'ui/option/scroll_dropdown_layer'
+
+  UI.layouts = {
+    nil => UI::Layout::Basic.new(0, 0),
+    start: UI::Layout::Basic.new(PS, PS),
+    center: UI::Layout::Basic.new(PC, PC),
+    end: UI::Layout::Basic.new(PE, PE),
+    column: UI::Layout::Column.new(0, 0),
+    row: UI::Layout::Row.new(0, 0),
+    %i|start start| => UI::Layout::Basic.new(PS, PS),
+    %i|start center| => UI::Layout::Basic.new(PS, PC),
+    %i|start end| => UI::Layout::Basic.new(PS, PE),
+    %i|center start| => UI::Layout::Basic.new(PC, PS),
+    %i|center center| => UI::Layout::Basic.new(PC, PC),
+    %i|center end| => UI::Layout::Basic.new(PC, PE),
+    %i|end start| => UI::Layout::Basic.new(PE, PS),
+    %i|end center| => UI::Layout::Basic.new(PE, PC),
+    %i|end end| => UI::Layout::Basic.new(PE, PE),
+    %i|column start| => UI::Layout::Column.new(PS, 0),
+    %i|column center| => UI::Layout::Column.new(PC, 0),
+    %i|column end| => UI::Layout::Column.new(PE, 0),
+    %i|column start start| => UI::Layout::Column.new(PS, PS),
+    %i|column start center| => UI::Layout::Column.new(PS, PC),
+    %i|column start end| => UI::Layout::Column.new(PS, PE),
+    %i|column center start| => UI::Layout::Column.new(PC, PS),
+    %i|column center center| => UI::Layout::Column.new(PC, PC),
+    %i|column center end| => UI::Layout::Column.new(PC, PE),
+    %i|column end start| => UI::Layout::Column.new(PE, PS),
+    %i|column end center| => UI::Layout::Column.new(PE, PC),
+    %i|column end end| => UI::Layout::Column.new(PE, PE),
+    %i|row start| => UI::Layout::Row.new(PS, 0),
+    %i|row center| => UI::Layout::Row.new(PC, 0),
+    %i|row end| => UI::Layout::Row.new(PE, 0),
+    %i|row start start| => UI::Layout::Row.new(PS, PS),
+    %i|row start center| => UI::Layout::Row.new(PS, PC),
+    %i|row start end| => UI::Layout::Row.new(PS, PE),
+    %i|row center start| => UI::Layout::Row.new(PC, PS),
+    %i|row center center| => UI::Layout::Row.new(PC, PC),
+    %i|row center end| => UI::Layout::Row.new(PC, PE),
+    %i|row end start| => UI::Layout::Row.new(PE, PS),
+    %i|row end center| => UI::Layout::Row.new(PE, PC),
+    %i|row end end| => UI::Layout::Row.new(PE, PE),
+  }
 
   module UI
-
-    class Variable
-      model :value, :converter do
-        @event_manager = EventManager.new
-      end
-
-      def self.[](value, &converter)
-        self.new value, converter
-      end
-
-      def inspect
-        "#{self.class}[#{@value}]"
-      end
-    
-      def on_change! &block
-        @event_manager.attach! block
-      end
-
-      def <<(value)
-        value = @converter.call value if @converter
-        @value != value and set value
-      end
-    
-      def set value
-        @event_manager.resolve ChangeEvent.new(value, @value)
-        @value = value
-      end
-    
-      def get
-        @value
-      end
-
-      def map &block
-        r = Variable[1, &block]
-        on_change! do |e|
-          r << ~e
-        end
-        r
-      end
-
-    end
-
     module PadBase
       def_pad :pad!, Pad
       def_pad :space!, SpacePad
@@ -146,15 +131,6 @@ module Kredki
       def_pad :context_menu!, true do
         @context ||= orphan!.new_pad ContextLayer, master: self
         @context.options
-      end
-
-      def_pad :scroll_dropdown!, true do
-        @scroll_dropdown ||= orphan!.new_pad ScrollDropdownLayer, master: self
-        @scroll_dropdown.options
-      end
-
-      def_pad :var do |a, na, b|
-        Variable[a[1], &b]
       end
 
     end#PadBase

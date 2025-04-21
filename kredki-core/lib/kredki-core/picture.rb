@@ -46,8 +46,6 @@ module Kredki
       Abi.paint_delete pointer
     end
 
-    private
-
     def set_size width, height
       Abi.picture_set_size @pointer, width, height
     end

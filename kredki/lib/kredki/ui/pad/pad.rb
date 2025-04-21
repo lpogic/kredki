@@ -6,7 +6,6 @@ require 'forwardable'
 require 'kredki-core/context/context'
 require 'kredki-core/flagship'
 require 'kredki-core/block_shape_area'
-require_relative '../layout/layout'
 
 module Kredki
   module UI
@@ -22,7 +21,7 @@ module Kredki
       def <<(arg)
         case arg
         when Symbol
-          name! arg
+          tag! arg
         when Pad
           arg.attach! self
         when Hash
@@ -191,14 +190,16 @@ module Kredki
 
       def pw fit = false
         mx = @me + @mw
-        return mx + @layout.fit_w(self) if fit
+        return mx + @s_layout.fit_w(self) if fit
         case @w
         when Rational
           mx
         when Proc
           mx
         when :fit
-          mx + @layout.fit_w(self)
+          mx + @s_layout.fit_w(self)
+        when Range
+          mx + @s_layout.fit_w(self)
         else
           if @w < 0
             mx
@@ -210,14 +211,16 @@ module Kredki
 
       def ph fit = false
         my = @mn + @ms
-        return my + mx + @layout.fit_h(self) if fit
+        return my + @s_layout.fit_h(self) if fit
         case @h
         when Rational
           my
         when Proc
           my
         when :fit
-          my + @layout.fit_h(self)
+          my + @s_layout.fit_h(self)
+        when Range
+          my + @s_layout.fit_h(self)
         else
           if @h < 0
             my
@@ -267,25 +270,26 @@ module Kredki
         true
       end
 
-      param def layout! layout, ...
-        layout = layout.new.alter(...) if layout.is_a? Class
+      param def layout! *layout
+        layout = layout.size > 1 ? layout : layout.first
         return if @layout == layout
+        @s_layout = UI.layout layout
         @layout = layout
         arrange
         layer&.update_mouse_location if mousy? && show?
         true
       end
 
-      param def name! name
-        @names[name] = true
-      end, get: def name
-        @names.keys
+      param def tag! tag
+        @tags[tag] = true
+      end, get: def tag
+        @tags.keys
       end
 
       def =~(filter)
         case filter
         when Symbol
-          !!@names[filter]
+          !!@tags[filter]
         when Module, Proc
           filter === self
         else
@@ -327,14 +331,10 @@ module Kredki
         self
       end
 
-      param def show! show = true
-        set_show show
-      end, get: def show
-        get_show
-      end
+      def_flag :show, set: :set_show, get: :get_show
 
-      def show?
-        get_show
+      def hide!
+        show! false
       end
 
       def include_point? x, y
@@ -414,15 +414,16 @@ module Kredki
         @scene = Scene.new
         @area = @scene.rectangle!
         @clip_scene = @scene.scene!
-        @clip_area = @clip_scene.rectangle!{ hide! }
-        @names = {}
+        @clip_area = @clip_scene.rectangle!
+        @tags = {}
         @event_manager = PadEventManager.new
         @pads = []
         @button_down_xy = nil
         @x = @y = :auto
         @w = @h = 100
         @me = @mn = @mw = @ms = 0
-        @layout = Layout::INSTANCE
+        @layout = nil
+        @s_layout = UI.layout
       end
 
       def sketch p0
@@ -521,7 +522,7 @@ module Kredki
       end
 
       def eqr a, b
-        a == b and (Rational === b) != (Rational === b)
+        a == b and (Rational === b) == (Rational === b)
       end
 
       def set_xy
@@ -577,7 +578,7 @@ module Kredki
 
       def set_size
         parent&.set_size_p or (
-          set_size_d and (
+          set_size_s and (
             parent&.arrange
             event_director.stem{ layer&.update_mouse_location if mousy? && show? }
           )
@@ -585,37 +586,33 @@ module Kredki
       end
 
       def set_size_p
-        @w == :fit || @h == :fit and set_size
-      end
-
-      def set_size_d
-        set_size_s and set_size_c and arrange
-      end
-
-      def set_size_s
-        update_size and event_director.stem do
-          report ResizeEvent.new
-          update_xy and report MoveEvent.new
-        end
+        @w == :fit || @h == :fit || Range === @w || Range === @h and set_size
       end
 
       def set_size_c
-        @pads.each{ it.set_size_d }
-        true
+        @pads.map{ it.set_size_s }.any?
       end
 
-      def update_size
+      def set_size_s
         mx = @me + @mw
         my = @mn + @ms
         sw = get_w mx
         sh = get_h my
 
-        (@area.wh! sw, sh) | (@clip_area.wh! sw - mx, sh - my)
+        resized = @area.wh! sw, sh and event_director.stem do
+          report ResizeEvent.new
+          update_xy and report MoveEvent.new
+        end
+        @clip_area.wh! sw - @me - @mw, sh - @ms - @mn and (
+          set_size_c
+          arrange
+        )
+        resized
       end
 
       def arrange
         return if alter_filter :arrange
-        @layout.arrange self
+        @s_layout.arrange self
       end
 
       def get_w mx
@@ -628,7 +625,11 @@ module Kredki
           pw = parent&.cw || 0
           @w[pw]
         when :fit
-          mx + @layout.fit_w(self)
+          mx + @s_layout.fit_w(self)
+        when Range
+          pw = parent&.cw || 0
+          # r = pw * @w.to_f
+          # @w.denominator == 1 ? r / 100 : r
         else
           if @w < 0
             pw = parent&.cw || 0
@@ -649,7 +650,11 @@ module Kredki
           ph = parent&.ch || 0
           @h[ph]
         when :fit
-          my + @layout.fit_h(self)
+          my + @s_layout.fit_h(self)
+        when Range
+          ph = parent&.ch || 0
+          # r = ph * @h.to_f
+          # @h.denominator == 1 ? r / 100 : r
         else
           if @h < 0
             ph = parent&.ch || 0
@@ -661,14 +666,16 @@ module Kredki
       end
 
       def set_margin
-        update_margin and event_director.stem{ layer&.update_mouse_location if mousy? && show? }
-      end
-
-      def update_margin
-        (@clip_scene.xy! @me, @mn) | (@clip_area.wh! sw - @me - @mw, sh - @mn - @ms and arrange)
+        @clip_scene.xy! @me, @mn
+        @clip_area.xy! @me, @mn
+        set_size_p or (
+          @clip_area.wh! sw - @me - @mw, sh - @mn - @ms and set_size_c and arrange
+          event_director.stem{ layer&.update_mouse_location if mousy? && show? }
+        )
       end
 
       def set_show show
+        @scene.set_show show
         if show
           report ShowEvent.new
           @pads.each &:show_propagate
@@ -676,7 +683,6 @@ module Kredki
           report HideEvent.new
           @pads.each &:hide_propagate
         end
-        @scene.set_show show
       end
 
       def get_show
@@ -775,8 +781,8 @@ module Kredki
               ancs.each do |pad|
                 ed.push event, pad, false, instant
                 ed.push_block event, instant do
-                  event.x += pad.cx
-                  event.y += pad.cy
+                  event.x += pad.sx
+                  event.y += pad.sy
                 end
               end
             end

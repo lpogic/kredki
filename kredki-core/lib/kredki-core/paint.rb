@@ -13,6 +13,7 @@ module Kredki
       @scale = 1
       @opacity = 255
       @blend = nil
+      @clip = nil
     end
 
     param def x! x
@@ -92,10 +93,12 @@ module Kredki
     #   end
     # end
 
-    def clip! mask
-      mask = nil unless mask
-      mask&.detach!
-      set_clip mask&.pointer
+    def clip! clip
+      clip = nil unless clip
+      return if @clip == clip
+      @clip&.unset_self_clip
+      clip&.set_self_clip self
+      set_clip clip&.pointer
       update
     end
     
@@ -143,7 +146,7 @@ module Kredki
     end
 
     def get_show
-      @base&.paint_shown? self
+      @base&.paint_shown self
     end
 
     # def set_composite_method mask, method

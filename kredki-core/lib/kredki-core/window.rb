@@ -145,7 +145,7 @@ module Kredki
       @action
     end
 
-    def paint_shown? action
+    def paint_shown action
       @action == action && !!@arena
     end
 
