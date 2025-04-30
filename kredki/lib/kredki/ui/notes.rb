@@ -19,8 +19,9 @@ module Kredki
         end
 
         def repaint
-          @pad.area.color = @pad.mouse_in? ? @color.lighten : @color
-          @pad.area.stroke_color = @pad.keyboard_in? ? Kredki.color(:yellow) : @color
+          kb_in = @pad.keyboard_in?
+          @pad.area.color = kb_in ? @color.darken : @pad.mouse_in? ? @color.lighten : @color
+          @pad.area.stroke_color = kb_in ? :stroke_focus : @color
         end
       end
 
@@ -51,7 +52,7 @@ module Kredki
         end
       end
 
-      defw_param :string, :tx, :text_x
+      param_service :cursor, "@text_clip.text.cursor"
 
       #internal api
 
@@ -59,6 +60,7 @@ module Kredki
         super
       
         @theme = nil
+        @text_clip = new_pad TextAreaEditorClip, wh: 100r
       end
 
 
@@ -70,8 +72,6 @@ module Kredki
         theme! :gray
                 
         on_focus_lose!{ @pads.first&.update_text }
-
-        new_pad TextAreaEditorClip, wh: 100r
       end
 
       def point_pads x, y, pads, force = false

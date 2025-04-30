@@ -22,7 +22,7 @@ module Kredki
 
         def repaint
           @pad.area.color = @pad.button_top? ? @color.darken : @pad.mouse_in? ? @color.lighten : @color
-          @pad.area.stroke_color = @pad.keyboard_in? ? :yellow : @color.darken
+          @pad.area.stroke_color = @pad.keyboard_in? ? :stroke_focus : @color.darken
         end
       end
 
@@ -58,7 +58,7 @@ module Kredki
         super
 
         keyboardy!
-        stroke_width! 2
+        stroke_width! 1
         theme! :gray
         layout! :center
         wh! :fit

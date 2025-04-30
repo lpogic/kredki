@@ -11,7 +11,7 @@ module Kredki
       def initialize
         super
         
-        @pads = []
+        @layers = []
       end
 
       def a
@@ -24,20 +24,13 @@ module Kredki
 
       def def_pad name, klass = nil, *def_a, **def_na, &def_b
         PadBase.def_pad name, klass, *def_a, **def_na, &def_b
-        # if block
-        #   PadBase.define_method name do |*a, **na, &b|
-        #     pad = instance_exec a, na, b, self, &block
-        #     pad.alter! name, *a, **na, &b if klass
-        #     pad
-        #   end
-        # else
-        #   PadBase.define_method name do |*a, **na, &b|
-        #     new_pad klass, name, *a, **na, &b
-        #   end
-        # end
       end
 
-      def parent
+      def pad_parent
+        nil
+      end
+
+      def service_parent
         nil
       end
 
@@ -89,14 +82,18 @@ module Kredki
 
         on_resize! do
           w, h = *wh
-          @pads.each{ _1.wh! w, h }
+          @layers.each{ _1.wh! w, h }
         end
 
         layer!.focus!
       end
 
+      def pad_tree
+        @layers.map{ [it, it.pad_tree] }.to_h
+      end
+
       def build *a, **na, &block
-        @pads.last.alter *a, **na, &block
+        @layers.last.alter *a, **na, &block
       end
 
       def set_size_p
@@ -106,34 +103,39 @@ module Kredki
       end
 
       def mouse_event event
-        @pads.reverse_each do |layer|
+        @layers.reverse_each do |layer|
           layer.mouse_pad&.report event
           event.target = nil
         end
       end
 
       def update_mouse_location event = nil
-        @pads.reverse_each.find do |layer|
+        @layers.reverse_each.find do |layer|
           layer.update_mouse_location event
         end
       end
 
       def keyboard_event event
-        @pads.reverse_each do |layer|
+        @layers.reverse_each do |layer|
           layer.keyboard_event event
         end
       end
 
-      def push_pad layer
+      def push_pad pad
+        pad.set_parent self
+        push_layer pad
+      end
+
+      def push_layer layer
         push_paint layer.scene
-        layer.set_parent self
+        layer.set_pad_parent self
         layer.wh! *wh
-        @pads << layer
+        @layers << layer
         layer
       end
 
       def remove_pad layer, transfer = false
-        @pads.delete layer
+        @layers.delete layer
       end
 
       def lineage include_self = false

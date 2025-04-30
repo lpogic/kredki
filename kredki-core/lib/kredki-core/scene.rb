@@ -17,8 +17,8 @@ module Kredki
       @paints = {nil => nil_paint}
     end
 
-    def new_paint klass, *a, _show: true, _at: nil, **na, &b
-      push_paint(klass.new, _show, _at).paint.alter!(*a, **na, &b)
+    def new_paint klass, *a, show: true, at: nil, **na, &b
+      push_paint(klass.new, show, at).paint.alter!(*a, **na, &b)
     end
     
     def def_paint name, klass = nil, &block

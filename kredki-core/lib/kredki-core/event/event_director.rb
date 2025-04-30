@@ -1,7 +1,7 @@
 module Kredki
   class EventDirector
 
-    EVENT_LOOP_LIMIT = 200
+    EVENT_LOOP_LIMIT = 500
 
     model do
       @stops = []

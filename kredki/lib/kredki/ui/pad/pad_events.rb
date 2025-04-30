@@ -56,6 +56,10 @@ module Kredki
       def trace?
         !!@trace
       end
+
+      def self.all *event_managers, &block
+        event_managers.map{ it.attach! block }
+      end
     end
 
     class PositionEvent < Event
@@ -63,6 +67,10 @@ module Kredki
 
       def xy
         [@x, @y]
+      end
+
+      def ~()
+        xy
       end
     end
 

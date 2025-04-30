@@ -35,7 +35,7 @@ module Kredki
   require_relative 'ui/note'
   require_relative 'ui/notes'
   require_relative 'ui/button'
-  require_relative 'ui/note_list/note_list'
+  require_relative 'ui/note_dropdown/note_dropdown'
 
   require_relative "ui/layout/basic"
   require_relative "ui/layout/row"
@@ -101,7 +101,9 @@ module Kredki
       def_pad :button!, ButtonPad
       def_pad :note!, Note
       def_pad :notes!, Notes
-      def_pad :note_list!, NoteList
+      def_pad :note_dropdown!, true do
+        new_service NoteDropdown
+      end
 
       def_pad :option!, Option
 
@@ -129,8 +131,9 @@ module Kredki
       end
 
       def_pad :context_menu!, true do
-        @context ||= orphan!.new_pad ContextLayer, master: self
-        @context.options
+        @context_menu ||= new_service ContextLayer
+        @context_menu.set_master self
+        @context_menu
       end
 
     end#PadBase

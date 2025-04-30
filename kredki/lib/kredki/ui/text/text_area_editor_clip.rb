@@ -30,6 +30,10 @@ module Kredki
         super and update_text
       end, :height, get: false
 
+      def text
+        @editor
+      end
+
       #internal api
 
       def initialize
@@ -67,13 +71,13 @@ module Kredki
         on! ROIEvent do |e|
           pad = @editor
           w = sw
-          x = if pad.w < w then @editor.tx.call w, pad.w
+          x = if pad.sw < w then @editor.tx.call w, pad.sw
           elsif (l = e.x) < 0 then pad.sx - l
           elsif (r = e.w + e.x) > w then pad.sx - r + w
           else pad.sx
           end
           h = sh
-          y = if pad.h < h then 0
+          y = if pad.sh < h then 0
           elsif (t = e.y) < 0 then pad.sy - t
           elsif (b = e.h + e.y) > h then pad.sy - b + h
           else pad.y
@@ -85,8 +89,8 @@ module Kredki
         on_scroll! do |e|
           if keyboard_in?
             pad = @editor
-            dw = sw - pad.w
-            dh = sh - pad.h
+            dw = sw - pad.sw
+            dh = sh - pad.sh
             xo, yo = if dw < 0 && dh < 0
               keyboard.shift? ? [e.y, e.x] : e.xy
             elsif dw < 0
@@ -115,7 +119,7 @@ module Kredki
       end
 
       def update_text
-        @editor.xy! @editor.tx.call(w, @editor.w), 0
+        @editor.xy! @editor.tx.call(sw, @editor.sw), 0
       end
     end
   end

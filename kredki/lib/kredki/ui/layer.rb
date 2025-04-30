@@ -146,6 +146,17 @@ module Kredki
         end
         return false
       end
+
+      def set_parent parent
+        return if @parent == parent
+        @parent = parent
+        set_action parent&.action
+      end
+
+      def set_pad_parent parent
+        return if @pad_parent == parent
+        @pad_parent = parent
+      end
     end
   end
 end

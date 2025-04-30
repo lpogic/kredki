@@ -77,6 +77,15 @@ module Kredki
         @lines.first.text.h
       end
 
+      def cursor! ...
+        @cursor.alter(...)
+      end
+
+      def cursor
+        @cursor
+      end
+
+
       #internal api
 
       class Line
@@ -88,7 +97,7 @@ module Kredki
 
         @tx = POSITION_START
         @cursor_position = @selection_min = @selection_max = 0
-        @cursor = @clip_scene.rectangle! x: 1, y: 0, color: :white, w: 2, h: 30
+        @cursor = @clip_scene.rectangle! x: 1, y: 0, color: :text, w: 2, h: 30
         @lines = []
       end
 
@@ -97,7 +106,7 @@ module Kredki
 
         push_line
 
-        p0.wh = @lines.first.text.wh
+        p0.wh!  @lines.first.text.w + @cursor.w, @lines.first.text.h
     
         on_key! :up do |e|
           cursor_up e.shift?
@@ -132,9 +141,9 @@ module Kredki
           y = 0
         end
 
-        selection = @clip_scene.rectangle! x: 0, y:, w: 0, h:, color: :blue, clip!: clip_area
+        selection = @clip_scene.rectangle! x: 0, y:, w: 0, h:, color: :text_selection, clip!: clip_area, at: @cursor
         
-        text = @clip_scene.text! x: @cursor.w / 2, y:, color: :white, font: :arial, h:, clip!: clip_area
+        text = @clip_scene.text! x: @cursor.w / 2, y:, color: :text, font: :arial, h:, clip!: clip_area, at: @cursor
 
         line = Line.new selection, text
         @lines << line
@@ -157,6 +166,7 @@ module Kredki
 
       def update_text w = nil
         cw = @cursor.w / 2
+        w = sw
         y = 0
         @lines.each do |line|
           line.text.xy! @tx.call(w, line.text.w) + cw, y

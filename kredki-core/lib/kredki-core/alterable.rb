@@ -11,11 +11,7 @@ module Kredki
           send k, v
         end
       end
-      alter_block_context.instance_exec self, &block if block
-      self
-    end
-
-    def alter_block_context
+      instance_exec self, &block if block
       self
     end
 

@@ -40,9 +40,9 @@ module Kredki
         super
         
         @cursor_position = @selection_min = @selection_max = 0
-        @selection = @clip_scene.rectangle! x: 0, y: 0, h: 24, color: :blue, clip!: @clip_area
-        @cursor = @clip_scene.rectangle! x: 1, y: 0, color: :white, w: 2, h: 24
-        @text = @clip_scene.text! x: @cursor.w / 2, color: :white, font: :arial, h: 24, clip!: @clip_area
+        @selection = @clip_scene.rectangle! x: 0, y: 0, h: 24, color: :text_selection, clip!: @clip_area
+        @cursor = @clip_scene.rectangle! x: 1, y: 0, color: :text, w: 2, h: 24
+        @text = @clip_scene.text! x: @cursor.w / 2, color: :text, font: :arial, h: 24, clip!: @clip_area
       end
 
       def sketch p0

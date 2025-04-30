@@ -64,46 +64,46 @@ module Kredki
         super
 
         area.hide!
-        h! @editor.h
+        h! @editor.sh
         
         on_focus_lose! do
-          @editor.x = @tx.call w, @editor.w
+          @editor.x = @tx.call sw, @editor.sw
         end
 
         on! EditEvent do |e|
-          if @editor.w < w
-            @editor.x = @tx.call w, @editor.w
+          ew = @editor.sw
+          w = sw
+          if ew < w
+            @editor.x = @tx.call w, ew
           end
         end
 
         on_mouse_button_up! :primary, aim: true do |e|
           if !@editor.drag? && include_point?(e.x, e.y)
             @editor.lose_button
-            e.x -= sx
-            e.y -= sy
-            @editor.report ClickEvent.new e
+            @editor.report ClickEvent.new e.origin
             e.resolve
           end
         end
 
         on! ROIEvent do |e|
-          pad = @editor
-          if pad.sw < w
-            pad.x = @tx.call w, pad.w
+          ew = @editor.sw
+          w = sw
+          if ew < w
+            @editor.x = @tx.call w, ew
           elsif (l = e.x) < 0
-            pad.x -= l
+            @editor.x -= l
           elsif (r = e.w + e.x) > w
-            pad.x -= r - w
+            @editor.x -= r - w
           end
         end
 
         on_scroll! do |e|
           if keyboard_in? && keyboard.shift?
-            pad = @editor
-            if (diff = w - pad.sw) < 0
-              jump = pad.sh / 2
-              x = pad.sx + e.xory * jump
-              pad.x = x.clamp(diff, 0)
+            if (diff = sw - @editor.sw) < 0
+              jump = @editor.sh / 2
+              x = @editor.sx + e.xory * jump
+              @editor.x = x.clamp(diff, 0)
             end
             e.resolve
           end
@@ -120,7 +120,7 @@ module Kredki
       end
 
       def update_text
-        @editor.xy! @tx.call(w, @editor.sw), (h - @editor.sh) / 2
+        @editor.xy! @tx.call(sw, @editor.sw), (sh - @editor.sh) / 2
       end
     end
   end

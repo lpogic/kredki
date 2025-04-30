@@ -1,3 +1,4 @@
+require_relative 'service'
 require_relative 'pad_event_manager'
 require_relative 'pad_events'
 require_relative 'pad_base'
@@ -9,7 +10,7 @@ require 'kredki-core/block_shape_area'
 
 module Kredki
   module UI
-    class Pad
+    class Pad < Service
       include PadBase
       include Alterable
       include Context
@@ -20,38 +21,23 @@ module Kredki
 
       def <<(arg)
         case arg
-        when Symbol
-          tag! arg
         when Pad
           arg.attach! self
-        when Hash
-          alter **arg
-        when Array
-          alter *arg
-        when Proc
-          alter &arg
-        when Module
-          if arg <= Layout
-            layout! arg
-          else
-            use! arg
-          end
         else
-          raise "Unsupported << (#{arg} : #{arg.class})"
+          super
         end
-        self
       end
 
       param def x! x
         return if eqr @x, x
         @x = x
-        @x == :auto ? parent.arrange : set_xy
+        @x == :auto ? pad_parent.arrange : set_xy
       end
 
       param def y! y
         return if eqr @y, y
         @y = y
-        @y == :auto ? parent.arrange : set_xy
+        @y == :auto ? pad_parent.arrange : set_xy
       end
 
       param def xy! x, y = nil
@@ -59,7 +45,7 @@ module Kredki
         return if (eqr @y, y) && (eqr @x, x)
         @x = x
         @y = y
-        @x == :auto || @y == :auto ? parent.arrange : set_xy
+        @x == :auto || @y == :auto ? pad_parent.arrange : set_xy
       end, get: def xy
         [@x, @y]
       end
@@ -190,37 +176,37 @@ module Kredki
 
       def pw fit = false
         mx = @me + @mw
-        return mx + @s_layout.fit_w(self) if fit
+        return mx + @_layout.fit_w(self) if fit
         case @w
         when Rational
           mx
         when Proc
           mx
         when :fit
-          mx + @s_layout.fit_w(self)
+          mx + @_layout.fit_w(self)
         when Range
-          mx + @s_layout.fit_w(self)
+          mx + @_layout.fit_w(self)
         else
           if @w < 0
             mx
           else
-            @w + mx
+            @w
           end
         end
       end
 
       def ph fit = false
         my = @mn + @ms
-        return my + @s_layout.fit_h(self) if fit
+        return my + @_layout.fit_h(self) if fit
         case @h
         when Rational
           my
         when Proc
           my
         when :fit
-          my + @s_layout.fit_h(self)
+          my + @_layout.fit_h(self)
         when Range
-          my + @s_layout.fit_h(self)
+          my + @_layout.fit_h(self)
         else
           if @h < 0
             my
@@ -273,63 +259,14 @@ module Kredki
       param def layout! *layout
         layout = layout.size > 1 ? layout : layout.first
         return if @layout == layout
-        @s_layout = UI.layout layout
+        @_layout = UI.layout layout
         @layout = layout
         arrange
         layer&.update_mouse_location if mousy? && show?
         true
       end
 
-      param def tag! tag
-        @tags[tag] = true
-      end, get: def tag
-        @tags.keys
-      end
-
-      def =~(filter)
-        case filter
-        when Symbol
-          !!@tags[filter]
-        when Module, Proc
-          filter === self
-        else
-          raise "Unsupported =~ (#{filter} : #{filter.class})"
-        end
-      end
-
-      def lineage include_self = true
-        Enumerator.new do |e|
-          c = include_self ? self : parent
-          while c && !c.is_a?(Action)
-            e << c
-            c = c.parent
-          end
-        end
-      end
-
-      def grand filter
-        lineage.find{ _1 =~ filter }
-      end
-
-      def layer
-        grand Layer
-      end
-
-      def in? grand
-        lineage(false).include? grand
-      end
-
-      def include? child
-        child.in? self
-      end
-     
-      attr :parent, :action, :scene, :clip_area, :clip_scene, :pads
-
-      alias_method :a, :action
-
-      def s
-        self
-      end
+      attr :pad_parent, :scene, :clip_area, :clip_scene, :pads
 
       def_flag :show, set: :set_show, get: :get_show
 
@@ -385,16 +322,13 @@ module Kredki
       end
 
       def attach! parent
-        return if @parent == parent
-        raise "LOOP" if parent.lineage.find{ _1 == self }
-        detach! true if @parent
-        parent&.push_pad self
+        super
+        parent&.grand(Pad)&.push_pad self
       end
 
       def detach! transfer = false
-        @scene.detach!
-        @parent&.remove_pad self, transfer
-        @parent = nil
+        super
+        pad_detach transfer
       end
 
       def roi!
@@ -409,13 +343,11 @@ module Kredki
 
       def initialize
         super
-        @action = nil
-        @parent = nil
+        @pad_parent = nil
         @scene = Scene.new
         @area = @scene.rectangle!
         @clip_scene = @scene.scene!
         @clip_area = @clip_scene.rectangle!
-        @tags = {}
         @event_manager = PadEventManager.new
         @pads = []
         @button_down_xy = nil
@@ -423,7 +355,11 @@ module Kredki
         @w = @h = 100
         @me = @mn = @mw = @ms = 0
         @layout = nil
-        @s_layout = UI.layout
+        @_layout = UI.layout
+      end
+
+      def pad_tree
+        @pads.map{ [it, it.pad_tree] }.to_h
       end
 
       def sketch p0
@@ -459,7 +395,7 @@ module Kredki
           @drag = false
           report DropEvent.new e.origin
         elsif include_point?(e.x, e.y) && e.button == :primary
-          report ClickEvent.new e
+          report ClickEvent.new e.origin
         end
         e.resolve
       end
@@ -472,28 +408,28 @@ module Kredki
         e.resolve
       end
 
-      def inspect
-        "#{self.class}:#{object_id}"
+      def pad_detach transfer = false
+        @scene.detach!
+        @pad_parent&.remove_pad self, transfer
+        @pad_parent = nil
       end
 
-      aliasing def new_pad klass = Pad, *a, _at: nil, **na, &b
+      def new_pad klass = Pad, *a, at: nil, **na, &b
         pad = klass.new
         pad.alter_begin
         pad.sketch pad
-        push_pad pad, _at
+        push_service pad, at if at != false
         pad.alter *a, **na, &b
         pad.alter_commit
         pad
-      end, :put!
+      end
 
       def pad_index
-        parent&.pads.index self
+        pad_parent&.pads.index self
       end
 
       def push_pad pad, at = nil
-        pad_parent = pad.parent
         paint_state = @clip_scene.push_paint pad.scene, true, at&.scene
-        pad.set_parent self
         if at
           @pads.insert @pads.index(at), pad
         else
@@ -522,7 +458,7 @@ module Kredki
       end
 
       def eqr a, b
-        a == b and (Rational === b) == (Rational === b)
+        a == b and (Rational === a) == (Rational === b)
       end
 
       def set_xy
@@ -544,12 +480,12 @@ module Kredki
         case @x
         when Rational
           sw = area.w
-          pw = parent&.cw || 0
+          pw = pad_parent&.cw || 0
           r = (pw - sw) * @x.to_f
           @x.denominator == 1 ? r / 100 : r
         when Proc
           sw = area.w
-          pw = parent&.cw || 0
+          pw = pad_parent&.cw || 0
           @x[pw, sw]
         when :auto
           auto || @scene.x
@@ -562,12 +498,12 @@ module Kredki
         case @y
         when Rational
           sh = area.h
-          ph = parent&.ch || 0
+          ph = pad_parent&.ch || 0
           r = (ph - sh) * @y.to_f
           @y.denominator == 1 ? r / 100 : r
         when Proc
           sh = area.h
-          ph = parent&.ch || 0
+          ph = pad_parent&.ch || 0
           @y[ph, sh]
         when :auto
           auto || @scene.y
@@ -577,9 +513,9 @@ module Kredki
       end
 
       def set_size
-        parent&.set_size_p or (
+        pad_parent&.set_size_p or (
           set_size_s and (
-            parent&.arrange
+            pad_parent&.arrange
             event_director.stem{ layer&.update_mouse_location if mousy? && show? }
           )
         )
@@ -603,7 +539,7 @@ module Kredki
           report ResizeEvent.new
           update_xy and report MoveEvent.new
         end
-        @clip_area.wh! sw - @me - @mw, sh - @ms - @mn and (
+        @clip_area.wh! sw - mx, sh - my and (
           set_size_c
           arrange
         )
@@ -612,27 +548,27 @@ module Kredki
 
       def arrange
         return if alter_filter :arrange
-        @s_layout.arrange self
+        @_layout.arrange self
       end
 
       def get_w mx
         case @w
         when Rational
-          pw = parent&.cw || 0
+          pw = pad_parent&.cw || 0
           r = pw * @w.to_f
           @w.denominator == 1 ? r / 100 : r
         when Proc
-          pw = parent&.cw || 0
+          pw = pad_parent&.cw || 0
           @w[pw]
         when :fit
-          mx + @s_layout.fit_w(self)
+          mx + @_layout.fit_w(self)
         when Range
-          pw = parent&.cw || 0
+          pw = pad_parent&.cw || 0
           # r = pw * @w.to_f
           # @w.denominator == 1 ? r / 100 : r
         else
           if @w < 0
-            pw = parent&.cw || 0
+            pw = pad_parent&.cw || 0
             pw + @w
           else
             @w
@@ -643,21 +579,21 @@ module Kredki
       def get_h my
         case @h
         when Rational
-          ph = parent&.ch || 0
+          ph = pad_parent&.ch || 0
           r = ph * @h.to_f
           @h.denominator == 1 ? r / 100 : r
         when Proc
-          ph = parent&.ch || 0
+          ph = pad_parent&.ch || 0
           @h[ph]
         when :fit
-          my + @s_layout.fit_h(self)
+          my + @_layout.fit_h(self)
         when Range
-          ph = parent&.ch || 0
+          ph = pad_parent&.ch || 0
           # r = ph * @h.to_f
           # @h.denominator == 1 ? r / 100 : r
         else
           if @h < 0
-            ph = parent&.ch || 0
+            ph = pad_parent&.ch || 0
             ph + @h
           else
             @h
@@ -745,29 +681,39 @@ module Kredki
         case target
         when self
         when nil
-          if pa = parent
+          if pa = pad_parent
             return pa.translate x + sx, y + sy, false
           end
         when false
-          if pa = parent
+          if pa = pad_parent
             return pa.translate x + cx, y + cy, false
           end
         else
-          xy = parent.translate x + cx, y + cy
+          xy = pad_parent.translate x + cx, y + cy
           xy = target.translate -xy[0], -xy[1]
           return [-xy[0], -xy[1]]
         end
         return [x, y]
       end
 
+      def pad_lineage include_self = true
+        Enumerator.new do |e|
+          c = include_self ? self : parent
+          while c && !c.is_a?(Action)
+            e << c
+            c = c.pad_parent
+          end
+        end
+      end
+
       def report event, path = true, instant = false
         event.target ||= self
         ed = event_director
         if path
-          ancs = lineage.to_a
           if event.is_a? PositionEvent
-            x = y = 0
+            ancs = pad_lineage.to_a
             ed.stem do
+              x = y = 0
               ancs.reverse_each do |pad|
                 cx = x
                 cy = y
@@ -775,18 +721,24 @@ module Kredki
                   event.x -= pad.sx + cx
                   event.y -= pad.sy + cy
                 end
-                x, y = *pad.clip_scene.xy
                 ed.push event, pad, true, instant
+                x, y = *pad.clip_scene.xy
               end
+              x = -x
+              y = -y
               ancs.each do |pad|
-                ed.push event, pad, false, instant
+                cx = x
+                cy = y
                 ed.push_block event, instant do
-                  event.x += pad.sx
-                  event.y += pad.sy
+                  event.x += pad.clip_scene.x + cx
+                  event.y += pad.clip_scene.y + cy
                 end
+                ed.push event, pad, false, instant
+                x, y = *pad.sxy
               end
             end
           else
+            ancs = lineage.to_a
             ed.stem do
               ancs.reverse_each do |pad|
                 ed.push event, pad, true, instant
@@ -806,16 +758,11 @@ module Kredki
         @event_manager.resolve event, aim
       end
 
-      def set_parent parent
-        return if @parent == parent
-        @parent = parent
-        set_action parent&.action
-      end
-
-      def set_action action
-        return if @action == action
-        @action = action
-        @pads.each{ _1.set_action action }
+      def c_set_parent
+        pad_parent = @parent&.grand Pad
+        return if pad_parent == @pad_parent
+        @pad_parent = pad_parent
+        @pad_parent&.push_pad self
       end
     end
   end

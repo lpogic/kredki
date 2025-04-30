@@ -26,7 +26,7 @@ module Kredki
         
         layout! ScrollPadLayout.instance
         # @corner existence is checked in push_pad
-        corner = new_pad Pad, color: :light_gray, h: 10, w: 10, xy: 100r
+        corner = new_pad Pad, color: :gray, h: 10, w: 10, xy: 100r
         @xslide = new_pad HorizontalSlide, h: 10, x: 0, y: 100r
         @yslide = new_pad VerticalSlide, w: 10, y: 0, x: 100r
         @corner = corner
@@ -86,7 +86,9 @@ module Kredki
       end
       
       def pad
-        @pads.first
+        p1 = @pads.first
+        return if p1 == @corner
+        p1
       end
 
       def mouse_button_down e
@@ -97,7 +99,6 @@ module Kredki
 
       def push_pad pad, at = nil
         if @corner
-          pad&.detach! true
           super pad, at || @corner
           update_pad
           pad
@@ -127,7 +128,6 @@ module Kredki
           else
             pad_x = 0
           end
-
           
           @yslide.show = yscroll
           if yscroll

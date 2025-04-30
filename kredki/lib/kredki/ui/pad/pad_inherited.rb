@@ -30,6 +30,20 @@ module Kredki
         end
       end
 
+      def param_service name, path = nil
+        path ||= "@#{name}"
+        class_eval <<~XX
+          def #{name}! ...
+            #{path}.alter(...)
+          end
+        XX
+        class_eval <<~XX
+          def #{name}
+            #{path}
+          end
+        XX
+      end
+
       def def_pad name, klass = nil, *def_a, **def_na, &def_b
         case klass
         when Class

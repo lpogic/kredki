@@ -9,13 +9,19 @@ end
 require 'kredki-core/lib/kredki-core'
 
 Kredki.colors = {
-  light_gray: Kredki::Color.new(211, 211, 211, 255),
+  default: Kredki::Color.new(211, 211, 211, 255),
+  
+  stroke_focus: Kredki::Color.new(182, 182, 0, 255),
+  text_selection: Kredki::Color.new(0, 0, 222, 123),
+  text: Kredki::Color.new(255, 255, 255, 255),
+  
   white: Kredki::Color.new(255, 255, 255, 255),
   black: Kredki::Color.new(0, 0, 0, 255),
   red: Kredki::Color.new(222, 0, 0, 255),
   green: Kredki::Color.new(0, 222, 0, 255),
   blue: Kredki::Color.new(0, 0, 222, 255),
   gray: Kredki::Color.new(111, 111, 111, 255),
+  light_gray: Kredki::Color.new(211, 211, 211, 255),
   yellow: Kredki::Color.new(222, 222, 0, 255),
   transparent: Kredki::Color.new(0, 0, 0, 0),
 }

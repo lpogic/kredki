@@ -16,6 +16,11 @@ module Kredki
       end
 
       class PickEvent < Kredki::UI::Event
+        model :value
+
+        def ~()
+          @value
+        end
       end
 
       class SimpleColorBasedTheme < Theme
@@ -67,7 +72,16 @@ module Kredki
 
       def_flag :arrow
 
-      defw_param :font_height, :font, :string
+
+      def string! string
+        @text.string! string
+      end
+
+      def string
+        @text.string
+      end
+
+      param_service :text
 
       #internal api
 
@@ -75,6 +89,7 @@ module Kredki
         super
 
         @theme = nil
+        @text = new_pad TextLine, mousy: false, keyboardy: false, string: "Option"
       end
 
       def sketch p0
@@ -82,13 +97,15 @@ module Kredki
 
         keyboardy!
         theme! :gray
+        layout! :start, :center
+        wh! :fit
 
         on_click! do
-          report PickEvent.new
+          report PickEvent.new string
         end
 
         on_key! :space, :enter do |e|
-          report PickEvent.new
+          report PickEvent.new string
           e.resolve
         end
 
@@ -99,12 +116,6 @@ module Kredki
         on_mouse_enter! do |e|
           @group&.mouse_enter self
         end
-
-        wh! :fit
-
-        new_pad TextLine, mousy: false, keyboardy: false, y: 50r
-
-        string! "Option"
       end
 
       def pw fit = false
