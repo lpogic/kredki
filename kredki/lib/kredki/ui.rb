@@ -35,6 +35,9 @@ module Kredki
   require_relative 'ui/note'
   require_relative 'ui/notes'
   require_relative 'ui/button'
+  require_relative 'ui/checkbox'
+  require_relative 'ui/radiobox'
+  require_relative 'ui/label'
   require_relative 'ui/note_dropdown/note_dropdown'
 
   require_relative "ui/layout/basic"
@@ -85,6 +88,44 @@ module Kredki
     %i|row end start| => UI::Layout::Row.new(PE, PS),
     %i|row end center| => UI::Layout::Row.new(PE, PC),
     %i|row end end| => UI::Layout::Row.new(PE, PE),
+    s: UI::Layout::Basic.new(PS, PS),
+    c: UI::Layout::Basic.new(PC, PC),
+    e: UI::Layout::Basic.new(PE, PE),
+    v: UI::Layout::Column.new(0, 0),
+    h: UI::Layout::Row.new(0, 0),
+    ss: UI::Layout::Basic.new(PS, PS),
+    sc: UI::Layout::Basic.new(PS, PC),
+    se: UI::Layout::Basic.new(PS, PE),
+    cs: UI::Layout::Basic.new(PC, PS),
+    cc: UI::Layout::Basic.new(PC, PC),
+    ce: UI::Layout::Basic.new(PC, PE),
+    es: UI::Layout::Basic.new(PE, PS),
+    ec: UI::Layout::Basic.new(PE, PC),
+    ee: UI::Layout::Basic.new(PE, PE),
+    vs: UI::Layout::Column.new(PS, 0),
+    vc: UI::Layout::Column.new(PC, 0),
+    ve: UI::Layout::Column.new(PE, 0),
+    vss: UI::Layout::Column.new(PS, PS),
+    vsc: UI::Layout::Column.new(PS, PC),
+    vse: UI::Layout::Column.new(PS, PE),
+    vcs: UI::Layout::Column.new(PC, PS),
+    vcc: UI::Layout::Column.new(PC, PC),
+    vce: UI::Layout::Column.new(PC, PE),
+    ves: UI::Layout::Column.new(PE, PS),
+    vec: UI::Layout::Column.new(PE, PC),
+    vee: UI::Layout::Column.new(PE, PE),
+    hs: UI::Layout::Row.new(0, PS),
+    hc: UI::Layout::Row.new(0, PC),
+    he: UI::Layout::Row.new(0, PE),
+    hss: UI::Layout::Row.new(PS, PS),
+    hsc: UI::Layout::Row.new(PS, PC),
+    hse: UI::Layout::Row.new(PS, PE),
+    hcs: UI::Layout::Row.new(PC, PS),
+    hcc: UI::Layout::Row.new(PC, PC),
+    hce: UI::Layout::Row.new(PC, PE),
+    hes: UI::Layout::Row.new(PE, PS),
+    hec: UI::Layout::Row.new(PE, PC),
+    hee: UI::Layout::Row.new(PE, PE),
   }
 
   module UI
@@ -99,8 +140,11 @@ module Kredki
       def_pad :text!, TextLine
       def_pad :texts!, TextArea
       def_pad :button!, ButtonPad
+      def_pad :checkbox!, Checkbox
+      def_pad :radio!, Radiobox
       def_pad :note!, Note
       def_pad :notes!, Notes
+      def_pad :label!, Label
       def_pad :note_dropdown!, true do
         new_service NoteDropdown
       end

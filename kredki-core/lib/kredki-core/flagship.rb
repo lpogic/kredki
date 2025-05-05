@@ -1,12 +1,12 @@
 module Kredki
   module Flagship
 
-    def def_flag name, nil: false, set: nil, get: nil
+    def def_flag name, nil: false, set: nil, get: nil, test: true
 
       init = binding.local_variable_get :nil
       case get
       when Symbol
-        class_eval "def #{name}?; not not #{get}(); end"
+        class_eval "def #{name}?; not not #{get}(); end" if test
         set_common = <<~XX
           cv = (not not #{get}())
           v = value == :~ ? !cv : (not not value)
@@ -18,7 +18,7 @@ module Kredki
           v = (not not value)
         XX
       when true, nil
-        class_eval "def #{name}?; @#{name}.nil? ? #{init} : @#{name} ? true : false; end"
+        class_eval "def #{name}?; @#{name}.nil? ? #{init} : @#{name} ? true : false; end" if test
         set_common = <<~XX
           cv = @#{name}.nil? ? #{init} : @#{name} ? true : false
           v = value == :~ ? !cv : (not not value)

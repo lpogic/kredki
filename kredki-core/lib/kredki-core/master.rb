@@ -104,8 +104,6 @@ module Kredki
         param
       when :rand
         Color.new rand(255), rand(255), rand(255)
-      when false
-        Color.new 0, 0, 0, 0
       when Array
         Color.new *param
       else

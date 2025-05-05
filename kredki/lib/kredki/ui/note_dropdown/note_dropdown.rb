@@ -16,6 +16,9 @@ module Kredki
         @dropdown.alter(...)
       end
 
+      param_delegate :@note,
+        :w, :m, :mx, :my, :me, :mw, :mn, :ms
+
       def option! ...
         dropdown!.option!(...)
       end
@@ -34,11 +37,11 @@ module Kredki
         note!
         dropdown!
 
-        Event.all @note.on_click!, @note.on_key!(:enter) do
+        Event.group @note.on_click!, @note.on_key!(:enter) do
           @dropdown.load! @note unless @dropdown.loaded?
         end
 
-        Event.all @note.on_move!, @note.on_resize! do |e|
+        Event.group @note.on_move!, @note.on_resize! do |e|
           @dropdown.load! @note if @dropdown.loaded?
         end
         

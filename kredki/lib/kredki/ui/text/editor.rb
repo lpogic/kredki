@@ -9,6 +9,7 @@ module Kredki
 
       def sketch p0
         super
+        keyboardy!
 
         on_key! :backspace do |e|
           backspace

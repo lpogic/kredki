@@ -3,7 +3,7 @@ require_relative 'event'
 module Kredki
   class MouseMoveEvent < AbiEvent
 
-    model :mouse
+    model :mouse, :abi!, :target!
 
     def x
       @abi.x

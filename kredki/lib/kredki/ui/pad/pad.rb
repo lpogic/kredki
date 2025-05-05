@@ -52,22 +52,18 @@ module Kredki
           
       param def w! w
         return if eqr @w, w
-        @w = w
-        set_size
+        set_size w, @h
       end, :width
 
       param def h! h
         return if eqr @h, h
-        @h = h
-        set_size
+        set_size @w, h
       end, :height
 
       param def wh! w, h = nil
         h ||= w
         return if (eqr @w, w) && (eqr @h, h)
-        @w = w
-        @h = h
-        set_size
+        set_size w, h
       end, :size, get: def wh
         [@w, @h]
       end
@@ -211,7 +207,7 @@ module Kredki
           if @h < 0
             my
           else
-            @h + my
+            @h
           end
         end
       end
@@ -223,24 +219,14 @@ module Kredki
         :stroke_width, 
         :stroke_color, 
         :stroke_join, 
-        :stroke_cap
-    
-      param def color! *color
-        case color
-        in [false]
-          area.hide!
-        else
-          area.show!
-          area.color! *color
-        end
-      end, get: def color
-        @area.color
-      end
+        :stroke_cap,
+        :color
 
       param def area! area = nil, &block
         area = BlockShapeArea.new block if block
         return if @area == area
-        area.wh! *@area.wh
+        area.safe_alter **@area
+        # area.wh! *@area.wh
         @scene.push_paint area, true, @area
         @scene.remove_paint @area
         @area = area
@@ -268,7 +254,11 @@ module Kredki
 
       attr :pad_parent, :scene, :clip_area, :clip_scene, :pads
 
-      def_flag :show, set: :set_show, get: :get_show
+      def_flag :show, set: :set_show, get: :get_show, test: false
+
+      def show? direct = false
+        get_show direct
+      end
 
       def hide!
         show! false
@@ -435,7 +425,7 @@ module Kredki
         else
           @pads << pad
         end
-        pad.set_size or arrange
+        pad.set_size *pad.wh or arrange
         pad
       end
 
@@ -443,7 +433,7 @@ module Kredki
         removed = @pads.delete pad
         if removed && !transfer
           pad.scene.clip! false
-          set_size or arrange
+          set_size @w, @h or arrange
         end
         removed
       end
@@ -454,7 +444,7 @@ module Kredki
           pad.detach! true
           pad.scene.clip! false
         end
-        (set_size or arrange) unless pads.empty?
+        (set_size @w, @h or arrange) unless pads.empty?
       end
 
       def eqr a, b
@@ -512,7 +502,9 @@ module Kredki
         end
       end
 
-      def set_size
+      def set_size w, h
+        @w = w
+        @h = h
         pad_parent&.set_size_p or (
           set_size_s and (
             pad_parent&.arrange
@@ -522,7 +514,7 @@ module Kredki
       end
 
       def set_size_p
-        @w == :fit || @h == :fit || Range === @w || Range === @h and set_size
+        @w == :fit || @h == :fit || Range === @w || Range === @h and set_size @w, @h
       end
 
       def set_size_c
@@ -611,29 +603,33 @@ module Kredki
       end
 
       def set_show show
+        show_before = show?
         @scene.set_show show
-        if show
-          report ShowEvent.new
-          @pads.each &:show_propagate
-        else
-          report HideEvent.new
-          @pads.each &:hide_propagate
+        show_after = show?
+        if show_before != show_after
+          if show_after
+            report ShowEvent.new
+            @pads.each &:show_propagate
+          else
+            report HideEvent.new
+            @pads.each &:hide_propagate
+          end
         end
       end
 
-      def get_show
-        @scene.show?
+      def get_show direct = true
+        @scene.show? direct
       end
 
       def show_propagate
-        if show?
+        if show? true
           report ShowEvent.new
           @pads.each &:show_propagate
         end
       end
 
       def hide_propagate
-        if show?
+        if show? true
           report HideEvent.new
           @pads.each &:hide_propagate
         end

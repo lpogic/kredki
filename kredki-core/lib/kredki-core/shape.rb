@@ -10,10 +10,19 @@ module Kredki
       ObjectSpace.define_finalizer(self, Shape.proc.finalize(@pointer))
 
       @stroke_width = 0
+      @stroke_color = nil
       @color = Kredki.color
       @is_clip = false
       set_fill_color *@color.to_rgba_array
       update unless extended
+    end
+
+    def to_hash
+      super + {
+        color: @color,
+        stroke_width: @stroke_width,
+        stroke_color: @stroke_color
+      }
     end
 
     class Drawer

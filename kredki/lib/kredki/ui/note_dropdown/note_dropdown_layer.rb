@@ -14,17 +14,16 @@ module Kredki
         end
         pw = mw = note.sw
         pw -= 10 if @scroll.sh < @pad.sh
-        options = @scroll[Option..].to_a
+        options = @pad[Option..].to_a
         w = [pw, *options.map{ it.pw true }].max
-        @pad.alter do
-          options.each{ it.w = w }
-        end
+        @pad.w = w
+        # @scroll.alter do
         @scroll.alter do
           xy! x, y
           w! mw
-        end.attach! self
+        end
         action.push_layer self
-        @scroll[Option]&.focus!
+        @pad[Option]&.focus!
       end
 
       def unload!
@@ -47,9 +46,8 @@ module Kredki
 
       def sketch p0
         super
-        
-        @scroll = new_pad ScrollPad, w: :fit
-        @pad = @scroll.new_pad Pad, wh: :fit, color: :gray, layout: :column        
+        @scroll = new_pad ScrollPad
+        @pad = @scroll.new_pad Pad, color: :gray, layout: :column, h: :fit
       end
 
       def mouse_button_down e

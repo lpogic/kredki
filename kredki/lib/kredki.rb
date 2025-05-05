@@ -24,6 +24,8 @@ Kredki.colors = {
   light_gray: Kredki::Color.new(211, 211, 211, 255),
   yellow: Kredki::Color.new(222, 222, 0, 255),
   transparent: Kredki::Color.new(0, 0, 0, 0),
+  false => Kredki::Color.new(0, 0, 0, 0),
+  0 => Kredki::Color.new(0, 0, 0, 0)
 }
 
 Kredki.clipboard = Kredki::Clipboard.new

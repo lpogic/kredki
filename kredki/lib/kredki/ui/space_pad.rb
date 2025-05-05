@@ -5,9 +5,9 @@ module Kredki
       def << arg
         case arg
         in Numeric
-          m! arg
+          m! arg / 2
         in [Numeric, Numeric]
-          m! *arg
+          m! arg[0] / 2, arg[1] / 2
         in [Numeric, Numeric, Numeric, Numeric]
           m! *arg
         else

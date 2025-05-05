@@ -13,6 +13,13 @@ module Kredki
       super
     end
 
+    def to_hash
+      super + {
+        w: @w,
+        h: @h
+      }
+    end
+
     def update
       if @redraw_flag
         @redraw_flag = false

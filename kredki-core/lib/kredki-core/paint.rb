@@ -16,16 +16,27 @@ module Kredki
       @clip = nil
     end
 
+    def to_hash
+      {
+        x: @x,
+        y: @y,
+        rotation: @rotation,
+        scale: @scale,
+        opacity: @opacity,
+        blend: @blend,
+      }
+    end
+
     param def x! x
       return if @x == x
-      set_translation x.to_i, @y.to_f
+      set_translation x.to_f, @y.to_f
       @x = x
       update
     end
 
     param def y! y
       return if @y == y
-      set_translation @x.to_i, y.to_f
+      set_translation @x.to_f, y.to_f
       @y = y
       update
     end
@@ -113,7 +124,11 @@ module Kredki
       @base = base
     end
 
-    def_flag :show, set: :set_show, get: :get_show
+    def_flag :show, set: :set_show, get: :get_show, test: false
+
+    def show? direct = false
+      get_show direct
+    end
 
     def hide!
       set_show false
@@ -145,8 +160,8 @@ module Kredki
       show ? @base&.show_paint(self) : @base&.hide_paint(self)
     end
 
-    def get_show
-      @base&.paint_shown self
+    def get_show direct = true
+      @base&.paint_shown self, direct
     end
 
     # def set_composite_method mask, method

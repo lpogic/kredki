@@ -1,7 +1,7 @@
 module Kredki
   class KeyEvent < AbiEvent
     
-    model :keyboard
+    model :keyboard, :abi!, :target!
 
     def key
       @keyboard.key(@abi.sym)

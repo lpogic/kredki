@@ -59,11 +59,11 @@ module Kredki
         end
       end
 
-      param def group! group, custom = true
+      param def group! group
+        return if @group == group
         @group&.remove self
         group&.append self
         @group = group
-        @custom_group = custom
       end
 
       def on_pick! ...

@@ -15,6 +15,18 @@ module Kredki
       self
     end
 
+    def safe_alter *arg, **narg, &block
+      arg.each do |a|
+        send :<<, a
+      end
+      narg.each do |k, v|
+        k = "#{k}=" if k =~ /^\w+$/
+        send k, v if respond_to? k
+      end
+      instance_exec self, &block if block
+      self
+    end
+
     def alter! ...
       altered = alter_begin
       alter(...)

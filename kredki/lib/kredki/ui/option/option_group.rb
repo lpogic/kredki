@@ -3,24 +3,9 @@ module Kredki
     class OptionGroup
       include Alterable
 
-      class << self
-        def [](prev_key = :up, next_key = :down)
-          self.new.alter prev_key:, next_key:;
-        end
-      end
-
       model do
         @options = []
       end
-
-      aliasing def prev_key! key
-        @prev_key = key
-      end, :prev_key=
-
-      aliasing def next_key! key
-        @next_key = key
-      end, :next_key=
-
 
       #internal api
 
@@ -34,11 +19,11 @@ module Kredki
 
       def key e
         case e.symbol
-        when @prev_key
+        when :up
           option = update_select_option :previous
           option&.roi!
           e.resolve
-        when @next_key
+        when :down
           option = update_select_option :next
           option&.roi!
           e.resolve

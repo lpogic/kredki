@@ -19,6 +19,10 @@ module Kredki
         @resolved = false
         @break = false
       end
+
+      def inspect
+        "#{self.class}:#{object_id}"
+      end
       
       def [](key)
         send key
@@ -57,13 +61,13 @@ module Kredki
         !!@trace
       end
 
-      def self.all *event_managers, &block
+      def self.group *event_managers, &block
         event_managers.map{ it.attach! block }
       end
     end
 
     class PositionEvent < Event
-      model :x, :y
+      model :x, :y, :target!
 
       def xy
         [@x, @y]
@@ -77,7 +81,7 @@ module Kredki
     class MouseEvent < PositionEvent
       extend Forwardable
 
-      model :origin do
+      model :origin, :x!, :y!, :target! do
         @x ||= @origin.x
         @y ||= @origin.y
       end
@@ -106,7 +110,7 @@ module Kredki
     end
 
     class DragEvent < MouseEvent
-      model :@xy0
+      model :@xy0, :x!, :y!, :target!
 
       def x0
         @xy0[0]
@@ -131,7 +135,7 @@ module Kredki
     end
 
     class ResizeEvent < Event
-      model :w, :h
+      model :w, :h, :target!
     end
 
     class EnterEvent < Event
@@ -147,7 +151,7 @@ module Kredki
     end
 
     class EditEvent < Event
-      model :selection_min, :selection_max, :string, :type
+      model :selection_min, :selection_max, :string, :type, :target!
 
       def [](key = :string)
         send key
@@ -155,7 +159,7 @@ module Kredki
     end
 
     class ChangeEvent < Event
-      model :new_value, :old_value
+      model :new_value, :old_value, :target!
 
       def [](key = :new_value)
         send key
@@ -167,7 +171,7 @@ module Kredki
     end
 
     class ROIEvent < PositionEvent
-      model :w, :h
+      model :w, :h, :x!, :y!, :target!
 
       def wh
         [@w, @h]

@@ -4,7 +4,7 @@ require_relative 'theme'
 
 module Kredki
   module UI
-    class ButtonPad < Pad
+    class Checkbox < Pad
       extend Forwardable
 
       class SimpleColorBasedTheme < Theme
@@ -22,7 +22,7 @@ module Kredki
 
         def repaint
           @pad.area.color = @pad.button_top? ? @color.darken : @pad.mouse_in? ? @color.lighten : @color
-          @pad.area.stroke_color = @pad.keyboard_in? && !@pad.button_top? ? :stroke_focus : @color.darken
+          @pad.area.stroke_color = @pad.keyboard_in? ? :stroke_focus : @color.darken
         end
       end
 
@@ -43,16 +43,7 @@ module Kredki
         @theme = theme
       end
 
-      attr :text
-
-      def << arg
-        case arg
-        when String
-          text << arg
-        else
-          super
-        end
-      end
+      def_flag :checked, set: :set_checked
 
       #internal api
 
@@ -60,7 +51,14 @@ module Kredki
         super
 
         @theme = nil
-        @text = new_pad TextLine, "Button", mousy: false, keyboardy: false
+        @check = new_pad Pad, mousy: false, keyboardy: false, color: 0, stroke_width: 2, stroke_color: :text, wh: 10 do
+          area! do |w, h|
+            move_to! 2, h / 2
+            line_to! w / 2, h - 1
+            line_to! w - 2, 2
+          end
+          hide!
+        end
       end
 
       def sketch p0
@@ -71,6 +69,16 @@ module Kredki
         theme! :gray
         layout! :center
         wh! :fit
+
+        Event.group on_click!, on_key!(:space, :enter) do
+          checked! :~
+        end
+
+      end
+
+      def set_checked checked
+        @checked = checked
+        @check.show! checked
       end
 
       def set_theme theme

@@ -1,7 +1,7 @@
 module Kredki
   class MouseButtonEvent < AbiEvent
     
-    model :mouse
+    model :mouse, :abi!, :target!
 
     def button
       @mouse.button(@abi.button).to_sym

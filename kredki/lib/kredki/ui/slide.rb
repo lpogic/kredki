@@ -66,6 +66,16 @@ module Kredki
         @value = 0.0
       end
 
+      def sketch p0
+        super
+
+        on_scroll! do |e|
+          jump = Kredki.mouse.scrollbar_speed keyboard.alt?
+          self.value -= jump * e.xory
+          e.resolve
+        end
+      end
+
       def sketch2 p0
         theme! :gray
 

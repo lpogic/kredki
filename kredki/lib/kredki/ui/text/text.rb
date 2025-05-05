@@ -7,7 +7,7 @@ module Kredki
         super
 
         area.hide!
-        keyboardy!
+        # keyboardy!
     
         on_key! :left do |e|
           cursor_left e.shift?

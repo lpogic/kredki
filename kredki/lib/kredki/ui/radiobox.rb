@@ -1,10 +1,11 @@
 require 'forwardable'
 require_relative 'text/text_line'
+require_relative 'radio_group'
 require_relative 'theme'
 
 module Kredki
   module UI
-    class ButtonPad < Pad
+    class Radiobox < Pad
       extend Forwardable
 
       class SimpleColorBasedTheme < Theme
@@ -22,7 +23,7 @@ module Kredki
 
         def repaint
           @pad.area.color = @pad.button_top? ? @color.darken : @pad.mouse_in? ? @color.lighten : @color
-          @pad.area.stroke_color = @pad.keyboard_in? && !@pad.button_top? ? :stroke_focus : @color.darken
+          @pad.area.stroke_color = @pad.keyboard_in? ? :stroke_focus : @color.darken
         end
       end
 
@@ -43,16 +44,27 @@ module Kredki
         @theme = theme
       end
 
-      attr :text
-
-      def << arg
-        case arg
-        when String
-          text << arg
+      def self.group param
+        case param
+        when RadioGroup
+          param
         else
-          super
+          (@groups ||= {})[param] ||= RadioGroup.new
         end
       end
+
+      param def group! group
+        return if @group == group
+        @group = group
+        s_group = self.class.group group
+        return if @s_group == s_group
+        @s_group&.remove self
+        s_group&.append self
+        @s_group = s_group
+        true
+      end
+
+      def_flag :checked, set: :update_checked
 
       #internal api
 
@@ -60,17 +72,44 @@ module Kredki
         super
 
         @theme = nil
-        @text = new_pad TextLine, "Button", mousy: false, keyboardy: false
+        @check = new_pad Pad, mousy: false, keyboardy: false, color: :text, wh: 100r do
+          area! do |w, h|
+            ellipse! w / 2, h / 2, w / 2
+          end
+          hide!
+        end
       end
 
       def sketch p0
         super
 
+        area! do |w, h|
+          ellipse! w / 2, h / 2, w / 2 - 1
+        end
         keyboardy!
         stroke_width! 1
-        theme! :gray
         layout! :center
-        wh! :fit
+        wh! 16
+        m! 5
+        theme! :gray
+
+        Event.group on_click!, on_key!(:space, :enter) do
+          checked!
+        end
+
+        on_key! do |e|
+          @s_group&.key e, self
+        end
+
+      end
+
+      def update_checked checked
+        @s_group&.set_checked self, checked or set_checked checked
+      end
+
+      def set_checked checked
+        @checked = checked
+        @check.show! checked
       end
 
       def set_theme theme

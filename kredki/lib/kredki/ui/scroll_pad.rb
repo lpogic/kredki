@@ -119,6 +119,8 @@ module Kredki
           h = sh
           xscroll = w < pad.sw
           yscroll = h < pad.sh
+          yscroll ||= xscroll && h - 10 < pad.sh
+          xscroll ||= yscroll && w - 10 < pad.sw
           
           @xslide.show = xscroll
           if xscroll
@@ -146,6 +148,40 @@ module Kredki
           @corner.hide!
         end
       end
+
+      # def update_pad
+      #   if pad = self.pad
+      #     w = sw
+      #     h = sh
+      #     xscroll = w < pad.sw
+      #     yscroll = h < pad.sh
+          
+      #     @xslide.show = xscroll
+      #     if xscroll
+      #       @xslide.w = yscroll ? w - 10 : w
+      #       @xslide.handle.w = (w.to_f / pad.sw * w).clamp(20, [w - 20, 20].max)
+      #       pad_x = ((@xslide.w - pad.sw) * @xslide.value).round
+      #     else
+      #       pad_x = 0
+      #     end
+          
+      #     @yslide.show = yscroll
+      #     if yscroll
+      #       @yslide.h = xscroll ? h - 10 : h
+      #       @yslide.handle.h = (h.to_f / pad.sh * h).clamp(20, [h - 20, 20].max)
+      #       pad_y = ((@yslide.h - pad.sh) * @yslide.value).round
+      #     else
+      #       pad_y = 0
+      #     end
+
+      #     pad.xy! pad_x, pad_y
+      #     @corner.show = xscroll && yscroll
+      #   else
+      #     @xslide.hide!
+      #     @yslide.hide!
+      #     @corner.hide!
+      #   end
+      # end
     end
   end
 end
