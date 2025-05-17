@@ -22,8 +22,8 @@ module Kredki
         self
       end
 
-      def def_pad name, klass = nil, *def_a, **def_na, &def_b
-        PadBase.def_pad name, klass, *def_a, **def_na, &def_b
+      def def! ...
+        PadBase.def!(...)
       end
 
       def pad_parent
@@ -32,6 +32,18 @@ module Kredki
 
       def service_parent
         nil
+      end
+
+      def sw
+        w
+      end
+
+      def sh
+        h
+      end
+
+      def swh
+        wh
       end
 
       def cw
@@ -82,7 +94,7 @@ module Kredki
 
         on_resize! do
           w, h = *wh
-          @layers.each{ _1.wh! w, h }
+          @layers.each{ _1.set_size w, h }
         end
 
         layer!.focus!
@@ -110,7 +122,7 @@ module Kredki
       end
 
       def update_mouse_location event = nil
-        @layers.reverse_each.find do |layer|
+        @layers.reverse_each do |layer|
           layer.update_mouse_location event
         end
       end
@@ -127,9 +139,11 @@ module Kredki
       end
 
       def push_layer layer
+        return if layer.pad_parent == self
+        layer.action&.remove_pad layer
         push_paint layer.scene
         layer.set_pad_parent self
-        layer.wh! *wh
+        layer.set_size *wh
         @layers << layer
         layer
       end

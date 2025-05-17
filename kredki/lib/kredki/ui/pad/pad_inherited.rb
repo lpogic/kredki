@@ -7,56 +7,25 @@ module Kredki
         end
       end
 
-      def def_forward filter, *methods
-        methods.each do |method|
-          define_method method do |*a, **na, &b|
-            target = self[filter]
-            raise "Cant find target for ::#{method}" unless target
-            target.send method, *a, **na, &b
-          end
-        end
-      end
-
-      def defw_resp *methods
-        methods.each do |method|
-          def_forward proc{ _1.respond_to? method }, method
-        end
-      end
-
-      def defw_param *params, get: true
-        params.each do |param|
-          defw_resp "#{param}!".to_sym, "#{param}=".to_sym
-          defw_resp param if get
-        end
-      end
-
-      def param_service name, path = nil
-        path ||= "@#{name}"
+      def param_service name
         class_eval <<~XX
           def #{name}! ...
-            #{path}.alter(...)
-          end
-        XX
-        class_eval <<~XX
-          def #{name}
-            #{path}
+            #{name}.alter(...)
           end
         XX
       end
 
-      def def_pad name, klass = nil, *def_a, **def_na, &def_b
+      def def! name, klass = nil, *def_a, **def_na, &def_b
         case klass
         when Class
           define_method name do |*a, **na, &b|
-            pad = new_pad klass, name, *def_a, **def_na, &def_b
-            pad.alter *a, **na, &b
+            new(klass, name, *def_a, **def_na, **na, &def_b).alter *a, &b
           end
         when true
           define_method name do |*a, **na, &b|
             a = [name, *def_a, *a]
             na = {**def_na, **na}
-            pad = instance_exec a, na, b, self, &def_b
-            pad.alter *a, **na, &b
+            instance_exec(a, na, b, self, &def_b).alter *a, **na, &b
           end
         else
           define_method name do |*a, **na, &b|

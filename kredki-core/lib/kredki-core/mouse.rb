@@ -4,7 +4,7 @@ module Kredki
   class Mouse
     extend Flagship
 
-    model :buttons, :scrollbar_speed, :scrollbar_alt_speed do
+    model :buttons, :scrollbar_speed, :scrollbar_alt_speed, keywords: true do
       @inverted_buttons = @buttons.reverse_each.map{ [_2, _1] }.to_h
     end
 

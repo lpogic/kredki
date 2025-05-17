@@ -1,5 +1,5 @@
 module Kredki
   class StepEvent < Event
-    model :ms, :target!
+    model :ms, :<
   end
 end

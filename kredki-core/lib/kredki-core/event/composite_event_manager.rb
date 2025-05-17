@@ -2,10 +2,10 @@ module Kredki
   class CompositeEventManager
     model :@managers
 
-    def attach! attached, always = false
+    def attach! attached, always: false
       resolver = case attached
       when EventResolver
-        resolver.copy manager: self, always:;
+        EventResolver.new attached.block, self, always
       when Proc
         EventResolver.new attached, self, always
       else raise "Unsupported attached type (#{attached.class})"

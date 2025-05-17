@@ -48,7 +48,7 @@ module Kredki
 
   class AbiEvent < Event
     
-    model :abi, :target!
+    model :abi, :<
 
     def timestamp
       @abi.timestamp

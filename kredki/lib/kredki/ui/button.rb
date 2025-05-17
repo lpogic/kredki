@@ -60,7 +60,7 @@ module Kredki
         super
 
         @theme = nil
-        @text = new_pad TextLine, "Button", mousy: false, keyboardy: false
+        @text = new TextLine, "Button", mousy: false, keyboardy: false
       end
 
       def sketch p0

@@ -52,7 +52,9 @@ module Kredki
         end
       end
 
-      param_service :cursor, "@text_clip.text.cursor"
+      param_service def cursor
+        @text_clip.text.cursor
+      end
 
       param def string! string, cursor = false
         @text_clip.string! string, cursor
@@ -65,7 +67,7 @@ module Kredki
       def initialize
         super
       
-        @text_clip = new_pad TextLineEditorClip, w: 100r, y: 50r
+        @text_clip = new TextLineEditorClip, w: 100r, y: 50r
         @theme = nil
       end
 

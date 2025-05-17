@@ -39,7 +39,7 @@ module Kredki
       def initialize
         super
         
-        @editor = new_pad TextAreaEditor
+        @editor = new TextAreaEditor
       end
 
 

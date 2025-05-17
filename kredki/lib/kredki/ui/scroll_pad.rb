@@ -26,9 +26,9 @@ module Kredki
         
         layout! ScrollPadLayout.instance
         # @corner existence is checked in push_pad
-        corner = new_pad Pad, color: :gray, h: 10, w: 10, xy: 100r
-        @xslide = new_pad HorizontalSlide, h: 10, x: 0, y: 100r
-        @yslide = new_pad VerticalSlide, w: 10, y: 0, x: 100r
+        corner = new Pad, color: :gray, h: 10, w: 10, xy: 100r
+        @xslide = new HorizontalSlide, h: 10, x: 0, y: 100r
+        @yslide = new VerticalSlide, w: 10, y: 0, x: 100r
         @corner = corner
 
         @yslide.on_edit! do |e|

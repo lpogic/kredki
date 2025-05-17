@@ -52,7 +52,9 @@ module Kredki
         end
       end
 
-      param_service :cursor, "@text_clip.text.cursor"
+      param_service def cursor
+        @text_clip.text.cursor
+      end
 
       #internal api
 
@@ -60,7 +62,7 @@ module Kredki
         super
       
         @theme = nil
-        @text_clip = new_pad TextAreaEditorClip, wh: 100r
+        @text_clip = new TextAreaEditorClip, wh: 100r
       end
 
 

@@ -2,7 +2,7 @@ module Kredki
   class Joystick
     @@next_name = :joystick_1
 
-    model :name, :buttons, :axes do
+    model :name, :buttons, :axes, keywords: true do
       @buttons ||= {}
       @inverted_buttons = @buttons.invert
       @axes ||= {}

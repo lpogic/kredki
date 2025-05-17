@@ -1,11 +1,14 @@
+require_relative 'pad/service'
+
 module Kredki
   module UI
-    class RadioGroup
-      include Alterable
+    class RadioGroup < Service
 
       model do
         @radios = []
       end
+
+      attr :radios
 
       #internal api
 

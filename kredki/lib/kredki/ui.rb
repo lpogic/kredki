@@ -130,54 +130,30 @@ module Kredki
 
   module UI
     module PadBase
-      def_pad :pad!, Pad
-      def_pad :space!, SpacePad
-      def_pad :grid!, GridPad
-      def_pad :scroll!, ScrollPad
-      def_pad :image!, ImagePad
-      def_pad :xslide!, HorizontalSlide
-      def_pad :yslide!, VerticalSlide
-      def_pad :text!, TextLine
-      def_pad :texts!, TextArea
-      def_pad :button!, ButtonPad
-      def_pad :checkbox!, Checkbox
-      def_pad :radio!, Radiobox
-      def_pad :note!, Note
-      def_pad :notes!, Notes
-      def_pad :label!, Label
-      def_pad :note_dropdown!, true do
-        new_service NoteDropdown
-      end
+      def! :pad!, Pad
+      def! :space!, SpacePad
+      def! :grid!, GridPad
+      def! :scroll!, ScrollPad
+      def! :image!, ImagePad
+      def! :xslide!, HorizontalSlide
+      def! :yslide!, VerticalSlide
+      def! :text!, TextLine
+      def! :texts!, TextArea
+      def! :button!, ButtonPad
+      def! :check!, Checkbox
+      def! :radio!, Radiobox
+      def! :note!, Note
+      def! :notes!, Notes
+      def! :label!, Label
+      def! :note_dropdown!, NoteDropdown
 
-      def_pad :option!, Option
+      def! :radio_group!, RadioGroup
+      def! :option_group!, OptionGroup
 
-      class RightTriangle < Kredki::ShapeArea
-        def redraw w, h
-          stroke_width! 3
-          draw! do
-            move_to! 0, 0
-            line_to! w, h / 2
-            line_to! 0, h
-          end
-        end
-      end
+      def! :option!, Option
 
-      def_pad :dropdown! do |a, na, b|
-        @dropdown ||= orphan!.new_pad DropdownLayer, master: self
-        options = @dropdown.options.alter(*a, **na)
-        options.instance_exec options, @dropdown, &b if b
-        options
-      end
-        
-      def_pad :dropright!, true do
-        @dropright ||= orphan!.new_pad DroprightLayer, master: self
-        @dropright.options
-      end
-
-      def_pad :context_menu!, true do
-        @context_menu ||= new_service ContextLayer
-        @context_menu.set_master self
-        @context_menu
+      def! :context_menu!, true do
+        @context_menu ||= new ContextLayer
       end
 
     end#PadBase

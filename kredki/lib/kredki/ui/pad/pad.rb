@@ -157,6 +157,10 @@ module Kredki
       def sh
         @area.h
       end
+
+      def swh
+        @area.wh
+      end
       
       def cw
         @clip_area.w
@@ -226,7 +230,6 @@ module Kredki
         area = BlockShapeArea.new block if block
         return if @area == area
         area.safe_alter **@area
-        # area.wh! *@area.wh
         @scene.push_paint area, true, @area
         @scene.remove_paint @area
         @area = area
@@ -236,7 +239,7 @@ module Kredki
       param def clip_area! area = nil, &block
         area = BlockShapeArea.new block if block
         return if @clip_area == area
-        area&.wh! *@clip_area.wh
+        area.safe_alter **@clip_area
         @clip_scene.clip! area
         @clip_area = area
         true
@@ -254,6 +257,16 @@ module Kredki
 
       attr :pad_parent, :scene, :clip_area, :clip_scene, :pads
 
+      def pad_lineage include_self = true
+        Enumerator.new do |e|
+          c = include_self ? self : pad_parent
+          while c && !c.is_a?(Action)
+            e << c
+            c = c.pad_parent
+          end
+        end
+      end
+
       def_flag :show, set: :set_show, get: :get_show, test: false
 
       def show? direct = false
@@ -269,7 +282,7 @@ module Kredki
       end
 
       def mouse_in?
-        layer&.mouse_pad&.lineage&.any?{ _1 == self } || false
+        layer&.mouse_pad&.pad_lineage&.any?{ _1 == self } || false
       end
 
       def mouse_top?
@@ -277,7 +290,7 @@ module Kredki
       end
 
       def keyboard_in?
-        layer&.keyboard_pad&.lineage&.any?{ _1 == self } || false
+        layer&.keyboard_pad&.pad_lineage&.any?{ _1 == self } || false
       end
 
       def keyboard_top?
@@ -285,7 +298,7 @@ module Kredki
       end
 
       def button_in?
-        layer&.button_pad&.lineage&.any?{ _1 == self } || false
+        layer&.button_pad&.pad_lineage&.any?{ _1 == self } || false
       end
 
       def button_top?
@@ -322,7 +335,7 @@ module Kredki
       end
 
       def roi!
-        report ROIEvent.new *wh, *translate
+        report ROIEvent.new *swh, *translate
       end
 
       def use! extension, *a, **na, &b
@@ -360,6 +373,8 @@ module Kredki
         on_mouse_button!{ mouse_button_down _1 }
         on_mouse_button_up!{ mouse_button_up _1 }
         on_mouse_move!{ mouse_move _1 }
+        on_focus_gain!{ focus_gain _1 }
+        on_focus_lose!{ focus_lose _1 }
       end
 
       def mouse_button_down e
@@ -371,11 +386,11 @@ module Kredki
       end
 
       def mouse_enter e
-        e.resolve
+        # e.resolve
       end
 
       def mouse_leave e
-        e.resolve
+        # e.resolve
       end
 
       def mouse_button_up e
@@ -395,23 +410,24 @@ module Kredki
           @drag = true
           report DragEvent.new @button_down_xy, e.origin
         end
+        # e.resolve
+      end
+
+      def focus_gain e
+        e.resolve
+      end
+
+      def focus_lose e
         e.resolve
       end
 
       def pad_detach transfer = false
         @scene.detach!
-        @pad_parent&.remove_pad self, transfer
-        @pad_parent = nil
-      end
-
-      def new_pad klass = Pad, *a, at: nil, **na, &b
-        pad = klass.new
-        pad.alter_begin
-        pad.sketch pad
-        push_service pad, at if at != false
-        pad.alter *a, **na, &b
-        pad.alter_commit
-        pad
+        if @pad_parent
+          @pad_parent.remove_pad self, transfer
+          @pad_parent = nil
+          grand_pad_detach
+        end
       end
 
       def pad_index
@@ -690,16 +706,6 @@ module Kredki
           return [-xy[0], -xy[1]]
         end
         return [x, y]
-      end
-
-      def pad_lineage include_self = true
-        Enumerator.new do |e|
-          c = include_self ? self : parent
-          while c && !c.is_a?(Action)
-            e << c
-            c = c.pad_parent
-          end
-        end
       end
 
       def report event, path = true, instant = false

@@ -47,7 +47,7 @@ module Kredki
 
       def cell! ...
         altered = alter_begin
-        cell = new_pad(Cell, ...)
+        cell = new(Cell, ...)
         cell.col ||= @current_col
         cell.row ||= @current_row
         (cell.min_col..cell.max_col).each do |i|

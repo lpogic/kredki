@@ -8,7 +8,9 @@ module Kredki
 
     def resolve event = nil
       return if !@always && event&.resolved?
-      p @block if event&.trace?
+      if event&.trace?
+        puts @block
+      end
       @block.call event, self
     end
 

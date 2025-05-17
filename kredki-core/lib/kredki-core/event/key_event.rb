@@ -1,7 +1,7 @@
 module Kredki
   class KeyEvent < AbiEvent
     
-    model :keyboard, :abi!, :target!
+    model :keyboard, :<
 
     def key
       @keyboard.key(@abi.sym)
@@ -71,8 +71,8 @@ module Kredki
       @abi.mod & 0b1000_0000_0000_0000 != 0
     end
 
-    def [](key = :symbol)
-      send key
+    def ~()
+      symbol
     end
   end
 

@@ -1,11 +1,14 @@
+require_relative '../pad/service'
+
 module Kredki
   module UI
-    class OptionGroup
-      include Alterable
+    class OptionGroup < Service
 
       model do
         @options = []
       end
+
+      attr :options
 
       #internal api
 
@@ -31,11 +34,7 @@ module Kredki
       end
 
       def mouse_enter pad
-        current_open = @options.find{ it.keyboard_in? }
-        if current_open && current_open != pad
-          current_open.focus! false
-          pad.focus!
-        end
+        pad.focus! if @options.find{ it.keyboard_in? } != pad
       end
 
       def update_select_option option
@@ -47,7 +46,7 @@ module Kredki
           index = (@options.index{ it.keyboard_in? } || -1) + 1
           update_select_option @options[index < @options.length ? index : 0]
         else
-          option&.gain_keyboard
+          option&.focus!
           option
         end
       end

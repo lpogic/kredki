@@ -18,7 +18,7 @@ module Kredki
     def attach! attached, always: false, last: false
       resolver = case attached
       when EventResolver
-        attached.attach! self, always;
+        attached.attach! self, always
       when Proc
         EventResolver.new attached, self, always
       else raise "Unsupported attached type (#{attached.class})"

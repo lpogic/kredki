@@ -17,7 +17,7 @@ module Kredki
 
         cursor.color = false
         keyboardy!
-        for! :-
+        for! :+
 
         on_click! do |e|
           self[@for, proc{ it.keyboardy? }] do

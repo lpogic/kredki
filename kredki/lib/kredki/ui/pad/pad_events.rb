@@ -67,7 +67,7 @@ module Kredki
     end
 
     class PositionEvent < Event
-      model :x, :y, :target!
+      model :x, :y, :<
 
       def xy
         [@x, @y]
@@ -81,7 +81,7 @@ module Kredki
     class MouseEvent < PositionEvent
       extend Forwardable
 
-      model :origin, :x!, :y!, :target! do
+      model :origin, :< do
         @x ||= @origin.x
         @y ||= @origin.y
       end
@@ -110,7 +110,7 @@ module Kredki
     end
 
     class DragEvent < MouseEvent
-      model :@xy0, :x!, :y!, :target!
+      model :@xy0, :<
 
       def x0
         @xy0[0]
@@ -135,7 +135,7 @@ module Kredki
     end
 
     class ResizeEvent < Event
-      model :w, :h, :target!
+      model :w, :h, :<
     end
 
     class EnterEvent < Event
@@ -151,7 +151,7 @@ module Kredki
     end
 
     class EditEvent < Event
-      model :selection_min, :selection_max, :string, :type, :target!
+      model :selection_min, :selection_max, :string, :type, :<
 
       def [](key = :string)
         send key
@@ -159,7 +159,7 @@ module Kredki
     end
 
     class ChangeEvent < Event
-      model :new_value, :old_value, :target!
+      model :new_value, :old_value, :<
 
       def [](key = :new_value)
         send key
@@ -171,7 +171,7 @@ module Kredki
     end
 
     class ROIEvent < PositionEvent
-      model :w, :h, :x!, :y!, :target!
+      model :w, :h, :<
 
       def wh
         [@w, @h]

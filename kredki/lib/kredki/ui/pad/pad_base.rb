@@ -81,12 +81,14 @@ module Kredki
           end
         when :-
           parent&.each_service(deep: false, reverse: true)&.drop_while{|a| a != self }&.drop(1)
-          &.find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+            &.find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+              
             block ? pad.instance_exec(pad, &block) : pad
           end
         when :+
           parent&.each_service(deep: false)&.drop_while{|a| a != self }&.drop(1)
-          &.find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+            &.find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+
             block ? pad.instance_exec(pad, &block) : pad
           end
         else
@@ -143,20 +145,17 @@ module Kredki
         end
       end
 
-      def self.def_pad name, klass = nil, *def_a, **def_na, &def_b
+      def self.def! name, klass = nil, *def_a, **def_na, &def_b
         case klass
         when Class
           define_method name do |*a, **na, &b|
-            pad = new_pad klass, name, *def_a, **def_na, &def_b
-            pad.alter *a, **na, &b
-            pad
+            new(klass, name, *def_a, **def_na, **na, &def_b).alter *a, &b
           end
         when true
           define_method name do |*a, **na, &b|
             a = [name, *def_a, *a]
             na = {**def_na, **na}
-            pad = instance_exec a, na, b, self, &def_b
-            pad.alter *a, **na, &b
+            instance_exec(a, na, b, self, &def_b).alter *a, **na, &b
           end
         else
           define_method name do |*a, **na, &b|
@@ -165,47 +164,6 @@ module Kredki
             instance_exec a, na, b, self, &def_b
           end
         end
-      end
-
-      def def_forward filter, *methods
-        methods.each do |method|
-          define_singleton_method method do |*a, **na, &b|
-            target = self[filter]
-            raise "Cant find target for ::#{method}" unless target
-            target.send method, *a, **na, &b
-          end
-        end
-      end
-
-      def defw_resp *methods
-        methods.each do |method|
-          def_forward proc{ _1.respond_to? method }, method
-        end
-      end
-
-      def defw_param *params, get: true
-        params.each do |param|
-          defw_resp "#{param}!".to_sym, "#{param}=".to_sym
-          defw_resp param if get
-        end
-      end
-
-      def orphan! &block
-        orphan = Orphan.new
-        block ? orphan.instance_exec(&block) : orphan
-      end
-    end
-
-    class Orphan
-      include PadBase
-      
-      def new_pad klass = Pad, *a, **na, &b
-        pad = klass.new
-        pad.alter_begin
-        pad.sketch pad
-        pad.alter *a, **na, &b
-        pad.alter_commit
-        pad
       end
     end
   end

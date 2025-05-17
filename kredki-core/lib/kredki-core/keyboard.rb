@@ -1,7 +1,7 @@
 
 module Kredki
   class Keyboard
-    model :keys do
+    model :keys, keywords: true do
       @inverted_keys = @keys.invert
     end
 

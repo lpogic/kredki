@@ -56,7 +56,7 @@ module Kredki
         super
         
         @tx = POSITION_START
-        @editor = new_pad TextLineEditor
+        @editor = new TextLineEditor
       end
 
 

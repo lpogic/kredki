@@ -106,7 +106,7 @@ module Kredki
 
         h! 10
 
-        @handle = new_pad.alter w: 20, h: 100r, color: :gray do
+        @handle = new Pad, w: 20, h: 100r, color: :gray do
         
           on_drag! do |e|
             start_x = @button_down_xy[0]

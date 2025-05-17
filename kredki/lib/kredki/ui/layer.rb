@@ -18,8 +18,8 @@ module Kredki
 
       attr :button_pad
 
-      def def_pad ...
-        action.def_pad(...)
+      def def! ...
+        action.def!(...)
       end
 
       def detach! transfer = false
@@ -105,10 +105,10 @@ module Kredki
           if xy
             included = point_pads *xy, mouse_pads = []
             @mouse_pads.reverse_each do |pad| 
-              pad.report LeaveEvent.new unless mouse_pads.include? pad
+              pad.report LeaveEvent.new, false unless mouse_pads.include? pad
             end
             mouse_pads.each do |pad|
-              pad.report EnterEvent.new unless @mouse_pads.include? pad
+              pad.report EnterEvent.new, false unless @mouse_pads.include? pad
             end
             mouse_top = mouse_pads.last
             mouse_top.report MouseMoveEvent.new(event, *xy) if mouse_top && event
@@ -116,7 +116,7 @@ module Kredki
             return included
           else
             @mouse_pads.reverse_each do |pad| 
-              pad.report LeaveEvent.new
+              pad.report LeaveEvent.new, false
             end
             @mouse_pads = []
             return false
@@ -126,13 +126,13 @@ module Kredki
 
       def update_keyboard_pad keyboard_pad
         if !keyboard_pad
-          @keyboard_pads.each{|pad| pad.report FocusLoseEvent.new }
+          @keyboard_pads.each{|pad| pad.report FocusLoseEvent.new, false }
           @keyboard_pads = []
         else
-          keyboard_pads = keyboard_pad.lineage.to_a.reverse
+          keyboard_pads = keyboard_pad.pad_lineage.to_a.reverse
           left, both, right = *keyboard_pads.polarize(@keyboard_pads)
-          right.reverse_each{|pad| pad.report FocusLoseEvent.new }
-          left.each{|pad| pad.report FocusGainEvent.new }
+          right.reverse_each{|pad| pad.report FocusLoseEvent.new, false }
+          left.each{|pad| pad.report FocusGainEvent.new, false }
           @keyboard_pads = keyboard_pads
         end
       end

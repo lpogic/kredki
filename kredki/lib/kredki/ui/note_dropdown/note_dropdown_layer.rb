@@ -17,7 +17,6 @@ module Kredki
         options = @pad[Option..].to_a
         w = [pw, *options.map{ it.pw true }].max
         @pad.w = w
-        # @scroll.alter do
         @scroll.alter do
           xy! x, y
           w! mw
@@ -40,14 +39,10 @@ module Kredki
 
       #internal api
 
-      def initialize
-        super
-      end
-
       def sketch p0
         super
-        @scroll = new_pad ScrollPad
-        @pad = @scroll.new_pad Pad, color: :gray, layout: :column, h: :fit
+        @scroll = new ScrollPad
+        @pad = @scroll.new Pad, color: :gray, layout: :column, h: :fit
       end
 
       def mouse_button_down e

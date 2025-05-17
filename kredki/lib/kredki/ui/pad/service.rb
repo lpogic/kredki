@@ -128,7 +128,7 @@ module Kredki
         @services.map{ [it, it.service_tree] }.to_h
       end
 
-      def new_service klass, *a, at: nil, **na, &b
+      def new klass, *a, at: nil, **na, &b
         service = klass.new
         service.alter_begin
         service.sketch service
@@ -153,15 +153,20 @@ module Kredki
       end
 
       def set_parent parent
-        if @parent != parent
+        if new_parent = @parent != parent
           @parent = parent
           set_action parent&.action
         end
         c_set_parent
+        new_parent
       end
 
       def c_set_parent
         @services.each{ it.set_parent self }
+      end
+
+      def grand_pad_detach
+        @services.each{ _1.grand_pad_detach }
       end
 
       def set_action action

@@ -5,14 +5,14 @@ module Kredki
     class NoteDropdown < Service
 
       def note! ...
-        @note ||= new_service Note
+        @note ||= new Note
         @note.alter(...)
       end
 
       attr :note, :picked
 
       def dropdown! ...
-        @dropdown ||= new_service NoteDropdownLayer
+        @dropdown ||= new NoteDropdownLayer
         @dropdown.alter(...)
       end
 

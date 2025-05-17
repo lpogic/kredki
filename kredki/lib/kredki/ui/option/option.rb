@@ -1,5 +1,6 @@
 require_relative '../text/text_line'
 require_relative 'option_group'
+require_relative 'option_dropdown_layer'
 require_relative '../theme'
 
 module Kredki
@@ -37,7 +38,7 @@ module Kredki
         end
 
         def repaint
-          @pad.area.color = @pad.button_top? ? @color.darken : @pad.mouse_in? ? @color.lighten : @color
+          @pad.area.color = @pad.button_in? ? @color.darken : @pad.keyboard_in? ? @color.lighten : @color
         end
       end
 
@@ -59,11 +60,24 @@ module Kredki
         end
       end
 
+      def self.group param, target
+        case param
+        when OptionGroup
+          param
+        when false, nil
+          target.grand OptionGroup
+        else
+          (@groups ||= {})[param] ||= OptionGroup.new
+        end
+      end
+
       param def group! group
         return if @group == group
-        @group&.remove self
-        group&.append self
         @group = group
+        update_group
+        true
+      end, get: def group
+        @group || @_group
       end
 
       def on_pick! ...
@@ -81,7 +95,18 @@ module Kredki
         @text.string
       end
 
-      param_service :text
+      param_service def text
+        @text
+      end
+
+      def option! ...
+        dropdown!.option!(...)
+      end
+
+      param def dropdown! ...
+        @dropdown ||= new OptionDropdownLayer
+        @dropdown.alter(...)
+      end
 
       #internal api
 
@@ -89,7 +114,7 @@ module Kredki
         super
 
         @theme = nil
-        @text = new_pad TextLine, mousy: false, keyboardy: false, string: "Option"
+        @text = new TextLine, mousy: false, string: "Option"
       end
 
       def sketch p0
@@ -109,22 +134,43 @@ module Kredki
           e.resolve
         end
 
+        on_key! :right do |e|
+          if dr = dropdown
+            dr.load! self unless dr.loaded?
+            dr[Option]&.focus! and e.resolve
+          end
+          e.resolve
+        end
+
         on_key! do |e|
-          @group&.key e
+          @_group&.key e
         end
 
         on_mouse_enter! do |e|
-          @group&.mouse_enter self
+          @_group&.mouse_enter self
+          if dr = dropdown
+            dr.update_keyboard_pad nil if dr.loaded?
+          end
         end
       end
 
       def pw fit = false
-        arrow_w = arrow? ? 16 : 0
+        arrow_w = @dropdown ? 16 : 0
         super + arrow_w
       end
 
-      def pad
-        @pads.first
+      def update_group
+        group = self.class.group(@group, self)
+        return if @_group == group
+        @_group&.remove self
+        group&.append self
+        @_group = group
+        true
+      end
+
+      def c_set_parent
+        super
+        update_group unless @group
       end
     end
   end
