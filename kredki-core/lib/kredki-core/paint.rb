@@ -120,7 +120,7 @@ module Kredki
 
     def attach! base
       @base&.remove_paint self
-      base.push_paint self
+      base.put_paint self
       @base = base
     end
 

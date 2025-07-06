@@ -92,9 +92,9 @@ module Kredki
         super
       end
 
-      def push_pad pad, at = nil
+      def put_pad pad, at = nil
         unless pad.is_a? Cell
-          alter!{ cell!.push_pad pad }
+          alter!{ cell!.put_pad pad }
           return pad
         end
         super

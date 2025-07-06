@@ -1,5 +1,11 @@
 require_relative '../kredki'
 
+class Symbol
+  def <=>(oth)
+    0 if Numeric === oth
+  end
+end
+
 module Kredki
 
   PS = POSITION_START = proc{ 0 }
@@ -11,6 +17,10 @@ module Kredki
   module UI
     class << self
       attr_accessor :layouts
+
+      def eqr a, b
+        a == b and (Rational === a) == (Rational === b)
+      end
   
       def layout param = nil
         case param
@@ -39,10 +49,11 @@ module Kredki
   require_relative 'ui/radiobox'
   require_relative 'ui/label'
   require_relative 'ui/note_dropdown/note_dropdown'
+  require_relative 'ui/table'
 
   require_relative "ui/layout/basic"
-  require_relative "ui/layout/row"
-  require_relative "ui/layout/column"
+  require_relative "ui/layout/x_layout"
+  require_relative "ui/layout/y_layout"
   require_relative "ui/option/option"
   require_relative 'ui/option/dropdown_layer'
   require_relative 'ui/option/dropright_layer'
@@ -53,8 +64,8 @@ module Kredki
     start: UI::Layout::Basic.new(PS, PS),
     center: UI::Layout::Basic.new(PC, PC),
     end: UI::Layout::Basic.new(PE, PE),
-    column: UI::Layout::Column.new(0, 0),
-    row: UI::Layout::Row.new(0, 0),
+    column: UI::Layout::YLayout.new(0, 0),
+    row: UI::Layout::XLayout.new(0, 0),
     %i|start start| => UI::Layout::Basic.new(PS, PS),
     %i|start center| => UI::Layout::Basic.new(PS, PC),
     %i|start end| => UI::Layout::Basic.new(PS, PE),
@@ -64,35 +75,35 @@ module Kredki
     %i|end start| => UI::Layout::Basic.new(PE, PS),
     %i|end center| => UI::Layout::Basic.new(PE, PC),
     %i|end end| => UI::Layout::Basic.new(PE, PE),
-    %i|column start| => UI::Layout::Column.new(PS, 0),
-    %i|column center| => UI::Layout::Column.new(PC, 0),
-    %i|column end| => UI::Layout::Column.new(PE, 0),
-    %i|column start start| => UI::Layout::Column.new(PS, PS),
-    %i|column start center| => UI::Layout::Column.new(PS, PC),
-    %i|column start end| => UI::Layout::Column.new(PS, PE),
-    %i|column center start| => UI::Layout::Column.new(PC, PS),
-    %i|column center center| => UI::Layout::Column.new(PC, PC),
-    %i|column center end| => UI::Layout::Column.new(PC, PE),
-    %i|column end start| => UI::Layout::Column.new(PE, PS),
-    %i|column end center| => UI::Layout::Column.new(PE, PC),
-    %i|column end end| => UI::Layout::Column.new(PE, PE),
-    %i|row start| => UI::Layout::Row.new(PS, 0),
-    %i|row center| => UI::Layout::Row.new(PC, 0),
-    %i|row end| => UI::Layout::Row.new(PE, 0),
-    %i|row start start| => UI::Layout::Row.new(PS, PS),
-    %i|row start center| => UI::Layout::Row.new(PS, PC),
-    %i|row start end| => UI::Layout::Row.new(PS, PE),
-    %i|row center start| => UI::Layout::Row.new(PC, PS),
-    %i|row center center| => UI::Layout::Row.new(PC, PC),
-    %i|row center end| => UI::Layout::Row.new(PC, PE),
-    %i|row end start| => UI::Layout::Row.new(PE, PS),
-    %i|row end center| => UI::Layout::Row.new(PE, PC),
-    %i|row end end| => UI::Layout::Row.new(PE, PE),
+    %i|column start| => UI::Layout::YLayout.new(PS, 0),
+    %i|column center| => UI::Layout::YLayout.new(PC, 0),
+    %i|column end| => UI::Layout::YLayout.new(PE, 0),
+    %i|column start start| => UI::Layout::YLayout.new(PS, PS),
+    %i|column start center| => UI::Layout::YLayout.new(PS, PC),
+    %i|column start end| => UI::Layout::YLayout.new(PS, PE),
+    %i|column center start| => UI::Layout::YLayout.new(PC, PS),
+    %i|column center center| => UI::Layout::YLayout.new(PC, PC),
+    %i|column center end| => UI::Layout::YLayout.new(PC, PE),
+    %i|column end start| => UI::Layout::YLayout.new(PE, PS),
+    %i|column end center| => UI::Layout::YLayout.new(PE, PC),
+    %i|column end end| => UI::Layout::YLayout.new(PE, PE),
+    %i|row start| => UI::Layout::XLayout.new(PS, 0),
+    %i|row center| => UI::Layout::XLayout.new(PC, 0),
+    %i|row end| => UI::Layout::XLayout.new(PE, 0),
+    %i|row start start| => UI::Layout::XLayout.new(PS, PS),
+    %i|row start center| => UI::Layout::XLayout.new(PS, PC),
+    %i|row start end| => UI::Layout::XLayout.new(PS, PE),
+    %i|row center start| => UI::Layout::XLayout.new(PC, PS),
+    %i|row center center| => UI::Layout::XLayout.new(PC, PC),
+    %i|row center end| => UI::Layout::XLayout.new(PC, PE),
+    %i|row end start| => UI::Layout::XLayout.new(PE, PS),
+    %i|row end center| => UI::Layout::XLayout.new(PE, PC),
+    %i|row end end| => UI::Layout::XLayout.new(PE, PE),
     s: UI::Layout::Basic.new(PS, PS),
     c: UI::Layout::Basic.new(PC, PC),
     e: UI::Layout::Basic.new(PE, PE),
-    v: UI::Layout::Column.new(0, 0),
-    h: UI::Layout::Row.new(0, 0),
+    v: UI::Layout::YLayout.new(0, 0),
+    h: UI::Layout::XLayout.new(0, 0),
     ss: UI::Layout::Basic.new(PS, PS),
     sc: UI::Layout::Basic.new(PS, PC),
     se: UI::Layout::Basic.new(PS, PE),
@@ -102,30 +113,34 @@ module Kredki
     es: UI::Layout::Basic.new(PE, PS),
     ec: UI::Layout::Basic.new(PE, PC),
     ee: UI::Layout::Basic.new(PE, PE),
-    vs: UI::Layout::Column.new(PS, 0),
-    vc: UI::Layout::Column.new(PC, 0),
-    ve: UI::Layout::Column.new(PE, 0),
-    vss: UI::Layout::Column.new(PS, PS),
-    vsc: UI::Layout::Column.new(PS, PC),
-    vse: UI::Layout::Column.new(PS, PE),
-    vcs: UI::Layout::Column.new(PC, PS),
-    vcc: UI::Layout::Column.new(PC, PC),
-    vce: UI::Layout::Column.new(PC, PE),
-    ves: UI::Layout::Column.new(PE, PS),
-    vec: UI::Layout::Column.new(PE, PC),
-    vee: UI::Layout::Column.new(PE, PE),
-    hs: UI::Layout::Row.new(0, PS),
-    hc: UI::Layout::Row.new(0, PC),
-    he: UI::Layout::Row.new(0, PE),
-    hss: UI::Layout::Row.new(PS, PS),
-    hsc: UI::Layout::Row.new(PS, PC),
-    hse: UI::Layout::Row.new(PS, PE),
-    hcs: UI::Layout::Row.new(PC, PS),
-    hcc: UI::Layout::Row.new(PC, PC),
-    hce: UI::Layout::Row.new(PC, PE),
-    hes: UI::Layout::Row.new(PE, PS),
-    hec: UI::Layout::Row.new(PE, PC),
-    hee: UI::Layout::Row.new(PE, PE),
+    vs: UI::Layout::YLayout.new(PS, 0),
+    vc: UI::Layout::YLayout.new(PC, 0),
+    ve: UI::Layout::YLayout.new(PE, 0),
+    vss: UI::Layout::YLayout.new(PS, PS),
+    vsc: UI::Layout::YLayout.new(PS, PC),
+    vse: UI::Layout::YLayout.new(PS, PE),
+    vcs: UI::Layout::YLayout.new(PC, PS),
+    vcc: UI::Layout::YLayout.new(PC, PC),
+    vce: UI::Layout::YLayout.new(PC, PE),
+    ves: UI::Layout::YLayout.new(PE, PS),
+    vec: UI::Layout::YLayout.new(PE, PC),
+    vee: UI::Layout::YLayout.new(PE, PE),
+    hs: UI::Layout::XLayout.new(0, PS),
+    hc: UI::Layout::XLayout.new(0, PC),
+    he: UI::Layout::XLayout.new(0, PE),
+    hss: UI::Layout::XLayout.new(PS, PS),
+    hsc: UI::Layout::XLayout.new(PS, PC),
+    hse: UI::Layout::XLayout.new(PS, PE),
+    hcs: UI::Layout::XLayout.new(PC, PS),
+    hcc: UI::Layout::XLayout.new(PC, PC),
+    hce: UI::Layout::XLayout.new(PC, PE),
+    hes: UI::Layout::XLayout.new(PE, PS),
+    hec: UI::Layout::XLayout.new(PE, PC),
+    hee: UI::Layout::XLayout.new(PE, PE),
+    x: UI::Layout::XLayout.new(0, 0),
+    xc: UI::Layout::XLayout.new(PC, PC),
+    y: UI::Layout::YLayout.new(0, 0),
+    yc: UI::Layout::YLayout.new(PC, PC),
   }
 
   module UI
@@ -146,6 +161,7 @@ module Kredki
       def! :notes!, Notes
       def! :label!, Label
       def! :note_dropdown!, NoteDropdown
+      def! :table!, Table
 
       def! :radio_group!, RadioGroup
       def! :option_group!, OptionGroup

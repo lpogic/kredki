@@ -67,6 +67,14 @@ module Kredki
         @text.nearest_character_index x - @text.x
       end
 
+      def sw
+        @text.w + @cursor.w
+      end
+
+      def sh
+        @text.h
+      end
+
       def update_line_size cursor_position
         update_text
         wh! @text.w + @cursor.w, @text.h

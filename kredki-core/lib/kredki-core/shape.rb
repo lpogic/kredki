@@ -11,6 +11,7 @@ module Kredki
 
       @stroke_width = 0
       @stroke_color = nil
+      stroke_join! :bevel
       @color = Kredki.color
       @is_clip = false
       set_fill_color *@color.to_rgba_array
@@ -131,6 +132,7 @@ module Kredki
 
     param def stroke_cap! cap
       return if @stroke_cap == cap
+      p StrokeCap[cap || :square].to_i
       set_stroke_cap StrokeCap[cap || :square].to_i
       @stroke_cap = cap
       update

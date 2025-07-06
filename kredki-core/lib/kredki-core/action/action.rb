@@ -115,7 +115,7 @@ module Kredki
     end
 
     def build *a, **na, &block
-      alter *a, **na, &block
+      alter! *a, **na, &block
     end
   end
 end

@@ -42,6 +42,11 @@ module Kredki
         @option_group = @options.new OptionGroup
       end
 
+      def update_mouse_location event = nil
+        return if event && event.resolved?
+        super
+      end
+
       def mouse_button_down e
       end
 

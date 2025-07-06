@@ -62,7 +62,7 @@ module Kredki
         layer = klass.new
         layer.alter_begin
         layer.sketch layer
-        push_pad layer
+        put_pad layer
         layer.alter *a, **na, &b
         layer.alter_commit
         layer
@@ -94,7 +94,16 @@ module Kredki
 
         on_resize! do
           w, h = *wh
-          @layers.each{ _1.set_size w, h }
+          @layers.each do 
+            it.set_size w, h
+            it.wh! w, h
+          end
+        end
+
+        on_step! do
+          @layers.each do 
+            it.arrange and it.update_mouse_location
+          end
         end
 
         layer!.focus!
@@ -105,13 +114,18 @@ module Kredki
       end
 
       def build *a, **na, &block
-        @layers.last.alter *a, **na, &block
+        @layers.last.alter! *a, **na, &block
       end
 
       def set_size_p
       end
 
-      def arrange
+      # def arrange cause, param
+      #   param.arrange :recurse
+      # end
+
+      def child_sized?
+        false
       end
 
       def mouse_event event
@@ -133,7 +147,7 @@ module Kredki
         end
       end
 
-      def push_pad pad
+      def put_pad pad
         pad.set_parent self
         push_layer pad
       end
@@ -141,9 +155,10 @@ module Kredki
       def push_layer layer
         return if layer.pad_parent == self
         layer.action&.remove_pad layer
-        push_paint layer.scene
+        put_paint layer.scene
         layer.set_pad_parent self
         layer.set_size *wh
+        layer.wh! *wh
         @layers << layer
         layer
       end

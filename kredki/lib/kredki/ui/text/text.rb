@@ -182,11 +182,19 @@ module Kredki
         @cursor.color
       end
 
-      def pw
+      def fit_w
         w
       end
 
-      def ph
+      def fit_h
+        h
+      end
+
+      def min_w
+        w
+      end
+
+      def min_h
         h
       end
     end

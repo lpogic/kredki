@@ -149,13 +149,13 @@ module Kredki
         case klass
         when Class
           define_method name do |*a, **na, &b|
-            new(klass, name, *def_a, **def_na, **na, &def_b).alter *a, &b
+            new(klass, name, *def_a, **def_na, **na, &def_b).alter! *a, &b
           end
         when true
           define_method name do |*a, **na, &b|
             a = [name, *def_a, *a]
             na = {**def_na, **na}
-            instance_exec(a, na, b, self, &def_b).alter *a, **na, &b
+            instance_exec(a, na, b, self, &def_b).alter! *a, **na, &b
           end
         else
           define_method name do |*a, **na, &b|

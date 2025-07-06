@@ -35,6 +35,14 @@ module Kredki
         action.layer!(...)
       end
 
+      def weak_tag tag, weakref
+        define_singleton_method tag do
+          obj = weakref.__getobj__
+          weakref.weakref_alive? ? obj : nil
+        end
+      end
+
+
       #internal api
 
       def initialize
@@ -52,6 +60,17 @@ module Kredki
         color! false
       end
 
+      def arrange
+        return unless @layout_broken
+        @_layout.arrange self
+        @layout_broken = false
+        true
+      end
+
+      def break_layout
+        @layout_broken = true
+      end
+
       def keyboard_event event
         if !event.resolved? && show?
           keyboard_pad&.report event
@@ -64,6 +83,7 @@ module Kredki
         else
           if @button_pad == pad
             @button_pad = nil
+            update_mouse_location
           end
         end
       end
@@ -77,12 +97,11 @@ module Kredki
 
       def mouse_button_up e
         lose_button
-        layer.update_mouse_location
         if @drag
           @drag = false
           report DropEvent.new e.origin
         elsif include_point?(e.x, e.y) && e.button == :primary
-          report ClickEvent.new e
+          report ClickEvent.new e.origin
         end
       end
 
@@ -102,21 +121,23 @@ module Kredki
             return false
           end
         else
+          event ||= nil
           if xy
+            arrange
             included = point_pads *xy, mouse_pads = []
-            @mouse_pads.reverse_each do |pad| 
-              pad.report LeaveEvent.new, false unless mouse_pads.include? pad
+            @mouse_pads, mouse_pads = mouse_pads, @mouse_pads
+            mouse_pads.reverse_each do |pad| 
+              pad.report LeaveEvent.new(event, *xy), false unless @mouse_pads.include? pad
             end
-            mouse_pads.each do |pad|
-              pad.report EnterEvent.new, false unless @mouse_pads.include? pad
+            @mouse_pads.each do |pad|
+              pad.report EnterEvent.new(event, *xy), false unless mouse_pads.include? pad
             end
-            mouse_top = mouse_pads.last
+            mouse_top = @mouse_pads.last
             mouse_top.report MouseMoveEvent.new(event, *xy) if mouse_top && event
-            @mouse_pads = mouse_pads
             return included
           else
             @mouse_pads.reverse_each do |pad| 
-              pad.report LeaveEvent.new, false
+              pad.report LeaveEvent.new(event, *xy), false
             end
             @mouse_pads = []
             return false

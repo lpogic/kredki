@@ -6,6 +6,10 @@ module Kredki
 
     class PaintState
       struct :paint, :before, :after, :shown
+
+      def inspect
+        "#{self.class}:#{self.object_id}"
+      end
     end
     
     def initialize
@@ -18,7 +22,7 @@ module Kredki
     end
 
     def new_paint klass, *a, show: true, at: nil, **na, &b
-      push_paint(klass.new, show, at).paint.alter!(*a, **na, &b)
+      put_paint(klass.new, show, at).paint.alter!(*a, **na, &b)
     end
     
     def def_paint name, klass = nil, &block
@@ -52,7 +56,7 @@ module Kredki
     def new_animation show, index
       animation = Animation.new
       animation.base = action
-      push_paint animation.picture, show, index
+      put_paint animation.picture, show, index
       animation
     end
 
@@ -69,20 +73,37 @@ module Kredki
     end
 
     attr_accessor :base
+
+    def each_paint &b
+      Enumerator.new do |e|
+        state = @paints[nil].after
+        while paint = state.paint
+          e << paint
+          state = state.after
+        end
+      end.each &b
+    end
     
     def update_paint paint
       @base&.update_paint self
     end
 
-    def push_paint paint, show = true, at = nil
+    def put_paint paint, show = true, at = nil
       paint.detach! if paint.base
       paint.base = self
       if show
-        Abi.scene_push @pointer, paint.pointer, at&.pointer
+
+        Abi.scene_push @pointer, paint.pointer, next_shown(at)&.pointer
         update
       end
-      ats = @paints[at]
+      ats = @paints[at] || @paints[nil]
       ats.before = ats.before.after = @paints[paint] = PaintState.new paint, ats.before, ats, show
+    end
+
+    def next_shown at
+      state = @paints[at]
+      state = state.after while state&.paint && !state.shown
+      state&.paint
     end
 
     def remove_paint paint

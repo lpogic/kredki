@@ -151,6 +151,7 @@ module Kredki
           if dr = dropdown
             dr.update_keyboard_pad nil if dr.loaded?
           end
+          e.resolve
         end
       end
 

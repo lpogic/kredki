@@ -29,101 +29,118 @@ module Kredki
       end
 
       param def x! x
-        return if eqr @x, x
+        return if UI.eqr @x, x
         @x = x
-        @x == :auto ? pad_parent.arrange : set_xy
+        layer&.break_layout
+        true
       end
 
       param def y! y
-        return if eqr @y, y
+        return if UI.eqr @y, y
         @y = y
-        @y == :auto ? pad_parent.arrange : set_xy
+        layer&.break_layout
+        true
       end
 
       param def xy! x, y = nil
         y ||= x
-        return if (eqr @y, y) && (eqr @x, x)
+        return if (UI.eqr @y, y) && (UI.eqr @x, x)
         @x = x
         @y = y
-        @x == :auto || @y == :auto ? pad_parent.arrange : set_xy
+        layer&.break_layout
+        true
       end, get: def xy
         [@x, @y]
       end
           
       param def w! w
-        return if eqr @w, w
-        set_size w, @h
+        return if UI.eqr @w, w
+        @w = w
+        layer&.break_layout
+        true
       end, :width
 
       param def h! h
-        return if eqr @h, h
-        set_size @w, h
+        return if UI.eqr @h, h
+        @h = h
+        layer&.break_layout
+        true
       end, :height
 
       param def wh! w, h = nil
         h ||= w
-        return if (eqr @w, w) && (eqr @h, h)
-        set_size w, h
+        return if (UI.eqr @w, w) && (UI.eqr @h, h)
+        @w = w
+        @h = h
+        layer&.break_layout
+        true
       end, :size, get: def wh
         [@w, @h]
       end
 
       param def me! me
-        return if eqr @me, me
+        return if UI.eqr @me, me
         @me = me
-        set_margin
+        layer&.break_layout
+        true
       end, :margin_east
 
       param def mn! mn
-        return if eqr @mn, mn
+        return if UI.eqr @mn, mn
         @mn = mn
-        set_margin
+        layer&.break_layout
+        true
       end, :margin_north
 
       param def mw! mw
-        return if eqr @mw, mw
+        return if UI.eqr @mw, mw
         @mw = mw
-        set_margin
+        layer&.break_layout
+        true
       end, :margin_west
 
       param def ms! ms
-        return if eqr @ms, ms
+        return if UI.eqr @ms, ms
         @ms = ms
-        set_margin
+        layer&.break_layout
+        true
       end, :margin_south
 
       param def mx! me, mw = nil
         mw ||= me
-        return if (eqr @me, me) && (eqr @mw, mw)
+        return if (UI.eqr @me, me) && (UI.eqr @mw, mw)
         @me = me
         @mw = mw
-        set_margin
+        layer&.break_layout
+        true
       end, :margin_x, get: def mx
-        (eqr @me, @mw) ? @me : [@me, @mw]
+        (UI.eqr @me, @mw) ? @me : [@me, @mw]
       end
 
       param def my! mn, ms = nil
         ms ||= mn
-        return if (eqr @mn, mn) && (eqr @ms, ms)
+        return if (UI.eqr @mn, mn) && (UI.eqr @ms, ms)
         @mn = mn
         @ms = ms
-        set_margin
+        layer&.break_layout
+        true
       end, :margin_y, get: def my
-        (eqr @mn, @ms) ? @mn : [@mn, @ms]
+        (UI.eqr @mn, @ms) ? @mn : [@mn, @ms]
       end
 
       param def m! me, mn = nil, mw = nil, ms = nil
         mn ||= me
         mw ||= me
         ms ||= mn
-        return if (eqr @me, me) && (eqr @mw, mw) && (eqr @mn, mn) && (eqr @ms, ms)
+        return if (UI.eqr @me, me) && (UI.eqr @mw, mw) && (UI.eqr @mn, mn) && (UI.eqr @ms, ms)
         @me = me
         @mw = mw
         @mn = mn
         @ms = ms
-        set_margin
+        layer&.break_layout
+        true
       end, :margin, get: def m
-        (eqr @me, @mw) && (eqr @mn, @ms) ? (eqr @me, @mn) ? @me : [@me, @mn] : [@me, @mw, @mn, @ms]
+        (UI.eqr @me, @mw) && (UI.eqr @mn, @ms) ? (UI.eqr @me, @mn) ? @me : [@me, @mn] : [@me, @mw, @mn, @ms]
       end
 
       def sx
@@ -150,6 +167,14 @@ module Kredki
         [cx, cy]
       end
 
+      def ox
+        0
+      end
+
+      def oy
+        0
+      end
+
       def sw
         @area.w
       end
@@ -174,63 +199,38 @@ module Kredki
         @clip_area.wh
       end
 
-      def pw fit = false
-        mx = @me + @mw
-        return mx + @_layout.fit_w(self) if fit
-        case @w
-        when Rational
-          mx
-        when Proc
-          mx
-        when :fit
-          mx + @_layout.fit_w(self)
-        when Range
-          mx + @_layout.fit_w(self)
-        else
-          if @w < 0
-            mx
-          else
-            @w
-          end
-        end
-      end
-
-      def ph fit = false
-        my = @mn + @ms
-        return my + @_layout.fit_h(self) if fit
-        case @h
-        when Rational
-          my
-        when Proc
-          my
-        when :fit
-          my + @_layout.fit_h(self)
-        when Range
-          my + @_layout.fit_h(self)
-        else
-          if @h < 0
-            my
-          else
-            @h
-          end
-        end
+      def child_sized?
+        @w == :fit || @h == :fit
       end
 
       param_prefix :stroke
 
+      param def stroke_width! width
+        return if @stroke_width == width
+        @stroke_width = width
+        @area.stroke_width = width
+        layer&.break_layout
+        true
+      end
+
       param_delegate :@area, 
-        :blunt, 
-        :stroke_width, 
         :stroke_color, 
         :stroke_join, 
         :stroke_cap,
         :color
 
+      param def blunt! blunt, clip = true
+        @area.blunt! blunt
+        @clip_area.blunt! blunt if clip
+      end, get: def blunt
+        @area.blunt
+      end
+
       param def area! area = nil, &block
         area = BlockShapeArea.new block if block
         return if @area == area
         area.safe_alter **@area
-        @scene.push_paint area, true, @area
+        @scene.put_paint area, true, @area
         @scene.remove_paint @area
         @area = area
         true
@@ -250,8 +250,7 @@ module Kredki
         return if @layout == layout
         @_layout = UI.layout layout
         @layout = layout
-        arrange
-        layer&.update_mouse_location if mousy? && show?
+        layer&.break_layout
         true
       end
 
@@ -276,6 +275,8 @@ module Kredki
       def hide!
         show! false
       end
+
+      def_flag :in_layout, nil: true, set: :set_in_layout
 
       def include_point? x, y
         @area.contain? x, y
@@ -326,7 +327,7 @@ module Kredki
 
       def attach! parent
         super
-        parent&.grand(Pad)&.push_pad self
+        parent&.grand(Pad)&.put_pad self
       end
 
       def detach! transfer = false
@@ -357,6 +358,7 @@ module Kredki
         @x = @y = :auto
         @w = @h = 100
         @me = @mn = @mw = @ms = 0
+        @stroke_width = 0
         @layout = nil
         @_layout = UI.layout
       end
@@ -395,7 +397,6 @@ module Kredki
 
       def mouse_button_up e
         lose_button
-        layer.update_mouse_location
         if @drag
           @drag = false
           report DropEvent.new e.origin
@@ -434,14 +435,17 @@ module Kredki
         pad_parent&.pads.index self
       end
 
-      def push_pad pad, at = nil
-        paint_state = @clip_scene.push_paint pad.scene, true, at&.scene
-        if at
+      def put_pad pad, at = nil
+        paint_state = @clip_scene.put_paint pad.scene, true, at&.scene
+        case at
+        when Integer
+          @pads.insert at, pad
+        when Pad
           @pads.insert @pads.index(at), pad
         else
           @pads << pad
         end
-        pad.set_size *pad.wh or arrange
+        layer&.break_layout
         pad
       end
 
@@ -449,7 +453,7 @@ module Kredki
         removed = @pads.delete pad
         if removed && !transfer
           pad.scene.clip! false
-          set_size @w, @h or arrange
+          layer&.break_layout
         end
         removed
       end
@@ -460,162 +464,210 @@ module Kredki
           pad.detach! true
           pad.scene.clip! false
         end
-        (set_size @w, @h or arrange) unless pads.empty?
+        layer&.break_layout unless pads.empty?
       end
 
-      def eqr a, b
-        a == b and (Rational === a) == (Rational === b)
+      def set_xy x, y
+        @scene.xy! x, y
       end
 
-      def set_xy
-        set_xy_s and event_director.stem{ layer&.update_mouse_location if mousy? && show? }
-      end
-      
-      def set_xy_s ax = nil, ay = nil
-        update_xy ax, ay and event_director.stem{ report MoveEvent.new }
-      end
-
-      def update_xy ax = nil, ay = nil
-        sx = get_x ax
-        sy = get_y ay
-
-        @scene.xy! sx, sy
-      end
-
-      def get_x auto
+      def get_x pcw, sw, ax
         case @x
         when Rational
-          sw = area.w
-          pw = pad_parent&.cw || 0
-          r = (pw - sw) * @x.to_f
+          r = (pcw - sw) * @x.to_f
           @x.denominator == 1 ? r / 100 : r
         when Proc
-          sw = area.w
-          pw = pad_parent&.cw || 0
-          @x[pw, sw]
+          @x[pcw, sw]
+        when Range
+          ax + @x.begin
         when :auto
-          auto || @scene.x
+          ax
         else
           @x
         end
       end
 
-      def get_y auto
+      def get_y pch, sh, ay
         case @y
         when Rational
-          sh = area.h
-          ph = pad_parent&.ch || 0
-          r = (ph - sh) * @y.to_f
+          r = (pch - sh) * @y.to_f
           @y.denominator == 1 ? r / 100 : r
         when Proc
-          sh = area.h
-          ph = pad_parent&.ch || 0
-          @y[ph, sh]
+          @y[pch, sh]
+        when Range
+          ay + @y.begin
         when :auto
-          auto || @scene.y
+          ay
         else
           @y
         end
       end
 
       def set_size w, h
-        @w = w
-        @h = h
-        pad_parent&.set_size_p or (
-          set_size_s and (
-            pad_parent&.arrange
-            event_director.stem{ layer&.update_mouse_location if mousy? && show? }
-          )
-        )
-      end
-
-      def set_size_p
-        @w == :fit || @h == :fit || Range === @w || Range === @h and set_size @w, @h
-      end
-
-      def set_size_c
-        @pads.map{ it.set_size_s }.any?
-      end
-
-      def set_size_s
         mx = @me + @mw
         my = @mn + @ms
-        sw = get_w mx
-        sh = get_h my
+        sw = @stroke_width * 2
 
-        resized = @area.wh! sw, sh and event_director.stem do
-          report ResizeEvent.new
-          update_xy and report MoveEvent.new
-        end
-        @clip_area.wh! sw - mx, sh - my and (
-          set_size_c
-          arrange
-        )
-        resized
+        @area.wh! w, h
+        @clip_area.wh! w - mx - sw, h - my - sw
       end
 
+      def layout_pads
+        pads.filter{ it.in_layout? }
+      end
+
+      def arrange_pads
+        pads
+      end
+
+      def auto_x?
+        @x == :auto
+      end
+
+      def auto_y?
+        @y == :auto
+      end
+
+
       def arrange
-        return if alter_filter :arrange
         @_layout.arrange self
       end
 
-      def get_w mx
+      def fit_w
+        @me + @mw + @stroke_width * 2 + @_layout.fit_w(self)
+      end
+
+      def fit_h
+        @mn + @ms + @stroke_width * 2 + @_layout.fit_h(self)
+      end
+
+      def min_w
+        mw = @me + @mw + @stroke_width * 2
         case @w
-        when Rational
-          pw = pad_parent&.cw || 0
-          r = pw * @w.to_f
-          @w.denominator == 1 ? r / 100 : r
-        when Proc
-          pw = pad_parent&.cw || 0
-          @w[pw]
+        when Rational, Proc
+          mw
         when :fit
-          mx + @_layout.fit_w(self)
+          fit_w
         when Range
-          pw = pad_parent&.cw || 0
-          # r = pw * @w.to_f
-          # @w.denominator == 1 ? r / 100 : r
-        else
-          if @w < 0
-            pw = pad_parent&.cw || 0
-            pw + @w
-          else
-            @w
+          b = case @w.begin
+          when Rational
+            mw
+          when Numeric
+            @w.begin < 0 ? mw : @w.begin
+          when nil
+            mw
+          else raise @w.begin
           end
+          e = case @w.end
+          when Rational
+            mw
+          when Numeric
+            @w.end < 0 ? mw : @w.end
+          when nil
+            Float::INFINITY
+          else raise @w.end
+          end
+          [b, e].min
+        when Numeric
+          @w < 0 ? mw : @w
+        else
+          raise @w
         end
       end
 
-      def get_h my
+      def min_h
+        mh = @mn + @ms + @stroke_width * 2
+        case @h
+        when Rational, Proc
+          mh
+        when :fit
+          fit_h
+        when Range
+          mh # todo
+        when Numeric
+          @h < 0 ? mh : @h
+        else
+          raise @h
+        end
+      end
+
+      def get_w pcw
+        case @w
+        when Rational
+          r = pcw * @w.to_f
+          @w.denominator == 1 ? r / 100 : r
+        when Proc
+          @w[pcw]
+        when :fit
+          fit_w
+        when Range
+          b = case @w.begin
+          when Rational
+            r = pcw * @w.begin.to_f
+            @w.begin.denominator == 1 ? r / 100 : r
+          when Numeric
+            @w.begin < 0 ? pcw + @w.begin : @w.begin
+          when nil
+            0
+          else raise @w.begin
+          end
+          e = case @w.end
+          when Rational
+            r = pcw * @w.end.to_f
+            @w.end.denominator == 1 ? r / 100 : r
+          when Numeric
+            @w.end < 0 ? pcw + @w.end : @w.end
+          when nil
+            Float::INFINITY
+          else raise @w.end
+          end
+          if @w.exclude_end?
+            [b, e].min
+          else
+            [b, e].min
+          end
+        when Numeric
+          @w < 0 ? pcw + @w : @w
+        else
+          raise @w
+        end
+      end
+
+      def get_h pch
         case @h
         when Rational
-          ph = pad_parent&.ch || 0
-          r = ph * @h.to_f
+          r = pch * @h.to_f
           @h.denominator == 1 ? r / 100 : r
         when Proc
-          ph = pad_parent&.ch || 0
-          @h[ph]
+          @h[pch]
         when :fit
-          my + @_layout.fit_h(self)
+          fit_h
         when Range
-          ph = pad_parent&.ch || 0
-          # r = ph * @h.to_f
-          # @h.denominator == 1 ? r / 100 : r
-        else
-          if @h < 0
-            ph = pad_parent&.ch || 0
-            ph + @h
+          if @h.exclude_end?
+            b = @h.end ? [pch, @h.end].min : pch
+            [b, @h.begin || 0].max
           else
-            @h
+            b = [pch, @h.begin || 0].max
+            @h.end ? [b, @h.end].min : b
           end
+        when Numeric
+          @h < 0 ? pch + @h : @h
+        else
+          raise @h
         end
       end
 
       def set_margin
-        @clip_scene.xy! @me, @mn
-        @clip_area.xy! @me, @mn
-        set_size_p or (
-          @clip_area.wh! sw - @me - @mw, sh - @mn - @ms and set_size_c and arrange
-          event_director.stem{ layer&.update_mouse_location if mousy? && show? }
-        )
+        x = @me + @stroke_width
+        y = @mn + @stroke_width
+        @clip_scene.xy! x, y
+        @clip_area.xy! x, y
+      end
+
+      def set_in_layout in_layout
+        @in_layout = in_layout
+        layer&.break_layout
+        true
       end
 
       def set_show show
@@ -764,7 +816,7 @@ module Kredki
         pad_parent = @parent&.grand Pad
         return if pad_parent == @pad_parent
         @pad_parent = pad_parent
-        @pad_parent&.push_pad self
+        @pad_parent&.put_pad self
       end
     end
   end

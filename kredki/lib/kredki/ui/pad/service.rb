@@ -3,6 +3,7 @@ require_relative 'pad_events'
 require_relative 'pad_base'
 require_relative 'pad_inherited'
 require 'forwardable'
+require 'weakref'
 require 'kredki-core/context/context'
 require 'kredki-core/flagship'
 require 'kredki-core/block_shape_area'
@@ -38,6 +39,7 @@ module Kredki
 
       param def tag! tag
         @tags[tag] = true
+        layer.weak_tag tag.to_s[1..], WeakRef.new(self) if tag.start_with? "@"
       end, get: def tag
         @tags.keys
       end
@@ -140,8 +142,11 @@ module Kredki
 
       def push_service service, at = nil
         service.set_parent self #, at
-        if at
-          @services.insert @services.index(at), pad
+        case at
+        when Integer
+          @services.insert at, service
+        when Pad
+          @services.insert @services.index(at), service
         else
           @services << service
         end

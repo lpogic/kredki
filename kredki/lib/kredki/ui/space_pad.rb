@@ -23,6 +23,12 @@ module Kredki
         area.hide!
         wh! :fit
       end
+
+      def mouse_button_down e
+      end
+
+      def mouse_button_up e
+      end
     end
   end
 end

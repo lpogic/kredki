@@ -82,8 +82,8 @@ module Kredki
       extend Forwardable
 
       model :origin, :< do
-        @x ||= @origin.x
-        @y ||= @origin.y
+        @x ||= @origin&.x
+        @y ||= @origin&.y
       end
 
       def_delegators :@origin,
@@ -138,10 +138,24 @@ module Kredki
       model :w, :h, :<
     end
 
-    class EnterEvent < Event
+    class EnterEvent < MouseEvent
+      def resolved?
+        @origin ? @origin.resolved? : super
+      end
+
+      def resolve
+        @origin ? @origin.resolve : super
+      end
     end
 
-    class LeaveEvent < Event
+    class LeaveEvent < MouseEvent
+      def resolved?
+        @origin ? @origin.resolved? : super
+      end
+
+      def resolve
+        @origin ? @origin.resolve : super
+      end
     end
 
     class FocusGainEvent < Event
