@@ -66,6 +66,7 @@ when /cygwin|mswin|mingw|bccwin|wince|emx/
       check_vars :$thorvg, :$vcvars, :$msbuild
       check_vars :$meson, file: false
       chdir $thorvg do
+        puts $vcvars
         system $vcvars
         rm_rf "builddir"
         sh "#$meson setup builddir --backend vs " + {

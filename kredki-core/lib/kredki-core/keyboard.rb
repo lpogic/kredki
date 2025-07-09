@@ -51,15 +51,15 @@ module Kredki
       is_alt_down
     end
 
-    def num?
+    def num_lock?
       is_num_locked
     end
 
-    def caps?
+    def caps_lock?
       is_caps_locked
     end
 
-    def scroll?
+    def scroll_lock?
       is_scroll_locked
     end
 

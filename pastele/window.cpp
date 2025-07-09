@@ -68,10 +68,10 @@ bool Window::update(tvg::Canvas* canvas) {
     if(toUpdate.empty()) {
         return false;
     } else {
-        // canvas->update(nullptr);
-        for(auto paint : toUpdate) {
-            canvas->update(paint);
-        }
+        canvas->update();
+        // for(auto paint : toUpdate) {
+        //     canvas->update(paint);
+        // }
         toUpdate.clear();
         return true;
     }

@@ -143,7 +143,7 @@ CABI int paint_get_opacity(Paint* self);
 // CABI Tvg_Paint* tvg_paint_duplicate(Tvg_Paint* paint);
 CABI void paint_get_bounds(Paint* self, Bounds* bounds);
 // CABI void paint_set_mask(Paint* self, Paint* target, int method);
-CABI void paint_set_clip(Paint* self, Paint* clipper);
+CABI void paint_set_clip(Paint* self, Shape* clipper);
 // CABI void paint_set_composite_method(Paint* self, Paint* mask, int method);
 // CABI int tvg_paint_get_composite_method(const Tvg_Paint* paint, const Tvg_Paint** target, int* method);
 // CABI int tvg_paint_get_identifier(const Tvg_Paint* paint, Tvg_Identifier* identifier);

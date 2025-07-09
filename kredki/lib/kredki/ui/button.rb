@@ -1,5 +1,5 @@
 require 'forwardable'
-require_relative 'text/text_line'
+require_relative 'text_pad'
 require_relative 'theme'
 
 module Kredki
@@ -7,7 +7,7 @@ module Kredki
     class ButtonPad < Pad
       extend Forwardable
 
-      class SimpleColorBasedTheme < Theme
+      class ColorTheme < Theme
         model :color
 
         def attach! pad
@@ -27,11 +27,11 @@ module Kredki
       end
 
       def color_theme color
-        SimpleColorBasedTheme.new color
+        ColorTheme.new color
       end
 
-      param def theme! theme
-        theme = theme.size > 1 ? theme : theme.first
+      param def theme! *theme
+        theme = theme.reduce_dim
         return if @theme == theme
         set_theme case theme
         when Theme
@@ -41,9 +41,18 @@ module Kredki
         else raise_ia theme 
         end
         @theme = theme
+        true
       end
 
-      attr :text
+      param def color! *color
+        theme! *color
+      end, get: def theme
+        @_theme.color
+      end
+
+      def text
+        self[Text]
+      end
 
       def << arg
         case arg
@@ -60,16 +69,17 @@ module Kredki
         super
 
         @theme = nil
-        @text = new TextLine, "Button", mousy: false, keyboardy: false
       end
 
       def sketch p0
         super
 
+        new TextPad, "Button"
+
         keyboardy!
         stroke_width! 1
         theme! :gray
-        layout! :center
+        layout! :xc
         wh! :fit
       end
 

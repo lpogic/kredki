@@ -6,9 +6,9 @@ module Kredki
       extend Forwardable
 
       param def source! source
-        @area.source! source, false
+        @picture.source! source, false
       end, get: def source
-        @area.source
+        @picture.source
       end
 
       def << arg
@@ -22,10 +22,19 @@ module Kredki
 
       #internal api
 
+      def initialize
+        super
+        @picture = @scene.picture! wh: [sw, sh]
+      end
+
       def sketch p0
         super
+        @area.hide!
+      end
 
-        area! @scene.picture! wh: [sw, sh]
+      def set_size w, h
+        super
+        @picture.wh! w, h
       end
 
     end

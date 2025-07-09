@@ -1,8 +1,8 @@
-require_relative 'text/text_line'
+require_relative 'text/navigable_text'
 
 module Kredki
   module UI
-    class Label < TextLine
+    class Label < NavigableText
       
       #internal api
 

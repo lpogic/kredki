@@ -1,4 +1,4 @@
-require_relative '../text/text_line'
+require_relative '../text_pad'
 require_relative 'option_group'
 require_relative 'option_dropdown_layer'
 require_relative '../theme'
@@ -10,7 +10,7 @@ module Kredki
       def << arg
         case arg
         when String
-          string! arg
+          content! arg
         else
           super
         end
@@ -87,12 +87,12 @@ module Kredki
       def_flag :arrow
 
 
-      def string! string
-        @text.string! string
+      def content! content
+        @text.content! content
       end
 
-      def string
-        @text.string
+      def content
+        @text.content
       end
 
       param_service def text
@@ -114,7 +114,7 @@ module Kredki
         super
 
         @theme = nil
-        @text = new TextLine, mousy: false, string: "Option"
+        @text = new TextPad, "Option", mousy: false
       end
 
       def sketch p0
@@ -126,11 +126,11 @@ module Kredki
         wh! :fit
 
         on_click! do
-          report PickEvent.new string
+          report PickEvent.new content
         end
 
         on_key! :space, :enter do |e|
-          report PickEvent.new string
+          report PickEvent.new content
           e.resolve
         end
 

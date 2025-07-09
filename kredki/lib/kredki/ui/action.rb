@@ -117,17 +117,6 @@ module Kredki
         @layers.last.alter! *a, **na, &block
       end
 
-      def set_size_p
-      end
-
-      # def arrange cause, param
-      #   param.arrange :recurse
-      # end
-
-      def child_sized?
-        false
-      end
-
       def mouse_event event
         @layers.reverse_each do |layer|
           layer.mouse_pad&.report event

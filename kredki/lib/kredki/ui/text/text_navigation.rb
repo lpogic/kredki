@@ -1,13 +1,9 @@
 module Kredki
   module UI
-    class Text < Pad
+    module TextNavigation
       attr :selection_min, :selection_max, :cursor_position, :cursor
 
-      def sketch p0
-        super
-
-        area.hide!
-        # keyboardy!
+      def text_sketch
     
         on_key! :left do |e|
           cursor_left e.shift?
@@ -25,7 +21,7 @@ module Kredki
         end
 
         on_key! :keypad_seven do |e|
-          unless e.num?
+          unless e.num_lock?
             cursor_home e.shift?, e.ctrl?
             e.resolve
           end
@@ -37,7 +33,7 @@ module Kredki
         end
 
         on_key! :keypad_one do |e|
-          unless e.num?
+          unless e.num_lock?
             cursor_end e.shift?, e.ctrl?
             e.resolve
           end
@@ -45,14 +41,14 @@ module Kredki
 
         on_key! :a do |e|
           if e.ctrl?
-            select 0, string_length
+            select 0, content.length
             e.resolve
           end
         end
 
         on_key! :c do |e|
           if e.ctrl? && selection?
-            clipboard.string = string[@selection_min...@selection_max]
+            clipboard.content = content[@selection_min...@selection_max]
             e.resolve
           end
         end
@@ -80,21 +76,12 @@ module Kredki
 
         on_click! do |e|
           if e.clicks == 2 && !keyboard.shift?
-            sl = string_length
+            sl = content.length
             unless @selection_min == 0 && sl == @selection_max && sl == @cursor_position
               select 0, sl
               e.resolve
             end
           end
-        end
-      end
-
-      def << arg
-        case arg
-        when String
-          string! arg
-        else
-          super
         end
       end
 
@@ -104,7 +91,7 @@ module Kredki
 
       def reset_cursor position = 0
         @cursor_position = @selection_min = @selection_max = position
-        update_cursor
+        layer&.break_layout
       end
 
       def drag x, y
@@ -125,7 +112,7 @@ module Kredki
               @selection_min = @cursor_position = cursor_position
             end
           end
-          update_cursor
+          layer&.break_layout
         end
       end
 
@@ -146,11 +133,11 @@ module Kredki
             @cursor_position = @selection_max = @selection_min
           end
         end
-        update_cursor
+        layer&.break_layout
       end
 
       def cursor_right shift
-        length = string_length
+        length = content.length
         if shift
           if @cursor_position < length
             if @cursor_position == @selection_max
@@ -167,35 +154,13 @@ module Kredki
             @cursor_position = @selection_min = @selection_max
           end
         end
-        update_cursor
+        layer&.break_layout
       end
 
       def select min, max
         @selection_min = min
         @selection_max = @cursor_position = max
-        update_cursor
-      end
-
-      param def cursor_color! *color
-        @cursor.color! *color
-      end, get: def cursor_color
-        @cursor.color
-      end
-
-      def fit_w
-        w
-      end
-
-      def fit_h
-        h
-      end
-
-      def min_w
-        w
-      end
-
-      def min_h
-        h
+        layer&.break_layout
       end
     end
   end

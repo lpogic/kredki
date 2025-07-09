@@ -132,7 +132,6 @@ module Kredki
 
     param def stroke_cap! cap
       return if @stroke_cap == cap
-      p StrokeCap[cap || :square].to_i
       set_stroke_cap StrokeCap[cap || :square].to_i
       @stroke_cap = cap
       update

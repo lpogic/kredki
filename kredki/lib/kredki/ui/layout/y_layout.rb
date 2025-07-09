@@ -69,9 +69,6 @@ module Kredki
           span_pads.each do |sp|
             p1 = sp[2]
             pw = get_w p1, p1.w, cw
-            if p1 =~ :table!
-              p sp[1]
-            end
             p1.set_size pw, sp[1]
           end
 

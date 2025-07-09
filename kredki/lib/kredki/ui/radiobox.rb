@@ -1,5 +1,4 @@
 require 'forwardable'
-require_relative 'text/text_line'
 require_relative 'radio_group'
 require_relative 'theme'
 

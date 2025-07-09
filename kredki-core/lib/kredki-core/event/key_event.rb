@@ -59,15 +59,15 @@ module Kredki
       @abi.mod & 0b0000_0100_0000_0000 != 0
     end
 
-    def num?
+    def num_lock?
       @abi.mod & 0b0001_0000_0000_0000 != 0
     end
 
-    def caps?
+    def caps_lock?
       @abi.mod & 0b0010_0000_0000_0000 != 0
     end
 
-    def scroll?
+    def scroll_lock?
       @abi.mod & 0b1000_0000_0000_0000 != 0
     end
 

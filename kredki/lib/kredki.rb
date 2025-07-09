@@ -13,6 +13,7 @@ Kredki.colors = {
   
   stroke_focus: Kredki::Color.new(182, 182, 0, 255),
   text_selection: Kredki::Color.new(0, 0, 222, 123),
+  text_selection_inactive: Kredki::Color.new(0, 0, 222, 83),
   text: Kredki::Color.new(255, 255, 255, 255),
   
   white: Kredki::Color.new(255, 255, 255, 255),

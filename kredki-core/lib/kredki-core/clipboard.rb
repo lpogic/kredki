@@ -1,9 +1,9 @@
 module Kredki
   class Clipboard
 
-    param def string! string
-      set_text string.to_s
-    end, get: def string
+    param def content! content
+      set_text content.to_s
+    end, get: def content
       get_text
     end
 

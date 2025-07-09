@@ -38,7 +38,7 @@ void GlWindow::resize()
 
     canvas->sync();
     verify(canvas->target(context, 0, width, height, tvg::ColorSpace::ABGR8888S));
-    canvas->update(nullptr);
+    canvas->update();
 }
 
 bool GlWindow::syncAndUpdateSurface()

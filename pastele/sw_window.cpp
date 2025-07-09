@@ -36,7 +36,7 @@ void SwWindow::resize()
 
     canvas->sync();
     verify(canvas->target((uint32_t*)surface->pixels, surface->w, surface->pitch / 4, surface->h, tvg::ColorSpace::ARGB8888));
-    canvas->update(nullptr);
+    canvas->update();
 }
 
 bool SwWindow::syncAndUpdateSurface()

@@ -167,14 +167,6 @@ module Kredki
         [cx, cy]
       end
 
-      def ox
-        0
-      end
-
-      def oy
-        0
-      end
-
       def sw
         @area.w
       end
@@ -197,10 +189,6 @@ module Kredki
 
       def cwh
         @clip_area.wh
-      end
-
-      def child_sized?
-        @w == :fit || @h == :fit
       end
 
       param_prefix :stroke
@@ -527,7 +515,6 @@ module Kredki
       def auto_y?
         @y == :auto
       end
-
 
       def arrange
         @_layout.arrange self

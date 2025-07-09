@@ -1,5 +1,4 @@
 require 'forwardable'
-require_relative 'text/text_line'
 require_relative 'theme'
 
 module Kredki

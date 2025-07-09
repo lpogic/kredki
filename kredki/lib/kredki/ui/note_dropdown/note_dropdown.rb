@@ -48,7 +48,7 @@ module Kredki
 
         @dropdown.on! Option::PickEvent do |e|
           @dropdown.unload!
-          @note.string! ~e, :end
+          @note.content! ~e, :end
         end
 
         @dropdown.on_key! :escape do

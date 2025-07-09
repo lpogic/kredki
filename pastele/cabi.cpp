@@ -111,16 +111,17 @@ CABI void arena_terminate(pas::Arena* self) {
 
 
 CABI void* window_new(int width, int height) {
-    tvg::CanvasEngine engine = tvg::CanvasEngine::Sw;
-    switch(engine) {
-        case tvg::CanvasEngine::Gl:
-            return new pas::GlWindow(width, height);
-        case tvg::CanvasEngine::Wg:
-            return new pas::WgWindow(width, height);
-        case tvg::CanvasEngine::Sw:
-        default:
-            return new pas::SwWindow(width, height);
-    }
+    // tvg::CanvasEngine engine = tvg::CanvasEngine::Sw;
+    // switch(engine) {
+    //     case tvg::CanvasEngine::Gl:
+    //         return new pas::GlWindow(width, height);
+    //     case tvg::CanvasEngine::Wg:
+    //         return new pas::WgWindow(width, height);
+    //     case tvg::CanvasEngine::Sw:
+    //     default:
+    //         return new pas::SwWindow(width, height);
+    // }
+    return new pas::SwWindow(width, height);
 }
 
 CABI void window_delete(pas::Window* self) {
@@ -225,13 +226,15 @@ CABI int window_get_flags(pas::Window* self) {
 
 CABI int thorvg_engine_init(int engine_method, int threads)
 {
-    return (int) Initializer::init(threads, CanvasEngine(engine_method));
+    // return (int) Initializer::init(threads, CanvasEngine(engine_method));
+    return (int) Initializer::init(threads);
 }
 
 
 CABI int thorvg_engine_term(int engine_method)
 {
-    return (int) Initializer::term(CanvasEngine(engine_method));
+    // return (int) Initializer::term(CanvasEngine(engine_method));
+    return (int) Initializer::term();
 }
 
 CABI void sdl_init(int joystick_enabled) {
@@ -394,7 +397,7 @@ CABI void paint_get_bounds(Paint* self, Bounds* bounds) {
     self->bounds(&bounds->x, &bounds->y, &bounds->w, &bounds->h);
 }
 
-CABI void paint_set_clip(Paint* self, Paint* clipper) {
+CABI void paint_set_clip(Paint* self, Shape* clipper) {
     self->clip(clipper);
 }
 

@@ -27,9 +27,9 @@ module Kredki
         :shift?,
         :ctrl?,
         :alt?,
-        :num?,
-        :caps?,
-        :scroll?
+        :num_lock?,
+        :caps_lock?,
+        :scroll_lock?
     end
   end
 end

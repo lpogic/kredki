@@ -39,8 +39,8 @@ module Kredki
   require_relative 'ui/scroll_pad'
   require_relative 'ui/space_pad'
   require_relative 'ui/image_pad'
-  require_relative 'ui/text/text_line'
-  require_relative 'ui/text/text_area'
+  require_relative 'ui/text_pad'
+  require_relative 'ui/text/navigable_text'
   require_relative 'ui/grid/grid_pad'
   require_relative 'ui/note'
   require_relative 'ui/notes'
@@ -150,10 +150,9 @@ module Kredki
       def! :grid!, GridPad
       def! :scroll!, ScrollPad
       def! :image!, ImagePad
+      def! :text!, NavigableText, keyboardy: true
       def! :xslide!, HorizontalSlide
       def! :yslide!, VerticalSlide
-      def! :text!, TextLine
-      def! :texts!, TextArea
       def! :button!, ButtonPad
       def! :check!, Checkbox
       def! :radio!, Radiobox

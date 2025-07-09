@@ -60,7 +60,7 @@ module Kredki
     extern 'void paint_set_opacity(Paint* self, uint8_t opacity)'
     extern 'int paint_get_opacity(Paint* self)'
     extern 'void paint_get_bounds(Paint* self, Bounds* bounds)'
-    extern 'void paint_set_clip(Paint* self, Paint* clipper)'
+    extern 'void paint_set_clip(Paint* self, Shape* clipper)'
     extern 'void paint_set_blend_method(Paint* self, int method)'
     extern 'void* shape_new( void)'
     extern 'void shape_delete(Shape* self)'

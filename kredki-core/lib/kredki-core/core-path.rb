@@ -115,6 +115,14 @@ class Array
     others = other.reject{|item| both << item if include? item }
     [self - both, both, others]
   end
+
+  def reduce_dim
+    case size
+    when 0 then nil
+    when 1 then first
+    else self
+    end
+  end
 end
 
 module Enumerable

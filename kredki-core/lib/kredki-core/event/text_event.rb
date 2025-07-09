@@ -11,8 +11,12 @@ module Kredki
 
     attr :text
 
-    def [](key = :text)
-      send key
+    def ~()
+      text
+    end
+
+    def +@
+      text
     end
   end
 end
