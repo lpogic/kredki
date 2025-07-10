@@ -1,37 +1,12 @@
-require_relative 'basic'
+require_relative 'way'
 
 module Kredki
   module UI
     module Layout
-      class XLayout < Basic
+      class Xway < Way
 
-        def get_span_w pad, w, pcw
-          case w
-          when Range
-            b = case w.begin
-            when Rational
-              r = pcw * w.begin.to_f
-              w.begin.denominator == 1 ? r / 100 : r
-            when Numeric
-              w.begin < 0 ? pcw + w.begin : w.begin
-            when nil
-              0
-            else raise w.begin
-            end
-            e = case w.end
-            when Rational
-              r = pcw * w.end.to_f
-              w.end.denominator == 1 ? r / 100 : r
-            when Numeric
-              w.end < 0 ? pcw + w.end : w.end
-            when nil
-              Float::INFINITY
-            else raise w.end
-            end
-            [(e - b).abs, b, pad]
-          else
-            [0, get_w(pad, w, pcw), pad]
-          end
+        def get_fallback_span pad, w, pcw
+          [0, get_w(pad, w, pcw), pad]
         end
 
         def arrange pad
@@ -39,12 +14,14 @@ module Kredki
           ch = pad.ch
           sw = 0
           span_pads = pad.layout_pads.map do
-            span = get_span_w it, it.w, cw
+            span = get_span it, it.w, cw
             sw += span[1]
             span
           end.sort_by{ it[0] }
           span_pads_size = span_pads.size
           return if span_pads_size < 1
+          space = @space || 0
+          sw += space * (span_pads_size - 1)
 
           if span_pads.last[0] > 0
             dw = cw - sw
@@ -94,7 +71,7 @@ module Kredki
               p1.set_xy px, py
               p1.set_margin
               p1.arrange
-              cx += pw
+              cx += pw + space
               lx = [lx, px].min
               ly = [ly, py].min
               lxm = [lxm, px + pw].max
@@ -115,9 +92,10 @@ module Kredki
         end
 
         def fit_w pad
-          pad.layout_pads.map{|p1| p1.min_w }.sum || 0
+          space = @space || 0
+          pad.layout_pads.map{|p1| p1.min_w }.reduce{ _1 + space + _2 } || 0
         end
-      end#XLayout
+      end#Xway
     end#Layout
   end#UI
 end#Kredki

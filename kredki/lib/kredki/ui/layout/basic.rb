@@ -2,7 +2,11 @@ module Kredki
   module UI
     module Layout
       class Basic
-        model :x, :y
+        model :@x, :@y
+
+        def tune
+          self
+        end
 
         def get_c cr, pc, sc
           case cr

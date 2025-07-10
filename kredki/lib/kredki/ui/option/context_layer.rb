@@ -16,6 +16,10 @@ module Kredki
         on!(Option::PickEvent, ...)
       end
 
+      def option! *a, **na, &b
+        super(*a, w: 100r, **na, &b)
+      end
+
       #internal api
 
       def sketch p0
@@ -25,17 +29,17 @@ module Kredki
           if e.target.dropdown
             e.resolve
           else
-            detach!
+            pad_detach
           end
         end
 
         on_key! :escape do |e|
-          detach!
+          pad_detach
           e.resolve
         end
 
         on_mouse_button_down! do |e|
-          detach!
+          pad_detach
         end
       end
 

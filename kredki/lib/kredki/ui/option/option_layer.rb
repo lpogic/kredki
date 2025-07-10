@@ -7,6 +7,7 @@ module Kredki
       def load_common x, y
         @options.xy! x, y
         action.push_layer self
+        break_layout
       end
       
       def unload!
@@ -30,15 +31,14 @@ module Kredki
         @option_group
       end
 
-      param_delegate :@options,
-      :w, :h, :wh
+      attr :options
 
       #internal api
 
       def initialize
         super
 
-        @options = new Pad, wh: :fit, color: :gray, layout: :column
+        @options = new Pad, :xd, wh: :fit, layout: :column, stroke: {width: 1, color: :dark_gray}
         @option_group = @options.new OptionGroup
       end
 

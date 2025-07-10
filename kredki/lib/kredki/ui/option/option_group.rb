@@ -1,50 +1,45 @@
 require_relative '../pad/service'
+require_relative 'option'
 
 module Kredki
   module UI
     class OptionGroup < Service
 
-      model do
-        @options = []
+      def option!(...)
+        new(Option, ...)
       end
 
-      attr :options
 
       #internal api
 
-      def append pad
-        @options << pad
+      def sketch p0
+        super
       end
 
-      def remove pad
-        @options.delete pad
+      def key_up
+        option = update_select_option :previous
+        option&.roi!
       end
 
-      def key e
-        case e.symbol
-        when :up
-          option = update_select_option :previous
-          option&.roi!
-          e.resolve
-        when :down
-          option = update_select_option :next
-          option&.roi!
-          e.resolve
-        end
+      def key_down
+        option = update_select_option :next
+        option&.roi!
       end
 
       def mouse_enter pad
-        pad.focus! if @options.find{ it.keyboard_in? } != pad
+        pad.focus! if self[Option...].find{ it.keyboard_in? } != pad
       end
 
       def update_select_option option
         case option
         when :previous
-          index = (@options.index{ it.keyboard_in? } || 1) - 1
-          update_select_option @options[index]
+          options = self[Option...].to_a 
+          index = (options.index{ it.keyboard_in? } || 1) - 1
+          update_select_option options[index]
         when :next
-          index = (@options.index{ it.keyboard_in? } || -1) + 1
-          update_select_option @options[index < @options.length ? index : 0]
+          options = self[Option...].to_a 
+          index = (options.index{ it.keyboard_in? } || -1) + 1
+          update_select_option options[index < options.length ? index : 0]
         else
           option&.focus!
           option

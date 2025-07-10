@@ -46,101 +46,57 @@ module Kredki
   require_relative 'ui/notes'
   require_relative 'ui/button'
   require_relative 'ui/checkbox'
-  require_relative 'ui/radiobox'
+  require_relative 'ui/radio_group'
   require_relative 'ui/label'
   require_relative 'ui/note_dropdown/note_dropdown'
   require_relative 'ui/table'
 
   require_relative "ui/layout/basic"
-  require_relative "ui/layout/x_layout"
-  require_relative "ui/layout/y_layout"
-  require_relative "ui/option/option"
+  require_relative "ui/layout/xway"
+  require_relative "ui/layout/yway"
   require_relative 'ui/option/dropdown_layer'
   require_relative 'ui/option/dropright_layer'
   require_relative 'ui/option/context_layer'
 
   UI.layouts = {
     nil => UI::Layout::Basic.new(0, 0),
-    start: UI::Layout::Basic.new(PS, PS),
     center: UI::Layout::Basic.new(PC, PC),
-    end: UI::Layout::Basic.new(PE, PE),
-    column: UI::Layout::YLayout.new(0, 0),
-    row: UI::Layout::XLayout.new(0, 0),
-    %i|start start| => UI::Layout::Basic.new(PS, PS),
-    %i|start center| => UI::Layout::Basic.new(PS, PC),
-    %i|start end| => UI::Layout::Basic.new(PS, PE),
-    %i|center start| => UI::Layout::Basic.new(PC, PS),
-    %i|center center| => UI::Layout::Basic.new(PC, PC),
-    %i|center end| => UI::Layout::Basic.new(PC, PE),
-    %i|end start| => UI::Layout::Basic.new(PE, PS),
-    %i|end center| => UI::Layout::Basic.new(PE, PC),
-    %i|end end| => UI::Layout::Basic.new(PE, PE),
-    %i|column start| => UI::Layout::YLayout.new(PS, 0),
-    %i|column center| => UI::Layout::YLayout.new(PC, 0),
-    %i|column end| => UI::Layout::YLayout.new(PE, 0),
-    %i|column start start| => UI::Layout::YLayout.new(PS, PS),
-    %i|column start center| => UI::Layout::YLayout.new(PS, PC),
-    %i|column start end| => UI::Layout::YLayout.new(PS, PE),
-    %i|column center start| => UI::Layout::YLayout.new(PC, PS),
-    %i|column center center| => UI::Layout::YLayout.new(PC, PC),
-    %i|column center end| => UI::Layout::YLayout.new(PC, PE),
-    %i|column end start| => UI::Layout::YLayout.new(PE, PS),
-    %i|column end center| => UI::Layout::YLayout.new(PE, PC),
-    %i|column end end| => UI::Layout::YLayout.new(PE, PE),
-    %i|row start| => UI::Layout::XLayout.new(PS, 0),
-    %i|row center| => UI::Layout::XLayout.new(PC, 0),
-    %i|row end| => UI::Layout::XLayout.new(PE, 0),
-    %i|row start start| => UI::Layout::XLayout.new(PS, PS),
-    %i|row start center| => UI::Layout::XLayout.new(PS, PC),
-    %i|row start end| => UI::Layout::XLayout.new(PS, PE),
-    %i|row center start| => UI::Layout::XLayout.new(PC, PS),
-    %i|row center center| => UI::Layout::XLayout.new(PC, PC),
-    %i|row center end| => UI::Layout::XLayout.new(PC, PE),
-    %i|row end start| => UI::Layout::XLayout.new(PE, PS),
-    %i|row end center| => UI::Layout::XLayout.new(PE, PC),
-    %i|row end end| => UI::Layout::XLayout.new(PE, PE),
-    s: UI::Layout::Basic.new(PS, PS),
+    column: UI::Layout::Yway.new(0, 0),
+    row: UI::Layout::Xway.new(0, 0),
+
     c: UI::Layout::Basic.new(PC, PC),
-    e: UI::Layout::Basic.new(PE, PE),
-    v: UI::Layout::YLayout.new(0, 0),
-    h: UI::Layout::XLayout.new(0, 0),
-    ss: UI::Layout::Basic.new(PS, PS),
-    sc: UI::Layout::Basic.new(PS, PC),
-    se: UI::Layout::Basic.new(PS, PE),
-    cs: UI::Layout::Basic.new(PC, PS),
-    cc: UI::Layout::Basic.new(PC, PC),
-    ce: UI::Layout::Basic.new(PC, PE),
-    es: UI::Layout::Basic.new(PE, PS),
+    x: UI::Layout::Xway.new(0, 0),
+    xc: UI::Layout::Xway.new(PC, PC),
+    xcc: UI::Layout::Xway.new(PC, PC),
+    y: UI::Layout::Yway.new(0, 0),
+    yc: UI::Layout::Yway.new(PC, PC),
+    ycc: UI::Layout::Yway.new(PC, PC),
+
+    wn: UI::Layout::Basic.new(0, 0),
+    xwn: UI::Layout::Xway.new(0, 0),
+    ywn: UI::Layout::Yway.new(0, 0),
+    en: UI::Layout::Basic.new(PE, 0),
+    xen: UI::Layout::Xway.new(PE, 0),
+    yen: UI::Layout::Yway.new(PE, 0),
+    ws: UI::Layout::Basic.new(0, PE),
+    xws: UI::Layout::Xway.new(0, PE),
+    yws: UI::Layout::Yway.new(0, PE),
+    es: UI::Layout::Basic.new(PE, PE),
+    xes: UI::Layout::Xway.new(PE, PE),
+    yes: UI::Layout::Yway.new(PE, PE),
+
+    wc: UI::Layout::Basic.new(0, PC),
+    xwc: UI::Layout::Xway.new(0, PC),
+    ywc: UI::Layout::Yway.new(0, PC),
     ec: UI::Layout::Basic.new(PE, PC),
-    ee: UI::Layout::Basic.new(PE, PE),
-    vs: UI::Layout::YLayout.new(PS, 0),
-    vc: UI::Layout::YLayout.new(PC, 0),
-    ve: UI::Layout::YLayout.new(PE, 0),
-    vss: UI::Layout::YLayout.new(PS, PS),
-    vsc: UI::Layout::YLayout.new(PS, PC),
-    vse: UI::Layout::YLayout.new(PS, PE),
-    vcs: UI::Layout::YLayout.new(PC, PS),
-    vcc: UI::Layout::YLayout.new(PC, PC),
-    vce: UI::Layout::YLayout.new(PC, PE),
-    ves: UI::Layout::YLayout.new(PE, PS),
-    vec: UI::Layout::YLayout.new(PE, PC),
-    vee: UI::Layout::YLayout.new(PE, PE),
-    hs: UI::Layout::XLayout.new(0, PS),
-    hc: UI::Layout::XLayout.new(0, PC),
-    he: UI::Layout::XLayout.new(0, PE),
-    hss: UI::Layout::XLayout.new(PS, PS),
-    hsc: UI::Layout::XLayout.new(PS, PC),
-    hse: UI::Layout::XLayout.new(PS, PE),
-    hcs: UI::Layout::XLayout.new(PC, PS),
-    hcc: UI::Layout::XLayout.new(PC, PC),
-    hce: UI::Layout::XLayout.new(PC, PE),
-    hes: UI::Layout::XLayout.new(PE, PS),
-    hec: UI::Layout::XLayout.new(PE, PC),
-    hee: UI::Layout::XLayout.new(PE, PE),
-    x: UI::Layout::XLayout.new(0, 0),
-    xc: UI::Layout::XLayout.new(PC, PC),
-    y: UI::Layout::YLayout.new(0, 0),
-    yc: UI::Layout::YLayout.new(PC, PC),
+    xec: UI::Layout::Xway.new(PE, PC),
+    yec: UI::Layout::Yway.new(PE, PC),
+    cn: UI::Layout::Basic.new(PC, 0),
+    xcn: UI::Layout::Xway.new(PC, 0),
+    ycn: UI::Layout::Yway.new(PC, 0),
+    cs: UI::Layout::Basic.new(PC, PE),
+    xcs: UI::Layout::Xway.new(PC, PE),
+    ycs: UI::Layout::Yway.new(PC, PE),
   }
 
   module UI
@@ -154,21 +110,20 @@ module Kredki
       def! :xslide!, HorizontalSlide
       def! :yslide!, VerticalSlide
       def! :button!, ButtonPad
-      def! :check!, Checkbox
-      def! :radio!, Radiobox
+      def! :checkbox!, Checkbox
       def! :note!, Note
       def! :notes!, Notes
       def! :label!, Label
       def! :note_dropdown!, NoteDropdown
       def! :table!, Table
 
-      def! :radio_group!, RadioGroup
-      def! :option_group!, OptionGroup
+      def! :radios!, RadioGroup
+      def! :options!, OptionGroup
 
-      def! :option!, Option
-
-      def! :context_menu!, true do
-        @context_menu ||= new ContextLayer
+      def! :context_menu! do |a, na, b|
+        @context_menu ||= new ContextLayer, *a, **na.except(:w, :h, :wh), &b
+        @context_menu.options.alter **na.slice(:w, :h, :wh)
+        @context_menu
       end
 
     end#PadBase

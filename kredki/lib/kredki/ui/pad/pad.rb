@@ -233,10 +233,9 @@ module Kredki
         true
       end
 
-      param def layout! *layout
-        layout = layout.size > 1 ? layout : layout.first
-        return if @layout == layout
-        @_layout = UI.layout layout
+      param def layout! layout = @layout, **params
+        return if @layout == layout && params.empty?
+        @_layout = UI.layout(layout).tune **params
         @layout = layout
         layer&.break_layout
         true
@@ -313,6 +312,12 @@ module Kredki
         clear_pads
       end
 
+      def put! pad, *a, **na, &b
+        pad.pad_detach
+        pad.set_pad_parent self
+        pad.alter(*a, **na, &b)
+      end
+
       def attach! parent
         super
         parent&.grand(Pad)&.put_pad self
@@ -340,7 +345,6 @@ module Kredki
         @area = @scene.rectangle!
         @clip_scene = @scene.scene!
         @clip_area = @clip_scene.rectangle!
-        @event_manager = PadEventManager.new
         @pads = []
         @button_down_xy = nil
         @x = @y = :auto
@@ -385,6 +389,7 @@ module Kredki
 
       def mouse_button_up e
         lose_button
+        p [self, e.x, e.y, include_point?(e.x, e.y)]
         if @drag
           @drag = false
           report DropEvent.new e.origin
@@ -578,32 +583,33 @@ module Kredki
         end
       end
 
-      def get_w pcw
+      def get_w
         case @w
         when Rational
-          r = pcw * @w.to_f
+          r = @pad_parent.get_w * @w.to_f
           @w.denominator == 1 ? r / 100 : r
         when Proc
-          @w[pcw]
+          @w[@pad_parent.get_w]
         when :fit
           fit_w
         when Range
+          pcw = nil
           b = case @w.begin
           when Rational
-            r = pcw * @w.begin.to_f
+            r = (pcw ||= @pad_parent.get_w) * @w.begin.to_f
             @w.begin.denominator == 1 ? r / 100 : r
           when Numeric
-            @w.begin < 0 ? pcw + @w.begin : @w.begin
+            @w.begin < 0 ? (pcw ||= @pad_parent.get_w) + @w.begin : @w.begin
           when nil
             0
           else raise @w.begin
           end
           e = case @w.end
           when Rational
-            r = pcw * @w.end.to_f
+            r = (pcw ||= @pad_parent.get_w) * @w.end.to_f
             @w.end.denominator == 1 ? r / 100 : r
           when Numeric
-            @w.end < 0 ? pcw + @w.end : @w.end
+            @w.end < 0 ? (pcw ||= @pad_parent.get_w) + @w.end : @w.end
           when nil
             Float::INFINITY
           else raise @w.end
@@ -614,22 +620,23 @@ module Kredki
             [b, e].min
           end
         when Numeric
-          @w < 0 ? pcw + @w : @w
+          @w < 0 ? @pad_parent.get_w + @w : @w
         else
           raise @w
         end
       end
 
-      def get_h pch
+      def get_h
         case @h
         when Rational
-          r = pch * @h.to_f
+          r = @pad_parent.get_h * @h.to_f
           @h.denominator == 1 ? r / 100 : r
         when Proc
-          @h[pch]
+          @h[@pad_parent.get_h]
         when :fit
           fit_h
         when Range
+          pch = @pad_parent.get_h
           if @h.exclude_end?
             b = @h.end ? [pch, @h.end].min : pch
             [b, @h.begin || 0].max
@@ -638,7 +645,7 @@ module Kredki
             @h.end ? [b, @h.end].min : b
           end
         when Numeric
-          @h < 0 ? pch + @h : @h
+          @h < 0 ? @pad_parent.get_h + @h : @h
         else
           raise @h
         end
@@ -800,8 +807,11 @@ module Kredki
       end
 
       def c_set_parent
-        pad_parent = @parent&.grand Pad
-        return if pad_parent == @pad_parent
+        return if @pad_parent
+        set_pad_parent @parent&.grand Pad
+      end
+
+      def set_pad_parent pad_parent
         @pad_parent = pad_parent
         @pad_parent&.put_pad self
       end

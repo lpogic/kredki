@@ -16,7 +16,7 @@ module Kredki
           elsif filter.end.nil?
             case filter.begin
             when :>
-              each_service(deep: false).filter{|pad| extra_filters.all?{|ef| pad =~ ef } }.then do |pads|
+              each_service(deep: !filter.exclude_end?).filter{|pad| extra_filters.all?{|ef| pad =~ ef } }.then do |pads|
                 block ? pads.each{ _1.instance_exec _1, &block } : pads
               end
             when :>>
@@ -57,8 +57,18 @@ module Kredki
                   block ? pad.instance_exec(pad, &block) : pad
                 end
               end
+            when :~
+              if filter.exclude_end?
+                parent&.each_service(deep: false)&.filter{|pad| pad != self && extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+                  block ? pad.instance_exec(pad, &block) : pad
+                end
+              else
+                parent&.each_service(deep: false)&.filter{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+                  block ? pad.instance_exec(pad, &block) : pad
+                end
+              end
             else
-              each_service.filter{|pad| pad =~ filter.begin and extra_filters.all?{|ef| pad =~ ef } }.then do |pads|
+              each_service(deep: !filter.exclude_end?).filter{|pad| pad =~ filter.begin and extra_filters.all?{|ef| pad =~ ef } }.then do |pads|
                 block ? pads.each{ _1.instance_exec _1, &block } : pads
               end
             end
@@ -81,13 +91,19 @@ module Kredki
           end
         when :-
           parent&.each_service(deep: false, reverse: true)&.drop_while{|a| a != self }&.drop(1)
-            &.find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+          &.find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
               
             block ? pad.instance_exec(pad, &block) : pad
           end
         when :+
           parent&.each_service(deep: false)&.drop_while{|a| a != self }&.drop(1)
-            &.find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+          &.find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+
+            block ? pad.instance_exec(pad, &block) : pad
+          end
+        when :~
+          parent&.each_service(deep: false)
+          &.find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
 
             block ? pad.instance_exec(pad, &block) : pad
           end
@@ -165,6 +181,119 @@ module Kredki
           end
         end
       end
+
+      def find_pad(filter, *extra_filters, &block)
+        case filter
+        when Integer
+          each_pad(deep: false).find{|pad| pad.pad_index == filter and extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+            block ? pad.instance_exec(pad, &block) : pad
+          end
+        when Range
+          if filter.begin.nil?
+            pad_lineage(!filter.exclude_end?).find{|pad| pad =~ filter.end and extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+              block ? pad.instance_exec(pad, &block) : pad
+            end
+          elsif filter.end.nil?
+            case filter.begin
+            when :>
+              each_pad(deep: !filter.exclude_end?).filter{|pad| extra_filters.all?{|ef| pad =~ ef } }.then do |pads|
+                block ? pads.each{ _1.instance_exec _1, &block } : pads
+              end
+            when :>>
+              if filter.exclude_end?
+                each_pad.filter{|pad| extra_filters.all?{|ef| pad =~ ef } }.then do |pads|
+                  block ? pads.each{ _1.instance_exec _1, &block } : pads
+                end
+              else
+                ([self].each + each_pad).filter{|pad| extra_filters.all?{|ef| pad =~ ef } }.then do |pads|
+                  block ? pads.each{ _1.instance_exec _1, &block } : pads
+                end
+              end
+            when :<<
+              pad_lineage(!filter.exclude_end?).filter{|pad| extra_filters.all?{|ef| pad =~ ef } }.then do |pads|
+                block ? pads.each{ _1.instance_exec _1, &block } : pads
+              end
+            when :-
+              if filter.exclude_end?
+                parent&.each_pad(deep: false, reverse: true)&.drop_while{|a| a != self }&.drop(1)
+                &.filter{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+                  block ? pad.instance_exec(pad, &block) : pad
+                end
+              else
+                parent&.each_pad(deep: false, reverse: true)&.drop_while{|a| a != self }
+                &.filter{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+                  block ? pad.instance_exec(pad, &block) : pad
+                end
+              end
+            when :+
+              if filter.exclude_end?
+                parent&.each_pad(deep: false)&.drop_while{|a| a != self }&.drop(1)
+                &.filter{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+                  block ? pad.instance_exec(pad, &block) : pad
+                end
+              else
+                parent&.each_pad(deep: false)&.drop_while{|a| a != self }
+                &.filter{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+                  block ? pad.instance_exec(pad, &block) : pad
+                end
+              end
+            when :~
+              if filter.exclude_end?
+                parent&.each_pad(deep: false)&.filter{|pad| pad != self && extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+                  block ? pad.instance_exec(pad, &block) : pad
+                end
+              else
+                parent&.each_pad(deep: false)&.filter{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+                  block ? pad.instance_exec(pad, &block) : pad
+                end
+              end
+            else
+              each_pad(deep: !filter.exclude_end?).filter{|pad| pad =~ filter.begin and extra_filters.all?{|ef| pad =~ ef } }.then do |pads|
+                block ? pads.each{ _1.instance_exec _1, &block } : pads
+              end
+            end
+          end
+        when :>
+          each_pad(deep: false).find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+            block ? pad.instance_exec(pad, &block) : pad
+          end
+        when :>>
+          each_pad.find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+            block ? pad.instance_exec(pad, &block) : pad
+          end
+        when :<
+          parent&.then do |pad|
+            block ? pad.instance_exec(pad, &block) : pad
+          end
+        when :<<
+          pad_lineage(false).find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+            block ? pad.instance_exec(pad, &block) : pad
+          end
+        when :-
+          parent&.each_pad(deep: false, reverse: true)&.drop_while{|a| a != self }&.drop(1)
+          &.find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+              
+            block ? pad.instance_exec(pad, &block) : pad
+          end
+        when :+
+          parent&.each_pad(deep: false)&.drop_while{|a| a != self }&.drop(1)
+          &.find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+
+            block ? pad.instance_exec(pad, &block) : pad
+          end
+        when :~
+          parent&.each_pad(deep: false)
+          &.find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+
+            block ? pad.instance_exec(pad, &block) : pad
+          end
+        else
+          each_pad.find{|pad| pad =~ filter and extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+            block ? pad.instance_exec(pad, &block) : pad
+          end
+        end
+      end
+
     end
   end
 end

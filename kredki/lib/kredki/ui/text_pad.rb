@@ -55,6 +55,8 @@ module Kredki
 
       def initialize
         super
+
+        wh! :fit, 24
         @text = []
         @vh = :auto
       end
@@ -64,6 +66,27 @@ module Kredki
         @area.hide!
       end
 
+      def verse_metrics h
+        case @linespace
+        when Rational
+          ls = @linespace.denominator == 1 ? @linespace / 100 : @linespace
+          th = @vh == :auto ? h / (1 + (@text.size - 1) * ls) : @vh
+          ls = th * ls
+        when Numeric
+          th = @vh == :auto ? (h + (@text.size - 1) * @linespace) / @text.size : @vh
+          ls = th + @linespace
+        else
+          th = @vh == :auto ? h / @text.size : @vh
+          ls = th
+        end
+        [th, ls]
+      end
+
+      def fit_w
+        th, ls = verse_metrics get_h
+        @text.map{ th * it.w / it.h }.max
+      end
+
       def fit_h
         @vh == :auto ? 0 : @vh * @text.size
       end
@@ -71,18 +94,7 @@ module Kredki
       def set_size w, h
         super
         if @text.size > 0
-          case @linespace
-          when Rational
-            ls = @linespace.denominator == 1 ? @linespace / 100 : @linespace
-            th = @vh == :auto ? h / (1 + (@text.size - 1) * ls) : @vh
-            ls = th * ls
-          when Numeric
-            th = @vh == :auto ? (h + (@text.size - 1) * @linespace) / @text.size : @vh
-            ls = th + @linespace
-          else
-            th = @vh == :auto ? h / @text.size : @vh
-            ls = th
-          end
+          th, ls = verse_metrics h
           y = align_y @text.size * th + (@text.size - 1) * ls, h
           @text.each do |t|
             t.h! th

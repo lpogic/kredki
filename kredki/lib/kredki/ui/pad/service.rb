@@ -117,6 +117,7 @@ module Kredki
         @parent = nil
         @tags = {}
         @services = []
+        @event_manager = PadEventManager.new
       end
 
       def sketch p0
@@ -161,8 +162,8 @@ module Kredki
         if new_parent = @parent != parent
           @parent = parent
           set_action parent&.action
+          c_set_parent
         end
-        c_set_parent
         new_parent
       end
 

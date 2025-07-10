@@ -23,6 +23,7 @@ Kredki.colors = {
   blue: Kredki::Color.new(0, 0, 222, 255),
   gray: Kredki::Color.new(111, 111, 111, 255),
   light_gray: Kredki::Color.new(211, 211, 211, 255),
+  dark_gray: Kredki::Color.new(88, 88, 88, 255),
   yellow: Kredki::Color.new(222, 222, 0, 255),
   transparent: Kredki::Color.new(0, 0, 0, 0),
   false => Kredki::Color.new(0, 0, 0, 0),

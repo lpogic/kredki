@@ -1,24 +1,15 @@
 require_relative 'pad/service'
+require_relative 'radiobox'
 
 module Kredki
   module UI
     class RadioGroup < Service
 
-      model do
-        @radios = []
+      def radio! ...
+        new(Radiobox, ...)
       end
-
-      attr :radios
 
       #internal api
-
-      def append radio
-        @radios << radio
-      end
-
-      def remove radio
-        @radios.delete radio
-      end
 
       def key event, radio
         case event.symbol
@@ -36,15 +27,17 @@ module Kredki
       end
 
       def previous_radio radio
-        @radios[@radios.index(radio) - 1]
+        radios = self[Radiobox...].to_a
+        radios[radios.index(radio) - 1]
       end
 
       def next_radio radio
-        @radios[(@radios.index(radio) + 1) % @radios.size]
+        radios = self[Radiobox...].to_a
+        radios[(radios.index(radio) + 1) % radios.size]
       end
 
       def set_checked radio, checked
-        @radios.select{ _1.checked? }.each{ _1.set_checked false } if checked
+        self[Radiobox...].select{ it.checked? }.each{ it.set_checked false } if checked
         radio.set_checked checked
       end
     end#RadioGroup

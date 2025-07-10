@@ -1,37 +1,12 @@
-require_relative 'basic'
+require_relative 'way'
 
 module Kredki
   module UI
     module Layout
-      class YLayout < Basic
+      class Yway < Way
 
-        def get_span_h pad, h, pch
-          case h
-          when Range
-            b = case h.begin
-            when Rational
-              r = pch * h.begin.to_f
-              h.begin.denominator == 1 ? r / 100 : r
-            when Numeric
-              h.begin < 0 ? pch + h.begin : h.begin
-            when nil
-              0
-            else raise h.begin
-            end
-            e = case h.end
-            when Rational
-              r = pch * h.end.to_f
-              h.end.denominator == 1 ? r / 100 : r
-            when Numeric
-              h.end < 0 ? pch + h.end : h.end
-            when nil
-              Float::INFINITY
-            else raise h.end
-            end
-            [(e - b).abs, b, pad]
-          else
-            [0, get_h(pad, h, pch), pad]
-          end
+        def get_fallback_span pad, h, pch
+          [0, get_h(pad, h, pch), pad]
         end
 
         def arrange pad
@@ -39,12 +14,14 @@ module Kredki
           ch = pad.ch
           sh = 0
           span_pads = pad.layout_pads.map do
-            span = get_span_h it, it.h, ch
+            span = get_span it, it.h, ch
             sh += span[1]
             span
           end.sort_by{ it[0] }
           span_pads_size = span_pads.size
           return if span_pads_size < 1
+          space = @space || 0
+          sh += space * (span_pads_size - 1)
 
           if span_pads.last[0] > 0
             dh = ch - sh
@@ -94,7 +71,7 @@ module Kredki
               p1.set_xy px, py
               p1.set_margin
               p1.arrange
-              cy += ph
+              cy += ph + space
               lx = [lx, px].min
               ly = [ly, py].min
               lxm = [lxm, px + pw].max
@@ -115,9 +92,10 @@ module Kredki
         end
         
         def fit_h pad
-          pad.layout_pads.map{|p1| p1.min_h }.sum || 0
+          space = @space || 0
+          pad.layout_pads.map{|p1| p1.min_h }.reduce{ _1 + space + _2 } || 0
         end
-      end#YLayout
+      end#Yway
     end#Layout
   end#UI
 end#Kredki

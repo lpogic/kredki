@@ -1,5 +1,4 @@
 require 'forwardable'
-require_relative 'radio_group'
 require_relative 'theme'
 
 module Kredki
@@ -43,26 +42,6 @@ module Kredki
         @theme = theme
       end
 
-      def self.group param, target
-        case param
-        when RadioGroup
-          param
-        when false, nil
-          target.grand RadioGroup
-        else
-          (@groups ||= {})[param] ||= RadioGroup.new
-        end
-      end
-
-      param def group! group
-        return if @group == group
-        @group = group
-        update_group
-        true
-      end, get: def group
-        @group || @_group
-      end
-
       def_flag :checked, set: :update_checked
 
       #internal api
@@ -73,11 +52,10 @@ module Kredki
         @theme = nil
         @check = new Pad, mousy: false, keyboardy: false, color: :text, wh: 100r do
           area! do |w, h|
-            ellipse! w / 2, h / 2, w / 2
+            ellipse! (w + 0) / 2, h / 2, w / 2
           end
           hide!
         end
-        @group = false
       end
 
       def sketch p0
@@ -90,21 +68,27 @@ module Kredki
         stroke_width! 1
         layout! :center
         wh! 16
-        m! 5
+        m! 4
         theme! :gray
 
+        on_mouse_button_up! do
+          p "XD"
+        end
+
         Event.group on_click!, on_key!(:space, :enter) do
+          p "XD"
           checked!
         end
 
         on_key! do |e|
-          @_group&.key e, self
+          parent.key e, self
         end
 
       end
 
       def update_checked checked
-        @_group&.set_checked self, checked or set_checked checked
+        p checked
+        parent&.set_checked self, checked or set_checked checked
       end
 
       def set_checked checked
@@ -117,20 +101,6 @@ module Kredki
         theme.attach! self
         @_theme = theme
         true
-      end
-
-      def update_group
-        group = self.class.group(@group, self)
-        return if @_group == group
-        @_group&.remove self
-        group&.append self
-        @_group = group
-        true
-      end
-
-      def c_set_parent
-        super
-        update_group unless @group
       end
     end
   end

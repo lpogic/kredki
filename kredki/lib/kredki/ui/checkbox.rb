@@ -50,7 +50,8 @@ module Kredki
         super
 
         @theme = nil
-        @check = new Pad, mousy: false, keyboardy: false, color: 0, stroke_width: 2, stroke_color: :text, wh: 10 do
+        @check = new Pad, mousy: false, keyboardy: false, color: 0, wh: 100r do
+          stroke! color: :text, width: 3
           area! do |w, h|
             move_to! 2, h / 2
             line_to! w / 2, h - 1
@@ -67,7 +68,8 @@ module Kredki
         stroke_width! 1
         theme! :gray
         layout! :center
-        wh! :fit
+        wh! 20
+        m! 3
 
         Event.group on_click!, on_key!(:space, :enter) do
           checked! :~

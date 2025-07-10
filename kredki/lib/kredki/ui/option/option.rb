@@ -1,5 +1,4 @@
 require_relative '../text_pad'
-require_relative 'option_group'
 require_relative 'option_dropdown_layer'
 require_relative '../theme'
 
@@ -60,26 +59,6 @@ module Kredki
         end
       end
 
-      def self.group param, target
-        case param
-        when OptionGroup
-          param
-        when false, nil
-          target.grand OptionGroup
-        else
-          (@groups ||= {})[param] ||= OptionGroup.new
-        end
-      end
-
-      param def group! group
-        return if @group == group
-        @group = group
-        update_group
-        true
-      end, get: def group
-        @group || @_group
-      end
-
       def on_pick! ...
         on!(PickEvent, ...)
       end
@@ -87,20 +66,15 @@ module Kredki
       def_flag :arrow
 
 
-      def content! content
-        @text.content! content
-      end
-
-      def content
-        @text.content
-      end
+      param_delegate :@text,
+        :content
 
       param_service def text
         @text
       end
 
-      def option! ...
-        dropdown!.option!(...)
+      def option! *a, **na, &b
+        dropdown!.option! *a, w: 100r, **na, &b
       end
 
       param def dropdown! ...
@@ -122,8 +96,9 @@ module Kredki
 
         keyboardy!
         theme! :gray
-        layout! :start, :center
-        wh! :fit
+        layout! :wc
+        h! 24
+        w! :fit
 
         on_click! do
           report PickEvent.new content
@@ -142,36 +117,26 @@ module Kredki
           e.resolve
         end
 
-        on_key! do |e|
-          @_group&.key e
+        on_key! :up do |e|
+          parent.key_up
+          e.resolve
+        end
+
+        on_key! :down do |e|
+          parent.key_down
+          e.resolve
         end
 
         on_mouse_enter! do |e|
-          @_group&.mouse_enter self
+          parent&.mouse_enter self
           if dr = dropdown
             dr.update_keyboard_pad nil if dr.loaded?
           end
-          e.resolve
         end
       end
 
-      def pw fit = false
-        arrow_w = @dropdown ? 16 : 0
-        super + arrow_w
-      end
-
-      def update_group
-        group = self.class.group(@group, self)
-        return if @_group == group
-        @_group&.remove self
-        group&.append self
-        @_group = group
-        true
-      end
-
-      def c_set_parent
-        super
-        update_group unless @group
+      def min_w
+        @text.fit_w
       end
     end
   end

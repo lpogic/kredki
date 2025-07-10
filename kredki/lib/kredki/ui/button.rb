@@ -74,13 +74,16 @@ module Kredki
       def sketch p0
         super
 
-        new TextPad, "Button"
+        new TextPad, "Button" do
+          mousy! false
+        end
 
         keyboardy!
         stroke_width! 1
         theme! :gray
         layout! :xc
         wh! :fit
+        m! 3
       end
 
       def set_theme theme

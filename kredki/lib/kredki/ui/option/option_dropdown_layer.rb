@@ -5,6 +5,7 @@ module Kredki
     class OptionDropdownLayer < OptionLayer
 
       def load! option
+        arrange
         x, y = *option.translate(option.sw, 0)
         if x + @options.sw > action.sw
           x = [x - option.sw - @options.sw, 0].max
@@ -19,10 +20,7 @@ module Kredki
 
       def sketch p0
         super
-
-        # on_mouse_move! do
-        #   parent.layer.update_mouse_location false
-        # end
+        
       end
 
       def set_parent parent
