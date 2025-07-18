@@ -5,6 +5,7 @@ require_relative 'theme'
 module Kredki
   module UI
     class Note < Pad
+      include TextEdition
       extend Forwardable
 
       class SimpleColorBasedTheme < Theme
@@ -19,10 +20,10 @@ module Kredki
         end
 
         def repaint
-          kb_in = @pad.keyboard_in?
-          @pad.area.color = kb_in ? @color.darken : @pad.mouse_in? ? @color.lighten : @color
-          @pad.area.stroke_color = kb_in ? :stroke_focus : @color
-          @pad.text.selection.each{ it.color! kb_in ? :text_selection : :text_selection_inactive }
+          kb_top = @pad.keyboard_top?
+          @pad.area.color = kb_top ? @color.darken : @pad.mouse_in? ? @color.lighten : @color
+          @pad.area.stroke_color = kb_top ? :stroke_focus : @color
+          @pad.text.selection.each{ it.color! kb_top ? :text_selection : :text_selection_inactive }
         end
       end
 
@@ -109,7 +110,7 @@ module Kredki
       end
 
       def initialize_text
-        @text = new EditableTextVerse, wh: 100r
+        @text = new EditableTextVerse, wh: 100r, mousy: false
       end
 
       def sketch p0
@@ -117,28 +118,16 @@ module Kredki
 
         layout! NoteLayout.new(0, 0)
         mousy!
+        keyboardy!
         stroke_width! 1
         theme! :gray
         h! 24
 
-        on_mouse_button_up! :primary, aim: true do |e|
-          if !@text.drag? && include_point?(e.x, e.y)
-            @text.lose_button
-            @text.report ClickEvent.new e.origin
-            e.resolve
-          end
-        end
+        sketch_text
       end
 
-      def point_pads x, y, pads, force = false
-        if force || (mousy? && show? && include_point?(x, y))
-          pads << self
-          x -= @clip_scene.x
-          y -= @clip_scene.y
-          @pads.reverse_each.find{ _1.point_pads x - _1.sx, y - _1.sy, pads, true }
-          return true
-        end
-        return false
+      def sketch_text
+        text_edition @text, false
       end
     end
   end

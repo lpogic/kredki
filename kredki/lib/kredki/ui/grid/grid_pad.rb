@@ -181,7 +181,6 @@ module Kredki
               mouse_pad_refresh = true
             end
           end
-          action.update_mouse_location if mouse_pad_refresh && mousy? && show?
         end
       end
     end

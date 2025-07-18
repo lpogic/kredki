@@ -50,13 +50,11 @@ module Kredki
   require_relative 'ui/label'
   require_relative 'ui/note_dropdown/note_dropdown'
   require_relative 'ui/table'
+  require_relative 'ui/option/context_menu'
 
   require_relative "ui/layout/basic"
   require_relative "ui/layout/xway"
   require_relative "ui/layout/yway"
-  require_relative 'ui/option/dropdown_layer'
-  require_relative 'ui/option/dropright_layer'
-  require_relative 'ui/option/context_layer'
 
   UI.layouts = {
     nil => UI::Layout::Basic.new(0, 0),
@@ -114,17 +112,13 @@ module Kredki
       def! :note!, Note
       def! :notes!, Notes
       def! :label!, Label
-      def! :note_dropdown!, NoteDropdown
+      def! :option_note!, NoteDropdown
       def! :table!, Table
 
       def! :radios!, RadioGroup
       def! :options!, OptionGroup
 
-      def! :context_menu! do |a, na, b|
-        @context_menu ||= new ContextLayer, *a, **na.except(:w, :h, :wh), &b
-        @context_menu.options.alter **na.slice(:w, :h, :wh)
-        @context_menu
-      end
+      def! :context_menu!, ContextMenu
 
     end#PadBase
   end#UI
@@ -136,7 +130,7 @@ include Kredki::UI
 
 class CarryFocusOnTab
   def self.plug_into target
-    target.on_key! :tab do |event|
+    target.on_key_down! :tab do |event|
       next_pad = target.layer.keyboard_pad&.then do |p0|
         target.each_pad(reverse: event.shift?, deep: true)
           .lazy

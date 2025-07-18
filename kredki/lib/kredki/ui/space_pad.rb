@@ -24,10 +24,10 @@ module Kredki
         wh! :fit
       end
 
-      def mouse_button_down e
+      def mouse_down e
       end
 
-      def mouse_button_up e
+      def mouse_up e
       end
     end
   end

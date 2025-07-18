@@ -13,8 +13,8 @@ module Kredki
           super pad,
             pad.on_focus_gain!,
             pad.on_focus_lose!,
-            pad.on_mouse_button_down!,
-            pad.on_mouse_button_up!,
+            pad.on_mouse_down!,
+            pad.on_mouse_up!,
             pad.on_mouse_enter!,
             pad.on_mouse_leave!
         end
@@ -71,7 +71,7 @@ module Kredki
         wh! 20
         m! 3
 
-        Event.group on_click!, on_key!(:space, :enter) do
+        Event.group on_mouse_click!, on_key!(:space, :enter) do
           checked! :~
         end
 

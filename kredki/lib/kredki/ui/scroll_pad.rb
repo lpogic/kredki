@@ -12,9 +12,9 @@ module Kredki
         super
         
         # @corner existence is checked in put_pad
-        corner = new Pad, in_layout: false, color: :gray, h: 10, w: 10, xy: 100r
-        @xslide = new HorizontalSlide, in_layout: false, h: 10, x: 0, y: 100r
-        @yslide = new VerticalSlide, in_layout: false, w: 10, y: 0, x: 100r
+        corner = new Pad, in_layout: false, color: :gray, h: 10, w: 10
+        @xslide = new HorizontalSlide, in_layout: false, h: 10
+        @yslide = new VerticalSlide, in_layout: false, w: 10
         @corner = corner
 
         @yslide.on_edit! do |e|
@@ -46,30 +46,27 @@ module Kredki
           end
         end
 
-        # on! ROIEvent do |e|
-        #   ps = layout_pads
-        #   if !ps.empty?
-        #     pxw = ps.filter{ it.x == :auto }.max{ it.sw }
-        #     pxh = ps.filter{ it.y == :auto }.max{ it.sh }
-        #     if (l = e.x) < 0
-        #       @xslide.value! 1.0 * (l - pxw.sx) / (pxw.sw - @xslide.sw)
-        #     elsif (r = e.w + e.x) > sw
-        #       @xslide.value! 1.0 * (r - @xslide.sw - pxw.sx) / (pxw.sw - @xslide.sw)
-        #     end
+        on! ROIEvent do |e|
+          x, y = e.target.translate *e.xy, self
 
-        #     if (t = e.y) < 0
-        #       @yslide.value! 1.0 * (t - pxh.sy) / (pxh.sh - @yslide.sh)
-        #     elsif (b = e.h + e.y) > sh
-        #       @yslide.value! 1.0 * (b - @yslide.sh - pxh.sy) / (pxh.sh - @yslide.sh)
-        #     end
-        #   end
-        # end
+          if (range = (@lw || 0) - sw) > 0
+            if x < 0 || (x += e.w - sw) > 0
+              @xslide.value += 1.0 * x / range
+            end
+          end
+
+          if (range = (@lh || 0) - sh) > 0
+            if y < 0 || (y += e.h - sh) > 0
+              @yslide.value += 1.0 * y / range
+            end
+          end
+        end
       end
 
-      def mouse_button_down e
+      def mouse_down e
       end
 
-      def mouse_button_up e
+      def mouse_up e
       end
 
       def put_pad pad, at = nil
@@ -81,11 +78,11 @@ module Kredki
       end
 
       def cw
-        super + @ocw
+        super() + @ocw
       end
 
       def ch
-        super + @och
+        super() + @och
       end
 
       def arrange o = true
@@ -133,7 +130,9 @@ module Kredki
             py = p1.auto_y? ? p1.sy + pad_y : p1.sy
             p1.set_xy px, py
           end
-          @corner.show = xscroll && yscroll
+          if @corner.show = xscroll && yscroll
+            @corner.set_xy w - 10, h - 10
+          end
         else
           @xslide.hide!
           @yslide.hide!

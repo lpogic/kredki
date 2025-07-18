@@ -72,6 +72,7 @@ module Kredki
 
       def sketch p0
         super
+        @mouse_stale = false
 
         @event_manager.manager Kredki::MouseMoveEvent, proc{|e| update_mouse_location e }
         @event_manager.manager Kredki::WindowMouseEnterEvent, proc{|e| update_mouse_location }
@@ -82,10 +83,10 @@ module Kredki
 
         keyboard do
           on_down! do |e|
-            p0.keyboard_event e
+            p0.keyboard_event KeyDownEvent.new e
           end
           on_up! do |e|
-            p0.keyboard_event e
+            p0.keyboard_event KeyUpEvent.new e
           end
           on_text! do |e|
             p0.keyboard_event e
@@ -101,12 +102,14 @@ module Kredki
         end
 
         on_step! do
-          @layers.each do 
-            it.arrange and it.update_mouse_location
-          end
+          arrange
         end
 
         layer!.focus!
+      end
+
+      def arrange
+        update_mouse_location if @layers.count(&:arrange) > 0 || @mouse_stale
       end
 
       def pad_tree
@@ -118,21 +121,38 @@ module Kredki
       end
 
       def mouse_event event
+        arrange
         @layers.reverse_each do |layer|
-          layer.mouse_pad&.report event
           event.target = nil
+          if event.is_a? MouseButtonUpEvent
+            event.drag = layer.mouse_pad_drag
+          end
+          layer.mouse_pad&.report event
+          @event_director.resolve
+          event.resolved?
         end
       end
 
       def update_mouse_location event = nil
+        event ||= PositionEvent.new *mouse.xy
+        xy = event.xy
         @layers.reverse_each do |layer|
-          layer.update_mouse_location event
+          if event.resolved?
+            layer.clear_mouse_location xy
+          else
+            layer.update_mouse_location event
+          end
+          @event_director.resolve
         end
+        @mouse_stale = false
       end
 
       def keyboard_event event
-        @layers.reverse_each do |layer|
+        @layers.reverse_each.find do |layer|
+          event.target = nil
           layer.keyboard_event event
+          @event_director.resolve
+          event.resolved?
         end
       end
 
@@ -149,11 +169,13 @@ module Kredki
         layer.set_size *wh
         layer.wh! *wh
         @layers << layer
+        @mouse_stale = true
         layer
       end
 
       def remove_pad layer, transfer = false
         @layers.delete layer
+        @mouse_stale = true
       end
 
       def lineage include_self = false

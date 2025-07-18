@@ -1,65 +1,37 @@
-require_relative 'option_layer'
-
 module Kredki
   module UI
-    class ContextLayer < OptionLayer
+    class ContextLayer < Layer
 
-      def load! x, y
-        x_max = action.w - @options.sw 
-        x = [x_max, 0].max if x > x_max
-        sh = @options.sh
-        y = [y - sh, 0].max if y + sh > action.h
-        load_common x, y
+      def load_common x, y
+        @options.xy! x, y
+        parent.action.push_layer self
+        break_layout
+      end
+      
+      def unload!
+        update_keyboard_pad nil
+        pad_detach
       end
 
-      def on_pick! ...
-        on!(Option::PickEvent, ...)
+      def loaded?
+        !!@pad_parent
       end
 
-      def option! *a, **na, &b
-        super(*a, w: 100r, **na, &b)
-      end
+      attr :options, :option_group
 
       #internal api
 
-      def sketch p0
+      def initialize
         super
 
-        on! Option::PickEvent, aim: true do |e|
-          if e.target.dropdown
-            e.resolve
-          else
-            pad_detach
-          end
-        end
-
-        on_key! :escape do |e|
-          pad_detach
-          e.resolve
-        end
-
-        on_mouse_button_down! do |e|
-          pad_detach
-        end
+        @options = new ContextPad, stroke: {width: 1, color: :dark_gray}
+        @option_group = @options.new ContextOptionGroup
       end
 
-      def set_parent parent
-        super and (
-          @parent_events&.each{ _1.detach! }
-          @parent_events = []
+      def mouse_down e
+      end
 
-          @parent_events[] = parent.on_mouse_button! :secondary do |e|
-            load! *parent.translate(*e.xy)
-            s[Option]&.focus!
-            e.resolve
-          end
-    
-          @parent_events[] = parent.on_key! :context do |e|
-            load! *parent.translate(parent.sw / 2, parent.sh / 2)
-            s[Option]&.focus!
-            e.resolve
-          end
-        )
+      def mouse_up e
       end
     end
   end

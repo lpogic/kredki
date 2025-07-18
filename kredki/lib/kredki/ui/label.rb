@@ -3,6 +3,7 @@ require_relative 'text/navigable_text'
 module Kredki
   module UI
     class Label < SortPad
+      include TextNavigation
       
       #internal api
 
@@ -11,7 +12,6 @@ module Kredki
 
         @text = new NavigableText, h: 100r do
           cursor.w = 0
-          keyboardy!
         end
       end
 
@@ -41,8 +41,11 @@ module Kredki
 
         wh! :fit, 24
         for! :~
+        keyboardy!
 
-        on_click! do |e|
+        text_navigation @text
+
+        on_mouse_click! do |e|
           find_pad @for, proc{ it.keyboardy? } do
             focus!
             report e

@@ -14,16 +14,23 @@ module Kredki
           super pad,
             pad.on_focus_gain!,
             pad.on_focus_lose!,
-            pad.on_mouse_button_down!,
-            pad.on_mouse_button_up!,
+            pad.on_mouse_down!,
+            pad.on_mouse_up!,
             pad.on_mouse_enter!,
-            pad.on_mouse_leave!
+            pad.on_mouse_leave!,
+            pad.on_key_down!,
+            pad.on_key_up!
         end
 
         def repaint
-          @pad.area.color = @pad.button_top? ? @color.darken : @pad.mouse_in? ? @color.lighten : @color
-          @pad.area.stroke_color = @pad.keyboard_in? && !@pad.button_top? ? :stroke_focus : @color.darken
+          kb_in = @pad.keyboard_in?
+          @pad.area.color = @pad.down?(kb_in) ? @color.darken : @pad.mouse_in? ? @color.lighten : @color
+          @pad.area.stroke_color = kb_in && !@pad.button_top?(:primary) ? :stroke_focus : @color.darken
         end
+      end
+
+      class ButtonClickEvent < Event
+        model :origin, :<
       end
 
       def color_theme color
@@ -46,12 +53,12 @@ module Kredki
 
       param def color! *color
         theme! *color
-      end, get: def theme
+      end, get: def color
         @_theme.color
       end
 
       def text
-        self[Text]
+        self[TextPad]
       end
 
       def << arg
@@ -61,6 +68,20 @@ module Kredki
         else
           super
         end
+      end
+
+      def on_click!(...)
+        on!(ButtonClickEvent, ...)
+      end
+
+      def down? keyboard_in = nil
+        keyboard_in = keyboard_in? if keyboard_in.nil?
+        button_top? :primary or (
+          keyboard_in and (
+            key_down? :space or
+            key_down? :enter
+          )
+        )
       end
 
       #internal api
@@ -84,6 +105,16 @@ module Kredki
         layout! :xc
         wh! :fit
         m! 3
+
+        on_mouse_click! :primary do |e|
+          report ButtonClickEvent.new e
+          e.resolve
+        end
+
+        on_key! :space, :enter do |e|
+          report ButtonClickEvent.new e
+          e.resolve
+        end
       end
 
       def set_theme theme

@@ -13,8 +13,8 @@ module Kredki
           super pad,
             pad.on_focus_gain!,
             pad.on_focus_lose!,
-            pad.on_mouse_button_down!,
-            pad.on_mouse_button_up!,
+            pad.on_mouse_down!,
+            pad.on_mouse_up!,
             pad.on_mouse_enter!,
             pad.on_mouse_leave!
         end
@@ -71,23 +71,17 @@ module Kredki
         m! 4
         theme! :gray
 
-        on_mouse_button_up! do
-          p "XD"
-        end
-
-        Event.group on_click!, on_key!(:space, :enter) do
-          p "XD"
+        Event.group on_mouse_click!, on_key!(:space, :enter) do
           checked!
         end
 
-        on_key! do |e|
+        on_key_down! do |e|
           parent.key e, self
         end
 
       end
 
       def update_checked checked
-        p checked
         parent&.set_checked self, checked or set_checked checked
       end
 

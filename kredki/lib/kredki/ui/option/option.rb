@@ -1,5 +1,4 @@
 require_relative '../text_pad'
-require_relative 'option_dropdown_layer'
 require_relative '../theme'
 
 module Kredki
@@ -30,8 +29,8 @@ module Kredki
           super pad,
             pad.on_focus_gain!,
             pad.on_focus_lose!,
-            pad.on_mouse_button_down!,
-            pad.on_mouse_button_up!,
+            pad.on_mouse_down!,
+            pad.on_mouse_up!,
             pad.on_mouse_enter!,
             pad.on_mouse_leave!
         end
@@ -63,23 +62,11 @@ module Kredki
         on!(PickEvent, ...)
       end
 
-      def_flag :arrow
-
-
       param_delegate :@text,
         :content
 
       param_service def text
         @text
-      end
-
-      def option! *a, **na, &b
-        dropdown!.option! *a, w: 100r, **na, &b
-      end
-
-      param def dropdown! ...
-        @dropdown ||= new OptionDropdownLayer
-        @dropdown.alter(...)
       end
 
       #internal api
@@ -100,39 +87,28 @@ module Kredki
         h! 24
         w! :fit
 
-        on_click! do
+        on_mouse_click! do
           report PickEvent.new content
         end
 
-        on_key! :space, :enter do |e|
+        on_key_down! :space, :enter do |e|
           report PickEvent.new content
           e.resolve
         end
 
-        on_key! :right do |e|
-          if dr = dropdown
-            dr.load! self unless dr.loaded?
-            dr[Option]&.focus! and e.resolve
-          end
-          e.resolve
-        end
-
-        on_key! :up do |e|
+        on_key_down! :up do |e|
           parent.key_up
           e.resolve
         end
 
-        on_key! :down do |e|
+        on_key_down! :down do |e|
           parent.key_down
           e.resolve
         end
+      end
 
-        on_mouse_enter! do |e|
-          parent&.mouse_enter self
-          if dr = dropdown
-            dr.update_keyboard_pad nil if dr.loaded?
-          end
-        end
+      def mouse_enter e
+        parent&.mouse_enter self
       end
 
       def min_w

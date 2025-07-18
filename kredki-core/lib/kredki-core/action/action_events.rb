@@ -26,12 +26,12 @@ module Kredki
       on! TextEvent, &block
     end
 
-    aliasing def on_mouse_button! *filtered_buttons, &block
+    def on_mouse_down! *filtered_buttons, &block
       indexes = mouse.indexes filtered_buttons
       @event_manager.mouse_manager MouseButtonDownEvent, indexes, block
-    end, :on_mouse_button_down!
+    end
 
-    def on_mouse_button_up! *filtered_buttons, &block
+    def on_mouse_up! *filtered_buttons, &block
       indexes = mouse.indexes filtered_buttons
       @event_manager.mouse_manager MouseButtonUpEvent, indexes, block
     end

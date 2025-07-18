@@ -156,11 +156,11 @@ module Kredki
       end
 
       def cx
-        @scene.x + @clip_scene.x
+        @clip_scene.x
       end
 
       def cy
-        @scene.y + @clip_scene.y
+        @clip_scene.y
       end
 
       def cxy
@@ -285,12 +285,16 @@ module Kredki
         layer&.keyboard_pad == self
       end
 
-      def button_in?
-        layer&.button_pad&.pad_lineage&.any?{ _1 == self } || false
+      def key_down? key
+        layer&.check_key_down key
       end
 
-      def button_top?
-        layer&.button_pad == self
+      def button_in? button = nil
+        layer&.check_mouse_pad self, button, true
+      end
+
+      def button_top? button = nil
+        layer&.check_mouse_pad self, button
       end
 
       def_flag :keyboardy
@@ -298,14 +302,10 @@ module Kredki
       def_flag :focus, set: :set_focus, get: :keyboard_top?
       def_flag :pin, set: :set_button, get: :button_top?
 
-      def drag! start_point = nil
-        gain_button start_point
-        @drag = true
-        report DragEvent.new(start_point, nil, *action.mouse.xy)
-      end
-
-      def drag?
-        !!@drag
+      def drag! start_xy = nil, button = nil
+        mxy = action.mouse.xy
+        gain_button start_xy || mxy, button, true
+        report MouseMoveEvent.new(:start, nil, *mxy)
       end
 
       def clear!
@@ -328,8 +328,8 @@ module Kredki
         pad_detach transfer
       end
 
-      def roi!
-        report ROIEvent.new *swh, *translate
+      def roi! x = 0, y = 0
+        report ROIEvent.new *swh, x, y
       end
 
       def use! extension, *a, **na, &b
@@ -346,7 +346,6 @@ module Kredki
         @clip_scene = @scene.scene!
         @clip_area = @clip_scene.rectangle!
         @pads = []
-        @button_down_xy = nil
         @x = @y = :auto
         @w = @h = 100
         @me = @mn = @mw = @ms = 0
@@ -364,47 +363,42 @@ module Kredki
 
         on_mouse_enter!{ mouse_enter _1 }
         on_mouse_leave!{ mouse_leave _1 }
-        on_mouse_button!{ mouse_button_down _1 }
-        on_mouse_button_up!{ mouse_button_up _1 }
+        on_mouse_down!{ mouse_down _1 }
+        on_mouse_up!{ mouse_up _1 }
         on_mouse_move!{ mouse_move _1 }
         on_focus_gain!{ focus_gain _1 }
         on_focus_lose!{ focus_lose _1 }
+        on! KeyboardRequestEvent do keyboard_request it end
       end
 
-      def mouse_button_down e
-        if e.button == :primary
-          gain_keyboard if keyboardy?
-          gain_button e.xy
+      def keyboard_request e
+        if keyboardy?
+          gain_keyboard
           e.resolve
         end
       end
 
       def mouse_enter e
-        # e.resolve
       end
 
       def mouse_leave e
-        # e.resolve
-      end
-
-      def mouse_button_up e
-        lose_button
-        p [self, e.x, e.y, include_point?(e.x, e.y)]
-        if @drag
-          @drag = false
-          report DropEvent.new e.origin
-        elsif include_point?(e.x, e.y) && e.button == :primary
-          report ClickEvent.new e.origin
-        end
-        e.resolve
       end
 
       def mouse_move e
-        if @drag || (@button_down_xy && ((@button_down_xy[0] - e.x) ** 2 + (@button_down_xy[1] - e.y) ** 2 > 100))
-          @drag = true
-          report DragEvent.new @button_down_xy, e.origin
+      end
+
+      def mouse_down e
+        report KeyboardRequestEvent.new if e.button == :primary
+        gain_button e.xy, e.button
+        e.resolve
+      end
+
+      def mouse_up e
+        lose_button e.button
+        if !e.drag && include_point?(*reverse_translate(*e.xy))
+          report MouseClickEvent.new e.origin
         end
-        # e.resolve
+        e.resolve
       end
 
       def focus_gain e
@@ -540,6 +534,8 @@ module Kredki
           mw
         when :fit
           fit_w
+        when :driven
+          @area.w
         when Range
           b = case @w.begin
           when Rational
@@ -574,6 +570,8 @@ module Kredki
           mh
         when :fit
           fit_h
+        when :driven
+          @area.h
         when Range
           mh # todo
         when Numeric
@@ -592,6 +590,8 @@ module Kredki
           @w[@pad_parent.get_w]
         when :fit
           fit_w
+        when :driven
+          @area.w
         when Range
           pcw = nil
           b = case @w.begin
@@ -635,6 +635,8 @@ module Kredki
           @h[@pad_parent.get_h]
         when :fit
           fit_h
+        when :driven
+          @area.h
         when Range
           pch = @pad_parent.get_h
           if @h.exclude_end?
@@ -721,18 +723,21 @@ module Kredki
         set ? gain_keyboard : lose_keyboard
       end
 
-      def gain_button xy = nil
-        @button_down_xy = xy
-        layer.update_button_pad self, self
+      def gain_button xy = nil, button = nil, drag = false
+        layer&.update_mouse_pad self, self, xy, button, drag
       end
 
-      def lose_button
-        @button_down_xy = nil
-        layer.update_button_pad self, nil
+      def lose_button button = nil
+        layer.update_mouse_pad self, nil
       end
 
       def set_button set
         set ? gain_button : lose_button
+      end
+
+      def reverse_translate x, y, target = nil
+        x, y = translate -x, -y, target
+        [-x, -y]
       end
 
       def translate x = 0, y = 0, target = nil
@@ -744,10 +749,10 @@ module Kredki
           end
         when false
           if pa = pad_parent
-            return pa.translate x + cx, y + cy, false
+            return pa.translate x + sx + cx, y + sy + cy, false
           end
         else
-          xy = pad_parent.translate x + cx, y + cy
+          xy = pad_parent.translate x + sx + cx, y + sy + cy
           xy = target.translate -xy[0], -xy[1]
           return [-xy[0], -xy[1]]
         end
@@ -756,49 +761,18 @@ module Kredki
 
       def report event, path = true, instant = false
         event.target ||= self
-        ed = event_director
+        event_director = action.event_director
         if path
-          if event.is_a? PositionEvent
-            ancs = pad_lineage.to_a
-            ed.stem do
-              x = y = 0
-              ancs.reverse_each do |pad|
-                cx = x
-                cy = y
-                ed.push_block event, instant do
-                  event.x -= pad.sx + cx
-                  event.y -= pad.sy + cy
-                end
-                ed.push event, pad, true, instant
-                x, y = *pad.clip_scene.xy
-              end
-              x = -x
-              y = -y
-              ancs.each do |pad|
-                cx = x
-                cy = y
-                ed.push_block event, instant do
-                  event.x += pad.clip_scene.x + cx
-                  event.y += pad.clip_scene.y + cy
-                end
-                ed.push event, pad, false, instant
-                x, y = *pad.sxy
-              end
-            end
-          else
-            ancs = lineage.to_a
-            ed.stem do
-              ancs.reverse_each do |pad|
-                ed.push event, pad, true, instant
-              end
-              ancs.each do |pad|
-                ed.push event, pad, false, instant
-              end
-            end
+          ancs = pad_lineage.to_a
+          ancs.reverse_each do |pad|
+            event_director.push event, pad, true, instant
+          end
+          ancs.each do |pad|
+            event_director.push event, pad, false, instant
           end
         else
-          ed.push event, self, true, instant
-          ed.push event, self, false, instant
+          event_director.push event, self, true, instant
+          event_director.push event, self, false, instant
         end
       end
 

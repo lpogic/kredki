@@ -4,19 +4,42 @@ module Kredki
   module UI
     class Layer < Pad
 
+      class MousePad
+        model :pad, :xy, :button, :drag
+      end
+
       def window
         action.window
       end
 
       def mouse_pad
-        @button_pad || @mouse_pads.last
+        @mouse_pad&.pad || @mouse_pads.last
       end
 
       def keyboard_pad
         @keyboard_pads.last
       end
 
-      attr :button_pad
+      def check_key_down key
+        !!@down_keys[key]
+      end
+
+      def mouse_down_xy
+        @mouse_pad&.xy
+      end
+
+      def check_mouse_pad pad, button, lineage = false
+        lineage ? @mouse_pad&.pad&.pad_lineage&.any?{ it == self } : (@mouse_pad&.pad == pad) \
+        and !button || @mouse_pad.button == button
+      end
+
+      def mouse_pad_drag? xy
+        bxy = @mouse_pad&.xy and (bxy[0] - xy[0]) ** 2 + (bxy[1] - xy[1]) ** 2 > 100
+      end
+
+      def mouse_pad_drag
+        @mouse_pad&.drag
+      end
 
       def def! ...
         action.def!(...)
@@ -25,8 +48,7 @@ module Kredki
       def detach! transfer = false
         unless transfer
           update_keyboard_pad nil
-          @button_pad = nil
-          update_mouse_location false
+          @mouse_pad = nil
         end
         super
       end
@@ -48,7 +70,7 @@ module Kredki
       def initialize
         super
         
-        @button_pad = nil
+        @mouse_pad = nil
         @keyboard_pads = []
         @mouse_pads = []
       end
@@ -58,6 +80,17 @@ module Kredki
 
         keyboardy!
         color! false
+
+        on_key_down! aim: true do |e|
+          @down_keys[~e] = true
+        end
+
+        on_key_up! aim: true do |e|
+          if @down_keys[~e]
+            @down_keys[~e] = false
+            keyboard_event KeyClickEvent.new e.origin
+          end
+        end
       end
 
       def arrange
@@ -72,76 +105,60 @@ module Kredki
       end
 
       def keyboard_event event
-        if !event.resolved? && show?
-          keyboard_pad&.report event
+        if !event.resolved? && show? && (kp = keyboard_pad)
+          event.target = kp
+          kp.report event
         end
       end
-
-      def update_button_pad pad, new_button_pad
-        if new_button_pad
-          @button_pad = new_button_pad
+      
+      def update_mouse_pad pad, new_mouse_pad, xy = nil, button = nil, drag = false
+        if new_mouse_pad
+          @mouse_pad = MousePad.new new_mouse_pad, xy, button, drag
         else
-          if @button_pad == pad
-            @button_pad = nil
-            update_mouse_location
+          if @mouse_pad&.pad == pad
+            @mouse_pad = nil
           end
         end
       end
 
-      def mouse_button_down e
-        if e.button == :primary
-          gain_keyboard if keyboardy?
-          gain_button e.xy
-        end
+      def mouse_down e
+        gain_keyboard if keyboardy?
+        gain_button e.xy
       end
 
-      def mouse_button_up e
+      def mouse_up e
         lose_button
-        if @drag
-          @drag = false
-          report DropEvent.new e.origin
-        elsif include_point?(e.x, e.y) && e.button == :primary
-          report ClickEvent.new e.origin
+        if !e.drag && include_point?(e.x, e.y)
+          report MouseClickEvent.new e.origin
         end
       end
 
-      def update_mouse_location event = nil
-        xy = nil
-        if event
-          xy = event.xy
-        elsif event.nil? && mouse.in_window?
-          xy = mouse.position
-        end
+      def update_mouse_location event
+        xy = event.xy
 
-        if @button_pad && event
-          if xy
-            @button_pad.report MouseMoveEvent.new(event, *xy)
-            return true
-          else
-            return false
-          end
-        else
-          event ||= nil
-          if xy
-            arrange
-            included = point_pads *xy, mouse_pads = []
-            @mouse_pads, mouse_pads = mouse_pads, @mouse_pads
-            mouse_pads.reverse_each do |pad| 
-              pad.report LeaveEvent.new(event, *xy), false unless @mouse_pads.include? pad
-            end
-            @mouse_pads.each do |pad|
-              pad.report EnterEvent.new(event, *xy), false unless mouse_pads.include? pad
-            end
-            mouse_top = @mouse_pads.last
-            mouse_top.report MouseMoveEvent.new(event, *xy) if mouse_top && event
-            return included
-          else
-            @mouse_pads.reverse_each do |pad| 
-              pad.report LeaveEvent.new(event, *xy), false
-            end
-            @mouse_pads = []
-            return false
-          end
+        if @mouse_pad
+          @mouse_pad.drag ||= mouse_pad_drag? xy
+          @mouse_pad.pad.report MouseMoveEvent.new(@mouse_pad.drag, event, *xy)
+          return true
+        end
+        arrange
+        mouse_pads = []
+        included = point_pads *xy, mouse_pads
+        enter, stay, leave = *mouse_pads.polarize(@mouse_pads)
+        @mouse_pads = mouse_pads
+
+        leave.reverse_each{ it.report LeaveEvent.new(event, *xy), false }
+        enter.reverse_each{ it.report EnterEvent.new(event, *xy), false }
+        mouse_top = @mouse_pads.last
+        mouse_top.report MouseMoveEvent.new(false, event, *xy) if mouse_top
+        return included
+      end
+
+      def clear_mouse_location xy
+        unless @mouse_pads.empty?
+          mouse_pads = @mouse_pads
+          @mouse_pads = []
+          mouse_pads.reverse_each{ it.report LeaveEvent.new(nil, *xy), false }
         end
       end
 
@@ -151,11 +168,12 @@ module Kredki
           @keyboard_pads = []
         else
           keyboard_pads = keyboard_pad.pad_lineage.to_a.reverse
-          left, both, right = *keyboard_pads.polarize(@keyboard_pads)
-          right.reverse_each{|pad| pad.report FocusLoseEvent.new, false }
-          left.each{|pad| pad.report FocusGainEvent.new, false }
+          gain, no_change, lose = *keyboard_pads.polarize(@keyboard_pads)
           @keyboard_pads = keyboard_pads
+          lose.reverse_each{ it.report FocusLoseEvent.new, false }
+          gain.reverse_each{ it.report FocusGainEvent.new, false }
         end
+        @down_keys = {}
       end
 
       def point_pads x, y, pads, force = false
@@ -171,7 +189,6 @@ module Kredki
       def set_parent parent
         return if @parent == parent
         @parent = parent
-        set_action parent&.action
       end
 
       def set_pad_parent parent

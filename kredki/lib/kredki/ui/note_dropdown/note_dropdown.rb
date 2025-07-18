@@ -1,26 +1,22 @@
+require_relative '../note'
 require_relative 'note_dropdown_layer'
 
 module Kredki
   module UI
-    class NoteDropdown < Service
+    class NoteDropdown < Note
 
-      def note! ...
-        @note ||= new Note
-        @note.alter(...)
-      end
-
-      attr :note, :picked
+      attr :picked
 
       def dropdown! ...
-        @dropdown ||= new NoteDropdownLayer
+        @dropdown ||= new NoteDropdownLayer do
+          pad_detach
+        end
+
         @dropdown.alter(...)
       end
 
-      param_delegate :@note,
-        :w, :m, :mx, :my, :me, :mw, :mn, :ms
-
-      def option! ...
-        dropdown!.option!(...)
+      def option! *a, **na, &b
+        dropdown!.option! *a, w: 100r, **na, &b
       end
 
       #internal api
@@ -29,26 +25,49 @@ module Kredki
         super
 
         @picked = nil
+        @arrow = new ButtonPad, w: 20, h: 100r, x: 100r do
+          theme! :gray
+          stroke_width! 0
+          keyboardy! false
+          text.detach!
+          new Pad, mousy: false, keyboardy: false, color: 0, wh: 100r do
+            stroke! color: :text, width: 3, cap: :round, join: :miter
+            area! do |w, h|
+              move_to! w / 5, h / 3
+              line_to! w / 2, h * 2 / 3
+              line_to! w * 4 / 5, h / 3
+            end
+          end
+        end
       end
 
       def sketch p0
         super
 
-        note!
+        @text.w = -20
         dropdown!
 
-        Event.group @note.on_click!, @note.on_key!(:enter) do
-          @dropdown.load! @note unless @dropdown.loaded?
+        Event.group on_key!(:enter) do
+          @dropdown.load! self unless @dropdown.loaded?
         end
 
-        Event.group @note.on_move!, @note.on_resize! do |e|
-          @dropdown.load! @note if @dropdown.loaded?
+        Event.group on_move!, on_resize! do |e|
+          @dropdown.break_layout
         end
-        
+
+        @arrow.on_mouse_click! :primary do
+          @dropdown.load! self unless @dropdown.loaded?
+        end
+
+        @arrow.on_mouse_move! do
+          if it.drag
+            it.resolve
+          end
+        end
 
         @dropdown.on! Option::PickEvent do |e|
           @dropdown.unload!
-          @note.content! ~e, :end
+          content! ~e, :end
         end
 
         @dropdown.on_key! :escape do
@@ -56,13 +75,13 @@ module Kredki
           it.resolve
         end
 
-        @dropdown.on_mouse_button! do
-          @dropdown.unload!
-        end
-
-        # @note.on_focus_lose! do
+        # @dropdown.on_mouse_button! do
         #   @dropdown.unload!
         # end
+
+        on_focus_lose! do
+          @dropdown.unload!
+        end
       end
     end
   end

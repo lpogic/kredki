@@ -8,8 +8,7 @@ module Kredki
       def option!(...)
         new(Option, ...)
       end
-
-
+      
       #internal api
 
       def sketch p0
@@ -34,12 +33,12 @@ module Kredki
         case option
         when :previous
           options = self[Option...].to_a 
-          index = (options.index{ it.keyboard_in? } || 1) - 1
-          update_select_option options[index]
+          index = options.index{ it.keyboard_in? } || 1
+          update_select_option options[index - 1] if index > 0
         when :next
           options = self[Option...].to_a 
-          index = (options.index{ it.keyboard_in? } || -1) + 1
-          update_select_option options[index < options.length ? index : 0]
+          index = options.index{ it.keyboard_in? } || -1
+          update_select_option options[index + 1] if index < options.length - 1
         else
           option&.focus!
           option

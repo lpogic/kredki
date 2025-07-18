@@ -78,6 +78,20 @@ module Kredki
       end
     end
 
+    module OriginResolvingEvent
+      def resolved?
+        @origin ? @origin.resolved? : super
+      end
+
+      def resolve
+        @origin ? @origin.resolve : super
+      end
+
+      def trace?
+        super || @origin&.trace?
+      end
+    end
+
     class MouseEvent < PositionEvent
       extend Forwardable
 
@@ -91,6 +105,9 @@ module Kredki
     end
 
     class MouseMoveEvent < MouseEvent
+      include OriginResolvingEvent
+
+      model :drag, :<
     end
 
     class MouseButtonDownEvent < MouseEvent
@@ -101,28 +118,32 @@ module Kredki
     class MouseButtonUpEvent < MouseEvent
       def_delegators :@origin,
         :button_number
+
+        model :<, :drag
     end
 
-    class DropEvent < MouseEvent
+    class MouseClickEvent < MouseEvent
+      def button_number
+        @origin&.button_number
+      end
     end
 
-    class ClickEvent < MouseEvent
+    class KeyboardEvent < Event
+      extend Forwardable
+
+      model :origin, :<
+
+      def_delegators :@origin, *Kredki::KeyEvent.instance_methods(false)
     end
 
-    class DragEvent < MouseEvent
-      model :@xy0, :<
+    class KeyDownEvent < KeyboardEvent
+    end
 
-      def x0
-        @xy0[0]
-      end
+    class KeyUpEvent < KeyboardEvent
+    end
 
-      def y0
-        @xy0[1]
-      end
-
-      def xy0
-        @xy0
-      end
+    class KeyClickEvent < KeyboardEvent
+      include OriginResolvingEvent
     end
 
     class ShowEvent < Event
@@ -139,29 +160,20 @@ module Kredki
     end
 
     class EnterEvent < MouseEvent
-      def resolved?
-        @origin ? @origin.resolved? : super
-      end
-
-      def resolve
-        @origin ? @origin.resolve : super
-      end
+      include OriginResolvingEvent
     end
 
     class LeaveEvent < MouseEvent
-      def resolved?
-        @origin ? @origin.resolved? : super
-      end
-
-      def resolve
-        @origin ? @origin.resolve : super
-      end
+      include OriginResolvingEvent
     end
 
     class FocusGainEvent < Event
     end
 
     class FocusLoseEvent < Event
+    end
+
+    class KeyboardRequestEvent < Event
     end
 
     class EditEvent < Event
@@ -194,29 +206,39 @@ module Kredki
 
     module PadEvents
 
-      aliasing def on_key! *filtered_keys, aim: false, always: false, &block
+      def on_key_down! *filtered_keys, aim: false, always: false, &block
         keycodes = keyboard.keycodes filtered_keys
         @event_manager.keyboard_manager KeyDownEvent, keycodes, block, aim, always
-      end, :on_key_down!
+      end
 
       def on_key_up! *filtered_keys, aim: false, always: false, &block
         keycodes = keyboard.keycodes filtered_keys
         @event_manager.keyboard_manager KeyUpEvent, keycodes, block, aim, always
       end
 
+      def on_key! *filtered_keys, aim: false, always: false, &block
+        keycodes = keyboard.keycodes filtered_keys
+        @event_manager.keyboard_manager KeyClickEvent, keycodes, block, aim, always
+      end
+
       def on_text! aim: false, always: false, &block
         on! TextEvent, aim:, always:, &block
       end
   
-      aliasing def on_mouse_button! *filtered_buttons, aim: false, always: false, &block
+      def on_mouse_down! *filtered_buttons, aim: false, always: false, &block
         indexes = mouse.indexes filtered_buttons
         @event_manager.mouse_manager MouseButtonDownEvent, indexes, block, aim, always
-      end, :on_mouse_button_down!
+      end
   
-      def on_mouse_button_up! *filtered_buttons, aim: false, always: false, &block
+      def on_mouse_up! *filtered_buttons, aim: false, always: false, &block
         indexes = mouse.indexes filtered_buttons
         @event_manager.mouse_manager MouseButtonUpEvent, indexes, block, aim, always
       end
+
+      aliasing def on_click! *filtered_buttons, aim: false, always: false, &block
+        indexes = mouse.indexes filtered_buttons
+        @event_manager.mouse_manager MouseClickEvent, indexes, block, aim, always
+      end, :on_mouse_click!
   
       def on_mouse_move! aim: false, always: false, &block
         on! MouseMoveEvent, aim:, always:, &block
@@ -280,24 +302,8 @@ module Kredki
         on! FocusLoseEvent, aim:, always:, &block
       end
 
-      def on_click! aim: false, always: false, &block
-        on! ClickEvent, aim:, always:, &block
-      end
-
-      def on_drag! aim: false, always: false, &block
-        on! DragEvent, aim:, always:, &block
-      end
-
-      def on_drop! aim: false, always: false, &block
-        on! DropEvent, aim:, always:, &block
-      end
-
       def on! event_type, aim: false, always: false, &block
         @event_manager.manager event_type, block, aim, always
-      end
-
-      def event_director
-        Kredki.event_director
       end
     end
   end

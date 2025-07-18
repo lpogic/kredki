@@ -1,89 +1,58 @@
 module Kredki
   module UI
     module TextEdition
-
+      include TextNavigation
+      
       def on_edit! &block
         on! EditEvent, &block
       end
 
-      def paste pasted
-        report EditEvent.new @selection_min, @selection_max, pasted, :paste
-      end
+      def text_edition text, multiline
+        text_navigation text
 
-      def backspace
-        if selection?
-          report EditEvent.new @selection_min, @selection_max, "", :backspace
-        elsif @cursor_position > 0
-          report EditEvent.new @cursor_position - 1, @cursor_position, "", :backspace
-        end
-      end
-
-      def delete
-        length = content.length
-        if selection?
-          report EditEvent.new @selection_min, @selection_max, "", :backspace
-        elsif @cursor_position < length
-          report EditEvent.new @cursor_position, @cursor_position + 1, "", :backspace
-        elsif length > 0
-          backspace
-        end
-      end
-
-      #internal api
-
-      def sketch p0
-        super
-        keyboardy!
-
-        on_key! :backspace do |e|
-          backspace
+        on_key_down! :backspace do |e|
+          text.backspace
           e.resolve
         end
 
-        on_key! :delete do |e|
-          delete
+        on_key_down! :delete do |e|
+          text.delete
           e.resolve
         end
 
         on_text! do |e|
-          paste ~e
+          text.paste ~e
           e.resolve
         end
 
-        on_key! :v do |e|
+        on_key_down! :v do |e|
           if e.ctrl?
-            paste clipboard.content
+            text.paste clipboard.content
             e.resolve
           end
         end
 
-        on_key! :x do |e|
-          if e.ctrl? && (selection? || e.shift?)
+        on_key_down! :x do |e|
+          if e.ctrl? && (text.selection? || e.shift?)
             s = e.shift? ? clipboard.content : ""
-            clipboard.content = content[@selection_min...@selection_max] if selection?
-            paste s
+            clipboard.content = text.selected_content if text.selection?
+            text.paste s
             e.resolve
           end
         end
 
         on_edit! do |e|
-          edit e.string, e.selection_min, e.selection_max
+          text.edit e.string, e.selection_min, e.selection_max
+        end
+
+        if multiline
+          on_key_down! :enter do |e|
+            text.paste "\n"
+            e.resolve
+          end
         end
       end
 
-      def edit string, selection_min, selection_max
-        s = content.to_s
-        s = if s == ""
-          string
-        elsif selection_max < s.length
-          s[...selection_min] + string + s[selection_max..]
-        else
-          s[...selection_min] + string
-        end
-        content! s, false
-        @scene.x = 0
-        reset_cursor selection_min + string.length
-      end
     end
   end
 end

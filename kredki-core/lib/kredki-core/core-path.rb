@@ -5,6 +5,11 @@ class Object
 end
 
 class Module
+
+  def aliasing2 name
+    Aliasing.new self, name
+  end
+
   def aliasing name, *aliases
     aliases.each{ alias_method it, name }
   end

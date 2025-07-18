@@ -9,7 +9,7 @@ module Kredki
         return content! block[self.content] if block_given?
         return if @content == content
         @content = content
-        @text.each{ it.detach! }
+        @text&.each{ it.detach! }
         @text = "#{content}\n".each_line(chomp: true).map do |line|
           @scene.text! line.chomp, color: @area.color
         end
@@ -56,14 +56,15 @@ module Kredki
       def initialize
         super
 
-        wh! :fit, 24
         @text = []
         @vh = :auto
       end
 
       def sketch p0
         super
+
         @area.hide!
+        wh! :fit, 24
       end
 
       def verse_metrics h

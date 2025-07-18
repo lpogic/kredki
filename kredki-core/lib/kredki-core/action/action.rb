@@ -1,4 +1,5 @@
 require_relative '../scene'
+require_relative '../event/event_director'
 require_relative '../event/step_event'
 require_relative 'action_events'
 require_relative 'action_event_manager'
@@ -19,6 +20,7 @@ module Kredki
       @animations = []
       @on_step = nil
       @event_manager = ActionEventManager.new
+      @event_director = EventDirector.new
 
       super
     end
@@ -72,7 +74,7 @@ module Kredki
 
     #internal api
 
-    attr :step_callback, :event_manager
+    attr :step_callback, :event_manager, :event_director
 
     def update_paint paint
       @base&.update_paint paint
@@ -100,7 +102,7 @@ module Kredki
     end
 
     def report event
-      Kredki.event_director.push event, self
+      @event_director.push event, self
     end
 
     def resolve event, aim = false

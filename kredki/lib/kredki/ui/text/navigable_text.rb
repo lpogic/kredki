@@ -4,6 +4,9 @@ module Kredki
   module UI
     class NavigableText < TextPad
       include TextNavigation
+
+      attr :selection_min, :selection_max, :cursor
+      attr_accessor :cursor_position
       
       def content! content = @content, reset_cursor = false, &b
         super(content, &b) and begin
@@ -30,6 +33,88 @@ module Kredki
         @cursor
       end
 
+      def selection?
+        @selection_min != @selection_max
+      end
+
+      def selected_content
+        content[@selection_min...@selection_max]
+      end
+
+      def reset_cursor position = 0
+        @cursor_position = @selection_min = @selection_max = position
+        layer&.break_layout
+      end
+
+      def drag x, y
+        cursor_position = cursor_position_for_coordinates x, y
+        if cursor_position != @cursor_position
+          if @cursor_position == @selection_min
+            if cursor_position <= @selection_max
+              @selection_min = @cursor_position = cursor_position
+            else
+              @selection_min = @selection_max
+              @selection_max = @cursor_position = cursor_position
+            end
+          elsif @cursor_position == @selection_max
+            if cursor_position >= @selection_min
+              @selection_max = @cursor_position = cursor_position
+            else
+              @selection_max = @selection_min
+              @selection_min = @cursor_position = cursor_position
+            end
+          end
+          layer&.break_layout
+        end
+      end
+
+      def cursor_left shift
+        if shift
+          if @cursor_position > 0
+            if @cursor_position == @selection_min
+              @selection_min = @cursor_position -= 1
+            elsif @cursor_position == @selection_max
+              @selection_max = @cursor_position -= 1
+            end
+          end
+        else
+          if @selection_min == @selection_max            
+            @cursor_position -= 1 if @cursor_position > 0
+            @selection_min = @selection_max = @cursor_position
+          else
+            @cursor_position = @selection_max = @selection_min
+          end
+        end
+        layer&.break_layout
+      end
+
+      def cursor_right shift
+        length = content.to_s.length
+        if shift
+          if @cursor_position < length
+            if @cursor_position == @selection_max
+              @selection_max = @cursor_position += 1
+            elsif @cursor_position == @selection_min
+              @selection_min = @cursor_position += 1
+            end
+          end
+        else
+          if @selection_min == @selection_max            
+            @cursor_position += 1 if @cursor_position < length
+            @selection_min = @selection_max = @cursor_position
+          else
+            @cursor_position = @selection_min = @selection_max
+          end
+        end
+        layer&.break_layout
+      end
+
+      def select min, max
+        @selection_min = min
+        @selection_max = @cursor_position = max
+        layer&.break_layout
+      end
+
       #internal api
 
       attr :selection
@@ -42,40 +127,13 @@ module Kredki
         @selection = []
       end
 
-      def sketch p0
-        super
-
-        text_sketch
-    
-        on_key! :up do |e|
-          cursor_up e.shift?
-          e.resolve
-        end
-
-        on_key! :down do |e|
-          cursor_down e.shift?
-          e.resolve
-        end
-
-        on_focus_lose! do |e|
-          @cursor.hide!
-          layer&.break_layout
-          e.resolve
-        end
-
-        on_focus_gain! do |e|
-          @cursor.show!
-          e.resolve
-        end
-      end
-
       def arrange
         super
         update_cursor
       end
 
       def get_x pcw, sw, ax
-        if keyboard_in?
+        if @cursor.show?
           cx = @cursor.x + @cursor.w
           if sx + cx > sw
             sw - cx - @cursor.w / 2
@@ -90,7 +148,7 @@ module Kredki
       end
 
       def get_y pch, sh, ay
-        if keyboard_in?
+        if @cursor.show?
           cy = cursor.y + cursor.h
           if sy + cy > sh
             sh - cy
@@ -115,18 +173,17 @@ module Kredki
         end
       end
 
-      def cursor_position x, y
-        total = -1
+      def cursor_position_for_coordinates x, y
+        total = 0
         last = @text.last
         @text.each do |text|
-          total += 1
           if text.y + text.h < y && text != last
-            total += text.content.length
+            total += text.content.length + 1
           else
             return total + text.nearest_character_index(x - text.x)
           end
         end
-        return total
+        total > 0 ? total - 1 : 0
       end
 
       def update_cursor
@@ -149,7 +206,7 @@ module Kredki
           total += 1
           next_total = total + text.content.length
           if @selection_min == @selection_max || @selection_min > next_total || @selection_max <= total
-            @selection[i].w = 0
+            @selection[i].w! 0
           elsif @selection_min <= total && @selection_max >= next_total
             @selection[i].wh! *text.wh
             @selection[i].xy! *text.xy

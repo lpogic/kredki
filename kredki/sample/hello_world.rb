@@ -9,7 +9,7 @@ Kredki.run! do |a|
 
   button! m: 5 do
     text << "Hello world!"
-    on_click! do
+    on_mouse_click! do
       a.window.terminate!
     end
   end

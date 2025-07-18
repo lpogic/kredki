@@ -9,6 +9,10 @@ module Kredki
       def initialize_text
         @text = new EditableTextVerses, wh: 100r
       end
+
+      def sketch_text
+        text_edition @text, true
+      end
     end
   end
 end

@@ -21,13 +21,13 @@ module Kredki
         @context.on_mouse_scroll!(...)
       end
 
-      aliasing def on_down! ...
-        @context.on_mouse_button!(...)
-      end, :on_button!, :on_button_down!
+      def on_down! ...
+        @context.on_mouse_down!(...)
+      end
 
-      aliasing def on_up! ...
-        @context.on_mouse_button_up!(...)
-      end, :on_button_up!
+      def on_up! ...
+        @context.on_mouse_up!(...)
+      end
 
       def on_drop! ...
         @context.on_drop!(...)

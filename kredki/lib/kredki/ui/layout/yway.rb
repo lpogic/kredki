@@ -87,7 +87,7 @@ module Kredki
               p1.arrange
             end
           end
-
+          
           [lx, ly, lxm - lx, lym - ly]
         end
         

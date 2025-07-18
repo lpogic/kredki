@@ -15,9 +15,9 @@ module Kredki
         input.flatten.map{ @joystick.axis(_1).to_i }.uniq
       end
 
-      aliasing def on_button! ...
+      def on_button_down! ...
         @context.on_joystick_button_down!(self, ...)
-      end, :on_button_down!
+      end
 
       def on_button_up! ...
         @context.on_joystick_button_up!(self, ...)

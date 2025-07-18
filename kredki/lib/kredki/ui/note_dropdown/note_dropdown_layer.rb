@@ -4,52 +4,66 @@ module Kredki
   module UI
     class NoteDropdownLayer < Layer
 
+      def arrange
+        @note&.layer&.arrange
+        super
+      end
+
       def load! note
-        x, y = *note.translate(0, note.sh)
-        if x + @scroll.sw > action.w
-          x = [action.w - @scroll.sw, 0].max
+        @note = note
+        @scroll.x = proc do |pw, sw|
+          x, y = *note.translate(0, note.sh)
+          if x + sw > action.w
+            x = [action.w - sw, 0].max
+          end
+          x
         end
-        if y + @scroll.h > action.h
-          y = [y - @scroll.sh, 0].max
+        @scroll.y = proc do |ph, sh|
+          x, y = *note.translate(0, note.sh)
+          if y + sh > action.h
+            y = [y - sh, 0].max
+          end
+          y
         end
-        pw = mw = note.sw
-        pw -= 10 if @scroll.sh < @pad.sh
-        options = @pad[Option..].to_a
-        w = [pw, *options.map{ it.pw true }].max
-        @pad.w = w
-        @scroll.alter do
-          xy! x, y
-          w! mw
+        @scroll.w = proc{ note.sw }
+        @pad.w = proc do
+          pw = parent.sw
+          pw -= 10 if @scroll.sh < get_h
+          [pw, fit_w].max
         end
-        action.push_layer self
+
+        note.action.push_layer self
         @pad[Option]&.focus!
       end
 
       def unload!
         pad_detach
+        @note = nil
       end
 
       def loaded?
-        !!@pad_parent
+        !!@note
       end
 
       def option! ...
-        @pad.option!(...)
+        @option_group.option!(...)
       end
 
       #internal api
 
       def sketch p0
         super
+
         @scroll = new ScrollPad
         @pad = @scroll.new Pad, color: :gray, layout: :column, h: :fit
+        @option_group = @pad.new OptionGroup
       end
 
-      def mouse_button_down e
+      def mouse_down e
         unload!
       end
 
-      def mouse_button_up e
+      def mouse_up e
       end
     end
   end

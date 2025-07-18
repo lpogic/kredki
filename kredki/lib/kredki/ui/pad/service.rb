@@ -73,6 +73,10 @@ module Kredki
         grand Layer
       end
 
+      def action
+        layer&.pad_parent
+      end
+
       def in? grand
         lineage(false).include? grand
       end
@@ -81,7 +85,7 @@ module Kredki
         child.in? self
       end
      
-      attr :parent, :action, :services
+      attr :parent, :services
 
       alias_method :a, :action
 
@@ -161,7 +165,6 @@ module Kredki
       def set_parent parent
         if new_parent = @parent != parent
           @parent = parent
-          set_action parent&.action
           c_set_parent
         end
         new_parent
@@ -173,12 +176,6 @@ module Kredki
 
       def grand_pad_detach
         @services.each{ _1.grand_pad_detach }
-      end
-
-      def set_action action
-        return if @action == action
-        @action = action
-        @services.each{ it.set_action action }
       end
 
       def resolve event, aim = false

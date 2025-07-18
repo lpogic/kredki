@@ -28,8 +28,8 @@ module Kredki
 
         def attach! pad
           super pad,
-            pad.on_mouse_button_down!,
-            pad.on_mouse_button_up!,
+            pad.on_mouse_down!,
+            pad.on_mouse_up!,
             pad.on_mouse_enter!,
             pad.on_mouse_leave!
         end
@@ -79,13 +79,12 @@ module Kredki
         theme! :gray
 
         @handle.alter do
-          on_drop! do |e|
+          on_mouse_up! do |e|
             p0.report ChangeEvent.new
-            e.resolve
           end
 
-          on_mouse_button! do |e|
-            drag! e.xy
+          on_mouse_down! do |e|
+            drag! e.xy, e.button
             e.resolve
           end
         end
@@ -102,16 +101,19 @@ module Kredki
         h! 10
 
         @handle = new Pad, color: :gray do
-          on_drag! do |e|
-            start_x = @button_down_xy[0]
-            x = [[0, sx + e.x - start_x].max, p0.sw - sw].min
-            p0.value! 1.0 * x / (p0.sw - sw), false
-            e.resolve
+          on_mouse_move! do |e|
+            if e.drag
+              start_x = layer&.mouse_down_xy[0]
+              max_x = p0.sw - sw
+              x = [[0, e.x - start_x].max, max_x].min
+              p0.value! 1.0 * x / max_x, false
+              e.resolve
+            end
           end
         end
     
-        on_mouse_button! do |e|
-          @handle.drag! [@handle.sw / 2, 0]
+        on_mouse_down! :primary do |e|
+          @handle.drag! @handle.translate(@handle.sw / 2, 0), :primary
           e.resolve
           e.break
         end
@@ -137,16 +139,22 @@ module Kredki
 
         @handle = new Pad, color: :gray do
         
-          on_drag! do |e|
-            start_y = @button_down_xy[1]
-            y = [[0, sy + e.y - start_y].max, p0.sh - sh].min
-            p0.value! 1.0 * y / (p0.sh - sh), false
-            e.resolve
+          drag_y = 0
+          on_mouse_move! do |e|
+            if e.drag
+              drag_y = sy if e.drag == :start
+              start_y = layer&.mouse_down_xy[1]
+              max_y = p0.sh - sh
+              y = [[0, drag_y + e.y - start_y].max, max_y].min
+              p0.value! 1.0 * y / max_y, false
+              e.resolve
+            end
           end
+
         end
 
-        on_mouse_button! do |e|
-          @handle.drag! [0, @handle.sh / 2]
+        on_mouse_down! :primary do |e|
+          @handle.drag! @handle.translate(0, @handle.sh / 2), :primary
           e.resolve
           e.break
         end

@@ -7,7 +7,6 @@ require_relative 'event/quit_event'
 require_relative 'event/text_event'
 require_relative 'event/window_event'
 require_relative 'event/joystick_event'
-require_relative 'event/event_director'
 
 module Kredki
   class Arena
@@ -19,7 +18,6 @@ module Kredki
       Abi.arena_set_event_handler @pointer, @event_callback
       @windows = {}
       @window_threads = {}
-      @event_director = EventDirector.new
       @resolve_next_text_event = false
     end
 
@@ -48,8 +46,6 @@ module Kredki
     def self.finalize pointer
       Abi.arena_delete pointer
     end
-
-    attr :pointer, :event_director
 
     def event event_type, event_ptr
       event = case event_type
@@ -210,17 +206,13 @@ module Kredki
     private
 
     def window_event window_id, event, &post_process
-      @event_director.stem do
-        @windows[window_id]&.resolve event
-      end
+      @windows[window_id]&.resolve event
       post_process&.call event
       event
     end
 
     def arena_event event, &post_process
-      @event_director.stem do
-        @windows.values.each{ _1.resolve event }
-      end
+      @windows.values.each{ _1.resolve event }
       post_process&.call event
       event
     end

@@ -1,11 +1,12 @@
-require_relative 'option_layer'
+require_relative 'context_layer'
 
 module Kredki
   module UI
-    class OptionDropdownLayer < OptionLayer
+    class ContextSecondaryLayer < ContextLayer
 
       def load! option
         arrange
+        action = parent.action
         x, y = *option.translate(option.sw, 0)
         if x + @options.sw > action.sw
           x = [x - option.sw - @options.sw, 0].max
@@ -36,11 +37,6 @@ module Kredki
           @parent_events[] = parent.on_focus_lose! do |e|
             unload! if loaded?
           end
-
-          # @parent_events[] = parent.on_key! :right do |e|
-          #   load! parent unless show?
-          #   s[Option]&.focus! and e.resolve
-          # end
 
           @parent_events[] = on_key! :left do |e|
             if loaded?

@@ -30,7 +30,7 @@ module Kredki
     end
 
     def_delegators :@arena,
-      :terminate!, :event_director
+      :terminate!
 
     attr_accessor :clipboard, :keyboard, :mouse
     attr :runned, :arena, :fonts, :colors
