@@ -58,15 +58,17 @@ module Kredki
         end
       end
 
-      def on_pick! ...
-        on!(PickEvent, ...)
-      end
+      event_resolver :on_pick, PickEvent
 
       param_delegate :@text,
         :content
 
       param_service def text
         @text
+      end
+
+      def has_suboption?
+        false
       end
 
       #internal api
@@ -93,16 +95,6 @@ module Kredki
 
         on_key_down! :space, :enter do |e|
           report PickEvent.new content
-          e.resolve
-        end
-
-        on_key_down! :up do |e|
-          parent.key_up
-          e.resolve
-        end
-
-        on_key_down! :down do |e|
-          parent.key_down
           e.resolve
         end
       end

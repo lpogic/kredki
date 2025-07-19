@@ -1,13 +1,11 @@
-require_relative 'context_layer'
-
 module Kredki
   module UI
-    class ContextSecondaryLayer < ContextLayer
+    class ToolbarPrimaryLayer < ToolbarLayer
 
       def load! option
         arrange
         action = parent.action
-        x, y = *option.translate(option.sw, 0)
+        x, y = *option.translate(0, option.sh)
         if x + @options.sw > action.sw
           x = [x - option.sw - @options.sw, 0].max
         end
@@ -21,7 +19,24 @@ module Kredki
 
       def sketch p0
         super
-        
+
+        on! Option::PickEvent do |e|
+          if e.target.has_suboption?
+            e.resolve
+          else
+            parent.report e
+            pad_detach
+          end
+        end
+
+        on_key! :escape do |e|
+          pad_detach
+          e.resolve
+        end
+
+        on_mouse_down! do |e|
+          pad_detach
+        end
       end
 
       def set_parent parent
@@ -37,20 +52,23 @@ module Kredki
           @parent_events[] = parent.on_focus_lose! do |e|
             unload! if loaded?
           end
-
-          @parent_events[] = on_key! :left do |e|
-            if loaded?
-              unload!
-              e.resolve
-            end
-          end
         )
       end
 
-      def grand_pad_detach
-        super
-        unload! if loaded?
-      end
+      # def mouse_enter e
+      #   super
+      #   e.resolve
+      # end
+
+      # def mouse_leave e
+      #   super
+      #   e.resolve
+      # end
+
+      # def mouse_move e
+      #   super
+      #   e.resolve
+      # end
     end
   end
 end

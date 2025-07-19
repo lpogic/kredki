@@ -1,4 +1,4 @@
-require_relative 'option_group'
+require_relative '../option/option_group'
 
 module Kredki
   module UI

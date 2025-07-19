@@ -253,6 +253,14 @@ module Kredki
         end
       end
 
+      def pad_in? grand
+        pad_lineage(true).include? grand
+      end
+
+      def pad_include? child
+        child.pad_in? self
+      end
+
       def_flag :show, set: :set_show, get: :get_show, test: false
 
       def show? direct = false
@@ -716,7 +724,7 @@ module Kredki
       end
 
       def lose_keyboard
-        layer.update_keyboard_pad nil if keyboard_in?
+        layer.update_keyboard_pad if keyboard_in?
       end
 
       def set_focus set

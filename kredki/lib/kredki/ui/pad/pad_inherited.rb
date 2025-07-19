@@ -35,6 +35,21 @@ module Kredki
           end
         end
       end
+
+      def event_resolver name, event_class
+        class_eval <<~xx
+          def #{name}! ...
+            on!(#{event_class}, ...)
+          end
+        xx
+
+        class_eval <<~xx
+          def #{name}= block
+            #{name}! &block
+          end
+        xx
+      end
+
     end#PadInherited
   end#UI
 end#Kredki

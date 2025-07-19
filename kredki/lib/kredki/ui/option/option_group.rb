@@ -1,28 +1,18 @@
 require_relative '../pad/service'
-require_relative 'option'
+require_relative 'y_option'
 
 module Kredki
   module UI
     class OptionGroup < Service
 
       def option!(...)
-        new(Option, ...)
+        new(YOption, ...)
       end
       
       #internal api
 
       def sketch p0
         super
-      end
-
-      def key_up
-        option = update_select_option :previous
-        option&.roi!
-      end
-
-      def key_down
-        option = update_select_option :next
-        option&.roi!
       end
 
       def mouse_enter pad

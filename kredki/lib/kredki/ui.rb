@@ -50,7 +50,8 @@ module Kredki
   require_relative 'ui/label'
   require_relative 'ui/note_dropdown/note_dropdown'
   require_relative 'ui/table'
-  require_relative 'ui/option/context_menu'
+  require_relative 'ui/context_menu/context_menu'
+  require_relative 'ui/toolbar_menu/toolbar_menu'
 
   require_relative "ui/layout/basic"
   require_relative "ui/layout/xway"
@@ -119,6 +120,7 @@ module Kredki
       def! :options!, OptionGroup
 
       def! :context_menu!, ContextMenu
+      def! :toolbar_menu!, ToolbarMenu
 
     end#PadBase
   end#UI

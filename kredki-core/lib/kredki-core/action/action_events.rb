@@ -44,13 +44,13 @@ module Kredki
       on! MouseScrollEvent, &block
     end, :on_mouse_scroll!
 
-    aliasing def on_joystick_button! joystick, *filtered_buttons, &block
+    def on_joystick_down! joystick, *filtered_buttons, &block
       action_joystick = self.joystick joystick
       indexes = action_joystick.buttons filtered_buttons
       @event_manager.joystick_manager JoystickButtonDownEvent, action_joystick.joystick, indexes, block
-    end, :on_joystick_button_down!
+    end
 
-    def on_joystick_button_up! joystick, *filtered_buttons, &block
+    def on_joystick_up! joystick, *filtered_buttons, &block
       action_joystick = self.joystick joystick
       indexes = action_joystick.buttons filtered_buttons
       @event_manager.joystick_manager JoystickButtonUpEvent, action_joystick.joystick, indexes, block

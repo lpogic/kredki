@@ -15,12 +15,12 @@ module Kredki
         input.flatten.map{ @joystick.axis(_1).to_i }.uniq
       end
 
-      def on_button_down! ...
-        @context.on_joystick_button_down!(self, ...)
+      def on_down! ...
+        @context.on_joystick_down!(self, ...)
       end
 
-      def on_button_up! ...
-        @context.on_joystick_button_up!(self, ...)
+      def on_up! ...
+        @context.on_joystick_up!(self, ...)
       end
 
       def on_axis! ...

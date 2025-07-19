@@ -19,7 +19,7 @@ module Kredki
         super
 
         on! Option::PickEvent, aim: true do |e|
-          if e.target.dropdown
+          if e.target.has_suboption?
             e.resolve
           else
             pad_detach

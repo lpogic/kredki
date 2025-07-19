@@ -252,13 +252,13 @@ module Kredki
         on! FileDropEvent, aim:, always:, &block
       end
 
-      aliasing def on_joystick_button! joystick, *filtered_buttons, aim: false, always: false, &block
+      def on_joystick_down! joystick, *filtered_buttons, aim: false, always: false, &block
         action_joystick = self.joystick joystick
         indexes = action_joystick.buttons filtered_buttons
         @event_manager.joystick_manager JoystickButtonDownEvent, action_joystick.joystick, indexes, block, aim, always
-      end, :on_joystick_button_down!
+      end
 
-      def on_joystick_button_up! joystick, *filtered_buttons, aim: false, always: false, &block
+      def on_joystick_up! joystick, *filtered_buttons, aim: false, always: false, &block
         action_joystick = self.joystick joystick
         indexes = action_joystick.buttons filtered_buttons
         @event_manager.joystick_manager JoystickButtonUpEvent, action_joystick.joystick, indexes, block, aim, always

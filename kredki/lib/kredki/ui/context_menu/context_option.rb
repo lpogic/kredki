@@ -1,10 +1,10 @@
 require_relative '../text_pad'
 require_relative '../theme'
-require_relative 'option'
+require_relative '../option/y_option'
 
 module Kredki
   module UI
-    class ContextOption < Option
+    class ContextOption < YOption
 
       def_flag :arrow
 
@@ -26,6 +26,10 @@ module Kredki
           end
         end
         @dropdown.alter(...)
+      end
+
+      def has_suboption?
+        @dropdown&.[](Option)
       end
 
       #internal api

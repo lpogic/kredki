@@ -16,6 +16,8 @@ module Kredki
         @mouse_pad&.pad || @mouse_pads.last
       end
 
+      attr :mouse_pads
+
       def keyboard_pad
         @keyboard_pads.last
       end
@@ -29,8 +31,9 @@ module Kredki
       end
 
       def check_mouse_pad pad, button, lineage = false
-        lineage ? @mouse_pad&.pad&.pad_lineage&.any?{ it == self } : (@mouse_pad&.pad == pad) \
-        and !button || @mouse_pad.button == button
+        return if button != @mouse_pad&.button
+        return @mouse_pad&.pad&.pad_in? pad if lineage
+        return @mouse_pad&.pad == pad
       end
 
       def mouse_pad_drag? xy
@@ -160,9 +163,11 @@ module Kredki
           @mouse_pads = []
           mouse_pads.reverse_each{ it.report LeaveEvent.new(nil, *xy), false }
         end
+        @mouse_pad&.pad&.lose_button
+
       end
 
-      def update_keyboard_pad keyboard_pad
+      def update_keyboard_pad keyboard_pad = self
         if !keyboard_pad
           @keyboard_pads.each{|pad| pad.report FocusLoseEvent.new, false }
           @keyboard_pads = []
