@@ -6,7 +6,7 @@ if RUBY_PLATFORM =~ /cygwin|mswin|mingw|bccwin|wince|emx/
   $kredki_pastele = ext "dll/pastele.dll"
 end
 
-require 'kredki-core/lib/kredki-core'
+require_relative 'kredki/core'
 
 Kredki.colors = {
   default: Kredki::Color.new(211, 211, 211, 255),

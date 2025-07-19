@@ -168,7 +168,7 @@ when /cygwin|mswin|mingw|bccwin|wince|emx/
     end
   
     task :bind do
-      File.open "kredki-core/lib/kredki-core/abi/tvg.gen.rb", "w" do |file|
+      File.open "kredki/lib/kredki/core/abi/tvg.gen.rb", "w" do |file|
         file.write <<~xx
         ## Generated file - manual changes not recommended
   
