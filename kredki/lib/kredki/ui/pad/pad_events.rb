@@ -1,14 +1,11 @@
-require 'kredki-core/event/key_event'
-require 'kredki-core/event/text_event'
-require 'kredki-core/event/mouse_button_event'
-require 'kredki-core/event/mouse_move_event'
-require 'kredki-core/event/mouse_scroll_event'
-require 'kredki-core/event/joystick_event'
-require 'kredki-core/event/drop_event'
-require 'kredki-core/event/quit_event'
-require 'kredki-core/event/window_event'
-require 'kredki-core/event/step_event'
-require 'forwardable'
+require_relative '../../core/event/key_event'
+require_relative '../../core/event/text_event'
+require_relative '../../core/event/mouse_event'
+require_relative '../../core/event/joystick_event'
+require_relative '../../core/event/drop_event'
+require_relative '../../core/event/quit_event'
+require_relative '../../core/event/window_event'
+require_relative '../../core/event/step_event'
 
 module Kredki
   module UI
@@ -167,13 +164,13 @@ module Kredki
       include OriginResolvingEvent
     end
 
-    class FocusGainEvent < Event
+    class FocusEnterEvent < Event
     end
 
-    class FocusLoseEvent < Event
+    class FocusLeaveEvent < Event
     end
 
-    class KeyboardRequestEvent < Event
+    class KeyboardOfferEvent < Event
     end
 
     class EditEvent < Event
@@ -205,6 +202,12 @@ module Kredki
     end
 
     module PadEvents
+      extend HasParams
+      extend HasEventResolvers
+
+      def on! event_type, aim: false, always: false, &block
+        @event_manager.manager event_type, block, aim, always
+      end
 
       def on_key_down! *filtered_keys, aim: false, always: false, &block
         keycodes = keyboard.keycodes filtered_keys
@@ -221,9 +224,7 @@ module Kredki
         @event_manager.keyboard_manager KeyClickEvent, keycodes, block, aim, always
       end
 
-      def on_text! aim: false, always: false, &block
-        on! TextEvent, aim:, always:, &block
-      end
+      event_resolver :on_text!, TextEvent
   
       def on_mouse_down! *filtered_buttons, aim: false, always: false, &block
         indexes = mouse.indexes filtered_buttons
@@ -240,17 +241,12 @@ module Kredki
         @event_manager.mouse_manager MouseClickEvent, indexes, block, aim, always
       end, :on_mouse_click!
   
-      def on_mouse_move! aim: false, always: false, &block
-        on! MouseMoveEvent, aim:, always:, &block
-      end
-
-      aliasing def on_scroll! aim: false, always: false, &block
-        on! MouseScrollEvent, aim:, always:, &block
-      end, :on_mouse_scroll!
-
-      def on_external_drop! aim: false, always: false, &block
-        on! FileDropEvent, aim:, always:, &block
-      end
+      event_resolver :on_mouse_enter!, EnterEvent
+      event_resolver :on_mouse_leave!, LeaveEvent
+      event_resolver :on_mouse_move!, MouseMoveEvent
+      event_resolver :on_mouse_scroll!, MouseScrollEvent
+      
+      event_resolver :on_file_drop!, FileDropEvent
 
       def on_joystick_down! joystick, *filtered_buttons, aim: false, always: false, &block
         action_joystick = self.joystick joystick
@@ -270,41 +266,12 @@ module Kredki
         @event_manager.joystick_manager JoystickAxisEvent, action_joystick.joystick, indexes, block, aim, always
       end
 
-      def on_show! aim: false, always: false, &block
-        on! ShowEvent, aim:, always:, &block
-      end 
-
-      def on_hide! aim: false, always: false, &block
-        on! HideEvent, aim:, always:, &block
-      end
-
-      def on_move! aim: false, always: false, &block
-        on! MoveEvent, aim:, always:, &block
-      end
-
-      def on_resize! aim: false, always: false, &block
-        on! ResizeEvent, aim:, always:, &block
-      end
-
-      def on_mouse_enter! aim: false, always: false, &block
-        on! EnterEvent, aim:, always:, &block
-      end
-
-      def on_mouse_leave! aim: false, always: false, &block
-        on! LeaveEvent, aim:, always:, &block
-      end
-
-      def on_focus_gain! aim: false, always: false, &block
-        on! FocusGainEvent, aim:, always:, &block
-      end
-
-      def on_focus_lose! aim: false, always: false, &block
-        on! FocusLoseEvent, aim:, always:, &block
-      end
-
-      def on! event_type, aim: false, always: false, &block
-        @event_manager.manager event_type, block, aim, always
-      end
+      event_resolver :on_show!, ShowEvent
+      event_resolver :on_hide!, HideEvent
+      event_resolver :on_move!, MoveEvent
+      event_resolver :on_resize!, ResizeEvent
+      event_resolver :on_focus_enter!, FocusEnterEvent
+      event_resolver :on_focus_leave!, FocusLeaveEvent
     end
   end
 end

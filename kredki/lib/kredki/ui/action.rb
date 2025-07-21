@@ -1,6 +1,5 @@
 require_relative 'pad/pad_base'
 require_relative 'layer'
-require 'forwardable'
 
 module Kredki
   module UI
@@ -12,10 +11,6 @@ module Kredki
         super
         
         @layers = []
-      end
-
-      def a
-        self
       end
 
       def s
@@ -60,11 +55,9 @@ module Kredki
 
       def layer! klass = Layer, *a, **na, &b
         layer = klass.new
-        layer.alter_begin
         layer.sketch layer
         put_pad layer
         layer.alter *a, **na, &b
-        layer.alter_commit
         layer
       end
 
@@ -93,7 +86,7 @@ module Kredki
           end
         end
 
-        on_resize! do
+        on_window_resize! do
           w, h = *wh
           @layers.each do 
             it.set_size w, h
@@ -117,7 +110,7 @@ module Kredki
       end
 
       def build *a, **na, &block
-        @layers.last.alter! *a, **na, &block
+        @layers.last.alter *a, **na, &block
       end
 
       def mouse_event event

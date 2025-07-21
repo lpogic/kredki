@@ -1,18 +1,19 @@
-require 'forwardable'
 require_relative 'theme'
 
 module Kredki
   module UI
     class Checkbox < Pad
       extend Forwardable
+      extend HasParams
+      extend HasFlags
 
       class SimpleColorBasedTheme < Theme
         model :color
 
         def attach! pad
           super pad,
-            pad.on_focus_gain!,
-            pad.on_focus_lose!,
+            pad.on_focus_enter!,
+            pad.on_focus_leave!,
             pad.on_mouse_down!,
             pad.on_mouse_up!,
             pad.on_mouse_enter!,
@@ -20,7 +21,7 @@ module Kredki
         end
 
         def repaint
-          @pad.area.color = @pad.button_top? ? @color.darken : @pad.mouse_in? ? @color.lighten : @color
+          @pad.area.color = @pad.pin_top? ? @color.darken : @pad.mouse_in? ? @color.lighten : @color
           @pad.area.stroke_color = @pad.keyboard_in? ? :stroke_focus : @color.darken
         end
       end
@@ -42,7 +43,7 @@ module Kredki
         @theme = theme
       end
 
-      def_flag :checked, set: :set_checked
+      flag :checked, set: :set_checked
 
       #internal api
 
@@ -51,7 +52,7 @@ module Kredki
 
         @theme = nil
         @check = new Pad, mousy: false, keyboardy: false, color: 0, wh: 100r do
-          stroke! color: :text, width: 3
+          stroke! color: :text, size: 3
           area! do |w, h|
             move_to! 2, h / 2
             line_to! w / 2, h - 1
@@ -65,7 +66,7 @@ module Kredki
         super
 
         keyboardy!
-        stroke_width! 1
+        stroke_size! 1
         theme! :gray
         layout! :center
         wh! 20

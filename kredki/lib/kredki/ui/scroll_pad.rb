@@ -27,7 +27,7 @@ module Kredki
           e.resolve
         end
 
-        on_scroll! do |e|
+        on_mouse_scroll! do |e|
           ps = layout_pads
           if !ps.empty?
             jump = Kredki.mouse.scrollbar_speed keyboard.alt?
@@ -126,8 +126,8 @@ module Kredki
           end
           
           ps.each do |p1|
-            px = p1.auto_x? ? p1.sx + pad_x : p1.sx
-            py = p1.auto_y? ? p1.sy + pad_y : p1.sy
+            px = p1.x == :layout ? p1.sx + pad_x : p1.sx
+            py = p1.y == :layout ? p1.sy + pad_y : p1.sy
             p1.set_xy px, py
           end
           if @corner.show = xscroll && yscroll

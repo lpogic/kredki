@@ -1,9 +1,8 @@
-require_relative 'flagship'
-
 module Kredki
   class Animation
     include Alterable
-    extend Flagship
+    extend HasFlags
+    extend HasParams
 
     def initialize
       @pointer = Abi.animation_new
@@ -27,7 +26,7 @@ module Kredki
     param def frame! frame_index
       set_frame frame_index
       @picture.update
-    end, get: false
+    end, false
 
     def total_frame
       Abi.animation_get_total_frame @pointer
@@ -39,10 +38,10 @@ module Kredki
 
     param def segment! *segment
       Abi.animation_set_segment @pointer, *segment
-    end
+    end, false
 
-    def_flag :loop
-    def_flag :play, set: :set_play
+    flag :loop
+    flag :play, set: :set_play
 
     def on_end! &block
       @on_end << block
@@ -59,7 +58,7 @@ module Kredki
       @picture.detach!
     end
 
-    def_flag :show, set: :set_show, get: :get_show
+    flag :show, set: :set_show, get: :get_show
 
     def finish!
       if @play

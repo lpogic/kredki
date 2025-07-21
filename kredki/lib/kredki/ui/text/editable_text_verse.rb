@@ -3,10 +3,9 @@ require_relative 'text_edition'
 module Kredki
   module UI
     class EditableTextVerse < NavigableText
+      extend HasEventResolvers
 
-      def on_edit! &block
-        on! EditEvent, &block
-      end
+      event_resolver :on_edit, EditEvent
 
       def paste pasted
         report EditEvent.new @selection_min, @selection_max, pasted, :paste
@@ -35,18 +34,18 @@ module Kredki
         super("#{content}\n".each_line(chomp: true).to_a.join, reset_cursor, &b)
       end
 
-      def edit string, selection_min, selection_max
+      def edit new_content, selection_min, selection_max
         s = content.to_s
         s = if s == ""
-          string
+          new_content
         elsif selection_max < s.length
-          s[...selection_min] + string + s[selection_max..]
+          s[...selection_min] + new_content + s[selection_max..]
         else
-          s[...selection_min] + string
+          s[...selection_min] + new_content
         end
         content! s, false
         @scene.x = 0
-        reset_cursor selection_min + string.length
+        reset_cursor selection_min + new_content.length
       end
     end
   end

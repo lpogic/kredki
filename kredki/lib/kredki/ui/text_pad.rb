@@ -1,9 +1,8 @@
-require 'forwardable'
-
 module Kredki
   module UI
     class TextPad < Pad
       extend Forwardable
+      extend HasParams
 
       param def content! content = @content, &block
         return content! block[self.content] if block_given?
@@ -11,7 +10,7 @@ module Kredki
         @content = content
         @text&.each{ it.detach! }
         @text = "#{content}\n".each_line(chomp: true).map do |line|
-          @scene.text! line.chomp, color: @area.color
+          @scene.text! line.chomp, color: @area.fill_color
         end
         layer&.break_layout
       end
@@ -33,6 +32,7 @@ module Kredki
         return if @linespace == linespace
         @linespace = linespace
         layer&.break_layout
+        true
       end
 
       def << arg
@@ -44,12 +44,12 @@ module Kredki
         end
       end
 
-      param def vh! height
-        return if @vh == height
-        @vh = height
+      param def verse_size! size
+        return if @verse_size == size
+        @verse_size = size
         layer&.break_layout
         true
-      end, :verse_height
+      end
 
       #internal api
 
@@ -57,7 +57,7 @@ module Kredki
         super
 
         @text = []
-        @vh = :auto
+        @verse_size = :auto
       end
 
       def sketch p0
@@ -71,13 +71,13 @@ module Kredki
         case @linespace
         when Rational
           ls = @linespace.denominator == 1 ? @linespace / 100 : @linespace
-          th = @vh == :auto ? h / (1 + (@text.size - 1) * ls) : @vh
+          th = @verse_size == :auto ? h / (1 + (@text.size - 1) * ls) : @verse_size
           ls = th * ls
         when Numeric
-          th = @vh == :auto ? (h + (@text.size - 1) * @linespace) / @text.size : @vh
+          th = @verse_size == :auto ? (h + (@text.size - 1) * @linespace) / @text.size : @verse_size
           ls = th + @linespace
         else
-          th = @vh == :auto ? h / @text.size : @vh
+          th = @verse_size == :auto ? h / @text.size : @verse_size
           ls = th
         end
         [th, ls]
@@ -89,7 +89,7 @@ module Kredki
       end
 
       def fit_h
-        @vh == :auto ? 0 : @vh * @text.size
+        @verse_size == :auto ? 0 : @verse_size * @text.size
       end
 
       def set_size w, h
@@ -108,9 +108,9 @@ module Kredki
 
       def align_x tw, w
         case @verse_layout
-        when :c, :cc, :cn, :cs
+        when :c, :cc, :cb, :ce
           (w - tw) / 2
-        when :e, :ec, :en, :es
+        when :e, :ec, :eb, :ee
           w - tw
         else
           0
@@ -119,9 +119,9 @@ module Kredki
 
       def align_y th, h
         case @verse_layout
-        when :cc, :ec, :wc
+        when :c, :cc, :bc, :ec
           (h - th) / 2
-        when :cs, :es, :ws
+        when :ce, :be, :ee, :e
           h - th
         else
           0

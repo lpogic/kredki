@@ -1,9 +1,10 @@
 module Kredki
   class Clipboard
+    extend HasParams
 
     param def content! content
       set_text content.to_s
-    end, get: def content
+    end, def content
       get_text
     end
 

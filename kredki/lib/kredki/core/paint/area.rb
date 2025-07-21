@@ -1,19 +1,20 @@
 module Kredki
   module Area
+    extend HasParams
 
     param def w! w
       return if @w == w
       @w = w
       @redraw_flag = true
       update
-    end, :width
+    end
 
     param def h! h
       return if @h == h
       @h = h
       @redraw_flag = true
       update
-    end, :height
+    end
 
     param def wh! w, h = nil
       h ||= w
@@ -22,7 +23,7 @@ module Kredki
       @h = h
       @redraw_flag = true
       update
-    end, :size, get: def wh
+    end, def wh
       [@w, @h]
     end
 

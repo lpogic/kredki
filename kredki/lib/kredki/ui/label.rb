@@ -4,6 +4,7 @@ module Kredki
   module UI
     class Label < SortPad
       include TextNavigation
+      extend HasParams
       
       #internal api
 
@@ -23,7 +24,7 @@ module Kredki
 
       param def text! text
         @text.content! text
-      end, get: def text
+      end, def text
         @text.content
       end
 

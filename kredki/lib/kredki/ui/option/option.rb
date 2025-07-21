@@ -4,6 +4,7 @@ require_relative '../theme'
 module Kredki
   module UI
     class Option < Pad
+      extend HasEventResolvers
 
       def << arg
         case arg
@@ -27,8 +28,8 @@ module Kredki
 
         def attach! pad
           super pad,
-            pad.on_focus_gain!,
-            pad.on_focus_lose!,
+            pad.on_focus_enter!,
+            pad.on_focus_leave!,
             pad.on_mouse_down!,
             pad.on_mouse_up!,
             pad.on_mouse_enter!,
@@ -36,7 +37,7 @@ module Kredki
         end
 
         def repaint
-          @pad.area.color = @pad.button_in? ? @color.darken : @pad.keyboard_in? ? @color.lighten : @color
+          @pad.area.fill_color = @pad.pin_in? ? @color.darken : @pad.keyboard_in? ? @color.lighten : @color
         end
       end
 
@@ -58,7 +59,7 @@ module Kredki
         end
       end
 
-      event_resolver :on_pick, PickEvent
+      event_resolver :on_pick!, PickEvent
 
       param_delegate :@text,
         :content

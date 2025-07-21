@@ -27,18 +27,18 @@ module Kredki
         end
       end
 
-      def edit string, selection_min, selection_max
+      def edit new_content, selection_min, selection_max
         s = content.to_s
         s = if s == ""
-          string
+          new_content
         elsif selection_max < s.length
-          s[...selection_min] + string + s[selection_max..]
+          s[...selection_min] + new_content + s[selection_max..]
         else
-          s[...selection_min] + string
+          s[...selection_min] + new_content
         end
         content! s, false
         @scene.x = 0
-        reset_cursor selection_min + string.length
+        reset_cursor selection_min + new_content.length
       end
     end
   end

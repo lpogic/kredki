@@ -1,9 +1,7 @@
-require 'procify'
-require 'modeling'
-require 'koper'
-require 'forwardable'
-require_relative 'core-path'
 require_relative 'alterable'
+require_relative 'has_params'
+require_relative 'has_flags'
+require_relative 'event/manage/has_event_resolvers'
 
 module Kredki
   class << self
@@ -25,7 +23,6 @@ module Kredki
       else
         @arena.window.action! action, *a, **na, &block
       end
-      @runned = true
       @arena.run!
     end
 
@@ -33,7 +30,7 @@ module Kredki
       :terminate!
 
     attr_accessor :clipboard, :keyboard, :mouse
-    attr :runned, :arena, :fonts, :colors
+    attr :arena, :fonts, :colors
 
     def joysticks=(joysticks)
       @joysticks = joysticks
@@ -122,18 +119,28 @@ module Kredki
 end
 
 require_relative 'abi/abi'
+
 require_relative 'arena'
-require_relative 'clipboard'
-require_relative 'keyboard'
-require_relative 'mouse'
-require_relative 'joystick'
-require_relative 'shape'
-require_relative 'scene'
-require_relative 'area'
-require_relative 'ellipse'
-require_relative 'rectangle'
-require_relative 'text'
-require_relative 'picture'
-require_relative 'animation'
+require_relative 'media/clipboard'
+require_relative 'media/keyboard'
+require_relative 'media/mouse'
+require_relative 'media/joystick'
+
+require_relative 'color'
+require_relative 'font'
+
+require_relative 'paint/paint'
+require_relative 'paint/shape'
+require_relative 'paint/scene'
+require_relative 'paint/area'
+require_relative 'paint/shape_area'
+require_relative 'paint/block_shape_area'
+require_relative 'paint/ellipse'
+require_relative 'paint/rectangle'
+require_relative 'paint/text'
+require_relative 'paint/picture'
+require_relative 'paint/animation'
 require_relative 'job'
+
+require_relative 'action/action'
 require_relative 'window'

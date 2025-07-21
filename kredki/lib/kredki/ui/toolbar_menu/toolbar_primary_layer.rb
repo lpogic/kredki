@@ -45,11 +45,11 @@ module Kredki
           @parent_events = []
 
 
-          @parent_events[] = parent.on_focus_gain! do |e|
+          @parent_events[] = parent.on_focus_enter! do |e|
             load! parent
           end
 
-          @parent_events[] = parent.on_focus_lose! do |e|
+          @parent_events[] = parent.on_focus_leave! do |e|
             unload! if loaded?
           end
         )

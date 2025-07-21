@@ -1,16 +1,15 @@
-require_relative '../scene'
-require_relative '../event/event_director'
+require_relative '../event/manage/event_director'
 require_relative '../event/step_event'
 require_relative 'action_events'
 require_relative 'action_event_manager'
-require_relative '../context/context'
-require 'forwardable'
+require_relative '../media/local_media'
 
 module Kredki
   class Action < Scene
-    include Context
+    include LocalMedia
     include ActionEvents
     extend Forwardable
+    extend HasParams
     
     def initialize
 
@@ -21,6 +20,7 @@ module Kredki
       @on_step = nil
       @event_manager = ActionEventManager.new
       @event_director = EventDirector.new
+      @fill = nil
 
       super
     end
@@ -32,7 +32,7 @@ module Kredki
     end
 
     def window ...
-      @base&.alter!(...)
+      @scene&.alter(...)
     end
 
     def action
@@ -40,15 +40,12 @@ module Kredki
     end
 
     param def color! *color
-      fill = shape! x: 0, y: 0, color: (color.size > 1 ? color : color.first)
-      on_resize = proc do
-        fill.draw! do
-          rectangle! 0, 0, *fill.window.size, 0, 0
-        end
+      if !@fill
+        @fill = rectangle! x: 0, y: 0
+        on_resize = proc{ @fill.wh = ~it }
+        on_window_resize! &on_resize
       end
-      on_resize! &on_resize
-      on_resize.call
-      fill
+      @fill.fill_color = color.unpack_one
     end
 
     def job! repeat: false, run: true, &b
@@ -69,7 +66,7 @@ module Kredki
     end
 
     def_delegators :window,
-      :wh, :size, :w, :width, :h, :height, 
+      :w, :h, :wh
       :window!
 
     #internal api
@@ -77,7 +74,7 @@ module Kredki
     attr :step_callback, :event_manager, :event_director
 
     def update_paint paint
-      @base&.update_paint paint
+      @scene&.update_paint paint
     end
 
     def sketch p0
@@ -117,7 +114,7 @@ module Kredki
     end
 
     def build *a, **na, &block
-      alter! *a, **na, &block
+      alter *a, **na, &block
     end
   end
 end

@@ -24,18 +24,18 @@ module Kredki
       in Numeric
         wh! param
       else
-        raise ArgumentError.new "#{param} #{param.class}"
+        super
       end
     end
 
     #internal api
 
     def redraw w, h
-      half_sw = @stroke_width * 0.5
-      draw!.rectangle! half_sw, half_sw, w - @stroke_width, h - @stroke_width, @blunt.to_f
+      half_s = @stroke_size * 0.5
+      draw!.rectangle! half_s, half_s, w - @stroke_size, h - @stroke_size, @blunt.to_f
     end
 
-    def set_stroke_width ...
+    def set_stroke_size ...
       super
       @redraw_flag = true
     end

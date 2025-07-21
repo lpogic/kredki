@@ -1,4 +1,3 @@
-require 'forwardable'
 require_relative 'text_pad'
 require_relative 'theme'
 
@@ -6,14 +5,16 @@ module Kredki
   module UI
     class ButtonPad < Pad
       extend Forwardable
+      extend HasParams
+      extend HasEventResolvers
 
       class ColorTheme < Theme
         model :color
 
         def attach! pad
           super pad,
-            pad.on_focus_gain!,
-            pad.on_focus_lose!,
+            pad.on_focus_enter!,
+            pad.on_focus_leave!,
             pad.on_mouse_down!,
             pad.on_mouse_up!,
             pad.on_mouse_enter!,
@@ -24,8 +25,8 @@ module Kredki
 
         def repaint
           kb_in = @pad.keyboard_in?
-          @pad.area.color = @pad.down?(kb_in) ? @color.darken : @pad.mouse_in? ? @color.lighten : @color
-          @pad.area.stroke_color = kb_in && !@pad.button_top?(:primary) ? :stroke_focus : @color.darken
+          @pad.area.fill_color = @pad.down?(kb_in) ? @color.darken : @pad.mouse_in? ? @color.lighten : @color
+          @pad.area.stroke_color = kb_in && !@pad.pin_top?(:primary) ? :stroke_focus : @color.darken
         end
       end
 
@@ -38,7 +39,7 @@ module Kredki
       end
 
       param def theme! *theme
-        theme = theme.reduce_dim
+        theme = theme.unpack_one
         return if @theme == theme
         set_theme case theme
         when Theme
@@ -53,7 +54,7 @@ module Kredki
 
       param def color! *color
         theme! *color
-      end, get: def color
+      end, def color
         @_theme.color
       end
 
@@ -70,13 +71,11 @@ module Kredki
         end
       end
 
-      def on_click!(...)
-        on!(ButtonClickEvent, ...)
-      end
+      event_resolver :on_click!, ButtonClickEvent
 
       def down? keyboard_in = nil
         keyboard_in = keyboard_in? if keyboard_in.nil?
-        button_top? :primary or (
+        pin_top? :primary or (
           keyboard_in and (
             key_down? :space or
             key_down? :enter
@@ -100,7 +99,7 @@ module Kredki
         end
 
         keyboardy!
-        stroke_width! 1
+        stroke_size! 1
         theme! :gray
         layout! :xc
         wh! :fit

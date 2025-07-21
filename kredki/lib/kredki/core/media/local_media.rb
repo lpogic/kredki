@@ -1,9 +1,9 @@
-require_relative 'context_mouse'
-require_relative 'context_keyboard'
-require_relative 'context_joystick'
+require_relative 'local/mouse'
+require_relative 'local/keyboard'
+require_relative 'local/joystick'
 
 module Kredki
-  module Context
+  module LocalMedia
 
     def mouse &block
       m = Mouse.new self, Kredki.mouse
@@ -12,7 +12,7 @@ module Kredki
     end
 
     def keyboard &block
-      k = Action::Keyboard.new self, Kredki.keyboard
+      k = Keyboard.new self, Kredki.keyboard
       k.instance_exec &block if block
       k
     end
@@ -22,11 +22,11 @@ module Kredki
       when Joystick
         param
       when Kredki::Joystick
-        Action::Joystick.new self, param
+        Joystick.new self, param
       else
         j = Kredki.joystick param
         raise "Joystick #{param} not found" if !j
-        Action::Joystick.new self, j
+        Joystick.new self, j
       end
       joystick.instance_exec &block if block
       joystick

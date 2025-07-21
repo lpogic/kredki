@@ -27,11 +27,11 @@ module Kredki
         @picked = nil
         @arrow = new ButtonPad, w: 20, h: 100r, x: 100r do
           theme! :gray
-          stroke_width! 0
+          stroke_size! 0
           keyboardy! false
           text.detach!
           new Pad, mousy: false, keyboardy: false, color: 0, wh: 100r do
-            stroke! color: :text, width: 3, cap: :round, join: :miter
+            stroke! color: :text, size: 3, cap: :round, join: :miter
             area! do |w, h|
               move_to! w / 5, h / 3
               line_to! w / 2, h * 2 / 3
@@ -79,7 +79,7 @@ module Kredki
         #   @dropdown.unload!
         # end
 
-        on_focus_lose! do
+        on_focus_leave! do
           @dropdown.unload!
         end
       end

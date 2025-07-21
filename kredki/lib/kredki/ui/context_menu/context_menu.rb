@@ -16,16 +16,15 @@ module Kredki
     end
     
     class ContextMenu < Service
+      extend HasEventResolvers
 
       attr :context_layer
 
-      def option!(...)
+      def option! ...
         @context_layer.option_group.option!(...)
       end
 
-      def on_pick!(...)
-        @context_layer.on!(Option::PickEvent, ...)
-      end
+      event_resolver :on_pick!, Option::PickEvent
 
       param_delegate "@context_layer.options",
         :w, :h, :wh
@@ -48,7 +47,7 @@ module Kredki
           end
     
           @parent_events[] = parent.on_key! :context do |e|
-            @context_layer.load! *parent.translate(parent.sw / 2, parent.sh / 2)
+            @context_layer.load! *parent.translate(parent.sx / 2, parent.sy / 2)
             @context_layer[Option]&.focus!
             e.resolve
           end

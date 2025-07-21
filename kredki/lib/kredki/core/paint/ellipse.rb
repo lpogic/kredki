@@ -2,6 +2,7 @@ require_relative 'shape'
 
 module Kredki
   class Ellipse < Shape
+    extend HasParams
 
     def initialize
       super true
@@ -16,27 +17,27 @@ module Kredki
       @rx = rx
       @redraw_flag = true
       update
-    end, :radius_x
+    end
 
     param def ry! ry
       return if @ry == ry
       @ry = ry
       @redraw_flag = true
       update
-    end, :radius_y
+    end
 
     param def r! r
       return if @rx == r && @ry == r
       @rx = @ry = r
       @redraw_flag = true
       update
-    end, :radius, get: def r
-      [@rx, @ry].max
+    end, def r
+      @rx == @ry ? @rx : [@rx, @ry]
     end
 
     param def d! d
       r! d * 0.5
-    end, :diameter, get: def d 
+    end, def d 
       r * 2
     end
 
@@ -48,7 +49,7 @@ module Kredki
       in Numeric
         r! param
       else
-        raise ArgumentError.new "#{param} #{param.class}"
+        super
       end
     end
 
@@ -65,13 +66,13 @@ module Kredki
     end
 
     def redraw
-      half_sw = @stroke_width.to_f * 0.5
+      hs = @stroke_size.to_f * 0.5
       rx = @rx.to_f
       ry = @ry.to_f
-      draw!.ellipse! rx, ry, rx - half_sw, ry - half_sw
+      draw!.ellipse! rx, ry, rx - hs, ry - hs
     end
 
-    def set_stroke_width ...
+    def set_stroke_size ...
       super
       @redraw_flag = true
     end

@@ -12,7 +12,7 @@ module Kredki
         super(content, &b) and begin
           if @selection.size != @text.size
             @selection.each{ it.detach! }
-            @selection = @text.map{ @scene.rectangle! color: :text_selection, at: @cursor }
+            @selection = @text.map{ @scene.rectangle! fill_color: :text_selection, at: @cursor }
           end
           true
         end
@@ -21,15 +21,11 @@ module Kredki
 
       param def font! font
         @lines.each{ _1.text.font! font }
-      end, get: def font
+      end, def font
         @lines.first.text.font
       end
 
-      def cursor! ...
-        @cursor.alter(...)
-      end
-
-      def cursor
+      param_service def cursor
         @cursor
       end
 
@@ -123,7 +119,7 @@ module Kredki
         super
 
         @cursor_position = @selection_min = @selection_max = 0
-        @cursor = @scene.rectangle! color: :text, w: 2, show: false
+        @cursor = @scene.rectangle! fill_color: :text, w: 2, show: false
         @selection = []
       end
 
@@ -164,9 +160,9 @@ module Kredki
 
       def align_x tw, w
         case @verse_layout
-        when :c, :cc, :cn, :cs
+        when :c, :cc, :cb, :ce
           (w - tw - @cursor.w) / 2
-        when :e, :ec, :en, :es
+        when :e, :ec, :eb, :ee
           w - tw - @cursor.w
         else
           @cursor.w
@@ -188,7 +184,7 @@ module Kredki
 
       def update_cursor
         total = -1
-        @cursor.h! @vh if @vh != :auto
+        @cursor.h! @verse_size if @verse_size != :auto
         @cursor.xy! align_x(@cursor.w / 2, sw), align_y(@cursor.h, sh)
         @text.each do |text|
           total += 1

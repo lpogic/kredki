@@ -1,8 +1,6 @@
-require_relative 'flagship'
-
 module Kredki
   class Mouse
-    extend Flagship
+    extend HasFlags
 
     model :buttons, :scrollbar_speed, :scrollbar_alt_speed, keywords: true do
       @inverted_buttons = @buttons.reverse_each.map{ [_2, _1] }.to_h
@@ -37,8 +35,8 @@ module Kredki
       end
     end
 
-    def down? button_param = :primary
-      is_button_down button(button_param).to_i
+    def down? button_id = :primary
+      is_button_down button(button_id).to_i
     end
 
     def x
@@ -49,17 +47,17 @@ module Kredki
       xy[1]
     end
 
-    aliasing def xy
+    def xy
       get_cursor_position
-    end, :position
+    end
 
-    def_flag :relative, set: :set_relative
+    flag :relative, set: :set_relative
 
     def scrollbar_speed alt = false
       alt ? @scrollbar_alt_speed : @scrollbar_speed
     end
 
-    def_flag :in_window, get: :get_in_window
+    flag :in_window, get: :get_in_window
 
     #internal api
 

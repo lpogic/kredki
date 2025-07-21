@@ -7,15 +7,13 @@ require_relative 'toolbar_option_group'
 module Kredki
   module UI
     class ToolbarMenu < Pad
+      extend HasEventResolvers
 
       def option!(...)
         @option_group.option!(...)
       end
 
-      event_resolver :on_pick, Option::PickEvent
-      # def on_pick!(...)
-      #   on!(Option::PickEvent, ...)
-      # end
+      event_resolver :on_pick!, Option::PickEvent
 
       def initialize
         super
@@ -29,7 +27,7 @@ module Kredki
         @option_group = new ToolbarOptionGroup
 
         on_pick! do |e|
-          lose_keyboard unless e.target.has_suboption?
+          keyboard_dispose unless e.target.has_suboption?
         end
       end
 

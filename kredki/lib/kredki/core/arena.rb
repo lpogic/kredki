@@ -1,8 +1,6 @@
 require_relative 'event/drop_event'
 require_relative 'event/key_event'
-require_relative 'event/mouse_button_event'
-require_relative 'event/mouse_move_event'
-require_relative 'event/mouse_scroll_event'
+require_relative 'event/mouse_event'
 require_relative 'event/quit_event'
 require_relative 'event/text_event'
 require_relative 'event/window_event'
@@ -10,6 +8,7 @@ require_relative 'event/joystick_event'
 
 module Kredki
   class Arena
+    
     def initialize
       @pointer = Abi.arena_new
       ObjectSpace.define_finalizer(self, Arena.proc.finalize(@pointer))
@@ -22,7 +21,7 @@ module Kredki
     end
 
     def window! action = nil, *a, **na, &b
-      push_window(Window.new).action!(action, *a, **na, &b)
+      put_window(Window.new).action!(action, *a, **na, &b)
     end
 
     def window key = nil
@@ -30,7 +29,7 @@ module Kredki
     end
 
     def run!
-      # generate initial resize event
+      # generate initial resize event for recalculate layouts
       @windows.values.each{|w| w.set_size *w.get_size }
       Abi.arena_run @pointer
       @result
@@ -177,7 +176,7 @@ module Kredki
       event&.resolved? ? 1 : 0
     end
 
-    def push_window window
+    def put_window window
       window_id = Abi.arena_insert_window @pointer, window.pointer
       @windows[window_id] = window
       @main_window ||= window

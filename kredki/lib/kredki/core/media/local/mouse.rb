@@ -1,48 +1,46 @@
-require 'forwardable'
-require_relative '../flagship'
-
 module Kredki
-  module Context
+  module LocalMedia
     class Mouse
       extend Forwardable
-      extend Flagship
+      extend HasFlags
+      extend HasParams
 
-      model :context, :mouse
+      model :reference, :mouse
 
       def indexes input
         input.flatten.map{ @mouse.button(_1).to_i }.uniq
       end
 
       def on_move! ...
-        @context.on_mouse_move!(...)
+        @reference.on_mouse_move!(...)
       end
       
       def on_scroll! ...
-        @context.on_mouse_scroll!(...)
+        @reference.on_mouse_scroll!(...)
       end
 
       def on_down! ...
-        @context.on_mouse_down!(...)
+        @reference.on_mouse_down!(...)
       end
 
       def on_up! ...
-        @context.on_mouse_up!(...)
+        @reference.on_mouse_up!(...)
       end
 
       def on_drop! ...
-        @context.on_drop!(...)
+        @reference.on_drop!(...)
       end
 
       def on_enter! ...
-        @context.on_enter!(...)
+        @reference.on_enter!(...)
       end
 
       def on_leave! ...
-        @context.on_leave!(...)
+        @reference.on_leave!(...)
       end
 
-      def_flag :capture, set: :set_capture, get: :get_capture
-      def_flag :grab, set: :set_grab, get: :get_grab
+      flag :capture, set: :set_capture, get: :get_capture
+      flag :grab, set: :set_grab, get: :get_grab
 
       def x
         xy[0]
@@ -53,12 +51,13 @@ module Kredki
       end
 
       def xy
-        @context.action.translate *@mouse.xy, @context
+        @reference.action.translate *@mouse.xy, @reference
       end
 
       def_delegators :@mouse,
-        :down?, :position, :in_window?,
-        :relative!, :relative=, :relative
+        :down?, :position, :in_window?
+
+      param_delegate :@mouse, :relative
 
       #internal api
 
@@ -67,16 +66,16 @@ module Kredki
       end
 
       def get_capture
-        w = @context.window
+        w = @reference.window
         Abi.window_get_flags(w.pointer) & 0x4000 != 0 if w
       end
 
       def set_grab grab
-        @context.window&.grab! grab
+        @reference.window&.grab! grab
       end
 
       def get_grab
-        @context.window&.grab?
+        @reference.window&.grab?
       end
     end
   end

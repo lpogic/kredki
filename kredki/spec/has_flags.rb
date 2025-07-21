@@ -1,13 +1,13 @@
-require_relative '../lib/kredki-core/flagship'
+require_relative '../lib/kredki/core/has_flags'
 
-RSpec.describe Kredki::Flagship do
+RSpec.describe Kredki::HasFlags do
   let :klass do
     Class.new do
-      extend Kredki::Flagship
+      extend Kredki::HasFlags
 
-      def_flag :simple
-      def_flag :nil_raised, nil: true
-      def_flag :backed, set: :set_backed, get: :get_backed
+      flag :simple
+      flag :true_on_empty, nil: true
+      flag :backed, set: :set_backed, get: :get_backed
 
       def set_backed enable
         @external_backed = true
@@ -28,10 +28,10 @@ RSpec.describe Kredki::Flagship do
     k.simple = :~
     expect(k.simple?).to eq false
 
-    expect(k.nil_raised?).to eq true
-    expect(k.nil_raised!).to eq false
-    expect(k.nil_raised! false).to eq true
-    expect(k.nil_raised?).to eq false
+    expect(k.true_on_empty?).to eq true
+    expect(k.true_on_empty!).to eq false
+    expect(k.true_on_empty! false).to eq true
+    expect(k.true_on_empty?).to eq false
     
     k.backed = true
     expect(k.backed?).to eq true

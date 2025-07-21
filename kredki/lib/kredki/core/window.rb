@@ -1,14 +1,8 @@
-require_relative 'flagship'
-require 'forwardable'
-require_relative 'clipboard'
-require_relative 'keyboard'
-require_relative 'mouse'
-require_relative 'action/action'
-
 module Kredki
   class Window
     include Alterable
-    extend Flagship
+    extend HasFlags
+    extend HasParams
     extend Forwardable
 
     def initialize w = 400, h = 400
@@ -44,19 +38,19 @@ module Kredki
       Abi.window_restore @pointer
     end
 
-    def_flag :bordered, nil: true, set: :set_bordered
-    def_flag :grab, set: :set_grab
-    def_flag :fullscreen, nil: false, set: :set_fullscreen
+    flag :bordered, nil: true, set: :set_bordered
+    flag :grab, set: :set_grab
+    flag :fullscreen, nil: false, set: :set_fullscreen
 
-    def_flag :text_input, nil: false, set: :set_text_input, get: :get_text_input
+    flag :text_input, nil: false, set: :set_text_input, get: :get_text_input
 
     param def min_wh! w, h = nil
       set_minimum_size w, h || w
-    end, :min_size
+    end
 
     param def max_wh! w, h = nil
       set_maximum_size w, h || w
-    end, :max_size
+    end
     
     param def opacity! opacity
       set_opacity opacity > 1 ? opacity / 255.0 : opacity
@@ -64,25 +58,25 @@ module Kredki
 
     param def xy! x, y
       set_position x, y
-    end, :position
+    end, false
 
-    def_flag :resizable, set: :set_resizable
+    flag :resizable, set: :set_resizable
 
     param def wh! w, h = nil
       set_size w, h || w
-    end, :size, get: def wh
+    end, def wh
       get_size
     end
 
     param def w! w
       set_size w, h
-    end, :width, get: def w
+    end, def w
       get_size[0]
     end
 
     param def h! h
       set_size w, h
-    end, :height, get: def h
+    end, def h
       get_size[1]
     end
 
@@ -90,7 +84,7 @@ module Kredki
       set_title title.to_s
     end
 
-    def_flag :always_top, set: :set_always_top
+    flag :always_top, set: :set_always_top
 
     param def action! action = nil, ...
       action ||= Window.default_action
@@ -138,7 +132,7 @@ module Kredki
 
     def set_action action, &block
       @action = action
-      @action.base = self
+      @action.scene = self
       Abi.window_set_scene @pointer, action.pointer
       Abi.window_set_step_handler @pointer, action.step_callback
       update_paint @action
@@ -164,12 +158,12 @@ module Kredki
       @fullscreen = set
     end
 
-    def set_maximum_size width, height
-      Abi.window_set_maximum_size @pointer, width, height
+    def set_minimum_size x, y
+      Abi.window_set_minimum_size @pointer, x, y
     end
 
-    def set_minimum_size width, height
-      Abi.window_set_minimum_size @pointer, width, height
+    def set_maximum_size x, y
+      Abi.window_set_maximum_size @pointer, x, y
     end
 
     def set_opacity opacity
@@ -185,8 +179,8 @@ module Kredki
       @resizable = set
     end
 
-    def set_size width, height
-      Abi.window_set_size @pointer, width, height
+    def set_size x, y
+      Abi.window_set_size @pointer, x, y
     end
 
     def get_size

@@ -204,6 +204,7 @@ module Kredki
     end
 
     class Table < Pad
+      extend HasParams
 
       param def column! *column
         return if @column == column
@@ -218,7 +219,7 @@ module Kredki
         @_column_layout.space = space
         layer&.break_layout
         true
-      end, get: def column_space
+      end, def column_space
         @_column_layout.space
       end
 

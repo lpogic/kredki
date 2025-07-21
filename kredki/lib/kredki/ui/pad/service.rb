@@ -1,22 +1,19 @@
+require 'weakref'
 require_relative 'pad_event_manager'
 require_relative 'pad_events'
 require_relative 'pad_base'
 require_relative 'pad_inherited'
-require 'forwardable'
-require 'weakref'
-require 'kredki-core/context/context'
-require 'kredki-core/flagship'
-require 'kredki-core/block_shape_area'
 
 module Kredki
   module UI
     class Service
       include PadBase
       include Alterable
-      include Context
+      include LocalMedia
       include PadEvents
       extend Forwardable
-      extend Flagship
+      extend HasParams
+      extend HasFlags
       extend PadInherited
 
       def <<(arg)
@@ -87,8 +84,6 @@ module Kredki
      
       attr :parent, :services
 
-      alias_method :a, :action
-
       def s
         self
       end
@@ -137,11 +132,9 @@ module Kredki
 
       def new klass, *a, at: nil, **na, &b
         service = klass.new
-        service.alter_begin
         service.sketch service
         push_service service, at if at != false
         service.alter *a, **na, &b
-        service.alter_commit
         service
       end
 

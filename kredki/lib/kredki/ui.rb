@@ -41,7 +41,6 @@ module Kredki
   require_relative 'ui/image_pad'
   require_relative 'ui/text_pad'
   require_relative 'ui/text/navigable_text'
-  require_relative 'ui/grid/grid_pad'
   require_relative 'ui/note'
   require_relative 'ui/notes'
   require_relative 'ui/button'
@@ -102,7 +101,6 @@ module Kredki
     module PadBase
       def! :pad!, Pad
       def! :space!, SpacePad
-      def! :grid!, GridPad
       def! :scroll!, ScrollPad
       def! :image!, ImagePad
       def! :text!, NavigableText, keyboardy: true
@@ -144,7 +142,7 @@ class CarryFocusOnTab
         .lazy
         .filter{ _1.keyboardy? }
         .first
-      next_pad.gain_keyboard if next_pad
+      next_pad.keyboard_request if next_pad
     end
   end
 end

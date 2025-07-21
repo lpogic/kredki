@@ -1,6 +1,3 @@
-require_relative 'paint'
-require_relative 'color'
-
 module Kredki
   class Shape < Paint
     include Alterable
@@ -9,19 +6,19 @@ module Kredki
       super Abi.shape_new
       ObjectSpace.define_finalizer(self, Shape.proc.finalize(@pointer))
 
-      @stroke_width = 0
+      @stroke_size = 0
       @stroke_color = nil
       stroke_join! :bevel
-      @color = Kredki.color
+      @fill_color = Kredki.color
       @is_clip = false
-      set_fill_color *@color.to_rgba_array
+      set_fill_color *@fill_color.to_rgba_array
       update unless extended
     end
 
     def to_hash
       super + {
-        color: @color,
-        stroke_width: @stroke_width,
+        fill_color: @fill_color,
+        stroke_size: @stroke_size,
         stroke_color: @stroke_color
       }
     end
@@ -90,13 +87,13 @@ module Kredki
 
     param_prefix :fill
 
-    param def color! *color
-      color = color.size > 1 ? color : color.first
-      return if @color == color
+    param def fill_color! *color
+      color = color.unpack_one
+      return if @fill_color == color
       set_fill_color *Kredki.color(color).to_rgba_array
-      @color = color
+      @fill_color = color
       update
-    end, :fill_color
+    end
 
     class FillRule
       enum :winding, :even_odd
@@ -112,17 +109,17 @@ module Kredki
     param_prefix :stroke
 
     param def stroke_color! *color
-      color = color.size > 1 ? color : color.first
+      color = color.unpack_one
       return if @stroke_color == color
       set_stroke_color *Kredki.color(color).to_rgba_array
       @stroke_color = color
       update
     end
 
-    param def stroke_width! width
-      return if @stroke_width == width
-      set_stroke_width width.to_f
-      @stroke_width = width
+    param def stroke_size! size
+      return if @stroke_size == size
+      set_stroke_size size.to_f
+      @stroke_size = size
       update
     end
 
@@ -155,7 +152,7 @@ module Kredki
       update
     end
 
-    def_flag :stroke_behind, set: :set_stroke_behind
+    flag :stroke_behind, set: :set_stroke_behind
 
     class StrokeTrim
       model :start, :finish, :simultaneous
@@ -164,7 +161,7 @@ module Kredki
         case param
         in self
           param
-        in [start, finish, sumultaneous]
+        in [start, finish, simultaneous]
           self.new start, finish, simultaneous
         else
           raise ArgumentError.new "#{param}"
@@ -177,7 +174,7 @@ module Kredki
     end
 
     param def stroke_trim! *trim
-      trim = trim.size > 1 ? trim : trim.first
+      trim = trim.unpack_one
       return if @stroke_trim == trim
       set_stroke_trim *StrokeTrim[trim].to_a
       @stroke_trim = trim
@@ -202,7 +199,7 @@ module Kredki
       Abi.shape_set_stroke_color @pointer, r, g, b, a
     end
 
-    def set_stroke_width width
+    def set_stroke_size width
       Abi.shape_set_stroke_width @pointer, width
     end
 
@@ -226,20 +223,20 @@ module Kredki
       Abi.shape_set_stroke_trim @pointer, start, finish, simultaneous ? 1 : 0
     end
 
-    def set_self_clip base
-      @base&.remove_paint self unless @is_clip
-      @base = base
+    def set_self_clip scene
+      @scene&.remove_paint self unless @is_clip
+      @scene = scene
       @is_clip = true
     end
 
     def unset_self_clip
-      @base = nil
+      @scene = nil
       @is_clip = false
     end
 
     def update
       if @is_clip
-        @base.update
+        @scene.update
       else
         super
       end

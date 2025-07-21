@@ -8,10 +8,10 @@ module Kredki
     attr :resolvers
 
     def resolve event
-      event.unbreak
+      # event.unbreak
       @resolvers.reverse_each do |r|
         r.resolve event
-        break if event.break?
+        # break if event.break?
       end
     end
 

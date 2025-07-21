@@ -22,8 +22,8 @@ module Kredki
       @abi.button
     end
 
-    def [](key = :symbol)
-      send key
+    def ~()
+      symbol
     end
   end
 
@@ -48,6 +48,10 @@ module Kredki
 
     def value
       @abi.value
+    end
+
+    def ~()
+      value
     end
   end
 end

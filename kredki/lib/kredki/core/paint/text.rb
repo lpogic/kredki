@@ -1,7 +1,3 @@
-require_relative 'paint'
-require_relative 'color'
-require_relative 'font'
-
 module Kredki
   class Text < Paint
     include Alterable
@@ -16,22 +12,22 @@ module Kredki
       @h = 16
       set_content @content
       set_font @font.name, @h, ""
-      set_fill_color *@color.to_rgb_array
       @w = substring_width
+      set_fill_color *@color.to_rgb_array
       update
     end
 
-    def <<(arg)
-      case arg
-      in [content, height]
+    def << param
+      case param
+      in [content, h]
         content! content
-        height! height
+        h! h
       in String
-        content! arg
+        content! param
       in Numeric
-        height! arg
+        h! param
       else
-        raise ArgumentError.new "#{arg} #{arg.class}"
+        super
       end
     end
 
@@ -49,15 +45,15 @@ module Kredki
       @h = h
       @w = substring_width
       update
-    end, :height
+    end
 
-    aliasing def w
+    def w
       @w
-    end, :width
+    end
 
-    aliasing def wh
+    def wh
       [@w, @h]
-    end, :size
+    end
 
     param def font! font
       return if @font == font
@@ -68,7 +64,7 @@ module Kredki
     end
 
     param def color! *color
-      color = color.reduce_dim
+      color = color.unpack_one
       return if @color == color
       set_fill_color *Kredki.color(color).to_rgb_array
       @color = color

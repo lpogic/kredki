@@ -24,7 +24,7 @@ module Kredki
       def initialize
         super
 
-        @options = new ContextPad, stroke: {width: 1, color: :dark_gray}
+        @options = new ContextPad, stroke: {size: 1, color: :dark_gray}
         @option_group = @options.new ContextOptionGroup
       end
 

@@ -1,8 +1,3 @@
-require 'kredki-core/event/event_manager'
-require 'kredki-core/event/keyboard_event_manager'
-require 'kredki-core/event/mouse_event_manager'
-require 'kredki-core/event/joystick_event_manager'
-
 module Kredki
   class PadEventManager
 

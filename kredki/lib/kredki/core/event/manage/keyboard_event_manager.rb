@@ -1,5 +1,3 @@
-require_relative '../keyboard'
-require_relative 'event'
 require_relative 'composite_event_manager'
 
 module Kredki

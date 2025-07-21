@@ -15,7 +15,7 @@ module Kredki
       self
     end
 
-    def safe_alter *arg, **narg, &block
+    def keyword_safe_alter *arg, **narg, &block
       arg.each do |a|
         send :<<, a
       end
@@ -25,35 +25,6 @@ module Kredki
       end
       instance_exec self, &block if block
       self
-    end
-
-    def alter! ...
-      altered = alter_begin
-      alter(...)
-      altered ? alter_commit : self
-    end
-    
-    def alter_begin
-      @altered = {} unless @altered
-    end
-
-    def alter_commit
-      altered, @altered = @altered, nil
-      after_alter altered if altered
-      self
-    end
-
-    def after_alter altered
-      altered.each_key{ send it }
-    end
-
-    def altered?
-      !!@altered
-    end
-
-    def alter_filter sending = nil
-      !sending || (@altered[sending] = true) if @altered
-    end
+    end  
   end
 end
-    

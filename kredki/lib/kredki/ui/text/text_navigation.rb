@@ -64,10 +64,10 @@ module Kredki
 
         on_mouse_down! :primary do |e|
           if keyboard.shift?
-            text.drag *text.reverse_translate(*e.xy)
+            text.drag *text.layer.translate(*e.xy, text)
           else
             if e.clicks < 2
-              cursor_position = text.cursor_position_for_coordinates *text.reverse_translate(*e.xy)
+              cursor_position = text.cursor_position_for_coordinates *text.layer.translate(*e.xy, text)
               text.reset_cursor cursor_position
             end
           end
@@ -75,14 +75,14 @@ module Kredki
 
         on_mouse_move! do |e|
           if e.drag
-            text.drag *text.reverse_translate(*e.xy)
+            text.drag *text.layer.translate(*e.xy, text)
             e.resolve
           end
         end
 
         on_mouse_up! do |e|
           if e.drag
-            text.cursor_position = text.cursor_position_for_coordinates *text.reverse_translate(*e.xy)
+            text.cursor_position = text.cursor_position_for_coordinates *text.layer.translate(*e.xy, text)
           end
         end
 
@@ -96,13 +96,13 @@ module Kredki
           end
         end
 
-        on_focus_lose! do |e|
+        on_focus_leave! do |e|
           text.cursor.hide!
           layer&.break_layout
           e.resolve
         end
 
-        on_focus_gain! do |e|
+        on_focus_enter! do |e|
           text.cursor.show!
           e.resolve
         end

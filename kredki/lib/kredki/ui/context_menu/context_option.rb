@@ -6,7 +6,7 @@ module Kredki
   module UI
     class ContextOption < YOption
 
-      def_flag :arrow
+      flag :arrow
 
       def option!(...)
         dropdown!.option_group.option!(...)
@@ -17,7 +17,7 @@ module Kredki
           @dropdown = new ContextSecondaryLayer
           new Pad, mousy: false, keyboardy: false, color: 0, x: 100r, h: 100r do
             w! proc{ get_h }
-            stroke! color: :text, width: 3, cap: :round, join: :miter
+            stroke! color: :text, size: 3, cap: :round, join: :miter
             area! do |w, h|
               move_to! w / 2, h / 3
               line_to! w * 2 / 3, h / 2

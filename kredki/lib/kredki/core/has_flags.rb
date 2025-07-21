@@ -1,7 +1,7 @@
 module Kredki
-  module Flagship
+  module HasFlags
 
-    def def_flag name, nil: false, set: nil, get: nil, test: true
+    def flag name, nil: false, set: nil, get: nil, test: true
 
       init = binding.local_variable_get :nil
       case get

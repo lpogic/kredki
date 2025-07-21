@@ -1,7 +1,7 @@
-require_relative '../event/event_manager'
-require_relative '../event/keyboard_event_manager'
-require_relative '../event/mouse_event_manager'
-require_relative '../event/joystick_event_manager'
+require_relative '../event/manage/event_manager'
+require_relative '../event/manage/keyboard_event_manager'
+require_relative '../event/manage/mouse_event_manager'
+require_relative '../event/manage/joystick_event_manager'
 
 module Kredki
   class ActionEventManager

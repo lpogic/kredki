@@ -3,6 +3,8 @@ require_relative 'theme'
 module Kredki
   module UI
     class Slide < Pad
+      extend HasParams
+      extend HasEventResolvers
 
       param def value! v, report_change = true
         f = v.to_f 
@@ -15,13 +17,8 @@ module Kredki
         true
       end
 
-      def on_change! &block
-        on! ChangeEvent, &block
-      end
-
-      def on_edit! &block
-        on! EditEvent, &block
-      end
+      event_resolver :on_change!, ChangeEvent
+      event_resolver :on_edit!, EditEvent
 
       class SimpleColorBasedTheme < Theme
         model :color
@@ -35,7 +32,7 @@ module Kredki
         end
 
         def repaint
-          @pad.handle.area.color = @pad.mouse_in? ? @color.lighten : @color.darken
+          @pad.handle.area.fill_color = @pad.mouse_in? ? @color.lighten : @color.darken
         end
       end
 
@@ -68,7 +65,7 @@ module Kredki
       def sketch p0
         super
 
-        on_scroll! do |e|
+        on_mouse_scroll! do |e|
           jump = Kredki.mouse.scrollbar_speed keyboard.alt?
           self.value -= jump * e.xory
           e.resolve

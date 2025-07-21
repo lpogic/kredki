@@ -1,5 +1,6 @@
 module Kredki
   class Job
+    extend HasParams
 
     def initialize repeat:, run: true, &b
       @tips = Thread::Queue.new
@@ -38,11 +39,11 @@ module Kredki
       self
     end
 
-    aliasing def repeat! repeat
+    param def repeat! repeat
       @mutex.synchronize do
         @repeat = repeat
       end
-    end, :repeat=
+    end
 
     def cancel!
       @thread&.kill

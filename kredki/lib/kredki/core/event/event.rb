@@ -1,13 +1,7 @@
 module Kredki
   class Event
     
-    model :target do
-      @resolved = false
-      @break = false
-      @mode = :default
-    end
-
-    attr_accessor :mode
+    model :target, :trace, :@resolved#, :@break
     
     def [](key)
       send key
@@ -21,25 +15,17 @@ module Kredki
       @resolved = true
     end
 
-    def break?
-      @break
-    end
+    # def break?
+    #   @break
+    # end
 
-    def break
-      @break = true
-    end
+    # def break
+    #   @break = true
+    # end
 
-    def unbreak
-      @break = false
-    end
-
-    def trace
-      @trace = true
-    end
-
-    def trace= enabled
-      @trace = enabled
-    end
+    # def unbreak
+    #   @break = false
+    # end
 
     def trace?
       !!@trace

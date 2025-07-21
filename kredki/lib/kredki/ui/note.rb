@@ -1,4 +1,3 @@
-require 'forwardable'
 require_relative 'text/editable_text_verse'
 require_relative 'theme'
 
@@ -7,23 +6,24 @@ module Kredki
     class Note < Pad
       include TextEdition
       extend Forwardable
+      extend HasParams
 
       class SimpleColorBasedTheme < Theme
         model :color
 
         def attach! pad
           super pad,
-            pad.on_focus_gain!,
-            pad.on_focus_lose!,
+            pad.on_focus_enter!,
+            pad.on_focus_leave!,
             pad.on_mouse_enter!,
             pad.on_mouse_leave!
         end
 
         def repaint
           kb_top = @pad.keyboard_top?
-          @pad.area.color = kb_top ? @color.darken : @pad.mouse_in? ? @color.lighten : @color
+          @pad.area.fill_color = kb_top ? @color.darken : @pad.mouse_in? ? @color.lighten : @color
           @pad.area.stroke_color = kb_top ? :stroke_focus : @color
-          @pad.text.selection.each{ it.color! kb_top ? :text_selection : :text_selection_inactive }
+          @pad.text.selection.each{ it.fill_color! kb_top ? :text_selection : :text_selection_inactive }
         end
       end
 
@@ -60,14 +60,14 @@ module Kredki
 
       param def content! string, cursor = false
         @text.content! string, cursor
-      end, get: def string
+      end, def string
         @text.content
       end
 
       param_prefix :verse
 
       param_delegate :@text,
-      :verse_height,
+      :verse_size,
       :verse_layout
 
       #internal api
@@ -119,7 +119,7 @@ module Kredki
         layout! NoteLayout.new(0, 0)
         mousy!
         keyboardy!
-        stroke_width! 1
+        stroke_size! 1
         theme! :gray
         h! 24
 

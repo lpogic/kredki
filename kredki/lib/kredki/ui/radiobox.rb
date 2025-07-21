@@ -1,18 +1,19 @@
-require 'forwardable'
 require_relative 'theme'
 
 module Kredki
   module UI
     class Radiobox < Pad
       extend Forwardable
+      extend HasParams
+      extend HasFlags
 
       class SimpleColorBasedTheme < Theme
         model :color
 
         def attach! pad
           super pad,
-            pad.on_focus_gain!,
-            pad.on_focus_lose!,
+            pad.on_focus_enter!,
+            pad.on_focus_leave!,
             pad.on_mouse_down!,
             pad.on_mouse_up!,
             pad.on_mouse_enter!,
@@ -20,7 +21,7 @@ module Kredki
         end
 
         def repaint
-          @pad.area.color = @pad.button_top? ? @color.darken : @pad.mouse_in? ? @color.lighten : @color
+          @pad.area.color = @pad.pin_top? ? @color.darken : @pad.mouse_in? ? @color.lighten : @color
           @pad.area.stroke_color = @pad.keyboard_in? ? :stroke_focus : @color.darken
         end
       end
@@ -42,7 +43,7 @@ module Kredki
         @theme = theme
       end
 
-      def_flag :checked, set: :update_checked
+      flag :checked, set: :update_checked
 
       #internal api
 
@@ -65,7 +66,7 @@ module Kredki
           ellipse! w / 2, h / 2, w / 2 - 1
         end
         keyboardy!
-        stroke_width! 1
+        stroke_size! 1
         layout! :center
         wh! 16
         m! 4

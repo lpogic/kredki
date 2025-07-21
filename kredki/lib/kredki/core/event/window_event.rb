@@ -26,7 +26,11 @@ module Kredki
     end
 
     def wh
-      [w, h]
+      [@abi.data1, @abi.data2]
+    end
+
+    def ~()
+      wh
     end
   end
 

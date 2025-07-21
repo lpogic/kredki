@@ -1,13 +1,12 @@
-require 'forwardable'
-
 module Kredki
   module UI
     class ImagePad < Pad
       extend Forwardable
+      extend HasParams
 
       param def source! source
         @picture.source! source, false
-      end, get: def source
+      end, def source
         @picture.source
       end
 

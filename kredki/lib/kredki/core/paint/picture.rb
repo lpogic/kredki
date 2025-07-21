@@ -24,7 +24,7 @@ module Kredki
       in String
         source! param
       else
-        raise ArgumentError.new "#{param} #{param.class}"
+        super
       end
     end
 
@@ -46,8 +46,8 @@ module Kredki
       Abi.paint_delete pointer
     end
 
-    def set_size width, height
-      Abi.picture_set_size @pointer, width, height
+    def set_size x, y
+      Abi.picture_set_size @pointer, x, y
     end
 
     def get_size

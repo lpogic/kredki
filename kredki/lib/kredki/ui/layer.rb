@@ -4,7 +4,7 @@ module Kredki
   module UI
     class Layer < Pad
 
-      class MousePad
+      class PinPad
         model :pad, :xy, :button, :drag
       end
 
@@ -13,7 +13,7 @@ module Kredki
       end
 
       def mouse_pad
-        @mouse_pad&.pad || @mouse_pads.last
+        @pin_pad&.pad || @mouse_pads.last
       end
 
       attr :mouse_pads
@@ -27,21 +27,21 @@ module Kredki
       end
 
       def mouse_down_xy
-        @mouse_pad&.xy
+        @pin_pad&.xy
       end
 
-      def check_mouse_pad pad, button, lineage = false
-        return if button != @mouse_pad&.button
-        return @mouse_pad&.pad&.pad_in? pad if lineage
-        return @mouse_pad&.pad == pad
+      def check_pin pad, button, top_only
+        return if button != @pin_pad&.button
+        return @pin_pad&.pad == pad if top_only
+        @pin_pad&.pad&.in_pad? pad
       end
 
       def mouse_pad_drag? xy
-        bxy = @mouse_pad&.xy and (bxy[0] - xy[0]) ** 2 + (bxy[1] - xy[1]) ** 2 > 100
+        bxy = @pin_pad&.xy and (bxy[0] - xy[0]) ** 2 + (bxy[1] - xy[1]) ** 2 > 100
       end
 
       def mouse_pad_drag
-        @mouse_pad&.drag
+        @pin_pad&.drag
       end
 
       def def! ...
@@ -51,7 +51,7 @@ module Kredki
       def detach! transfer = false
         unless transfer
           update_keyboard_pad nil
-          @mouse_pad = nil
+          @pin_pad = nil
         end
         super
       end
@@ -73,7 +73,7 @@ module Kredki
       def initialize
         super
         
-        @mouse_pad = nil
+        @pin_pad = nil
         @keyboard_pads = []
         @mouse_pads = []
       end
@@ -114,23 +114,22 @@ module Kredki
         end
       end
       
-      def update_mouse_pad pad, new_mouse_pad, xy = nil, button = nil, drag = false
-        if new_mouse_pad
-          @mouse_pad = MousePad.new new_mouse_pad, xy, button, drag
+      def update_pin_pad pad, xy = nil, button = nil, drag = false
+        if pad
+          @pin_pad = PinPad.new pad, xy, button, drag
         else
-          if @mouse_pad&.pad == pad
-            @mouse_pad = nil
-          end
+          @pin_pad = nil
         end
+        true
       end
 
       def mouse_down e
-        gain_keyboard if keyboardy?
-        gain_button e.xy
+        keyboard_request if keyboardy?
+        pin_request e.xy
       end
 
       def mouse_up e
-        lose_button
+        pin_dispose
         if !e.drag && include_point?(e.x, e.y)
           report MouseClickEvent.new e.origin
         end
@@ -139,9 +138,9 @@ module Kredki
       def update_mouse_location event
         xy = event.xy
 
-        if @mouse_pad
-          @mouse_pad.drag ||= mouse_pad_drag? xy
-          @mouse_pad.pad.report MouseMoveEvent.new(@mouse_pad.drag, event, *xy)
+        if @pin_pad
+          @pin_pad.drag ||= mouse_pad_drag? xy
+          @pin_pad.pad.report MouseMoveEvent.new(@pin_pad.drag, event, *xy)
           return true
         end
         arrange
@@ -163,22 +162,23 @@ module Kredki
           @mouse_pads = []
           mouse_pads.reverse_each{ it.report LeaveEvent.new(nil, *xy), false }
         end
-        @mouse_pad&.pad&.lose_button
+        @pin_pad&.pad&.pin_dispose
 
       end
 
       def update_keyboard_pad keyboard_pad = self
         if !keyboard_pad
-          @keyboard_pads.each{|pad| pad.report FocusLoseEvent.new, false }
+          @keyboard_pads.each{|pad| pad.report FocusLeaveEvent.new, false }
           @keyboard_pads = []
         else
           keyboard_pads = keyboard_pad.pad_lineage.to_a.reverse
-          gain, no_change, lose = *keyboard_pads.polarize(@keyboard_pads)
+          enter, no_change, leave = *keyboard_pads.polarize(@keyboard_pads)
           @keyboard_pads = keyboard_pads
-          lose.reverse_each{ it.report FocusLoseEvent.new, false }
-          gain.reverse_each{ it.report FocusGainEvent.new, false }
+          leave.reverse_each{ it.report FocusLeaveEvent.new, false }
+          enter.reverse_each{ it.report FocusEnterEvent.new, false }
         end
         @down_keys = {}
+        true
       end
 
       def point_pads x, y, pads, force = false

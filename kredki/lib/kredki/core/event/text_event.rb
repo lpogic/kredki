@@ -14,9 +14,5 @@ module Kredki
     def ~()
       text
     end
-
-    def +@
-      text
-    end
   end
 end

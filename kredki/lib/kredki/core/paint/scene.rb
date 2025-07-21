@@ -22,14 +22,14 @@ module Kredki
     end
 
     def new_paint klass, *a, show: true, at: nil, **na, &b
-      put_paint(klass.new, show, at).paint.alter!(*a, **na, &b)
+      put_paint(klass.new, show, at).paint.alter(*a, **na, &b)
     end
     
     def def_paint name, klass = nil, &block
       if block
         Scene.define_method name do |*a, **na, &b|
           paint = instance_exec self, a, b, **na, &block
-          paint.alter! *a, **na, &b if klass
+          paint.alter *a, **na, &b if klass
           paint
         end
       else
@@ -43,7 +43,7 @@ module Kredki
       if block
         define_method name do |*a, **na, &b|
           paint = instance_exec self, a, b, **na, &block
-          paint.alter! *a, **na, &b if klass
+          paint.alter *a, **na, &b if klass
           paint
         end
       else
@@ -85,12 +85,12 @@ module Kredki
     end
     
     def update_paint paint
-      @base&.update_paint self
+      @scene&.update_paint self
     end
 
     def put_paint paint, show = true, at = nil
-      paint.detach! if paint.base
-      paint.base = self
+      paint.detach! if paint.scene
+      paint.scene = self
       if show
 
         Abi.scene_push @pointer, paint.pointer, next_shown(at)&.pointer
@@ -108,7 +108,7 @@ module Kredki
 
     def remove_paint paint
       if (state = @paints.delete paint)
-        paint.base = nil
+        paint.scene = nil
         if state.shown
           Abi.scene_remove @pointer, paint.pointer
           update

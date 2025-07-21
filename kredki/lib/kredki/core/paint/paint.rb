@@ -1,12 +1,11 @@
-require_relative 'flagship'
-
 module Kredki
   class Paint
-    extend Flagship
+    extend HasFlags
+    extend HasParams
 
     def initialize pointer
       @pointer = pointer
-      @base = nil
+      @scene = nil
       @x = 0
       @y = 0
       @rotation = 0
@@ -25,6 +24,10 @@ module Kredki
         opacity: @opacity,
         blend: @blend,
       }
+    end
+
+    def << param
+      raise_ia param
     end
 
     param def x! x
@@ -48,7 +51,7 @@ module Kredki
       @x = x
       @y = y
       update
-    end, get: def xy
+    end, def xy
       [@x, @y]
     end
 
@@ -92,18 +95,6 @@ module Kredki
       update
     end
 
-    # class CompositeMethod
-    #   enum :none, :clip, :alpha, :inverse_alpha, :luma, :inverse_luma
-    # end
-
-    # def composite! method, mask = nil
-    #   if !method || method == :none
-    #     set_composite_method nil, CompositeMethod[:none].to_i
-    #   else
-    #     set_composite_method mask, CompositeMethod[method].to_i
-    #   end
-    # end
-
     def clip! clip
       clip = nil unless clip
       return if @clip == clip
@@ -114,17 +105,17 @@ module Kredki
     end
     
     def detach!
-      @base&.remove_paint self
-      @base = nil
+      @scene&.remove_paint self
+      @scene = nil
     end
 
-    def attach! base
-      @base&.remove_paint self
-      base.put_paint self
-      @base = base
+    def attach! scene
+      @scene&.remove_paint self
+      scene.put_paint self
+      @scene = scene
     end
 
-    def_flag :show, set: :set_show, get: :get_show, test: false
+    flag :show, set: :set_show, get: :get_show, test: false
 
     def show? direct = false
       get_show direct
@@ -135,33 +126,33 @@ module Kredki
     end
 
     def window
-      @base&.window
+      @scene&.window
     end
 
     def action
-      @base&.action
+      @scene&.action
     end
 
     #internal api
 
     attr :pointer
-    attr_accessor :base
+    attr_accessor :scene
 
     def inspect
       "#{self.class}:#{object_id}"
     end
 
     def update
-      @base&.update_paint self
+      @scene&.update_paint self
       true
     end
 
     def set_show show
-      show ? @base&.show_paint(self) : @base&.hide_paint(self)
+      show ? @scene&.show_paint(self) : @scene&.hide_paint(self)
     end
 
     def get_show direct = true
-      @base&.paint_shown self, direct
+      @scene&.paint_shown self, direct
     end
 
     # def set_composite_method mask, method
