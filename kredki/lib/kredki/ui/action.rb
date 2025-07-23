@@ -94,11 +94,12 @@ module Kredki
           end
         end
 
-        on_step! do
-          arrange
-        end
-
         layer!.focus!
+      end
+
+      def step ms
+        super
+        arrange
       end
 
       def arrange

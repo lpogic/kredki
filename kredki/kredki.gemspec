@@ -5,7 +5,7 @@ end
 Gem::Specification.new do |s|
   s.name        = "rogal"
   s.version     = Rogal::VERSION
-  s.summary     = "Ruby-Oriented GUI Toolkit"
+  s.summary     = "Ruby-Oriented Graphic Applications Library"
   s.description = <<~EOT
     The GUI toolkit written in Ruby from skratch. Rendered by ThorVG. Connected with resources via SDL.
   EOT

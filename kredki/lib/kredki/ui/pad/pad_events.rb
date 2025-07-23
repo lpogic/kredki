@@ -107,6 +107,22 @@ module Kredki
       model :drag, :<
     end
 
+    class MouseEnterEvent < MouseEvent
+      include OriginResolvingEvent
+
+      def move?
+        @origin&.is_a? MouseMoveEvent
+      end
+    end
+
+    class MouseLeaveEvent < MouseEvent
+      include OriginResolvingEvent
+
+      def move?
+        @origin&.is_a? MouseMoveEvent
+      end
+    end
+
     class MouseButtonDownEvent < MouseEvent
       def_delegators :@origin,
         :button_number
@@ -156,14 +172,6 @@ module Kredki
       model :w, :h, :<
     end
 
-    class EnterEvent < MouseEvent
-      include OriginResolvingEvent
-    end
-
-    class LeaveEvent < MouseEvent
-      include OriginResolvingEvent
-    end
-
     class FocusEnterEvent < Event
     end
 
@@ -205,8 +213,8 @@ module Kredki
       extend HasParams
       extend HasEventResolvers
 
-      def on! event_type, aim: false, always: false, &block
-        @event_manager.manager event_type, block, aim, always
+      def on! event_type, do: nil, aim: false, always: false, &block
+        @event_manager.manager event_type, block || binding.local_variable_get(:do), aim, always
       end
 
       def on_key_down! *filtered_keys, aim: false, always: false, &block
@@ -231,9 +239,9 @@ module Kredki
         @event_manager.mouse_manager MouseButtonDownEvent, indexes, block, aim, always
       end
   
-      def on_mouse_up! *filtered_buttons, aim: false, always: false, &block
+      event_resolver def on_mouse_up! *filtered_buttons, aim: false, always: false, do: nil, &block
         indexes = mouse.indexes filtered_buttons
-        @event_manager.mouse_manager MouseButtonUpEvent, indexes, block, aim, always
+        @event_manager.mouse_manager MouseButtonUpEvent, indexes, block || binding.local_variable_get(:do), aim, always
       end
 
       aliasing def on_click! *filtered_buttons, aim: false, always: false, &block
@@ -241,8 +249,8 @@ module Kredki
         @event_manager.mouse_manager MouseClickEvent, indexes, block, aim, always
       end, :on_mouse_click!
   
-      event_resolver :on_mouse_enter!, EnterEvent
-      event_resolver :on_mouse_leave!, LeaveEvent
+      event_resolver :on_mouse_enter!, MouseEnterEvent
+      event_resolver :on_mouse_leave!, MouseLeaveEvent
       event_resolver :on_mouse_move!, MouseMoveEvent
       event_resolver :on_mouse_scroll!, MouseScrollEvent
       

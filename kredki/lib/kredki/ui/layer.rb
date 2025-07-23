@@ -26,7 +26,7 @@ module Kredki
         !!@down_keys[key]
       end
 
-      def mouse_down_xy
+      def pin_xy
         @pin_pad&.xy
       end
 
@@ -149,8 +149,8 @@ module Kredki
         enter, stay, leave = *mouse_pads.polarize(@mouse_pads)
         @mouse_pads = mouse_pads
 
-        leave.reverse_each{ it.report LeaveEvent.new(event, *xy), false }
-        enter.reverse_each{ it.report EnterEvent.new(event, *xy), false }
+        leave.reverse_each{ it.report MouseLeaveEvent.new(event, *xy), false }
+        enter.reverse_each{ it.report MouseEnterEvent.new(event, *xy), false }
         mouse_top = @mouse_pads.last
         mouse_top.report MouseMoveEvent.new(false, event, *xy) if mouse_top
         return included
@@ -160,7 +160,7 @@ module Kredki
         unless @mouse_pads.empty?
           mouse_pads = @mouse_pads
           @mouse_pads = []
-          mouse_pads.reverse_each{ it.report LeaveEvent.new(nil, *xy), false }
+          mouse_pads.reverse_each{ it.report MouseLeaveEvent.new(nil, *xy), false }
         end
         @pin_pad&.pad&.pin_dispose
 

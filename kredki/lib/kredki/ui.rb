@@ -1,4 +1,4 @@
-require_relative '../kredki'
+require_relative 'core'
 
 class Symbol
   def <=>(oth)
@@ -49,6 +49,7 @@ module Kredki
   require_relative 'ui/label'
   require_relative 'ui/note_dropdown/note_dropdown'
   require_relative 'ui/table'
+  require_relative 'ui/list/list'
   require_relative 'ui/context_menu/context_menu'
   require_relative 'ui/toolbar_menu/toolbar_menu'
 
@@ -70,31 +71,31 @@ module Kredki
     yc: UI::Layout::Yway.new(PC, PC),
     ycc: UI::Layout::Yway.new(PC, PC),
 
-    wn: UI::Layout::Basic.new(0, 0),
-    xwn: UI::Layout::Xway.new(0, 0),
-    ywn: UI::Layout::Yway.new(0, 0),
-    en: UI::Layout::Basic.new(PE, 0),
-    xen: UI::Layout::Xway.new(PE, 0),
-    yen: UI::Layout::Yway.new(PE, 0),
-    ws: UI::Layout::Basic.new(0, PE),
-    xws: UI::Layout::Xway.new(0, PE),
-    yws: UI::Layout::Yway.new(0, PE),
-    es: UI::Layout::Basic.new(PE, PE),
-    xes: UI::Layout::Xway.new(PE, PE),
-    yes: UI::Layout::Yway.new(PE, PE),
+    bb: UI::Layout::Basic.new(0, 0),
+    xbb: UI::Layout::Xway.new(0, 0),
+    ybb: UI::Layout::Yway.new(0, 0),
+    eb: UI::Layout::Basic.new(PE, 0),
+    xeb: UI::Layout::Xway.new(PE, 0),
+    yeb: UI::Layout::Yway.new(PE, 0),
+    be: UI::Layout::Basic.new(0, PE),
+    xbe: UI::Layout::Xway.new(0, PE),
+    ybe: UI::Layout::Yway.new(0, PE),
+    ee: UI::Layout::Basic.new(PE, PE),
+    xee: UI::Layout::Xway.new(PE, PE),
+    yee: UI::Layout::Yway.new(PE, PE),
 
-    wc: UI::Layout::Basic.new(0, PC),
-    xwc: UI::Layout::Xway.new(0, PC),
-    ywc: UI::Layout::Yway.new(0, PC),
+    bc: UI::Layout::Basic.new(0, PC),
+    xbc: UI::Layout::Xway.new(0, PC),
+    ybc: UI::Layout::Yway.new(0, PC),
     ec: UI::Layout::Basic.new(PE, PC),
     xec: UI::Layout::Xway.new(PE, PC),
     yec: UI::Layout::Yway.new(PE, PC),
-    cn: UI::Layout::Basic.new(PC, 0),
-    xcn: UI::Layout::Xway.new(PC, 0),
-    ycn: UI::Layout::Yway.new(PC, 0),
-    cs: UI::Layout::Basic.new(PC, PE),
-    xcs: UI::Layout::Xway.new(PC, PE),
-    ycs: UI::Layout::Yway.new(PC, PE),
+    cb: UI::Layout::Basic.new(PC, 0),
+    xcb: UI::Layout::Xway.new(PC, 0),
+    ycb: UI::Layout::Yway.new(PC, 0),
+    ce: UI::Layout::Basic.new(PC, PE),
+    xce: UI::Layout::Xway.new(PC, PE),
+    yce: UI::Layout::Yway.new(PC, PE),
   }
 
   module UI
@@ -113,6 +114,7 @@ module Kredki
       def! :label!, Label
       def! :option_note!, NoteDropdown
       def! :table!, Table
+      def! :list!, List
 
       def! :radios!, RadioGroup
       def! :options!, OptionGroup

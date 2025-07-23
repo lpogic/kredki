@@ -2,6 +2,10 @@ module Kredki
   class Event
     
     model :target, :trace, :@resolved#, :@break
+
+    def inspect
+      "#{self.class}:#{object_id}"
+    end
     
     def [](key)
       send key

@@ -1,4 +1,5 @@
 require_relative 'event_resolver'
+require_relative 'event_job_resolver'
 
 module Kredki
   class EventManager
@@ -21,6 +22,8 @@ module Kredki
         attached.attach! self, always
       when Proc
         EventResolver.new attached, self, always
+      when Job
+        EventJobResolver.new attached, self, always
       else raise "Unsupported attached type (#{attached.class})"
       end
       if last

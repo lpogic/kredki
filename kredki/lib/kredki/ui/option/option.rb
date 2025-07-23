@@ -64,12 +64,22 @@ module Kredki
       param_delegate :@text,
         :content
 
-      param_service def text
-        @text
-      end
+      # param_service def text
+      #   @text
+      # end
 
       def has_suboption?
         false
+      end
+
+      def down? keyboard_in = nil
+        keyboard_in = keyboard_in? if keyboard_in.nil?
+        pin_top? :primary or (
+          keyboard_in and (
+            key_down? :space or
+            key_down? :enter
+          )
+        )
       end
 
       #internal api
@@ -86,7 +96,9 @@ module Kredki
 
         keyboardy!
         theme! :gray
-        layout! :wc
+        layout! :bc
+        # stroke! size: 5
+        # m! 2
         h! 24
         w! :fit
 
@@ -94,14 +106,14 @@ module Kredki
           report PickEvent.new content
         end
 
-        on_key_down! :space, :enter do |e|
+        on_key! :space, :enter do |e|
           report PickEvent.new content
           e.resolve
         end
       end
 
       def mouse_enter e
-        parent&.mouse_enter self
+        parent&.mouse_enter self if action.event.is_a? Kredki::MouseEvent
       end
 
       def min_w

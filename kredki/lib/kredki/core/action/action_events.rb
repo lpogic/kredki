@@ -11,8 +11,8 @@ module Kredki
   module ActionEvents
     extend HasEventResolvers
 
-    def on! event_type, &block
-      @event_manager.manager event_type, block
+    def on! event_type, do: nil, &block
+      @event_manager.manager event_type, block || binding.local_variable_get(:do)
     end
 
     event_resolver def on_key_down! *filtered_keys, &block
@@ -32,9 +32,9 @@ module Kredki
       @event_manager.mouse_manager MouseButtonDownEvent, indexes, block
     end
 
-    event_resolver def on_mouse_up! *filtered_buttons, &block
+    event_resolver def on_mouse_up! *filtered_buttons, do: nil, &block
       indexes = mouse.indexes filtered_buttons
-      @event_manager.mouse_manager MouseButtonUpEvent, indexes, block
+      @event_manager.mouse_manager MouseButtonUpEvent, indexes, block || binding.local_variable_get(:do)
     end
 
     event_resolver :on_mouse_enter!, WindowMouseEnterEvent

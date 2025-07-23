@@ -250,6 +250,10 @@ CABI void sdl_init(int joystick_enabled) {
     SDL_RegisterEvents(USEREVENT_S_COUNT);
 }
 
+CABI int sdl_get_ticks() {
+    return (int)SDL_GetTicks();
+}
+
 
 /************************************************************************/
 /* Canvas API                                                           */

@@ -1,8 +1,11 @@
 module Kredki
-  class MouseButtonEvent < AbiEvent
-    
-    model :mouse, :<
 
+  class MouseEvent < AbiEvent
+    model :mouse, :<
+  end
+
+  class MouseButtonEvent < MouseEvent
+    
     def button
       @mouse.button(@abi.button).to_sym
     end
@@ -42,9 +45,7 @@ module Kredki
   class MouseButtonUpEvent < MouseButtonEvent
   end
 
-  class MouseMoveEvent < AbiEvent
-
-    model :mouse, :<
+  class MouseMoveEvent < MouseEvent
 
     def x
       @abi.x
@@ -63,9 +64,7 @@ module Kredki
     end
   end
 
-  class MouseScrollEvent < AbiEvent
-
-    model :mouse, :<
+  class MouseScrollEvent < MouseEvent
 
     def x
       @abi.x

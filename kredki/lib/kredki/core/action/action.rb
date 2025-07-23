@@ -17,7 +17,6 @@ module Kredki
 
       @jobs = []
       @animations = []
-      @on_step = nil
       @event_manager = ActionEventManager.new
       @event_director = EventDirector.new
       @fill = nil
@@ -41,7 +40,7 @@ module Kredki
 
     param def color! *color
       if !@fill
-        @fill = rectangle! x: 0, y: 0
+        @fill = rectangle! x: 0, y: 0, wh: wh
         on_resize = proc{ @fill.wh = ~it }
         on_window_resize! &on_resize
       end
@@ -98,19 +97,47 @@ module Kredki
       @animations.delete animation
     end
 
+    def put_job job
+      @jobs << job unless @jobs.include? job
+    end
+
+    def check_job_exclusion job
+      !!@jobs.find{ check_ab_job_exclusion it, job }
+    end
+
+    def check_ab_job_exclusion a, b
+      if a.exclusive == true || b.exclusive == true
+        return true if a.pad == b.pad
+      elsif a.exclusive == b.exclusive
+        return true if a.pad == b.pad
+      end
+      return false
+    end
+
+    def remove_job job
+      @jobs.delete job
+    end
+
     def report event
       @event_director.push event, self
     end
 
+    attr :event
+
     def resolve event, aim = false
+      @event = event
       @event_manager.resolve event
     end
 
     def step ms
       @last_frame_ms = ms
-      @jobs.filter!(&:audit)
-      @animations.each{ _1.step ms }
-      resolve StepEvent.new ms
+      @jobs.filter!{ it.step ms }
+      @animations.each{ it.step ms }
+      # resolve StepEvent.new ms
+    end
+
+    def ms
+      Abi.sdl_get_ticks
     end
 
     def build *a, **na, &block

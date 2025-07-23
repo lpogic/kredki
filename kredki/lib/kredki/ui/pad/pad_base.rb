@@ -294,6 +294,10 @@ module Kredki
         end
       end
 
+      def begin! delay: false, exclusive: false, &block
+        Job.new(self, exclusive).begin! delay:, &block
+      end
+
     end
   end
 end

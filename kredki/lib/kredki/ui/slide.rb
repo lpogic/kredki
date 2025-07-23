@@ -100,7 +100,7 @@ module Kredki
         @handle = new Pad, color: :gray do
           on_mouse_move! do |e|
             if e.drag
-              start_x = layer&.mouse_down_xy[0]
+              start_x = layer&.pin_xy[0]
               max_x = p0.sw - sw
               x = [[0, e.x - start_x].max, max_x].min
               p0.value! 1.0 * x / max_x, false
@@ -140,7 +140,7 @@ module Kredki
           on_mouse_move! do |e|
             if e.drag
               drag_y = sy if e.drag == :start
-              start_y = layer&.mouse_down_xy[1]
+              start_y = layer&.pin_xy[1]
               max_y = p0.sh - sh
               y = [[0, drag_y + e.y - start_y].max, max_y].min
               p0.value! 1.0 * y / max_y, false

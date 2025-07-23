@@ -56,6 +56,7 @@ typedef struct {
 CABI int thorvg_engine_init(int engine_method, int threads);
 CABI int thorvg_engine_term(int engine_method);
 CABI void sdl_init(int joystick_enabled);
+CABI int sdl_get_ticks();
 
 #define TVG_MEMPOOL_POLICY_DEFAULT 0 ///< Default behavior that ThorVG is designed to.
 #define TVG_MEMPOOL_POLICY_SHAREABLE 1   ///< Memory Pool is shared among canvases.

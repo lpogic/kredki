@@ -21,7 +21,7 @@ module Kredki
         w! 100r
         h! :fit
         xy! 0
-        layout! :xwc, space: 4
+        layout! :xbc, space: 4
         color! :gray
       
         @option_group = new ToolbarOptionGroup

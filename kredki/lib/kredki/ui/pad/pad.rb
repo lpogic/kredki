@@ -121,7 +121,7 @@ module Kredki
         @mye = me
         layer&.break_layout
         true
-      end, def mx
+      end, def my
         (UI.eqr @myb, @mye) ? @myb : [@myb, @mye]
       end
 

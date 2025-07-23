@@ -5,6 +5,7 @@ module Kredki
     extern 'int thorvg_engine_init(int engine_method, int threads)'
     extern 'int thorvg_engine_term(int engine_method)'
     extern 'void sdl_init(int joystick_enabled)'
+    extern 'int sdl_get_ticks()'
     extern 'void clipboard_set_text(char* text)'
     extern 'char* clipboard_get_text( void)'
     extern 'uint8_t keyboard_get_key_state(int keycode)'
