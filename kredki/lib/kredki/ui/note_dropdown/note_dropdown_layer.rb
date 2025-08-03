@@ -1,4 +1,4 @@
-require_relative '../option/option_group'
+require_relative '../item/item_group'
 
 module Kredki
   module UI
@@ -33,7 +33,7 @@ module Kredki
         end
 
         note.action.push_layer self
-        @pad[Option]&.focus!
+        @pad[Item]&.focus!
       end
 
       def unload!
@@ -45,8 +45,8 @@ module Kredki
         !!@note
       end
 
-      def option! ...
-        @option_group.option!(...)
+      def item! ...
+        @item_group.item!(...)
       end
 
       #internal api
@@ -56,7 +56,7 @@ module Kredki
 
         @scroll = new ScrollPad
         @pad = @scroll.new Pad, color: :gray, layout: :column, h: :fit
-        @option_group = @pad.new OptionGroup
+        @item_group = @pad.new ItemGroup
       end
 
       def mouse_down e

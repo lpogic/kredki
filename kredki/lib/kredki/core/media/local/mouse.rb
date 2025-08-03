@@ -51,11 +51,11 @@ module Kredki
       end
 
       def xy
-        @reference.action.translate *@mouse.xy, @reference
+        @reference.action.screen_translate *@mouse.xy, @reference
       end
 
       def_delegators :@mouse,
-        :down?, :position, :in_window?
+        :down?, :in_window?
 
       param_delegate :@mouse, :relative
 

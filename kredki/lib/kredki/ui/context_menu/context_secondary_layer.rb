@@ -4,15 +4,15 @@ module Kredki
   module UI
     class ContextSecondaryLayer < ContextLayer
 
-      def load! option
+      def load! item
         arrange
         action = parent.action
-        x, y = *option.translate(option.sw, 0)
-        if x + @options.sw > action.sw
-          x = [x - option.sw - @options.sw, 0].max
+        x, y = *item.translate(item.sw, 0)
+        if x + @items.sw > action.sw
+          x = [x - item.sw - @items.sw, 0].max
         end
-        if y + @options.sh > action.sh
-          y = [action.sh - @options.sh, 0].max
+        if y + @items.sh > action.sh
+          y = [action.sh - @items.sh, 0].max
         end
         load_common x, y
       end
@@ -22,8 +22,8 @@ module Kredki
       def sketch p0
         super
         
-        on! Option::PickEvent do |e|
-          if e.target.has_suboption?
+        on! Item::PickEvent do |e|
+          if e.target.has_subitem?
             e.resolve
           else
             parent.report e
@@ -32,7 +32,7 @@ module Kredki
         end
       end
 
-      def set_parent parent
+      def set_parent parent, at = nil
         super and (
           @parent_events&.each{ _1.detach! }
           @parent_events = []

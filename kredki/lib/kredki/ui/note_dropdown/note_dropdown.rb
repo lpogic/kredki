@@ -15,8 +15,8 @@ module Kredki
         @dropdown.alter(...)
       end
 
-      def option! *a, **na, &b
-        dropdown!.option! *a, w: 100r, **na, &b
+      def item! *a, **na, &b
+        dropdown!.item! *a, w: 100r, **na, &b
       end
 
       #internal api
@@ -65,7 +65,7 @@ module Kredki
           end
         end
 
-        @dropdown.on! Option::PickEvent do |e|
+        @dropdown.on! Item::PickEvent do |e|
           @dropdown.unload!
           content! ~e, :end
         end

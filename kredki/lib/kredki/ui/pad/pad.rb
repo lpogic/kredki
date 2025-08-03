@@ -198,6 +198,12 @@ module Kredki
         true
       end
 
+      param def spin! spin
+        @scene.r! spin, @area.w / 2, @area.h / 2
+      end, def spin
+        @scene.r
+      end
+
       param_delegate :@area, 
         :stroke_color, 
         :stroke_join, 
@@ -232,8 +238,8 @@ module Kredki
         end
         return if @area == area
         area.keyword_safe_alter **@area
-        @scene.put_paint area, true, @area
-        @scene.remove_paint @area
+        area.attach! @scene, true, @area
+        @area.detach!
         @area = area
         true
       end
@@ -263,7 +269,12 @@ module Kredki
         true
       end
 
-      attr :pad_parent, :scene, :clip_scene, :pads
+      attr :pad_parent, :clip_scene, :pads
+
+      def scene &block
+        @scene.alter &block if block
+        @scene
+      end
 
       def pad_lineage include_self = true
         Enumerator.new do |e|
@@ -283,17 +294,14 @@ module Kredki
         pad.in_pad? self
       end
 
-      flag :show, set: :set_show, get: :get_show, test: false
-
-      def show? direct = false
-        get_show direct
-      end
+      flag :show, set: :set_show, get: :get_show
 
       def hide!
         show! false
       end
 
-      flag :in_layout, nil: true, set: :set_in_layout
+      flag :layoutic, nil: true, set: :set_layoutic
+      flag :scenic, nil: true, set: :set_scenic, get: :get_scenic
 
       def include_point? x, y
         @area.contain? x, y
@@ -342,9 +350,9 @@ module Kredki
         clear_pads
       end
 
-      def put! pad, *a, **na, &b
+      def put! pad, *a, at: nil, **na, &b
         pad.pad_detach
-        pad.set_pad_parent self
+        pad.set_pad_parent self, at
         pad.alter(*a, **na, &b)
       end
 
@@ -450,13 +458,15 @@ module Kredki
       end
 
       def put_pad pad, at = nil
-        paint_state = @clip_scene.put_paint pad.scene, true, at&.scene
         case at
         when Integer
+          paint_state = @clip_scene.put_paint pad.scene, true
           @pads.insert at, pad
         when Pad
+          paint_state = @clip_scene.put_paint pad.scene, true, at.scene
           @pads.insert @pads.index(at), pad
         else
+          paint_state = @clip_scene.put_paint pad.scene, true
           @pads << pad
         end
         layer&.break_layout
@@ -466,7 +476,6 @@ module Kredki
       def remove_pad pad, transfer
         removed = @pads.delete pad
         if removed && !transfer
-          pad.scene.clip! false
           layer&.break_layout
         end
         removed
@@ -476,7 +485,6 @@ module Kredki
         pads, @pads = @pads, []
         pads.each do |pad|
           pad.detach! true
-          pad.scene.clip! false
         end
         layer&.break_layout unless pads.empty?
       end
@@ -488,7 +496,7 @@ module Kredki
       def get_x pcw, sw, ax
         case @x
         when Rational
-          r = (pcw - sw) * @x.to_f
+          r = pcw * @x.to_f
           @x.denominator == 1 ? r / 100 : r
         when Proc
           @x[pcw, sw]
@@ -504,7 +512,7 @@ module Kredki
       def get_y pch, sh, ay
         case @y
         when Rational
-          r = (pch - sh) * @y.to_f
+          r = pch * @y.to_f
           @y.denominator == 1 ? r / 100 : r
         when Proc
           @y[pch, sh]
@@ -527,7 +535,7 @@ module Kredki
       end
 
       def layout_pads
-        pads.filter{ it.in_layout? }
+        pads.filter{ it.layoutic? }
       end
 
       def arrange_pads
@@ -709,21 +717,29 @@ module Kredki
       end
 
       def set_margin
-        x = @mxb + @stroke_size
-        y = @myb + @stroke_size
+        x = 0#@mxb + @stroke_size
+        y = 0#@myb + @stroke_size
         @clip_scene.xy! x, y
         @clip_area.xy! x, y
       end
 
-      def set_in_layout in_layout
-        @in_layout = in_layout
+      def set_layoutic layoutic
+        @layoutic = layoutic
         layer&.break_layout
         true
       end
 
+      def set_scenic scenic
+        @scene.set_show scenic
+      end
+
+      def get_scenic
+        @scene.show? true
+      end
+
       def set_show show
         show_before = show?
-        @scene.set_show show
+        self.scenic = self.layoutic = show
         show_after = show?
         if show_before != show_after
           if show_after
@@ -736,19 +752,19 @@ module Kredki
         end
       end
 
-      def get_show direct = true
-        @scene.show? direct
+      def get_show
+        @scene.show? false
       end
 
       def show_propagate
-        if get_show true
+        if get_scenic
           report ShowEvent.new
           @pads.each &:show_propagate
         end
       end
 
       def hide_propagate
-        if get_show true
+        if get_scenic
           report HideEvent.new
           @pads.each &:hide_propagate
         end
@@ -829,14 +845,14 @@ module Kredki
         @event_manager.resolve event, aim
       end
 
-      def c_set_parent
+      def c_set_parent at
         return if @pad_parent
-        set_pad_parent @parent&.grand Pad
+        set_pad_parent (@parent&.grand Pad), at
       end
 
-      def set_pad_parent pad_parent
+      def set_pad_parent pad_parent, at
         @pad_parent = pad_parent
-        @pad_parent&.put_pad self
+        @pad_parent&.put_pad self, at
       end
     end
   end

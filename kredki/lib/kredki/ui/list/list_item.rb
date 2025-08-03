@@ -1,0 +1,81 @@
+module Kredki
+  module UI
+    class ListItem < YItem
+      extend HasEventResolvers
+
+
+      class SimpleColorBasedTheme < Theme
+        model :color
+
+        def attach! pad
+          super pad,
+            pad.on_focus_enter!,
+            pad.on_focus_leave!,
+            pad.on_mouse_down!,
+            pad.on_mouse_up!,
+            pad.on_mouse_enter!,
+            pad.on_mouse_leave!
+        end
+
+        def repaint
+          @pad.area.fill_color = @pad.select? ? :text_selection : @pad.mouse_in? ? @color.lighten : @color
+          if @pad.keyboard_in?
+            @pad.area.stroke_size = 1
+            @pad.area.stroke_color = :stroke_focus
+          else
+            @pad.area.stroke_size = 0
+          end
+        end
+      end
+
+      def color_theme color
+        SimpleColorBasedTheme.new color
+      end
+
+      flag :select, set: :set_select
+
+      #internal api
+
+      def sketch p0
+        super
+
+        on_key_down! :up do |e|
+          select! if e.shift?
+          item = parent.update_select_item(:previous)
+          if item
+            item.select! if e.shift?
+            item.roi!
+          end
+          e.resolve
+        end
+
+        on_key_down! :down do |e|
+          select! if e.shift?
+          item = parent.update_select_item(:next)
+          if item
+            item.select! if e.shift?
+            item.roi!
+          end
+          e.resolve
+        end
+      end
+
+      def mouse_enter e
+      end
+
+      def mouse_down e
+        parent.select_up_to self if keyboard.shift?
+        super
+      end
+
+      def min_w
+        @text.fit_w
+      end
+
+      def set_select select
+        @select = select
+        @theme.repaint
+      end
+    end
+  end
+end

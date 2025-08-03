@@ -1,9 +1,9 @@
-require_relative 'list_item_group'
-require_relative 'list_item'
+require_relative 'tree_list_item_group'
+require_relative 'tree_list_item'
 
 module Kredki
   module UI
-    class List < Pad
+    class TreeList < Pad
       extend Forwardable
       extend HasParams
       extend HasEventResolvers

@@ -111,8 +111,11 @@ module Kredki
     def_paint :picture!, Picture
     def_paint :text!, Text
     def_paint :scene!, Scene
-    def_paint :animation! do |scene, a, b, _show: true, _index: nil, **na|
-      new_animation(_show, _index).alter *a, **na, &b
+    # def_paint :animation! do |scene, a, b, _show: true, _index: nil, **na|
+    #   new_animation(_show, _index).alter *a, **na, &b
+    # end
+    def_paint :animation!, true do
+      new_animation
     end
   end
 end

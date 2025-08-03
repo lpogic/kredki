@@ -8,10 +8,10 @@ end
 
 module Kredki
 
-  PS = POSITION_START = proc{ 0 }
-  PC = POSITION_CENTER = proc{ (_1 - _2) / 2 }
-  PE = POSITION_END = proc{ _1 - _2 }
-  PCS = POSITION_CENTER_START = proc{|a, b| a > b ? POSITION_CENTER[a, b] : POSITION_START[a, b] }
+  PB = POSITION_BEGIN = proc{ (_2 - _1) * 0.5 }
+  PC = POSITION_CENTER = proc{ 0 }
+  PE = POSITION_END = proc{ (_1 - _2) * 0.5 }
+  PCB = POSITION_CENTER_BEGIN = proc{|a, b| a > b ? POSITION_CENTER[a, b] : POSITION_BEGIN[a, b] }
   PCE = POSITION_CENTER_END = proc{|a, b| a > b ? POSITION_CENTER[a, b] : POSITION_END[a, b] }
 
   module UI
@@ -50,6 +50,7 @@ module Kredki
   require_relative 'ui/note_dropdown/note_dropdown'
   require_relative 'ui/table'
   require_relative 'ui/list/list'
+  require_relative 'ui/list/tree_list'
   require_relative 'ui/context_menu/context_menu'
   require_relative 'ui/toolbar_menu/toolbar_menu'
 
@@ -59,43 +60,43 @@ module Kredki
 
   UI.layouts = {
     nil => UI::Layout::Basic.new(0, 0),
-    center: UI::Layout::Basic.new(PC, PC),
+    center: UI::Layout::Basic.new(0, 0),
     column: UI::Layout::Yway.new(0, 0),
     row: UI::Layout::Xway.new(0, 0),
 
-    c: UI::Layout::Basic.new(PC, PC),
+    c: UI::Layout::Basic.new(0, 0),
     x: UI::Layout::Xway.new(0, 0),
-    xc: UI::Layout::Xway.new(PC, PC),
-    xcc: UI::Layout::Xway.new(PC, PC),
+    xc: UI::Layout::Xway.new(0, 0),
+    xcc: UI::Layout::Xway.new(0, 0),
     y: UI::Layout::Yway.new(0, 0),
-    yc: UI::Layout::Yway.new(PC, PC),
-    ycc: UI::Layout::Yway.new(PC, PC),
+    yc: UI::Layout::Yway.new(0, 0),
+    ycc: UI::Layout::Yway.new(0, 0),
 
-    bb: UI::Layout::Basic.new(0, 0),
-    xbb: UI::Layout::Xway.new(0, 0),
-    ybb: UI::Layout::Yway.new(0, 0),
-    eb: UI::Layout::Basic.new(PE, 0),
-    xeb: UI::Layout::Xway.new(PE, 0),
-    yeb: UI::Layout::Yway.new(PE, 0),
-    be: UI::Layout::Basic.new(0, PE),
-    xbe: UI::Layout::Xway.new(0, PE),
-    ybe: UI::Layout::Yway.new(0, PE),
+    bb: UI::Layout::Basic.new(PB, PB),
+    xbb: UI::Layout::Xway.new(PB, PB),
+    ybb: UI::Layout::Yway.new(PB, PB),
+    eb: UI::Layout::Basic.new(PE, PB),
+    xeb: UI::Layout::Xway.new(PE, PB),
+    yeb: UI::Layout::Yway.new(PE, PB),
+    be: UI::Layout::Basic.new(PB, PE),
+    xbe: UI::Layout::Xway.new(PB, PE),
+    ybe: UI::Layout::Yway.new(PB, PE),
     ee: UI::Layout::Basic.new(PE, PE),
     xee: UI::Layout::Xway.new(PE, PE),
     yee: UI::Layout::Yway.new(PE, PE),
 
-    bc: UI::Layout::Basic.new(0, PC),
-    xbc: UI::Layout::Xway.new(0, PC),
-    ybc: UI::Layout::Yway.new(0, PC),
-    ec: UI::Layout::Basic.new(PE, PC),
-    xec: UI::Layout::Xway.new(PE, PC),
-    yec: UI::Layout::Yway.new(PE, PC),
-    cb: UI::Layout::Basic.new(PC, 0),
-    xcb: UI::Layout::Xway.new(PC, 0),
-    ycb: UI::Layout::Yway.new(PC, 0),
-    ce: UI::Layout::Basic.new(PC, PE),
-    xce: UI::Layout::Xway.new(PC, PE),
-    yce: UI::Layout::Yway.new(PC, PE),
+    bc: UI::Layout::Basic.new(PB, 0),
+    xbc: UI::Layout::Xway.new(PB, 0),
+    ybc: UI::Layout::Yway.new(PB, 0),
+    ec: UI::Layout::Basic.new(PE, 0),
+    xec: UI::Layout::Xway.new(PE, 0),
+    yec: UI::Layout::Yway.new(PE, 0),
+    cb: UI::Layout::Basic.new(0, PB),
+    xcb: UI::Layout::Xway.new(0, PB),
+    ycb: UI::Layout::Yway.new(0, PB),
+    ce: UI::Layout::Basic.new(0, PE),
+    xce: UI::Layout::Xway.new(0, PE),
+    yce: UI::Layout::Yway.new(0, PE),
   }
 
   module UI
@@ -115,9 +116,9 @@ module Kredki
       def! :option_note!, NoteDropdown
       def! :table!, Table
       def! :list!, List
+      def! :tree_list!, TreeList
 
       def! :radios!, RadioGroup
-      def! :options!, OptionGroup
 
       def! :context_menu!, ContextMenu
       def! :toolbar_menu!, ToolbarMenu
@@ -138,11 +139,11 @@ class CarryFocusOnTab
           .lazy
           .drop_while{|p1| p0 != p1 }
           .drop(1)
-          .filter{ _1.keyboardy? }
+          .filter{ it.keyboardy? && it.show? }
           .first
       end || target.each_pad(reverse: event.shift?, deep: true)
         .lazy
-        .filter{ _1.keyboardy? }
+        .filter{ it.keyboardy? && it.show? }
         .first
       next_pad.keyboard_request if next_pad
     end

@@ -12,6 +12,7 @@ module Kredki
     extend HasParams
     
     def initialize
+      super
 
       @step_callback = Fiddle::Closure::BlockCaller.new(Fiddle::TYPE_VOID, [Fiddle::TYPE_INT], &proc.step)
 
@@ -19,9 +20,7 @@ module Kredki
       @animations = []
       @event_manager = ActionEventManager.new
       @event_director = EventDirector.new
-      @fill = nil
-
-      super
+      @fill = rectangle! xy: 0
     end
 
     attr :last_frame_ms
@@ -39,12 +38,9 @@ module Kredki
     end
 
     param def color! *color
-      if !@fill
-        @fill = rectangle! x: 0, y: 0, wh: wh
-        on_resize = proc{ @fill.wh = ~it }
-        on_window_resize! &on_resize
-      end
       @fill.fill_color = color.unpack_one
+    end, def color
+      @fill.fill_color
     end
 
     def job! repeat: false, run: true, &b
@@ -77,6 +73,8 @@ module Kredki
     end
 
     def sketch p0
+      
+      on_window_resize!{ @fill.wh = ~it }
       color! 0, 0, 0
     end
 
@@ -87,6 +85,11 @@ module Kredki
       else
         [x, y]
       end
+    end
+
+    def screen_translate x, y, target = nil
+      wx, wy = window.xy
+      translate x - wx, y - wy, target
     end
 
     def push_animation animation

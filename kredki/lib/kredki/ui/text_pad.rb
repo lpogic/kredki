@@ -77,7 +77,11 @@ module Kredki
           th = @verse_size == :auto ? (h + (@text.size - 1) * @linespace) / @text.size : @verse_size
           ls = th + @linespace
         else
-          th = @verse_size == :auto ? h / @text.size : @verse_size
+          if @text.size > 0
+            th = @verse_size == :auto ? h / @text.size : @verse_size
+          else
+            th = 0
+          end
           ls = th
         end
         [th, ls]
@@ -108,10 +112,10 @@ module Kredki
 
       def align_x tw, w
         case @verse_layout
-        when :c, :cc, :cb, :ce
+        when :b, :bb, :bc, :be
+          (tw - w) / 2
+        when :e, :eb, :ec, :ee
           (w - tw) / 2
-        when :e, :ec, :eb, :ee
-          w - tw
         else
           0
         end
@@ -119,10 +123,10 @@ module Kredki
 
       def align_y th, h
         case @verse_layout
-        when :c, :cc, :bc, :ec
+        when :b, :bb, :cb, :eb
+          (th - h) / 2
+        when :e, :be, :ce, :ee
           (h - th) / 2
-        when :ce, :be, :ee, :e
-          h - th
         else
           0
         end

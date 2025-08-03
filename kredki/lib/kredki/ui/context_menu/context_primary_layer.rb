@@ -6,9 +6,9 @@ module Kredki
 
       def load! x, y
         action = parent.action
-        x_max = action.w - @options.sw 
+        x_max = action.w - @items.sw 
         x = [x_max, 0].max if x > x_max
-        sh = @options.sh
+        sh = @items.sh
         y = [y - sh, 0].max if y + sh > action.h
         load_common x, y
       end
@@ -18,8 +18,8 @@ module Kredki
       def sketch p0
         super
 
-        on! Option::PickEvent, aim: true do |e|
-          if e.target.has_suboption?
+        on! Item::PickEvent, aim: true do |e|
+          if e.target.has_subitem?
             e.resolve
           else
             pad_detach

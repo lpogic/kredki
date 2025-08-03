@@ -153,6 +153,10 @@ void Window::getSize(int* x, int* y) {
     SDL_GetWindowSize(sdl_window, x, y);
 }
 
+void Window::getPosition(int* x, int* y) {
+    SDL_GetWindowPosition(sdl_window, x, y);
+}
+
 void Window::setTextInput(bool text_input) {
     if(text_input) {
         SDL_StartTextInput(sdl_window);

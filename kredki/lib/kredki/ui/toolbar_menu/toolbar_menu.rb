@@ -1,19 +1,19 @@
 require_relative '../context_menu/context_menu'
 require_relative 'toolbar_layer'
 require_relative 'toolbar_primary_layer'
-require_relative 'toolbar_option'
-require_relative 'toolbar_option_group'
+require_relative 'toolbar_item'
+require_relative 'toolbar_item_group'
 
 module Kredki
   module UI
     class ToolbarMenu < Pad
       extend HasEventResolvers
 
-      def option!(...)
-        @option_group.option!(...)
+      def item!(...)
+        @item_group.item!(...)
       end
 
-      event_resolver :on_pick!, Option::PickEvent
+      event_resolver :on_pick!, Item::PickEvent
 
       def initialize
         super
@@ -24,10 +24,10 @@ module Kredki
         layout! :xbc, space: 4
         color! :gray
       
-        @option_group = new ToolbarOptionGroup
+        @item_group = new ToolbarItemGroup
 
         on_pick! do |e|
-          keyboard_dispose unless e.target.has_suboption?
+          keyboard_dispose unless e.target.has_subitem?
         end
       end
 

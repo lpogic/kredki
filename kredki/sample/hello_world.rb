@@ -1,16 +1,11 @@
-require 'kredki/ui'
+require 'kredki'
 
-Kredki.run! do |a|
-  use! TerminateOnEsc
-  window.alter{ resizable!; always_top! }
-  color! 10, 30, 10
+color! 10, 30, 10
+layout! :center
 
-  layout! :center
-
-  button! m: 5 do
-    text << "Hello world!"
-    on_mouse_click! do
-      a.window.terminate!
-    end
+button! m: 5 do
+  text << "Hello world!"
+  on_click! do
+    R.terminate!
   end
 end

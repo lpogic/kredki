@@ -139,7 +139,7 @@ module Kredki
       end
 
       def push_service service, at = nil
-        service.set_parent self #, at
+        service.set_parent self, at
         case at
         when Integer
           @services.insert at, service
@@ -151,19 +151,23 @@ module Kredki
         service
       end
 
+      def service_index service
+        @services.index service
+      end
+
       def remove_service service
         @services.delete service
       end
 
-      def set_parent parent
+      def set_parent parent, at = nil
         if new_parent = @parent != parent
           @parent = parent
-          c_set_parent
+          c_set_parent at
         end
         new_parent
       end
 
-      def c_set_parent
+      def c_set_parent at
         @services.each{ it.set_parent self }
       end
 

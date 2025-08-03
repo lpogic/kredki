@@ -99,7 +99,7 @@ module Kredki
         lx = lxm = ly = lym = 0
 
         pad.arrange_pads.each do |p1|
-          if p1.in_layout?
+          if p1.layoutic?
             pw = p1.sw
             ph = p1.sh
             px = p1.get_x cw, pw, cx
@@ -154,7 +154,7 @@ module Kredki
         
         i = 0
         pad.arrange_pads.each do |p1|
-          if p1.in_layout?
+          if p1.layoutic?
             pw = p1.sw
             ph = p1.sh
             px = p1.get_x cw, pw, cx

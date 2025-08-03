@@ -12,9 +12,9 @@ module Kredki
         super
         
         # @corner existence is checked in put_pad
-        corner = new Pad, in_layout: false, color: :gray, h: 10, w: 10
-        @xslide = new HorizontalSlide, in_layout: false, h: 10
-        @yslide = new VerticalSlide, in_layout: false, w: 10
+        corner = new Pad, layoutic: false, color: :gray, h: 10, w: 10
+        @xslide = new HorizontalSlide, layoutic: false, h: 10
+        @yslide = new VerticalSlide, layoutic: false, w: 10
         @corner = corner
 
         @yslide.on_edit! do |e|

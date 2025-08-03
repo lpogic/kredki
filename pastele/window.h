@@ -98,6 +98,7 @@ class Window
     void setTitle(char* title);
     void setAlwaysOnTop(bool on_top);
     void getSize(int* x, int* y);
+    void getPosition(int* x, int* y);
     void setTextInput(bool text_input);
     bool getTextInput();
 

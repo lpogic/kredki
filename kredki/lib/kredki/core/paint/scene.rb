@@ -53,11 +53,8 @@ module Kredki
       end
     end
 
-    def new_animation show, index
-      animation = Animation.new
-      animation.base = action
-      put_paint animation.picture, show, index
-      animation
+    def new_animation show = true, at = nil
+      Animation.new.attach! self, show, at
     end
 
     def clear!

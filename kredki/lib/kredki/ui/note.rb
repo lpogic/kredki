@@ -86,9 +86,10 @@ module Kredki
             p1.arrange
             px = p1.get_x cw, pw, (get_c @x, cw, pw)
             py = p1.get_y ch, ph, (get_c @y, ch, ph)
+            p [px, py]
             p1.set_xy px, py
             p1.set_margin
-            if p1.in_layout?
+            if p1.layoutic?
               lx = [lx, px].min
               ly = [ly, py].min
               lw = [lw, pw].max
@@ -116,7 +117,7 @@ module Kredki
       def sketch p0
         super
 
-        layout! NoteLayout.new(0, 0)
+        layout! NoteLayout.new(PB, 0)
         mousy!
         keyboardy!
         stroke_size! 1

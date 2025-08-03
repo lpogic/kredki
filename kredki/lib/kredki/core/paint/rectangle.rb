@@ -31,8 +31,7 @@ module Kredki
     #internal api
 
     def redraw w, h
-      half_s = @stroke_size * 0.5
-      draw!.rectangle! half_s, half_s, w - @stroke_size, h - @stroke_size, @blunt.to_f
+      draw!.rectangle! w - @stroke_size, h - @stroke_size, @blunt.to_f
     end
 
     def set_stroke_size ...

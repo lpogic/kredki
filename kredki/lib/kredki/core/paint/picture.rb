@@ -6,13 +6,13 @@ module Kredki
     include Alterable
     include Area
 
-    def initialize
-      super Abi.picture_new
-      ObjectSpace.define_finalizer(self, self.class.proc.finalize(@pointer))
-
+    def initialize pointer = nil
       @w = 100
       @h = 100
       @redraw_flag = true
+      return super if pointer
+      super Abi.picture_new
+      ObjectSpace.define_finalizer(self, self.class.proc.finalize(@pointer))
     end
 
     def << param
@@ -33,7 +33,8 @@ module Kredki
       set_source source.to_s
       @source = source
       if pull_size
-        @w, @h = *get_size 
+        @w, @h = get_size
+        update_transform
       else
         @redraw_flag = true
       end
@@ -60,10 +61,15 @@ module Kredki
       Abi.picture_load @pointer, source
     end
 
+    def pivot
+      [@w * 0.5, @h * 0.5]
+    end
+
     def update
       if @redraw_flag
         @redraw_flag = false
         set_size @w, @h
+        update_transform
       end
       super
     end

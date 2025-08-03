@@ -58,16 +58,34 @@ module Kredki
         window_event abi.window_id, KeyUpEvent.new(Kredki.keyboard, abi)
       when 1024
         abi = Abi::MouseMotionEvent.new event_ptr
-        window_event abi.window_id, MouseMoveEvent.new(Kredki.mouse, abi)
+        event = MouseMoveEvent.new Kredki.mouse, abi
+        if window = @windows[abi.window_id]
+          abi.x -= window.w / 2
+          abi.y -= window.h / 2
+          window.resolve event
+        end
+        event
       when 1027
         abi = Abi::MouseWheelEvent.new event_ptr
         window_event abi.window_id, MouseScrollEvent.new(Kredki.mouse, abi)
       when 1025
         abi = Abi::MouseButtonEvent.new event_ptr
-        window_event abi.window_id, MouseButtonDownEvent.new(Kredki.mouse, abi)
+        event = MouseButtonDownEvent.new Kredki.mouse, abi
+        if window = @windows[abi.window_id]
+          abi.x -= window.w / 2
+          abi.y -= window.h / 2
+          window.resolve event
+        end
+        event
       when 1026
         abi = Abi::MouseButtonEvent.new event_ptr
-        window_event abi.window_id, MouseButtonUpEvent.new(Kredki.mouse, abi)
+        event = MouseButtonUpEvent.new Kredki.mouse, abi
+        if window = @windows[abi.window_id]
+          abi.x -= window.w / 2
+          abi.y -= window.h / 2
+          window.resolve event
+        end
+        event
       when 771
         abi = Abi::TextInputEvent.new event_ptr
         text_event = TextEvent.new(event_ptr, abi)
@@ -107,13 +125,21 @@ module Kredki
         abi = Abi::WindowEvent.new event_ptr
         window_event abi.window_id, WindowRestoreEvent.new(abi)
       when 0x20C
-        Kredki.mouse.in_window = true
         abi = Abi::WindowEvent.new event_ptr
-        window_event abi.window_id, WindowMouseEnterEvent.new(abi)
+        event = WindowMouseEnterEvent.new abi
+        if window = @windows[abi.window_id]
+          Kredki.mouse.in_window = true
+          window.resolve event
+        end
+        event
       when 0x20D
-        Kredki.mouse.in_window = false
         abi = Abi::WindowEvent.new event_ptr
-        window_event abi.window_id, WindowMouseLeaveEvent.new(abi)
+        event = WindowMouseLeaveEvent.new abi
+        if window = @windows[abi.window_id]
+          Kredki.mouse.in_window = false
+          window.resolve event
+        end
+        event
       when 0x20E
         abi = Abi::WindowEvent.new event_ptr
         window_event abi.window_id, WindowFocusGainEvent.new(abi)
@@ -183,7 +209,8 @@ module Kredki
       window.arena = self
       @window_threads[window_id] = Thread.new do
         loop do
-          sleep 0.0162
+          # sleep 0.0162
+          sleep 0.06
           Abi.window_update window.pointer
         end
       end

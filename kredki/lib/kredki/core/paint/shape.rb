@@ -10,7 +10,7 @@ module Kredki
       @stroke_color = nil
       stroke_join! :bevel
       @fill_color = Kredki.color
-      @is_clip = false
+      @is_mask = false
       set_fill_color *@fill_color.to_rgba_array
       update unless extended
     end
@@ -30,36 +30,45 @@ module Kredki
         @shape = shape
         @autoupdate = true
         Abi.shape_reset @shape.pointer if reset
+        xy! 0, 0
       end
 
       attr_accessor :autoupdate
 
-      def move_to! x, y
+      def xy! x, y = x
         Abi.shape_move_to @shape.pointer, x, y
+        @x = x
+        @y = y
         self
       end
   
-      def line_to! x, y
+      def line! x, y
         Abi.shape_line_to @shape.pointer, x, y
         @shape.update if @autoupdate
+        @x = x
+        @y = y
         self
       end
   
-      def curve_to! x, y, cx1, cy1, cx2, cy2
+      def curve! x, y, cx1, cy1, cx2, cy2
         Abi.shape_cubic_to @shape.pointer, cx1, cy1, cx2, cy2, x, y
         @shape.update if @autoupdate
+        @x = x
+        @y = y
         self
       end
 
-      def ellipse! x, y, r1, r2 = r1
-        Abi.shape_append_circle @shape.pointer, x, y, r1, r2
+      def ellipse! w, h = w
+        Abi.shape_append_circle @shape.pointer, @x, @y, w * 0.5, h * 0.5
         @shape.update if @autoupdate
+        xy! @x, @y
         self
       end
   
-      def rectangle! x, y, w, h = w, r1 = 0, r2 = r1
-        Abi.shape_append_rect @shape.pointer, x, y, w, h, r1, r2
+      def rectangle! w, h = w, r1 = 0, r2 = r1
+        Abi.shape_append_rect @shape.pointer, @x - w * 0.5, @y - h * 0.5, w, h, r1, r2
         @shape.update if @autoupdate
+        xy! @x, @y
         self
       end
   
@@ -135,12 +144,17 @@ module Kredki
     end
 
     class StrokeJoin
-      enum :bevel, :miter, :round
+      enum :bevel, :round, :miter
     end
 
     param def stroke_join! join
       return if @stroke_join == join
-      set_stroke_join StrokeJoin[join || :bevel].to_i
+      if join.is_a? Numeric
+        set_stroke_join StrokeJoin[:miter].to_i
+        set_stroke_miter_limit join
+      else
+        set_stroke_join StrokeJoin[join || :bevel].to_i
+      end
       @stroke_join = join
       update
     end
@@ -207,6 +221,10 @@ module Kredki
       Abi.shape_set_stroke_join @pointer, join
     end
 
+    def set_stroke_miter_limit limit
+      Abi.shape_set_stroke_miterlimit @pointer, limit
+    end
+
     def set_stroke_cap cap
       Abi.shape_set_stroke_cap @pointer, cap
     end
@@ -221,25 +239,6 @@ module Kredki
 
     def set_stroke_trim start, finish, simultaneous
       Abi.shape_set_stroke_trim @pointer, start, finish, simultaneous ? 1 : 0
-    end
-
-    def set_self_clip scene
-      @scene&.remove_paint self unless @is_clip
-      @scene = scene
-      @is_clip = true
-    end
-
-    def unset_self_clip
-      @scene = nil
-      @is_clip = false
-    end
-
-    def update
-      if @is_clip
-        @scene.update
-      else
-        super
-      end
     end
   end
 end 

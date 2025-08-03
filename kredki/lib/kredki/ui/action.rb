@@ -10,7 +10,7 @@ module Kredki
       def initialize
         super
         
-        @layers = []
+        @services = []
       end
 
       def s
@@ -88,7 +88,8 @@ module Kredki
 
         on_window_resize! do
           w, h = *wh
-          @layers.each do 
+          @services.each do 
+            it.set_xy w / 2, h / 2
             it.set_size w, h
             it.wh! w, h
           end
@@ -103,20 +104,20 @@ module Kredki
       end
 
       def arrange
-        update_mouse_location if @layers.count(&:arrange) > 0 || @mouse_stale
+        update_mouse_location if @services.count(&:arrange) > 0 || @mouse_stale
       end
 
       def pad_tree
-        @layers.map{ [it, it.pad_tree] }.to_h
+        @services.map{ [it, it.pad_tree] }.to_h
       end
 
       def build *a, **na, &block
-        @layers.last.alter *a, **na, &block
+        @services.last.alter *a, **na, &block
       end
 
       def mouse_event event
         arrange
-        @layers.reverse_each do |layer|
+        @services.reverse_each do |layer|
           event.target = nil
           if event.is_a? MouseButtonUpEvent
             event.drag = layer.mouse_pad_drag
@@ -130,7 +131,7 @@ module Kredki
       def update_mouse_location event = nil
         event ||= PositionEvent.new *mouse.xy
         xy = event.xy
-        @layers.reverse_each do |layer|
+        @services.reverse_each do |layer|
           if event.resolved?
             layer.clear_mouse_location xy
           else
@@ -142,7 +143,7 @@ module Kredki
       end
 
       def keyboard_event event
-        @layers.reverse_each.find do |layer|
+        @services.reverse_each.find do |layer|
           event.target = nil
           layer.keyboard_event event
           @event_director.resolve
@@ -160,15 +161,17 @@ module Kredki
         layer.action&.remove_pad layer
         put_paint layer.scene
         layer.set_pad_parent self
-        layer.set_size *wh
-        layer.wh! *wh
-        @layers << layer
+        w, h = wh
+        layer.set_xy w / 2, h / 2
+        layer.set_size w, h
+        layer.wh! w, h
+        @services << layer
         @mouse_stale = true
         layer
       end
 
       def remove_pad layer, transfer = false
-        @layers.delete layer
+        @services.delete layer
         @mouse_stale = true
       end
 

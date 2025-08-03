@@ -131,6 +131,7 @@ module Kredki
       def get_x pcw, sw, ax
         if @cursor.show?
           cx = @cursor.x + @cursor.w
+          p cx
           if sx + cx > sw
             sw - cx - @cursor.w / 2
           elsif sx + @cursor.x < 0
@@ -160,23 +161,25 @@ module Kredki
 
       def align_x tw, w
         case @verse_layout
-        when :c, :cc, :cb, :ce
-          (w - tw - @cursor.w) / 2
-        when :e, :ec, :eb, :ee
-          w - tw - @cursor.w
+        when :b, :bb, :bc, :be
+          (tw - w) / 2 + @cursor.w
+        when :e, :eb, :ec, :ee
+          (w - tw) / 2 - @cursor.w
         else
-          @cursor.w
+          0
         end
       end
 
       def cursor_position_for_coordinates x, y
         total = 0
         last = @text.last
+        p :D
         @text.each do |text|
-          if text.y + text.h < y && text != last
+          if text.y + text.h * 0.5 < y && text != last
             total += text.content.length + 1
           else
-            return total + text.nearest_character_index(x - text.x)
+            p [x, x - text.x + text.w * 0.5, text.nearest_character_index(x - text.x - text.w * 0.5)]
+            return total + text.nearest_character_index(x - text.x + text.w * 0.5)
           end
         end
         total > 0 ? total - 1 : 0

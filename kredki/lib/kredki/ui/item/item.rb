@@ -3,7 +3,7 @@ require_relative '../theme'
 
 module Kredki
   module UI
-    class Option < Pad
+    class Item < Pad
       extend HasEventResolvers
 
       def << arg
@@ -16,7 +16,7 @@ module Kredki
       end
 
       class PickEvent < Kredki::UI::Event
-        model :value
+        model :value, :origin
 
         def ~()
           @value
@@ -68,7 +68,7 @@ module Kredki
       #   @text
       # end
 
-      def has_suboption?
+      def has_subitem?
         false
       end
 
@@ -88,7 +88,7 @@ module Kredki
         super
 
         @theme = nil
-        @text = new TextPad, "Option", mousy: false
+        @text = new TextPad, "", mousy: false
       end
 
       def sketch p0
@@ -96,18 +96,16 @@ module Kredki
 
         keyboardy!
         theme! :gray
-        layout! :bc
-        # stroke! size: 5
-        # m! 2
+        layout! :xbc
         h! 24
         w! :fit
 
-        on_mouse_click! do
-          report PickEvent.new content
+        on_mouse_click! :primary do |e|
+          report PickEvent.new(content, e)
         end
 
         on_key! :space, :enter do |e|
-          report PickEvent.new content
+          report PickEvent.new(content, e)
           e.resolve
         end
       end

@@ -11,6 +11,51 @@ using namespace tvg;
 
 extern "C" {
 
+CABI void* matrix_new(void) {
+    auto self = new Matrix;
+    self->e11 = self->e22 = self->e33 = 1.0f;
+    self->e12 = self->e13 = self->e21 = self->e31 = self->e23 = self->e32 = 0.0f;
+    return self;
+}
+
+CABI void matrix_delete(const Matrix* self) {
+    delete self;
+}
+
+CABI void matrix_multiply(Matrix* a, const Matrix* b) {
+    float s1, s2, s3;
+    s1 = a->e11 * b->e11 + a->e12 * b->e21 + a->e13 * b->e31;
+    s2 = a->e11 * b->e12 + a->e12 * b->e22 + a->e13 * b->e32;
+    s3 = a->e11 * b->e13 + a->e12 * b->e23 + a->e13 * b->e33;
+    a->e11 = s1;
+    a->e12 = s2;
+    a->e13 = s3;
+    s1 = a->e21 * b->e11 + a->e22 * b->e21 + a->e23 * b->e31;
+    s2 = a->e21 * b->e12 + a->e22 * b->e22 + a->e23 * b->e32;
+    s3 = a->e21 * b->e13 + a->e22 * b->e23 + a->e23 * b->e33;
+    a->e21 = s1;
+    a->e22 = s2;
+    a->e23 = s3;
+    s1 = a->e31 * b->e11 + a->e32 * b->e21 + a->e33 * b->e31;
+    s2 = a->e31 * b->e12 + a->e32 * b->e22 + a->e33 * b->e32;
+    s3 = a->e31 * b->e13 + a->e32 * b->e23 + a->e33 * b->e33;
+    a->e31 = s1;
+    a->e32 = s2;
+    a->e33 = s3;
+}
+
+CABI void matrix_rotate(Matrix* self, float r, float x, float y) {
+    float c = cosf(r);
+    float s = sinf(r);
+    Matrix m = {c, -s, -x * c + y * s + x, s, c, -x * s - y * c + y, 0, 0, 1};
+    matrix_multiply(self, &m);
+}
+
+CABI void matrix_scale(Matrix* self, float r, float x, float y) {
+    Matrix m = {r, 0, x - x * r, 0, r, y - y * r, 0, 0, 1};
+    matrix_multiply(self, &m);
+}
+
 CABI void clipboard_set_text(char* text) {
     SDL_SetClipboardText(text);
 }
@@ -55,7 +100,7 @@ CABI uint32_t mouse_get_button_state(int index) {
 }
 
 CABI void mouse_get_cursor_position(Point* point) {
-    SDL_GetMouseState(&point->x, &point->y);
+    SDL_GetGlobalMouseState(&point->x, &point->y);
 }
 
 CABI void mouse_set_relative_mode(int set) {
@@ -208,6 +253,10 @@ CABI void window_get_size(pas::Window* self, IntPoint* point) {
     self->getSize(&point->x, &point->y);
 }
 
+CABI void window_get_position(pas::Window* self, IntPoint* point) {
+    self->getPosition(&point->x, &point->y);
+}
+
 CABI void window_set_text_input(pas::Window* self, int input) {
     self->setTextInput(input);
 }
@@ -254,88 +303,6 @@ CABI int sdl_get_ticks() {
     return (int)SDL_GetTicks();
 }
 
-
-/************************************************************************/
-/* Canvas API                                                           */
-/************************************************************************/
-
-// CABI void* swcanvas_new()
-// {
-//     return SwCanvas::gen().release();
-// }
-
-
-// CABI int canvas_delete(Canvas* canvas)
-// {
-//     if (!canvas) return TVG_RESULT_INVALID_ARGUMENT;
-//     delete(canvas);
-//     return TVG_RESULT_SUCCESS;
-// }
-
-
-// CABI int swcanvas_set_mempool(SwCanvas* canvas, int policy)
-// {
-//     if (!canvas) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) canvas->mempool(static_cast<SwCanvas::MempoolPolicy>(policy));
-// }
-
-
-// CABI int tvg_swcanvas_set_target(SwCanvas* canvas, uint32_t* buffer, uint32_t stride, uint32_t w, uint32_t h, int cs)
-// {
-//     if (!canvas) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) canvas->target(buffer, stride, w, h, static_cast<SwCanvas::Colorspace>(cs));
-// }
-
-
-// CABI int tvg_canvas_push(Canvas* canvas, Paint* paint)
-// {
-//     if (!canvas || !paint) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) canvas->push(unique_ptr<Paint>(paint));
-// }
-
-
-// CABI int tvg_canvas_clear(Canvas* canvas, int paints)
-// {
-//     if (!canvas) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) canvas->clear(paints);
-// }
-
-
-// CABI int tvg_canvas_update(Canvas* canvas)
-// {
-//     if (!canvas) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) canvas->update(nullptr);
-// }
-
-
-// CABI int tvg_canvas_update_paint(Canvas* canvas, Paint* paint)
-// {
-//     if (!canvas || !paint) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) canvas->update(paint);
-// }
-
-
-// CABI int tvg_canvas_draw(Canvas* canvas)
-// {
-//     if (!canvas) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) canvas->draw();
-// }
-
-
-// CABI int tvg_canvas_sync(Canvas* canvas)
-// {
-//     if (!canvas) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) canvas->sync();
-// }
-
-
-// CABI int tvg_canvas_set_viewport(Canvas* canvas, int32_t x, int32_t y, int32_t w, int32_t h)
-// {
-//     if (!canvas) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) canvas->viewport(x, y, w, h);
-// }
-
-
 // /************************************************************************/
 // /* Paint API                                                            */
 // /************************************************************************/
@@ -349,7 +316,6 @@ CABI void paint_delete(Paint* self)
     userEvent.data1 = self;
     event.user = userEvent;
     SDL_PushEvent(&event);
-    // delete(self);
 }
 
 
@@ -362,32 +328,46 @@ CABI void paint_set_rotation(Paint* self, float degree)
     self->rotate(degree);
 }
 
-
 CABI void paint_set_translation(Paint* self, float x, float y) {
     self->translate(x, y);
 }
 
+CABI void paint_set_transform_i(Paint* self, float px, float py, float x, float y, float r, float scale) {
+    // auto m = self->transform();
+    auto s = sinf(r);
+    auto c = cosf(r);
+    Matrix m = {c, -s, x - c * px + s * py, s, c, y - s * px - c * py, 0, 0, 1};
+    // auto ss = s * sinf(r);
+    // auto sc = s * cosf(r);
+    // auto rxx = rx + x;
+    // auto ryy = ry + y;
+    // Matrix m = {sc, -ss, sc * rxx - ss * ryy - s * rx, ss, sc, ss * rxx + sc * ryy - s * ry, 0, 0, 1};
+    // Matrix m = {c, -s, -x * c + y * s + x, s, c, -x * s - y * c + y, 0, 0, 1};
+    // Matrix m = {1, 0, x, 0, 1, y, 0, 0, 1};
+    // m.e11 = m.e22 = sc;
+    // m.e12 = -ss;
+    // m.e21 = ss;
+    // m.e13 = sc * rxx - ss * ryy - s * rx;
+    // m.e23 = ss * rxx + sc * ryy - s * ry;
+    self->transform(m);
+}
 
-// CABI int tvg_paint_set_transform(Tvg_Paint* paint, const Tvg_Matrix* m)
-// {
-//     if (!paint || !m) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) reinterpret_cast<Paint*>(paint)->transform(*(reinterpret_cast<const Matrix*>(m)));
-// }
+CABI void paint_set_transform(Paint* self, const Matrix* m) {
+    self->transform(*m);
+}
 
-
-// CABI int tvg_paint_get_transform(Tvg_Paint* paint, Tvg_Matrix* m)
-// {
-//     if (!paint || !m) return TVG_RESULT_INVALID_ARGUMENT;
-//     *reinterpret_cast<Matrix*>(m) = reinterpret_cast<Paint*>(paint)->transform();
-//     return TVG_RESULT_SUCCESS;
-// }
-
-
-// CABI Tvg_Paint* tvg_paint_duplicate(Tvg_Paint* paint)
-// {
-//     if (!paint) return nullptr;
-//     return (Tvg_Paint*) reinterpret_cast<Paint*>(paint)->duplicate();
-// }
+CABI void paint_get_transform(Paint* self, Matrix* m) {
+    auto t = self->transform();
+    m->e11 = t.e11;
+    m->e12 = t.e12;
+    m->e13 = t.e13;
+    m->e21 = t.e21;
+    m->e22 = t.e22;
+    m->e23 = t.e23;
+    m->e31 = t.e31;
+    m->e32 = t.e32;
+    m->e33 = t.e33;
+}
 
 CABI void paint_set_opacity(Paint* self, uint8_t opacity) {
     self->opacity(opacity);
@@ -405,35 +385,14 @@ CABI void paint_set_clip(Paint* self, Shape* clipper) {
     self->clip(clipper);
 }
 
-// CABI void paint_set_composite_method(Paint* self, Paint* mask, int method) {
-//     self->composite(mask ? unique_ptr<Paint>(mask) : nullptr, (CompositeMethod)method);
-// }
-
-// CABI int tvg_paint_get_composite_method(const Tvg_Paint* paint, const Tvg_Paint** target, Tvg_Composite_Method* method)
-// {
-//    if (!paint || !target || !method) return TVG_RESULT_INVALID_ARGUMENT;
-//    *reinterpret_cast<CompositeMethod*>(method) = reinterpret_cast<const Paint*>(paint)->composite(reinterpret_cast<const Paint**>(target));
-//    return TVG_RESULT_SUCCESS;
-// }
+CABI void paint_set_mask(Paint* self, Paint* target, int mask) {
+    self->mask(target, (MaskMethod)mask);
+}
 
 CABI void paint_set_blend_method(Paint* self, int method) {
     self->blend((BlendMethod)method);
 }
 
-// CABI int tvg_paint_get_blend_method(const Tvg_Paint* paint, Tvg_Blend_Method* method)
-// {
-//     if (!paint || !method) return TVG_RESULT_INVALID_ARGUMENT;
-//     *method = static_cast<Tvg_Blend_Method>(reinterpret_cast<const Paint*>(paint)->blend());
-//     return TVG_RESULT_SUCCESS;
-// }
-
-
-// CABI int tvg_paint_get_identifier(const Tvg_Paint* paint, Tvg_Identifier* identifier)
-// {
-//     if (!paint || !identifier) return TVG_RESULT_INVALID_ARGUMENT;
-//     *identifier = static_cast<Tvg_Identifier>(reinterpret_cast<const Paint*>(paint)->identifier());
-//     return TVG_RESULT_SUCCESS;
-// }
 
 /************************************************************************/
 /* Shape API                                                            */
@@ -454,7 +413,6 @@ CABI void shape_delete(Shape* self) {
     userEvent.data1 = self;
     event.user = userEvent;
     SDL_PushEvent(&event);
-    // delete(self);
 }
 
 
@@ -497,54 +455,15 @@ CABI void shape_append_circle(Shape* self, float cx, float cy, float rx, float r
     self->appendCircle(cx, cy, rx, ry);
 }
 
-
-// CABI int tvg_shape_append_path(Shape* self, const Tvg_Path_Command* cmds, uint32_t cmdCnt, const Tvg_Point* pts, uint32_t ptsCnt)
-// {
-//     if (!self) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) self->appendPath((const PathCommand*)cmds, cmdCnt, (const Point*)pts, ptsCnt);
-// }
-
-
-// CABI int tvg_shape_get_path_coords(const Shape* self, const Tvg_Point** pts, uint32_t* cnt)
-// {
-//     if (!self || !pts || !cnt) return TVG_RESULT_INVALID_ARGUMENT;
-//     *cnt = reinterpret_cast<const Shape*>(self)->pathCoords((const Point**)pts);
-//     return TVG_RESULT_SUCCESS;
-// }
-
-
-// CABI int tvg_shape_get_path_commands(const Shape* self, const Tvg_Path_Command** cmds, uint32_t* cnt)
-// {
-//     if (!self || !cmds || !cnt) return TVG_RESULT_INVALID_ARGUMENT;
-//     *cnt = reinterpret_cast<const Shape*>(self)->pathCommands((const PathCommand**)cmds);
-//     return TVG_RESULT_SUCCESS;
-// }
-
-
 CABI void shape_set_stroke_width(Shape* self, float width)
 {
     self->strokeWidth(width);
 }
 
-
-CABI float shape_get_stroke_width(Shape* self)
-{
-    return self->strokeWidth();
-}
-
-
 CABI void shape_set_stroke_color(Shape* self, uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
     self->strokeFill(r, g, b, a);
 }
-
-
-// CABI int shape_get_stroke_color(const Shape* self, uint8_t* r, uint8_t* g, uint8_t* b, uint8_t* a)
-// {
-//     if (!self) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) reinterpret_cast<const Shape*>(self)->strokeFill(r, g, b, a);
-// }
-
 
 // CABI int tvg_shape_set_stroke_linear_gradient(Shape* self, Tvg_Gradient* gradient)
 // {
@@ -571,88 +490,33 @@ CABI void shape_set_stroke_dash(Shape* self, const float* dashPattern, uint32_t 
     self->strokeDash(dashPattern, cnt);
 }
 
-// CABI int tvg_shape_get_stroke_dash(const Shape* self, const float** dashPattern, uint32_t* cnt, float* offset)
-// {
-//     if (!self) return TVG_RESULT_INVALID_ARGUMENT;
-//     *cnt = reinterpret_cast<const Shape*>(self)->strokeDash(dashPattern, offset);
-//     return TVG_RESULT_SUCCESS;
-// }
-
-
 CABI void shape_set_stroke_cap(Shape* self, int cap)
 {
     self->strokeCap((StrokeCap)cap);
 }
-
-
-CABI int shape_get_stroke_cap(Shape* self)
-{
-    return (int)self->strokeCap();
-}
-
 
 CABI void shape_set_stroke_join(Shape* self, int join)
 {
     self->strokeJoin((StrokeJoin)join);
 }
 
-
-CABI int shape_get_stroke_join(Shape* self)
+CABI void shape_set_stroke_miterlimit(Shape* self, float ml)
 {
-    return (int)self->strokeJoin();
+    self->strokeMiterlimit(ml);
 }
-
-
-// CABI int tvg_shape_set_stroke_miterlimit(Tvg_Paint* paint, float ml)
-// {
-//     if (!paint) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) reinterpret_cast<Shape*>(paint)->strokeMiterlimit(ml);
-// }
-
-
-// CABI int tvg_shape_get_stroke_miterlimit(const Tvg_Paint* paint, float* ml)
-// {
-//     if (!paint || !ml) return TVG_RESULT_INVALID_ARGUMENT;
-//     *ml = reinterpret_cast<const Shape*>(paint)->strokeMiterlimit();
-//     return TVG_RESULT_SUCCESS;
-// }
 
 CABI void shape_set_stroke_trim(Shape* self, float begin, float end, int simultaneous) {
     self->trimpath(begin, end, simultaneous);
 }
-
-// CABI int tvg_shape_get_stroke_trim(Tvg_Paint* paint, float* begin, float* end, bool* simultaneous)
-// {
-//     if (!paint) return TVG_RESULT_INVALID_ARGUMENT;
-//     if (simultaneous) *simultaneous = reinterpret_cast<Shape*>(paint)->strokeTrim(begin, end);
-//     return TVG_RESULT_SUCCESS;
-// }
-
 
 CABI void shape_set_fill_color(Shape* self, uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
     self->fill(r, g, b, a);
 }
 
-
-// CABI int tvg_shape_get_fill_color(const Tvg_Paint* paint, uint8_t* r, uint8_t* g, uint8_t* b, uint8_t* a)
-// {
-//     if (!paint) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) reinterpret_cast<const Shape*>(paint)->fillColor(r, g, b, a);
-// }
-
-
 CABI void shape_set_fill_rule(Shape* self, int rule) {
     self->fill((FillRule)rule);
 }
-
-
-// CABI int tvg_shape_get_fill_rule(const Tvg_Paint* paint, Tvg_Fill_Rule* rule)
-// {
-//     if (!paint || !rule) return TVG_RESULT_INVALID_ARGUMENT;
-//     *rule = (Tvg_Fill_Rule) reinterpret_cast<const Shape*>(paint)->fillRule();
-//     return TVG_RESULT_SUCCESS;
-// }
 
 CABI void shape_set_paint_order(Shape* self, int strokeFirst) {
     self->order(strokeFirst);
@@ -703,20 +567,6 @@ CABI void picture_set_size(Picture* self, float w, float h) {
 CABI void picture_get_size(Picture* self, Point* size) {
     self->size(&size->x, &size->y);
 }
-
-
-// CABI int tvg_picture_set_size(Tvg_Paint* paint, float w, float h)
-// {
-//     if (!paint) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) reinterpret_cast<Picture*>(paint)->size(w, h);
-// }
-
-
-// CABI int tvg_picture_get_size(const Tvg_Paint* paint, float* w, float* h)
-// {
-//     if (!paint) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) reinterpret_cast<const Picture*>(paint)->size(w, h);
-// }
 
 
 // /************************************************************************/
@@ -877,7 +727,6 @@ CABI void text_delete(Text* self) {
     userEvent.data1 = self;
     event.user = userEvent;
     SDL_PushEvent(&event);
-    // delete(self);
 }
 
 CABI void text_set_font(Text* self, const char* name, float size, const char* style) {
@@ -1011,7 +860,6 @@ CABI void animation_delete(Animation* self) {
     userEvent.data1 = self;
     event.user = userEvent;
     SDL_PushEvent(&event);
-    // delete(self);
 }
 
 

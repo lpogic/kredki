@@ -1,5 +1,6 @@
 module Kredki
   class Paint
+    include Alterable
     extend HasFlags
     extend HasParams
 
@@ -12,7 +13,6 @@ module Kredki
       @scale = 1
       @opacity = 255
       @blend = nil
-      @clip = nil
     end
 
     def to_hash
@@ -32,24 +32,23 @@ module Kredki
 
     param def x! x
       return if @x == x
-      set_translation x.to_f, @y.to_f
       @x = x
+      update_transform
       update
     end
 
     param def y! y
       return if @y == y
-      set_translation @x.to_f, y.to_f
       @y = y
+      update_transform
       update
     end
 
-    param def xy! x, y = nil
-      y ||= x
+    param def xy! x, y = x
       return if @x == x && @y == y
-      set_translation x.to_f, y.to_f
       @x = x
       @y = y
+      update_transform
       update
     end, def xy
       [@x, @y]
@@ -57,15 +56,15 @@ module Kredki
 
     param def rotation! rotation
       return if @rotation == rotation
-      set_rotation rotation.to_f
       @rotation = rotation
+      update_transform
       update
     end
 
     param def scale! scale
       return if @scale == scale
-      set_scale scale.to_f
       @scale = scale
+      update_transform
       update
     end
 
@@ -98,9 +97,25 @@ module Kredki
     def clip! clip
       clip = nil unless clip
       return if @clip == clip
-      @clip&.unset_self_clip
-      clip&.set_self_clip self
-      set_clip clip&.pointer
+      @clip&.unset_masking
+      clip&.set_masking self
+      set_clip clip
+      @clip = clip
+      update
+    end
+
+    class MaskMethod
+      enum :none, :alpha, :inv_alpha, :luma, :inv_luma
+      # :add, :substract, :intersect, :difference, :lighten, :darken
+    end
+
+    param def mask! mask, target = nil
+      return if @mask == mask && @mask_target == target
+      @mask_target&.unset_masking
+      target&.set_masking self
+      set_mask MaskMethod[mask || :none].to_i, target
+      @mask = mask
+      @mask_target = target
       update
     end
     
@@ -109,9 +124,9 @@ module Kredki
       @scene = nil
     end
 
-    def attach! scene
+    def attach! scene, show = true, at = nil
       @scene&.remove_paint self
-      scene.put_paint self
+      scene.put_paint self, show, at
       @scene = scene
     end
 
@@ -142,9 +157,24 @@ module Kredki
       "#{self.class}:#{object_id}"
     end
 
+    def set_masking scene
+      @scene&.remove_paint self unless @is_mask
+      @scene = scene
+      @is_mask = true
+    end
+
+    def unset_masking
+      @scene = nil
+      @is_mask = false
+    end
+
     def update
-      @scene&.update_paint self
-      true
+      if @is_mask
+        @scene.update
+      else
+        @scene&.update_paint self
+        true
+      end
     end
 
     def set_show show
@@ -155,29 +185,24 @@ module Kredki
       @scene&.paint_shown self, direct
     end
 
-    # def set_composite_method mask, method
-    #   Abi.paint_set_composite_method @pointer, mask&.pointer, method
-    #   update
-    # end
-
-    def set_clip mask
-      Abi.paint_set_clip @pointer, mask
+    def set_clip target
+      Abi.paint_set_clip @pointer, target&.pointer
     end
 
-    def set_rotation rotation
-      Abi.paint_set_rotation @pointer, rotation
-    end
-
-    def set_scale scale
-      Abi.paint_set_scale @pointer, scale
+    def set_mask mask, target
+      Abi.paint_set_mask @pointer, target&.pointer, mask
     end
 
     def set_opacity opacity
       Abi.paint_set_opacity @pointer, opacity
     end
 
-    def set_translation x, y
-      Abi.paint_set_translation @pointer, x, y
+    def pivot
+      [0, 0]
+    end
+
+    def update_transform
+      Abi.paint_set_transform_i @pointer, *pivot, @x, @y, @rotation, @scale
     end
 
     def set_blend blend

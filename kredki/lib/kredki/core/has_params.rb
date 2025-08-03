@@ -1,6 +1,10 @@
 module Kredki
   module HasParams
 
+    def self.extended mod
+      mod.extend Forwardable
+    end
+
     def aliasing name, *aliases
       aliases.each{ alias_method it, name }
     end

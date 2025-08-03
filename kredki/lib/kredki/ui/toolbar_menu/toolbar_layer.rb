@@ -3,7 +3,7 @@ module Kredki
     class ToolbarLayer < Layer
 
       def load_common x, y
-        @options.xy! x, y
+        @items.xy! x, y
         parent.action.push_layer self
         break_layout
       end
@@ -17,15 +17,15 @@ module Kredki
         !!@pad_parent
       end
 
-      attr :options, :option_group
+      attr :items, :item_group
 
       #internal api
 
       def initialize
         super
 
-        @options = new ContextPad, stroke: {size: 1, color: :dark_gray}
-        @option_group = @options.new ContextOptionGroup
+        @items = new ContextPad, stroke: {size: 1, color: :dark_gray}
+        @item_group = @items.new ContextItemGroup
       end
 
       def mouse_down e

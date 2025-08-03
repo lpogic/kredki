@@ -28,7 +28,7 @@ module Kredki
     end
 
     def contain? x, y
-      x >= 0 && y >= 0 && x <= @w && y <= @h
+      x.abs * 2 <= @w && y.abs * 2 <= @h
     end
   end
 end

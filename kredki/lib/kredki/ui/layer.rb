@@ -191,7 +191,7 @@ module Kredki
         return false
       end
 
-      def set_parent parent
+      def set_parent parent, at = nil
         return if @parent == parent
         @parent = parent
       end

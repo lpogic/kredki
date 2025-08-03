@@ -58,7 +58,9 @@ module Kredki
 
     param def xy! x, y
       set_position x, y
-    end, false
+    end, def xy
+      get_position
+    end
 
     flag :resizable, set: :set_resizable
 
@@ -172,6 +174,12 @@ module Kredki
 
     def set_position x, y
       Abi.window_set_position @pointer, x, y
+    end
+
+    def get_position
+      point = Abi::IntPoint.malloc(Fiddle::RUBY_FREE)
+      Abi.window_get_position @pointer, point
+      [point.x, point.y]
     end
 
     def set_resizable set

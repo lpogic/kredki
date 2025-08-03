@@ -1,15 +1,15 @@
 require_relative '../text_pad'
 require_relative '../theme'
-require_relative '../option/y_option'
+require_relative '../item/y_item'
 
 module Kredki
   module UI
-    class ContextOption < YOption
+    class ContextItem < YItem
 
       flag :arrow
 
-      def option!(...)
-        dropdown!.option_group.option!(...)
+      def item!(...)
+        dropdown!.item_group.item!(...)
       end
 
       param def dropdown! ...
@@ -28,8 +28,8 @@ module Kredki
         @dropdown.alter(...)
       end
 
-      def has_suboption?
-        @dropdown&.[](Option)
+      def has_subitem?
+        @dropdown&.[](Item)
       end
 
       #internal api
@@ -46,7 +46,7 @@ module Kredki
         on_key_down! :right do |e|
           if @dropdown
             @dropdown.load! self unless @dropdown.loaded?
-            @dropdown[Option]&.focus! and e.resolve
+            @dropdown[Item]&.focus! and e.resolve
           end
         end
       end

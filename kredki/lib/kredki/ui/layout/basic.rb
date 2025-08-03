@@ -11,7 +11,7 @@ module Kredki
         def get_c cr, pc, sc
           case cr
           when Rational 
-            r = (pc - sc) * cr.to_f
+            r = pc * cr.to_f
             cr.denominator == 1 ? r / 100 : r
           when Proc
             cr[pc, sc]
@@ -94,7 +94,7 @@ module Kredki
             p1.set_xy px, py
             p1.set_margin
             p1.arrange
-            if p1.in_layout?
+            if p1.layoutic?
               lx = [lx, px].min
               ly = [ly, py].min
               lw = [lw, pw].max

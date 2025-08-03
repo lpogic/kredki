@@ -12,7 +12,7 @@ end
 extend Kredki
 use! TerminateOnEsc
 use! CarryFocusOnTab
-window.alter{ resizable!; text_input!; always_top! }
+window.alter{ resizable!; text_input! }
 color! 110, 301, 101
 
 at_exit do

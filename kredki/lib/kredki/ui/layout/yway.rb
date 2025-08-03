@@ -51,31 +51,34 @@ module Kredki
 
           cy = case @y
           when Rational 
-            r = (ch - sh) * @y.to_f
+            r = ch * @y.to_f
             @y.denominator == 1 ? r / 100 : r
           when Proc
             @y[ch, sh]
           when Numeric
-            @y < 0 ? ch - sh + @y : @y
+            @y
           else raise @y
           end
+          cy -= sh * 0.5
 
           lx = lxm = ly = lym = 0
 
           pad.arrange_pads.each do |p1|
-            if p1.in_layout?
+            if p1.layoutic?
               pw = p1.sw
               ph = p1.sh
+              hph = ph * 0.5
+              cy += hph
               px = p1.get_x cw, pw, (get_c @x, cw, pw)
               py = p1.get_y ch, ph, cy
               p1.set_xy px, py
               p1.set_margin
               p1.arrange
-              cy += ph + space
+              cy += hph + space
               lx = [lx, px].min
-              ly = [ly, py].min
+              ly = [ly, py - hph].min
               lxm = [lxm, px + pw].max
-              lym = [lym, py + ph].max
+              lym = [lym, py + hph].max
             else
               pw = get_w p1, p1.w, cw
               ph = get_h p1, p1.h, ch
