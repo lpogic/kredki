@@ -5,12 +5,13 @@ module Kredki
     class ContextPrimaryLayer < ContextLayer
 
       def load! x, y
+        arrange
         action = parent.action
         x_max = action.w - @items.sw 
         x = [x_max, 0].max if x > x_max
         sh = @items.sh
         y = [y - sh, 0].max if y + sh > action.h
-        load_common x, y
+        load_common x + @items.area.xs, y + @items.area.ys
       end
 
       #internal api

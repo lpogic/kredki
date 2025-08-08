@@ -78,7 +78,8 @@ when /cygwin|mswin|mingw|bccwin|wince|emx/
           log: false,
           strip: false,
           threads: false,
-          tests: false
+          tests: false,
+          partial: false # unstable at the moment
         }.map{|k, v| "-D#{k}=#{v}" }.join(" ")
         sh $msbuild, "#$thorvg/builddir/thorvg.sln", "-m"
       end

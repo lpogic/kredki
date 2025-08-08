@@ -1,20 +1,14 @@
-require_relative 'text_navigation'
-
 module Kredki
   module UI
     class NavigableText < TextPad
-      include TextNavigation
 
       attr :selection_min, :selection_max, :cursor
       attr_accessor :cursor_position
       
       def content! content = @content, reset_cursor = false, &b
-        super(content, &b) and begin
-          if @selection.size != @text.size
-            @selection.each{ it.detach! }
-            @selection = @text.map{ @scene.rectangle! fill_color: :text_selection, at: @cursor }
-          end
-          true
+        if super(content, &b) && @selection.size != @verses.size
+          @selection.clear!
+          @verses.each{ @selection.rectangle! fill_color: :text_selection, w: 0 }
         end
         self.reset_cursor if reset_cursor
       end
@@ -119,23 +113,26 @@ module Kredki
         super
 
         @cursor_position = @selection_min = @selection_max = 0
+        @selection = @scene.scene!
         @cursor = @scene.rectangle! fill_color: :text, w: 2, show: false
-        @selection = []
       end
 
-      def arrange
+      def fit_w
+        super + @cursor.w * 2
+      end
+
+      def set_size w, h # works until set_size is called before get_x/get_y
         super
-        update_cursor
+        update_cursor if @cursor.show?
       end
 
       def get_x pcw, sw, ax
         if @cursor.show?
-          cx = @cursor.x + @cursor.w
-          p cx
-          if sx + cx > sw
-            sw - cx - @cursor.w / 2
-          elsif sx + @cursor.x < 0
-            -@cursor.x + @cursor.w / 2
+          hp = pcw * 0.5
+          if @cursor.x + sx < -hp
+            @cursor.xs - hp - @cursor.x
+          elsif @cursor.x + sx > hp
+            hp - @cursor.x - @cursor.xs
           else
             sx
           end
@@ -146,11 +143,11 @@ module Kredki
 
       def get_y pch, sh, ay
         if @cursor.show?
-          cy = cursor.y + cursor.h
-          if sy + cy > sh
-            sh - cy
-          elsif sy + cursor.y < 0
-            -cursor.y
+          hp = pch * 0.5
+          if @cursor.y + sy < -hp
+            @cursor.ys - hp - @cursor.y
+          elsif @cursor.y + sy > hp
+            hp - @cursor.y - @cursor.ys
           else
             sy
           end
@@ -172,14 +169,12 @@ module Kredki
 
       def cursor_position_for_coordinates x, y
         total = 0
-        last = @text.last
-        p :D
-        @text.each do |text|
-          if text.y + text.h * 0.5 < y && text != last
-            total += text.content.length + 1
+        last = @verses.last
+        @verses.each do |v|
+          if v.y + v.ys < y && v != last
+            total += v.content.length + 1
           else
-            p [x, x - text.x + text.w * 0.5, text.nearest_character_index(x - text.x - text.w * 0.5)]
-            return total + text.nearest_character_index(x - text.x + text.w * 0.5)
+            return total + v.nearest_character_index(x - v.x + v.xs)
           end
         end
         total > 0 ? total - 1 : 0
@@ -188,54 +183,54 @@ module Kredki
       def update_cursor
         total = -1
         @cursor.h! @verse_size if @verse_size != :auto
-        @cursor.xy! align_x(@cursor.w / 2, sw), align_y(@cursor.h, sh)
-        @text.each do |text|
+        @cursor.xy! align_x(@cursor.xs, sw), align_y(@cursor.h, sh)
+        @verses.each do |verse|
           total += 1
-          if @cursor_position <= total + text.content.length
-            x = text.substring_width @cursor_position - total
-            @cursor.h! text.h
-            @cursor.xy! text.x + x - @cursor.w / 2, text.y
+          if @cursor_position <= total + verse.content.length
+            @cursor.h! verse.h
+            x = verse.substring_width @cursor_position - total
+            @cursor.xy! x + verse.x - verse.xs, verse.y
             break
           end
-          total += text.content.length
+          total += verse.content.length
         end
 
         total = -1
-        @text.each_with_index do |text, i|
+        @verses.zip @selection.each_paint do |v, s|
           total += 1
-          next_total = total + text.content.length
+          next_total = total + v.content.length
           if @selection_min == @selection_max || @selection_min > next_total || @selection_max <= total
-            @selection[i].w! 0
+            s.w! 0
           elsif @selection_min <= total && @selection_max >= next_total
-            @selection[i].wh! *text.wh
-            @selection[i].xy! *text.xy
+            s.wh! *v.wh
+            s.xy! *v.xy
           elsif @selection_max >= next_total
-            x1 = text.substring_width @selection_min - total
-            @selection[i].wh! text.w - x1, text.h
-            @selection[i].xy! text.x + x1, text.y
+            x1 = v.substring_width @selection_min - total
+            s.wh! v.w - x1, v.h
+            s.xy! v.x + x1 * 0.5, v.y
           elsif @selection_min <= total
-            x1 = text.substring_width @selection_max - total
-            @selection[i].wh! x1, text.h
-            @selection[i].xy! *text.xy
+            x1 = v.substring_width @selection_max - total
+            s.wh! x1, v.h
+            s.xy! v.x - v.xs + x1 * 0.5, v.y
           else
-            x1 = text.substring_width @selection_min - total
-            x2 = text.substring_width @selection_max - total
-            @selection[i].wh! x2 - x1, text.h
-            @selection[i].xy! text.x + x1, text.y
+            x1 = v.substring_width @selection_min - total
+            x2 = v.substring_width @selection_max - total
+            s.wh! x2 - x1, v.h
+            s.xy! v.x - v.xs + (x1 + x2) * 0.5, v.y
           end
           total = next_total
         end
       end
 
       def cursor_up shift
-        prev_text = nil
-        cursor_position = @text.reduce -1 do |total, text|
+        prev_v = nil
+        cursor_position = @verses.reduce -1 do |total, v|
           total += 1
-          if total + text.content.length >= @cursor_position
-            break prev_text ? total - prev_text.content.length + prev_text.nearest_character_index(@cursor.x - prev_text.x) - 1 : 0
+          if total + v.content.length >= @cursor_position
+            break prev_v ? total - prev_v.content.length + prev_v.nearest_character_index(@cursor.x - prev_v.x + prev_v.xs) - 1 : 0
           end
-          prev_text = text
-          total + text.content.length
+          prev_v = v
+          total + v.content.length
         end
         if shift
           if @cursor_position == @selection_min
@@ -258,12 +253,12 @@ module Kredki
       end
 
       def cursor_down shift
-        cursor_position = @text.reduce -1 do |total, text|
+        cursor_position = @verses.reduce -1 do |total, v|
           total += 1
           if total > @cursor_position
-            break total + text.nearest_character_index(@cursor.x - text.x)
+            break total + v.nearest_character_index(@cursor.x - v.x + v.xs)
           end
-          total + text.content.length
+          total + v.content.length
         end
         if shift
           if @cursor_position == @selection_max
@@ -289,8 +284,8 @@ module Kredki
         cursor_position = if ctrl
           0
         else
-          @text.reduce -1 do |total, text|
-            length = text.content.length
+          @verses.reduce -1 do |total, v|
+            length = v.content.length
             total += 1
             break total if total + length >= @cursor_position
             total + length
@@ -319,9 +314,9 @@ module Kredki
         cursor_position = if ctrl
           content.length
         else
-          @text.reduce -1 do |total, text|
+          @verses.reduce -1 do |total, v|
             break total if total >= @cursor_position
-            total + 1 + text.content.length
+            total + 1 + v.content.length
           end
         end
 

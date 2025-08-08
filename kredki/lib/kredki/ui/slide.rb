@@ -98,11 +98,14 @@ module Kredki
         h! 10
 
         @handle = new Pad, color: :gray do
+          x0 = 0
           on_mouse_move! do |e|
             if e.drag
-              start_x = layer&.pin_xy[0]
-              max_x = p0.sw - sw
-              x = [[0, e.x - start_x].max, max_x].min
+              s = sw
+              max_x = p0.sw - s
+              x0 = sx + max_x * 0.5 if e.drag == :start
+              start_x = layer.pin_xy[0]
+              x = [[0, x0 + e.x - start_x].max, max_x].min
               p0.value! 1.0 * x / max_x, false
               e.resolve
             end
@@ -110,7 +113,7 @@ module Kredki
         end
     
         on_mouse_down! :primary do |e|
-          @handle.drag! @handle.translate(@handle.sw / 2, 0), :primary
+          @handle.drag! @handle.translate, :primary
           e.resolve
           e.break
         end
@@ -120,10 +123,10 @@ module Kredki
 
       def arrange lw = nil
         w = cw
-        lw ||= 2 * w
+        lw ||= 3 * w
         hw = (w.to_f / lw * w).clamp 20, [w - 20, 20].max
-        @handle.set_size hw, 10
-        @handle.set_xy (w - hw) * @value, 0
+        @handle.set_size hw, sh
+        @handle.set_xy (w - hw) * (@value - 0.5), 0
       end
     end
 
@@ -135,14 +138,14 @@ module Kredki
         w! 10
 
         @handle = new Pad, color: :gray do
-        
-          drag_y = 0
+          y0 = 0
           on_mouse_move! do |e|
             if e.drag
-              drag_y = sy if e.drag == :start
+              s = sh
+              max_y = p0.sh - s
+              y0 = sy + max_y * 0.5 if e.drag == :start
               start_y = layer&.pin_xy[1]
-              max_y = p0.sh - sh
-              y = [[0, drag_y + e.y - start_y].max, max_y].min
+              y = [[0, y0 + e.y - start_y].max, max_y].min
               p0.value! 1.0 * y / max_y, false
               e.resolve
             end
@@ -151,7 +154,7 @@ module Kredki
         end
 
         on_mouse_down! :primary do |e|
-          @handle.drag! @handle.translate(0, @handle.sh / 2), :primary
+          @handle.drag! @handle.translate, :primary
           e.resolve
           e.break
         end
@@ -161,10 +164,10 @@ module Kredki
 
       def arrange lh = nil
         h = ch
-        lh ||= 2 * h
+        lh ||= 3 * h
         hh = (h.to_f / lh * h).clamp 20, [h - 20, 20].max
-        @handle.set_size 10, hh
-        @handle.set_xy 0, (h - hh) * @value
+        @handle.set_size sw, hh
+        @handle.set_xy 0, (h - hh) * (@value - 0.5)
       end
     end
   end

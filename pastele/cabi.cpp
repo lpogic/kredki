@@ -11,50 +11,6 @@ using namespace tvg;
 
 extern "C" {
 
-CABI void* matrix_new(void) {
-    auto self = new Matrix;
-    self->e11 = self->e22 = self->e33 = 1.0f;
-    self->e12 = self->e13 = self->e21 = self->e31 = self->e23 = self->e32 = 0.0f;
-    return self;
-}
-
-CABI void matrix_delete(const Matrix* self) {
-    delete self;
-}
-
-CABI void matrix_multiply(Matrix* a, const Matrix* b) {
-    float s1, s2, s3;
-    s1 = a->e11 * b->e11 + a->e12 * b->e21 + a->e13 * b->e31;
-    s2 = a->e11 * b->e12 + a->e12 * b->e22 + a->e13 * b->e32;
-    s3 = a->e11 * b->e13 + a->e12 * b->e23 + a->e13 * b->e33;
-    a->e11 = s1;
-    a->e12 = s2;
-    a->e13 = s3;
-    s1 = a->e21 * b->e11 + a->e22 * b->e21 + a->e23 * b->e31;
-    s2 = a->e21 * b->e12 + a->e22 * b->e22 + a->e23 * b->e32;
-    s3 = a->e21 * b->e13 + a->e22 * b->e23 + a->e23 * b->e33;
-    a->e21 = s1;
-    a->e22 = s2;
-    a->e23 = s3;
-    s1 = a->e31 * b->e11 + a->e32 * b->e21 + a->e33 * b->e31;
-    s2 = a->e31 * b->e12 + a->e32 * b->e22 + a->e33 * b->e32;
-    s3 = a->e31 * b->e13 + a->e32 * b->e23 + a->e33 * b->e33;
-    a->e31 = s1;
-    a->e32 = s2;
-    a->e33 = s3;
-}
-
-CABI void matrix_rotate(Matrix* self, float r, float x, float y) {
-    float c = cosf(r);
-    float s = sinf(r);
-    Matrix m = {c, -s, -x * c + y * s + x, s, c, -x * s - y * c + y, 0, 0, 1};
-    matrix_multiply(self, &m);
-}
-
-CABI void matrix_scale(Matrix* self, float r, float x, float y) {
-    Matrix m = {r, 0, x - x * r, 0, r, y - y * r, 0, 0, 1};
-    matrix_multiply(self, &m);
-}
 
 CABI void clipboard_set_text(char* text) {
     SDL_SetClipboardText(text);
@@ -318,55 +274,16 @@ CABI void paint_delete(Paint* self)
     SDL_PushEvent(&event);
 }
 
-
-CABI void paint_set_scale(Paint* self, float factor) {
-    self->scale(factor);
-}
-
-CABI void paint_set_rotation(Paint* self, float degree)
-{
-    self->rotate(degree);
-}
-
-CABI void paint_set_translation(Paint* self, float x, float y) {
-    self->translate(x, y);
-}
-
-CABI void paint_set_transform_i(Paint* self, float px, float py, float x, float y, float r, float scale) {
-    // auto m = self->transform();
-    auto s = sinf(r);
-    auto c = cosf(r);
-    Matrix m = {c, -s, x - c * px + s * py, s, c, y - s * px - c * py, 0, 0, 1};
-    // auto ss = s * sinf(r);
-    // auto sc = s * cosf(r);
-    // auto rxx = rx + x;
-    // auto ryy = ry + y;
-    // Matrix m = {sc, -ss, sc * rxx - ss * ryy - s * rx, ss, sc, ss * rxx + sc * ryy - s * ry, 0, 0, 1};
-    // Matrix m = {c, -s, -x * c + y * s + x, s, c, -x * s - y * c + y, 0, 0, 1};
-    // Matrix m = {1, 0, x, 0, 1, y, 0, 0, 1};
-    // m.e11 = m.e22 = sc;
-    // m.e12 = -ss;
-    // m.e21 = ss;
-    // m.e13 = sc * rxx - ss * ryy - s * rx;
-    // m.e23 = ss * rxx + sc * ryy - s * ry;
+CABI void paint_set_transform(Paint* self, float px, float py, float x, float y, float rotation, float scale) {
+    auto m = self->transform();
+    auto s = sinf(rotation) * scale;
+    auto c = cosf(rotation) * scale;
+    m.e11 = m.e22 = c;
+    m.e12 = -s;
+    m.e21 = s;
+    m.e13 = x - c * px + s * py;
+    m.e23 = y - s * px - c * py;
     self->transform(m);
-}
-
-CABI void paint_set_transform(Paint* self, const Matrix* m) {
-    self->transform(*m);
-}
-
-CABI void paint_get_transform(Paint* self, Matrix* m) {
-    auto t = self->transform();
-    m->e11 = t.e11;
-    m->e12 = t.e12;
-    m->e13 = t.e13;
-    m->e21 = t.e21;
-    m->e22 = t.e22;
-    m->e23 = t.e23;
-    m->e31 = t.e31;
-    m->e32 = t.e32;
-    m->e33 = t.e33;
 }
 
 CABI void paint_set_opacity(Paint* self, uint8_t opacity) {
@@ -515,7 +432,7 @@ CABI void shape_set_fill_color(Shape* self, uint8_t r, uint8_t g, uint8_t b, uin
 }
 
 CABI void shape_set_fill_rule(Shape* self, int rule) {
-    self->fill((FillRule)rule);
+    self->fillRule((FillRule)rule);
 }
 
 CABI void shape_set_paint_order(Shape* self, int strokeFirst) {

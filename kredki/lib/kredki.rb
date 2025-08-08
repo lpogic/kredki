@@ -14,6 +14,7 @@ use! TerminateOnEsc
 use! CarryFocusOnTab
 window.alter{ resizable!; text_input! }
 color! 110, 301, 101
+layout! :y
 
 at_exit do
   arena.run!

@@ -9,7 +9,7 @@ module Kredki
       @scene = nil
       @x = 0
       @y = 0
-      @rotation = 0
+      @spin = 0
       @scale = 1
       @opacity = 255
       @blend = nil
@@ -19,7 +19,7 @@ module Kredki
       {
         x: @x,
         y: @y,
-        rotation: @rotation,
+        spin: @spin,
         scale: @scale,
         opacity: @opacity,
         blend: @blend,
@@ -54,9 +54,9 @@ module Kredki
       [@x, @y]
     end
 
-    param def rotation! rotation
-      return if @rotation == rotation
-      @rotation = rotation
+    param def spin! spin
+      return if @spin == spin
+      @spin = spin
       update_transform
       update
     end
@@ -202,7 +202,7 @@ module Kredki
     end
 
     def update_transform
-      Abi.paint_set_transform_i @pointer, *pivot, @x, @y, @rotation, @scale
+      Abi.paint_set_transform @pointer, *pivot, @x, @y, @spin, @scale
     end
 
     def set_blend blend

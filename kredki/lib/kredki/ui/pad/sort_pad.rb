@@ -20,7 +20,6 @@ module Kredki
         end
         return false
       end
-
     end
   end
 end

@@ -16,9 +16,7 @@ module Kredki
       super Abi.scene_new
       ObjectSpace.define_finalizer(self, self.class.proc.finalize(@pointer))
 
-      nil_paint = PaintState.new
-      nil_paint.before = nil_paint.after = nil_paint
-      @paints = {nil => nil_paint}
+      clear!
     end
 
     def new_paint klass, *a, show: true, at: nil, **na, &b
@@ -59,8 +57,14 @@ module Kredki
 
     def clear!
       Abi.scene_remove @pointer, nil
-      @paints.clear
+      nil_paint = PaintState.new
+      nil_paint.before = nil_paint.after = nil_paint
+      @paints = {nil => nil_paint}
       update
+    end
+
+    def size
+      @paints.size - 1
     end
 
     #intenal api

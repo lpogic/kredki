@@ -6,7 +6,7 @@ module Kredki
       model :column, :< do
         @space = 0
         @tmp_column = {}
-        @commit_column = nil
+        @measurement = nil
       end
       attr_accessor :space
 
@@ -40,7 +40,10 @@ module Kredki
       end
 
       def arrange pad
-        return commit_arrange pad if @commit_column
+        @measurement ? proper_arrange(pad) : measure_arrange(pad)
+      end
+
+      def measure_arrange pad
         cw = pad.cw
         ch = pad.ch
         sw = 0
@@ -85,54 +88,21 @@ module Kredki
           end
         end.compact.to_h
 
-        cx = case @x
-        when Rational 
-          r = (cw - sw) * @x.to_f
-          @x.denominator == 1 ? r / 100 : r
-        when Proc
-          @x[cw, sw]
-        when Numeric
-          @x < 0 ? cw - sw + @x : @x
-        else raise @x
-        end
-
-        lx = lxm = ly = lym = 0
-
         pad.arrange_pads.each do |p1|
           if p1.layoutic?
-            pw = p1.sw
-            ph = p1.sh
-            px = p1.get_x cw, pw, cx
-            py = p1.get_y ch, ph, (get_c @y, ch, ph)
-            p1.set_xy px, py
-            p1.set_margin
-            p1.arrange
-            cx += (span_widths[p1] || pw) + @space
-            lx = [lx, px].min
-            ly = [ly, py].min
-            lxm = [lxm, px + pw].max
-            lym = [lym, py + ph].max
-          else
-            pw = get_w p1, p1.w, cw
-            ph = get_h p1, p1.h, ch
-            p1.set_size pw, ph
-            px = p1.get_x cw, pw, (get_c @x, cw, pw)
-            py = p1.get_y ch, ph, (get_c @y, ch, ph)
-            p1.set_xy px, py
-            p1.set_margin
             p1.arrange
           end
         end
 
-        [lx, ly, lxm - lx, lym - ly]
+        nil
       end
 
-      def commit_arrange pad
+      def proper_arrange pad
         cw = pad.cw
         ch = pad.ch
-        sw = 0
+        sw = pad.sw
         
-        pad.layout_pads.zip @commit_column do |a|
+        pad.layout_pads.zip @measurement do |a|
           p1 = a[0]
           ph = get_h p1, p1.h, ch
           pw = get_w p1, p1.w, a[1]
@@ -141,7 +111,7 @@ module Kredki
 
         cx = case @x
         when Rational 
-          r = (cw - sw) * @x.to_f
+          r = cw * @x.to_f
           @x.denominator == 1 ? r / 100 : r
         when Proc
           @x[cw, sw]
@@ -149,6 +119,7 @@ module Kredki
           @x < 0 ? cw - sw + @x : @x
         else raise @x
         end
+        cx -= sw * 0.5
 
         lx = lxm = ly = lym = 0
         
@@ -156,17 +127,19 @@ module Kredki
         pad.arrange_pads.each do |p1|
           if p1.layoutic?
             pw = p1.sw
+            hpw = (@measurement[i] || pw) * 0.5
             ph = p1.sh
+            cx += hpw
             px = p1.get_x cw, pw, cx
             py = p1.get_y ch, ph, (get_c @y, ch, ph)
             p1.set_xy px, py
             p1.set_margin
             p1.arrange
-            cx += (@commit_column[i] || pw) + @space
+            cx += hpw + @space
             i += 1
-            lx = [lx, px].min
+            lx = [lx, px - hpw].min
             ly = [ly, py].min
-            lxm = [lxm, px + pw].max
+            lxm = [lxm, px + hpw].max
             lym = [lym, py + ph].max
           else
             pw = get_w p1, p1.w, cw
@@ -183,18 +156,18 @@ module Kredki
         [lx, ly, lxm - lx, lym - ly]
       end
 
-      def before_arrange
+      def prepare_arrange
         @tmp_column = {}
-        @commit_column = nil
+        @measurement = nil
       end
 
-      def commit_column
-        @commit_column = @tmp_column.each_value.reduce do |a, col|
+      def measurement
+        @measurement = @tmp_column.each_value.reduce do |a, col|
           a.zip(col).map{ it.min }
         end
       end
 
-      def after_arrange
+      def reset_arrange
         @tmp_column = nil
       end
 
@@ -250,11 +223,11 @@ module Kredki
       end
 
       def arrange
-        @_column_layout.before_arrange
+        @_column_layout.prepare_arrange
         super
-        @_column_layout.commit_column
+        @_column_layout.measurement
         super
-        @_column_layout.after_arrange
+        @_column_layout.reset_arrange
       end
 
     end

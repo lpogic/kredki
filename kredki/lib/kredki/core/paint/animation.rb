@@ -41,6 +41,7 @@ module Kredki
     def scene
       @picture.scene
     end
+    
     def scene= scene
       @picture.scene = scene
     end

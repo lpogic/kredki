@@ -2,11 +2,6 @@
 
 module Kredki
   module Abi
-    extern 'void* matrix_new( void)'
-    extern 'void matrix_delete(const Matrix* self)'
-    extern 'void matrix_multiply(Matrix* a, const Matrix* b)'
-    extern 'void matrix_rotate(Matrix* self, float r, float x, float y)'
-    extern 'void matrix_scale(Matrix* self, float r, float x, float y)'
     extern 'int thorvg_engine_init(int engine_method, int threads)'
     extern 'int thorvg_engine_term(int engine_method)'
     extern 'void sdl_init(int joystick_enabled)'
@@ -61,12 +56,7 @@ module Kredki
     extern 'int window_get_text_input(pas::Window* self)'
     extern 'int window_get_flags(pas::Window* self)'
     extern 'void paint_delete(Paint* self)'
-    extern 'void paint_set_scale(Paint* self, float factor)'
-    extern 'void paint_set_rotation(Paint* self, float degree)'
-    extern 'void paint_set_translation(Paint* self, float x, float y)'
-    extern 'void paint_set_transform(Paint* self, const Matrix* m)'
-    extern 'void paint_set_transform_i(Paint* self, float px, float py, float x, float y, float r, float scale)'
-    extern 'void paint_get_transform(Paint* self, Matrix* m)'
+    extern 'void paint_set_transform(Paint* self, float px, float py, float x, float y, float rotation, float scale)'
     extern 'void paint_set_opacity(Paint* self, uint8_t opacity)'
     extern 'void paint_get_bounds(Paint* self, Bounds* bounds)'
     extern 'void paint_set_clip(Paint* self, Shape* clipper)'

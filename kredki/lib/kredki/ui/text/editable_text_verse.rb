@@ -22,9 +22,9 @@ module Kredki
       def delete
         length = content.length
         if selection?
-          report EditEvent.new @selection_min, @selection_max, "", :backspace
+          report EditEvent.new @selection_min, @selection_max, "", :delete
         elsif @cursor_position < length
-          report EditEvent.new @cursor_position, @cursor_position + 1, "", :backspace
+          report EditEvent.new @cursor_position, @cursor_position + 1, "", :delete
         elsif length > 0
           backspace
         end
@@ -34,7 +34,10 @@ module Kredki
         super("#{content}\n".each_line(chomp: true).to_a.join, reset_cursor, &b)
       end
 
-      def edit new_content, selection_min, selection_max
+      def edit action, new_content, selection_min, selection_max
+        v = @verses.first
+        w0 = v.w
+        c0 = v.content
         s = content.to_s
         s = if s == ""
           new_content
@@ -44,7 +47,12 @@ module Kredki
           s[...selection_min] + new_content
         end
         content! s, false
-        @scene.x = 0
+        if @verse_layout.start_with? "e"
+          v = @verses.first
+          @scene.x = x >= 0 && v.w > sw ? @scene.x + v.w - w0 : 0
+        elsif @verse_layout.start_with? "c"
+          @scene.x = 0
+        end
         reset_cursor selection_min + new_content.length
       end
     end

@@ -6,8 +6,6 @@ module Kredki
   module UI
     class ContextItem < YItem
 
-      flag :arrow
-
       def item!(...)
         dropdown!.item_group.item!(...)
       end
@@ -15,15 +13,7 @@ module Kredki
       param def dropdown! ...
         if !@dropdown
           @dropdown = new ContextSecondaryLayer
-          new Pad, mousy: false, keyboardy: false, color: 0, x: 100r, h: 100r do
-            w! proc{ get_h }
-            stroke! color: :text, size: 3, cap: :round, join: :miter
-            area! do |w, h|
-              move_to! w / 2, h / 3
-              line_to! w * 2 / 3, h / 2
-              line_to! w / 2, h * 2 / 3
-            end
-          end
+          @end_icon.scenic!
         end
         @dropdown.alter(...)
       end
@@ -38,6 +28,21 @@ module Kredki
         super
 
         @dropdown = nil
+        @begin_icon = new Pad, at: 0, mousy: false, keyboardy: false, color: 0, h: 100r do
+          w! proc{ get_h }
+          stroke! color: :text, size: 3, cap: :round, join: :miter
+          scenic! false
+        end
+        @end_icon = new Pad, mousy: false, keyboardy: false, color: 0, x: :e, h: 100r do
+          w! proc{ get_h }
+          stroke! color: :text, size: 3, cap: :round, join: :miter
+          area! do |xs, ys|
+            xy! 0, ys * -0.3
+            line! xs * 0.3, 0
+            line! 0, ys * 0.3
+          end
+          scenic! false
+        end
       end
 
       def sketch p0
@@ -57,7 +62,7 @@ module Kredki
       end
 
       def min_w
-        @text.fit_w + (@dropdown ? get_h : 0)
+        @text.fit_w + get_h * 2
       end
     end
   end

@@ -6,12 +6,12 @@ module Kredki
 
       #internal api
 
-      def initialize_text
-        @text = new EditableTextVerses, wh: 100r
+      def initialize_verse
+        @verse = new EditableTextVerses, wh: 100r
       end
 
-      def sketch_text
-        text_edition @text, true
+      def sketch_verse
+        text_edition @verse, true
       end
     end
   end

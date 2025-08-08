@@ -89,7 +89,8 @@ module Kredki
 
     def screen_translate x, y, target = nil
       wx, wy = window.xy
-      translate x - wx, y - wy, target
+      ww, wh = window.wh
+      translate x - wx - ww / 2, y - wy - wh / 2, target
     end
 
     def push_animation animation

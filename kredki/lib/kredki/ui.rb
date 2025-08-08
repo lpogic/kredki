@@ -113,7 +113,7 @@ module Kredki
       def! :note!, Note
       def! :notes!, Notes
       def! :label!, Label
-      def! :option_note!, NoteDropdown
+      def! :note_items!, NoteDropdown
       def! :table!, Table
       def! :list!, List
       def! :tree_list!, TreeList

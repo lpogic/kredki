@@ -199,10 +199,14 @@ module Kredki
       end
 
       param def spin! spin
-        @scene.r! spin, @area.w / 2, @area.h / 2
-      end, def spin
-        @scene.r
+        return if @spin == spin
+        @spin = spin
+        spin = spin.denominator == 1 ? Math::PI * spin / 50 : Math::PI * 2 * spin if spin.is_a? Rational
+        @scene.spin! spin
       end
+
+      param_delegate :@scene,
+        :scale
 
       param_delegate :@area, 
         :stroke_color, 
@@ -367,7 +371,7 @@ module Kredki
       end
 
       def roi! x = 0, y = 0
-        report ROIEvent.new *swh, x, y
+        report ROIEvent.new area.xs, area.ys, x, y
       end
 
       def use! extension, *a, **na, &b
@@ -382,7 +386,7 @@ module Kredki
         @scene = Scene.new
         @area = @scene.rectangle!
         @clip_scene = @scene.scene!
-        @clip_area = @clip_scene.rectangle!
+        @clip_area = @clip_scene.rectangle! at: false, fill_color: false
         @pads = []
         @x = @y = :layout
         @w = @h = 100
@@ -461,6 +465,7 @@ module Kredki
         case at
         when Integer
           paint_state = @clip_scene.put_paint pad.scene, true
+          p [at, pad]
           @pads.insert at, pad
         when Pad
           paint_state = @clip_scene.put_paint pad.scene, true, at.scene
@@ -502,6 +507,12 @@ module Kredki
           @x[pcw, sw]
         when Range
           ax + @x.begin
+        when :e
+          (pcw - sw) * 0.5
+        when :b
+          (sw - pcw) * 0.5
+        when :c
+          0
         when :layout
           ax
         else
@@ -518,6 +529,12 @@ module Kredki
           @y[pch, sh]
         when Range
           ay + @y.begin
+        when :e
+          (pch - sh) * 0.5
+        when :b
+          (sh - pch) * 0.5
+        when :c
+          0
         when :layout
           ay
         else
@@ -528,10 +545,8 @@ module Kredki
       def set_size w, h
         mx = @mxb + @mxe
         my = @myb + @mye
-        s2 = @stroke_size * 2
-
         @area.wh! w, h
-        @clip_area.wh! w - mx - s2, h - my - s2
+        @clip_area.wh! w - mx, h - my
       end
 
       def layout_pads
@@ -547,15 +562,15 @@ module Kredki
       end
 
       def fit_w
-        @mxb + @mxe + @stroke_size * 2 + @_layout.fit_w(self)
+        @mxb + @mxe + @_layout.fit_w(self)
       end
 
       def fit_h
-        @myb + @mye + @stroke_size * 2 + @_layout.fit_h(self)
+        @myb + @mye + @_layout.fit_h(self)
       end
 
       def min_w
-        m = @mxb + @mxe + @stroke_size * 2
+        m = @mxb + @mxe
         case @w
         when Rational, Proc
           m
@@ -591,7 +606,7 @@ module Kredki
       end
 
       def min_h
-        m = @myb + @mye + @stroke_size * 2
+        m = @myb + @mye
         case @h
         when Rational, Proc
           m
@@ -717,8 +732,8 @@ module Kredki
       end
 
       def set_margin
-        x = 0#@mxb + @stroke_size
-        y = 0#@myb + @stroke_size
+        x = (@mxb - @mxe) * 0.5
+        y = (@myb - @mye) * 0.5
         @clip_scene.xy! x, y
         @clip_area.xy! x, y
       end
@@ -826,7 +841,8 @@ module Kredki
 
       def report event, path = true, instant = false
         event.target ||= self
-        event_director = action.event_director
+        event_director = action&.event_director
+        return unless event_director
         if path
           ancs = pad_lineage.to_a
           ancs.reverse_each do |pad|

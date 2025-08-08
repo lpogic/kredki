@@ -9,12 +9,11 @@ module Kredki
       @content = "TEXT"
       @font = Kredki.font
       @color = Kredki.color
-      @h = 16
+      @ys = 16
       set_content @content
-      set_font @font.name, @h, ""
-      update_size
+      set_font @font.name, @ys * 2, ""
       set_fill_color *@color.to_rgb_array
-      update
+      update_size
     end
 
     def << param
@@ -31,36 +30,44 @@ module Kredki
       end
     end
 
-    param def content! content
+    param def content! content = nil, &block
+      return content! block[@content] if block_given?
       return if @content == content
       set_content content.to_s
       @content = content
       update_size
-      update
     end
 
-    param def h! h
-      return if @h == h
-      set_font Kredki.font(@font).name, h, ""
-      @h = h
-      update_size
-      update
+    def xs
+      @xs
     end
 
     def w
-      @w
+      @xs * 2
+    end
+
+    param def ys! s
+      return if @ys == s
+      set_font Kredki.font(@font).name, s * 2, ""
+      @ys = s
+      update_size
+    end
+
+    param def h! h
+      ys! h * 0.5
+    end, def h
+      @ys * 2
     end
 
     def wh
-      [@w, @h]
+      [@xs * 2, @ys * 2]
     end
 
     param def font! font
       return if @font == font
-      set_font Kredki.font(font).name, @h, ""
+      set_font Kredki.font(font).name, @ys * 2, ""
       @font = font
       update_size
-      update
     end
 
     param def color! *color
@@ -78,12 +85,13 @@ module Kredki
     end
 
     def pivot
-      [@w * 0.5, @h * 0.5]
+      [@xs, @ys]
     end
 
     def update_size
-      @w = substring_width
+      @xs = substring_width * 0.5
       update_transform
+      update
     end
 
     def substring_width index = nil, string = @content

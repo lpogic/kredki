@@ -85,6 +85,8 @@ module Kredki
 
           lx = lw = ly = lh = 0
 
+          # p [cw, ch]
+
           pad.arrange_pads.each do |p1|
             pw = get_w p1, p1.w, cw
             ph = get_h p1, p1.h, ch

@@ -6,24 +6,34 @@ module Kredki
     include Area
 
     def initialize
-      @w = 100
-      @h = 100
+      @xs = @ys = 50
       @redraw_flag = true
 
       super
     end
 
+    def << param
+      case param
+      in [w, h]
+        wh! w, h
+      in Numeric
+        wh! param
+      else
+        super
+      end
+    end
+
     def to_hash
       super + {
-        w: @w,
-        h: @h
+        w: w,
+        h: h
       }
     end
 
     def update
       if @redraw_flag
         @redraw_flag = false
-        redraw @w, @h
+        redraw
         true
       else
         super

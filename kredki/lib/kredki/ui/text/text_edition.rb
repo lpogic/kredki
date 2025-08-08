@@ -1,3 +1,5 @@
+require_relative 'text_navigation'
+
 module Kredki
   module UI
     module TextEdition
@@ -42,7 +44,7 @@ module Kredki
         end
 
         on_edit! do |e|
-          text.edit e.string, e.selection_min, e.selection_max
+          text.edit e.action, e.string, e.selection_min, e.selection_max
         end
 
         if multiline

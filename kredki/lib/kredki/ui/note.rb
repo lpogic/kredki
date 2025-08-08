@@ -23,7 +23,7 @@ module Kredki
           kb_top = @pad.keyboard_top?
           @pad.area.fill_color = kb_top ? @color.darken : @pad.mouse_in? ? @color.lighten : @color
           @pad.area.stroke_color = kb_top ? :stroke_focus : @color
-          @pad.text.selection.each{ it.fill_color! kb_top ? :text_selection : :text_selection_inactive }
+          @pad.verse.selection.each_paint{ it.fill_color! kb_top ? :text_selection : :text_selection_inactive }
         end
       end
 
@@ -55,18 +55,18 @@ module Kredki
       end
 
       param_service def cursor
-        @text.cursor
+        @verse.cursor
       end
 
       param def content! string, cursor = false
-        @text.content! string, cursor
+        @verse.content! string, cursor
       end, def string
-        @text.content
+        @verse.content
       end
 
       param_prefix :verse
 
-      param_delegate :@text,
+      param_delegate :@verse,
       :verse_size,
       :verse_layout
 
@@ -86,7 +86,6 @@ module Kredki
             p1.arrange
             px = p1.get_x cw, pw, (get_c @x, cw, pw)
             py = p1.get_y ch, ph, (get_c @y, ch, ph)
-            p [px, py]
             p1.set_xy px, py
             p1.set_margin
             if p1.layoutic?
@@ -101,17 +100,17 @@ module Kredki
         end
       end
 
-      attr :text
+      attr :verse
 
       def initialize
         super
       
-        initialize_text
+        initialize_verse
         @theme = nil
       end
 
-      def initialize_text
-        @text = new EditableTextVerse, wh: 100r, mousy: false
+      def initialize_verse
+        @verse = new EditableTextVerse, wh: 100r, mousy: false
       end
 
       def sketch p0
@@ -124,11 +123,11 @@ module Kredki
         theme! :gray
         h! 24
 
-        sketch_text
+        sketch_verse
       end
 
-      def sketch_text
-        text_edition @text, false
+      def sketch_verse
+        text_edition @verse, false
       end
     end
   end

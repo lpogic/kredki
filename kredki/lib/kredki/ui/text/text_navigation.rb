@@ -62,7 +62,7 @@ module Kredki
           end
         end
 
-        on_mouse_down! :primary do |e|
+        on_mouse_down! :primary, aim: true do |e|
           if keyboard.shift?
             text.drag *text.layer.translate(*e.xy, text)
           else

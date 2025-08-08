@@ -12,7 +12,7 @@ module Kredki
         super
 
         @text = new NavigableText, h: 100r do
-          # cursor.w = 0
+          cursor.w = 0
         end
       end
 
@@ -46,12 +46,12 @@ module Kredki
 
         text_navigation @text
 
-        # on_mouse_click! do |e|
-        #   find_pad @for, proc{ it.keyboardy? } do
-        #     focus!
-        #     report e
-        #   end
-        # end
+        on_mouse_click! do |e|
+          find_pad @for, proc{ it.keyboardy? } do
+            focus!
+            report e
+          end
+        end
       end
     end
   end

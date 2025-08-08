@@ -182,7 +182,7 @@ module Kredki
     end
 
     class EditEvent < Event
-      model :selection_min, :selection_max, :string, :type, :<
+      model :selection_min, :selection_max, :string, :action, :<
 
       def [](key = :string)
         send key

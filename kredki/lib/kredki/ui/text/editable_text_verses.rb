@@ -27,7 +27,7 @@ module Kredki
         end
       end
 
-      def edit new_content, selection_min, selection_max
+      def edit action, new_content, selection_min, selection_max
         s = content.to_s
         s = if s == ""
           new_content
@@ -37,7 +37,6 @@ module Kredki
           s[...selection_min] + new_content
         end
         content! s, false
-        @scene.x = 0
         reset_cursor selection_min + new_content.length
       end
     end

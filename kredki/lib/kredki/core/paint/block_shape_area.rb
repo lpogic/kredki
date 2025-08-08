@@ -8,10 +8,10 @@ module Kredki
       super()
     end
 
-    def redraw w, h
+    def redraw
       drawer = draw!
       drawer.autoupdate = false
-      drawer.instance_exec w, h, &@block
+      drawer.instance_exec @xs, @ys, &@block
       drawer.commit!
     end
   end

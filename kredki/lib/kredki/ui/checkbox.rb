@@ -21,7 +21,7 @@ module Kredki
         end
 
         def repaint
-          @pad.area.color = @pad.pin_top? ? @color.darken : @pad.mouse_in? ? @color.lighten : @color
+          @pad.area.fill_color = @pad.pin_top? ? @color.darken : @pad.mouse_in? ? @color.lighten : @color
           @pad.area.stroke_color = @pad.keyboard_in? ? :stroke_focus : @color.darken
         end
       end
@@ -53,10 +53,10 @@ module Kredki
         @theme = nil
         @check = new Pad, mousy: false, keyboardy: false, color: 0, wh: 100r do
           stroke! color: :text, size: 3
-          area! do |w, h|
-            move_to! 2, h / 2
-            line_to! w / 2, h - 1
-            line_to! w - 2, 2
+          area! do |xs, ys|
+            xy! 2 - xs, 0
+            line! 0, xs - 1
+            line! xs - 2, 2 - ys
           end
           hide!
         end

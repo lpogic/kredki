@@ -5,7 +5,7 @@ module Kredki
     def resolve event = nil
       return if !@always && event&.resolved?
       if event&.trace?
-        p @job
+        puts @job
       end
       @job.call event
     end

@@ -196,7 +196,7 @@ module Kredki
           end
         end
       else # unsupported event
-        # p event_type
+        # puts event_type
         nil
       end
       event&.resolved? ? 1 : 0

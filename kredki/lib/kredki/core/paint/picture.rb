@@ -7,8 +7,7 @@ module Kredki
     include Area
 
     def initialize pointer = nil
-      @w = 100
-      @h = 100
+      @xs = @ys = 50
       @redraw_flag = true
       return super if pointer
       super Abi.picture_new
@@ -33,7 +32,9 @@ module Kredki
       set_source source.to_s
       @source = source
       if pull_size
-        @w, @h = get_size
+        w, h = get_size
+        @xs = w * 0.5
+        @ys = h * 0.5
         update_transform
       else
         @redraw_flag = true
@@ -62,13 +63,13 @@ module Kredki
     end
 
     def pivot
-      [@w * 0.5, @h * 0.5]
+      [@xs, @ys]
     end
 
     def update
       if @redraw_flag
         @redraw_flag = false
-        set_size @w, @h
+        set_size @xs * 2, @ys * 2
         update_transform
       end
       super

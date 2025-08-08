@@ -103,6 +103,18 @@ module Kredki
         true
       end
 
+      def sx
+        0
+      end
+
+      def sy
+        0
+      end
+
+      def sxy
+        [0, 0]
+      end
+
       def break_layout
         @layout_broken = true
       end

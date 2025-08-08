@@ -53,12 +53,6 @@ typedef struct {
     int x, y;
 } IntPoint;
 
-CABI void* matrix_new(void);
-CABI void matrix_delete(const Matrix* self);
-CABI void matrix_multiply(Matrix* a, const Matrix* b);
-CABI void matrix_rotate(Matrix* self, float r, float x, float y);
-CABI void matrix_scale(Matrix* self, float r, float x, float y);
-
 CABI int thorvg_engine_init(int engine_method, int threads);
 CABI int thorvg_engine_term(int engine_method);
 CABI void sdl_init(int joystick_enabled);
@@ -130,12 +124,7 @@ CABI int window_get_text_input(pas::Window* self);
 CABI int window_get_flags(pas::Window* self);
 
 CABI void paint_delete(Paint* self);
-CABI void paint_set_scale(Paint* self, float factor);
-CABI void paint_set_rotation(Paint* self, float degree);
-CABI void paint_set_translation(Paint* self, float x, float y);
-CABI void paint_set_transform(Paint* self, const Matrix* m);
-CABI void paint_set_transform_i(Paint* self, float px, float py, float x, float y, float r, float scale);
-CABI void paint_get_transform(Paint* self, Matrix* m);
+CABI void paint_set_transform(Paint* self, float px, float py, float x, float y, float rotation, float scale);
 CABI void paint_set_opacity(Paint* self, uint8_t opacity);
 CABI void paint_get_bounds(Paint* self, Bounds* bounds);
 CABI void paint_set_clip(Paint* self, Shape* clipper);

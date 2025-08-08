@@ -8,24 +8,26 @@ module Kredki
         return content! block[self.content] if block_given?
         return if @content == content
         @content = content
-        @text&.each{ it.detach! }
-        @text = "#{content}\n".each_line(chomp: true).map do |line|
+        @verses&.each{ it.detach! }
+        @verses = "#{content}\n".each_line(chomp: true).map do |line|
           @scene.text! line.chomp, color: @area.fill_color
         end
+        arrange_verses
         layer&.break_layout
+        true
       end
 
       def color! *color
         super
-        @text.each do |line|
-          line.color! *color
+        @verses.each do |v|
+          v.color! *color
         end
       end
 
       param def verse_layout! layout
         return if @verse_layout == layout
         @verse_layout = layout
-        set_size @w, @h
+        arrange_verses
       end
 
       param def linespace! linespace
@@ -47,8 +49,7 @@ module Kredki
       param def verse_size! size
         return if @verse_size == size
         @verse_size = size
-        layer&.break_layout
-        true
+        arrange_verses
       end
 
       #internal api
@@ -56,7 +57,7 @@ module Kredki
       def initialize
         super
 
-        @text = []
+        @verses = []
         @verse_size = :auto
       end
 
@@ -65,20 +66,22 @@ module Kredki
 
         @area.hide!
         wh! :fit, 24
+        verse_layout! :bc
+        content! "TEXT"
       end
 
       def verse_metrics h
         case @linespace
         when Rational
           ls = @linespace.denominator == 1 ? @linespace / 100 : @linespace
-          th = @verse_size == :auto ? h / (1 + (@text.size - 1) * ls) : @verse_size
+          th = @verse_size == :auto ? h / (1 + (@verses.size - 1) * ls) : @verse_size
           ls = th * ls
         when Numeric
-          th = @verse_size == :auto ? (h + (@text.size - 1) * @linespace) / @text.size : @verse_size
+          th = @verse_size == :auto ? (h + (@verses.size - 1) * @linespace) / @verses.size : @verse_size
           ls = th + @linespace
         else
-          if @text.size > 0
-            th = @verse_size == :auto ? h / @text.size : @verse_size
+          if @verses.size > 0
+            th = @verse_size == :auto ? h / @verses.size : @verse_size
           else
             th = 0
           end
@@ -89,25 +92,31 @@ module Kredki
 
       def fit_w
         th, ls = verse_metrics get_h
-        @text.map{ th * it.w / it.h }.max
+        @verses.map{ th * it.w / it.h }.max
       end
 
       def fit_h
-        @verse_size == :auto ? 0 : @verse_size * @text.size
+        @verse_size == :auto ? 0 : @verse_size * @verses.size
       end
 
       def set_size w, h
-        super
-        if @text.size > 0
+        super and arrange_verses
+      end
+
+      def arrange_verses
+        if @verses.size > 0
+          w, h = swh
           th, ls = verse_metrics h
-          y = align_y @text.size * th + (@text.size - 1) * ls, h
-          @text.each do |t|
-            t.h! th
-            x = align_x t.w, w
-            t.xy! x, y
+          tth = (@verses.size - 1) * ls + th
+          y = align_y(tth, h) - tth * 0.5 + th * 0.5
+          @verses.each do |v|
+            v.h! th
+            x = align_x v.w, w
+            v.xy! x, y
             y += ls
           end
         end
+        true
       end
 
       def align_x tw, w
@@ -124,14 +133,13 @@ module Kredki
       def align_y th, h
         case @verse_layout
         when :b, :bb, :cb, :eb
-          (th - h) / 2
+          (th - h) * 0.5
         when :e, :be, :ce, :ee
-          (h - th) / 2
+          (h - th) * 0.5
         else
           0
         end
       end
-
     end
   end
 end

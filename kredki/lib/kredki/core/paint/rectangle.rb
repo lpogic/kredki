@@ -5,7 +5,6 @@ module Kredki
 
     def initialize
       super
-
       @blunt = 0
       update
     end
@@ -17,21 +16,10 @@ module Kredki
       update
     end
 
-    def << param
-      case param
-      in [w, h]
-        wh! w, h
-      in Numeric
-        wh! param
-      else
-        super
-      end
-    end
-
     #internal api
 
-    def redraw w, h
-      draw!.rectangle! w - @stroke_size, h - @stroke_size, @blunt.to_f
+    def redraw
+      draw!.rectangle! @xs * 2 - @stroke_size, @ys * 2 - @stroke_size, @blunt.to_f
     end
 
     def set_stroke_size ...

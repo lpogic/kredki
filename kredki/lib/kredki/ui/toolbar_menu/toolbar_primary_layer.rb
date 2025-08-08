@@ -12,7 +12,7 @@ module Kredki
         if y + @items.sh > action.sh
           y = [action.sh - @items.sh, 0].max
         end
-        load_common x, y
+        load_common x + @items.area.xs - item.area.xs, y + @items.area.ys - item.area.ys
       end
 
       #internal api
