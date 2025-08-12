@@ -1,37 +1,54 @@
 module Kredki
   class Mouse
+    include Alterable
+    extend HasParams
     extend HasFlags
 
-    model :buttons, :scrollbar_speed, :scrollbar_alt_speed, keywords: true do
-      @inverted_buttons = @buttons.reverse_each.map{ [_2, _1] }.to_h
+    class Button
+      model :id, :buttoncode
+  
+      def to_i
+        @buttoncode
+      end
+  
+      def to_sym
+        @id
+      end
+  
+      def ==(other)
+        Button === other &&
+        @buttoncode == other.buttoncode &&
+        @id == other.id
+      end
+    end
+
+    def initialize &block
+      @button_map = {}
+      @buttoncode_map = {}
+      @scrollbar_speed = 0.3
+      @scrollbar_alt_speed = 0.06
+      alter &block
+    end
+
+    param def scrollbar_speed! speed
+      @scrollbar_speed = speed
+    end
+
+    param def scrollbar_alt_speed! speed
+      @scrollbar_alt_speed = speed
+    end
+
+    def button! id, code
+      button = @button_map[id] = Button.new id, code
+      @buttoncode_map[code] ||= button
     end
 
     def button param
       case param
       when Button
         param
-      when Symbol
-        Button.new @buttons[param] || (raise "Unknown mouse button symbol :#{param}"), param
-      when Integer
-        Button.new param, @inverted_buttons[param]
-      end
-    end
-
-    class Button
-      model :index, :symbol
-  
-      def to_i
-        @index
-      end
-  
-      def to_sym
-        @symbol
-      end
-  
-      def ==(other)
-        Button === other &&
-        index == other.index &&
-        symbol == other.symbol
+      else
+        @buttoncode_map[param] or @button_map[param] or raise "Unknown button #{param.inspect}"
       end
     end
 

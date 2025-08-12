@@ -60,8 +60,6 @@ module Kredki
         abi = Abi::MouseMotionEvent.new event_ptr
         event = MouseMoveEvent.new Kredki.mouse, abi
         if window = @windows[abi.window_id]
-          abi.x -= window.w / 2
-          abi.y -= window.h / 2
           window.resolve event
         end
         event
@@ -72,8 +70,6 @@ module Kredki
         abi = Abi::MouseButtonEvent.new event_ptr
         event = MouseButtonDownEvent.new Kredki.mouse, abi
         if window = @windows[abi.window_id]
-          abi.x -= window.w / 2
-          abi.y -= window.h / 2
           window.resolve event
         end
         event
@@ -81,8 +77,6 @@ module Kredki
         abi = Abi::MouseButtonEvent.new event_ptr
         event = MouseButtonUpEvent.new Kredki.mouse, abi
         if window = @windows[abi.window_id]
-          abi.x -= window.w / 2
-          abi.y -= window.h / 2
           window.resolve event
         end
         event

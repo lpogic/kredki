@@ -52,8 +52,8 @@ module Kredki
 
         @theme = nil
         @check = new Pad, mousy: false, keyboardy: false, color: :text, wh: 100r do
-          area! do |xs, ys|
-            ellipse! xs + ys
+          area! do |w, h|
+            ellipse! w, h
           end
           hide!
         end
@@ -62,8 +62,8 @@ module Kredki
       def sketch p0
         super
 
-        area! do |xs, ys|
-          ellipse! xs * 2 - 1
+        area! do |w, h|
+          ellipse! w - 1, h - 1
         end
         keyboardy!
         stroke_size! 1

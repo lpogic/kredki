@@ -3,6 +3,24 @@ module Kredki
     class ToolbarPrimaryLayer < ToolbarLayer
 
       def load! item
+        # arrange
+        # action = parent.action
+        # x, y = *item.translate(-item.area.xs, -item.area.ys)
+        # w = action.w * 0.5
+        # x_max = w - @items.sw
+        # x = [x_max, -w].max if x > x_max
+        # h = action.h * 0.5
+        # y_min = @items.sh - h
+        # if y < y_min
+        #   y_max = y + item.sh + @items.sh
+        #   if y_max < h
+        #     y = y_max
+        #   else
+        #     y = h
+        #   end
+        # end
+        # load_common x + @items.area.xs, y - @items.area.ys
+
         arrange
         action = parent.action
         x, y = *item.translate(0, item.sh)
@@ -12,7 +30,7 @@ module Kredki
         if y + @items.sh > action.sh
           y = [action.sh - @items.sh, 0].max
         end
-        load_common x + @items.area.xs - item.area.xs, y + @items.area.ys - item.area.ys
+        load_common x, y
       end
 
       #internal api

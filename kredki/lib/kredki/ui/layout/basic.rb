@@ -8,30 +8,42 @@ module Kredki
           self
         end
 
-        def get_c cr, pc, sc
+        def get_p cr, pc, sc
           case cr
-          when Rational 
-            r = pc * cr.to_f
-            cr.denominator == 1 ? r / 100 : r
+          when :center
+            (pc - sc) * 0.5
+          when :begin
+            0
+          when :end
+            pc - sc
+          when Rational
+            cr * pc - sc * 0.5
           when Proc
             cr[pc, sc]
-          else
+          when Numeric
             cr
+          else raise_ia cr
           end
+        end
+
+        def get_x cr, pc, sc
+          get_p cr, pc, sc
+        end
+
+        def get_y cr, pc, sc
+          get_p cr, pc, sc
         end
 
         def get_d d, pcd
           case d
           when Rational
-            r = pcd * d.to_f
-            d.denominator == 1 ? r / 100 : r
+            pcd * d
           when Proc
             d[pcd]
           when Range
             b = case d.begin
             when Rational
-              r = pcd * d.begin.to_f
-              d.begin.denominator == 1 ? r / 100 : r
+              pcd * d.begin
             when Numeric
               d.begin < 0 ? pcd + d.begin : d.begin
             when nil
@@ -40,8 +52,7 @@ module Kredki
             end
             e = case d.end
             when Rational
-              r = pcd * d.end.to_f
-              d.end.denominator == 1 ? r / 100 : r
+              pcd * d.end
             when Numeric
               d.end < 0 ? pcd + d.end : d.end
             when nil
@@ -85,14 +96,12 @@ module Kredki
 
           lx = lw = ly = lh = 0
 
-          # p [cw, ch]
-
           pad.arrange_pads.each do |p1|
             pw = get_w p1, p1.w, cw
             ph = get_h p1, p1.h, ch
             p1.set_size pw, ph
-            px = p1.get_x cw, pw, (get_c @x, cw, pw)
-            py = p1.get_y ch, ph, (get_c @y, ch, ph)
+            px = p1.get_x cw, pw, (get_x @x, cw, pw)
+            py = p1.get_y ch, ph, (get_y @y, ch, ph)
             p1.set_xy px, py
             p1.set_margin
             p1.arrange

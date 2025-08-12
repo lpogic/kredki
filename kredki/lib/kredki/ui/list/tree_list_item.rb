@@ -51,16 +51,16 @@ module Kredki
         @_level.alter do
           w! (l + 1) * 16
           if dir
-            area! do |xs, ys|
-              xy! xs - 8, ys * -0.4
-              line! xs - 8, ys * 0.4
-              xy! xs - 8, 0
-              line! xs - 3, 0
+            area! do |w, h|
+              xy! w - 8, h * 0.3
+              line! w - 8, h * 0.7
+              xy! w - 8, h * 0.5
+              line! w - 3, h * 0.5
             end
           else
-            area! do |xs, ys|
-              xy! xs - 8, ys * -0.4
-              line! xs - 8, ys * 0.4
+            area! do |w, h|
+              xy! w - 8, h * 0.3
+              line! w - 8, h * 0.7
             end
           end
         end

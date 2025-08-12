@@ -12,7 +12,7 @@ module Kredki
         super
         
         # @corner existence is checked in put_pad
-        corner = new Pad, layoutic: false, color: :gray, h: 10, w: 10, xy: :e
+        corner = new Pad, layoutic: false, color: :gray, wh: 10, xy: :end
         @xslide = new HorizontalSlide, layoutic: false, h: 10
         @yslide = new VerticalSlide, layoutic: false, w: 10
         @corner = corner
@@ -30,7 +30,7 @@ module Kredki
         on_mouse_scroll! do |e|
           ps = layout_pads
           if !ps.empty?
-            jump = Kredki.mouse.scrollbar_speed keyboard.alt?
+            jump = keyboard.alt? ? Kredki.mouse.scrollbar_alt_speed : Kredki.mouse.scrollbar_speed
             xjump = 1.0 * p0.sw / @lw * jump
             yjump = 1.0 * p0.sh / @lh * jump
             xo, yo = if p0.sw < @lw && p0.sh < @lh
@@ -50,25 +50,31 @@ module Kredki
           x, y = e.target.translate *e.xy, self
 
           if (range = (@lw || 0) - sw) > 0
-            dw = cw * 0.5 - e.w
-            if x.abs > dw
-              if x < 0
-                @xslide.value += (x + dw) / range
-              else
-                @xslide.value += (x - dw) / range
-              end
+            if x < 0 || (x += e.w - sw) > 0
+              @xslide.value += 1.0 * x / range
             end
+            # dw = cw * 0.5 - e.w
+            # if x.abs > dw
+            #   if x < 0
+            #     @xslide.value += (x + dw) / range
+            #   else
+            #     @xslide.value += (x - dw) / range
+            #   end
+            # end
           end
 
           if (range = (@lh || 0) - sh) > 0
-            dh = ch * 0.5 - e.h
-            if y.abs > dh
-              if y < 0
-                @yslide.value += (y + dh) / range
-              else
-                @yslide.value += (y - dh) / range
-              end
+            if y < 0 || (y += e.h - sh) > 0
+              @yslide.value += 1.0 * y / range
             end
+            # dh = ch * 0.5 - e.h
+            # if y.abs > dh
+            #   if y < 0
+            #     @yslide.value += (y + dh) / range
+            #   else
+            #     @yslide.value += (y - dh) / range
+            #   end
+            # end
           end
         end
       end
@@ -115,23 +121,23 @@ module Kredki
           end
           
           @xslide.show = xscroll
-          pad_x = @ocw * 0.5
+          pad_x = @ocw
           if xscroll
             xs = w + @ocw
             @xslide.set_size xs, oh
-            @xslide.set_xy (xs - w) * 0.5, (h - oh) * 0.5
+            @xslide.set_xy 0, h - oh
             @xslide.arrange @lw
-            pad_x += ((xs - @lw) * (@xslide.value - 0.5)).round
+            pad_x += ((xs - @lw) * @xslide.value).round
           end
           
           @yslide.show = yscroll
-          pad_y = @och * 0.5
+          pad_y = @och
           if yscroll
             ys = h + @och
             @yslide.set_size ow, ys
-            @yslide.set_xy (w - ow) * 0.5, (ys - h) * 0.5
+            @yslide.set_xy w - ow, 0
             @yslide.arrange @lh
-            pad_y += ((ys - @lh) * (@yslide.value - 0.5)).round
+            pad_y += ((ys - @lh) * @yslide.value).round
           end
           
           ps.each do |p1|
@@ -140,7 +146,7 @@ module Kredki
             p1.set_xy px, py
           end
           if @corner.show = xscroll && yscroll
-            @corner.set_xy (w - ow) * 0.5, (h - oh) * 0.5
+            @corner.set_xy w - ow, h - oh
           end
         else
           @xslide.hide!

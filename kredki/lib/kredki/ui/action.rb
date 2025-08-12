@@ -89,7 +89,7 @@ module Kredki
         on_window_resize! do
           w, h = *wh
           @services.each do 
-            it.set_xy w / 2, h / 2
+            it.set_xy 0, 0
             it.set_size w, h
             it.wh! w, h
           end
@@ -162,7 +162,7 @@ module Kredki
         put_paint layer.scene
         layer.set_pad_parent self
         w, h = wh
-        layer.set_xy w / 2, h / 2
+        layer.set_xy 0, 0
         layer.set_size w, h
         layer.wh! w, h
         @services << layer

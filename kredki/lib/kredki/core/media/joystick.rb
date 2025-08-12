@@ -1,35 +1,12 @@
 module Kredki
   class Joystick
-    @@next_name = :joystick_1
-
-    model :name, :buttons, :axes, keywords: true do
-      @buttons ||= {}
-      @inverted_buttons = @buttons.invert
-      @axes ||= {}
-      @inverted_axes = @axes.invert
-      if @name.nil?
-        @name = @@next_name
-        @@next_name = @@next_name.next
-      end
-      @device_id = nil
-    end
-
-    def button param
-      case param
-      when Button
-        param
-      when Symbol
-        Button.new @buttons[param] || (raise "Unknown joystick button symbol :#{param}"), param
-      when Integer
-        Button.new param, @inverted_buttons[param]
-      end
-    end
+    include Alterable
 
     class Button
-      model :index, :symbol
+      model :id, :code
   
       def to_i
-        @index
+        @code
       end
   
       def to_sym
@@ -38,37 +15,67 @@ module Kredki
   
       def ==(other)
         Button === other &&
-        index == other.index &&
-        symbol == other.symbol
+        @code == other.code &&
+        @id == other.id
       end
+    end
+
+    class Axis
+      model :id, :code
+  
+      def to_i
+        @code
+      end
+  
+      def to_sym
+        @id
+      end
+  
+      def ==(other)
+        Axis === other &&
+        @code == other.code &&
+        @id == other.id
+      end
+    end
+
+    @@next_name = :joystick_1
+
+    def initialize &block
+      @button_map = {}
+      @buttoncode_map = {}
+      @axis_map = {}
+      @axiscode_map = {}
+      @device_id = nil
+      alter &block
+      if @name.nil?
+        @name = @@next_name
+        @@next_name = @@next_name.next
+      end
+    end
+
+    def button! id, code
+      @button_map[id] = @buttoncode_map[code] = Button.new id, code
+    end
+
+    def button param
+      case param
+      when Button
+        param
+      else
+        @buttoncode_map[param] or @button_map[param] or raise "Unknown button #{param.inspect}"
+      end
+    end
+
+    def axis! id, code
+      @axis_map[id] = @axiscode_map[code] = Axis.new id, code
     end
 
     def axis param
       case param
       when Axis
         param
-      when Symbol
-        Axis.new self, @axes[param] || (raise "Unknown joystick axis symbol :#{param}"), param
-      when Integer
-        Axis.new self, param, @inverted_axes[param]
-      end
-    end
-
-    class Axis
-      model :index, :symbol
-  
-      def to_i
-        @index
-      end
-  
-      def to_sym
-        @symbol
-      end
-  
-      def ==(other)
-        Axis === other &&
-        index == other.index &&
-        symbol == other.symbol
+      else
+        @axiscode_map[param] or @axis_map[param] or raise "Unknown axis #{param.inspect}"
       end
     end
 

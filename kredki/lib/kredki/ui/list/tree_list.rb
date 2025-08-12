@@ -21,7 +21,7 @@ module Kredki
 
         keyboardy!
         color! :gray
-        layout! :ybb
+        layout! :y_begin_begin
 
         @item_group = new ListItemGroup
 

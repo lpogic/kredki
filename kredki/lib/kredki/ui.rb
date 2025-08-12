@@ -1,22 +1,13 @@
 require_relative 'core'
 
-class Symbol
-  def <=>(oth)
-    0 if Numeric === oth
-  end
-end
-
 module Kredki
-
-  PB = POSITION_BEGIN = proc{ (_2 - _1) * 0.5 }
-  PC = POSITION_CENTER = proc{ 0 }
-  PE = POSITION_END = proc{ (_1 - _2) * 0.5 }
-  PCB = POSITION_CENTER_BEGIN = proc{|a, b| a > b ? POSITION_CENTER[a, b] : POSITION_BEGIN[a, b] }
-  PCE = POSITION_CENTER_END = proc{|a, b| a > b ? POSITION_CENTER[a, b] : POSITION_END[a, b] }
-
   module UI
     class << self
-      attr_accessor :layouts
+      attr_accessor :layout_map
+
+      def init
+        @layout_map = {}
+      end
 
       def eqr a, b
         a == b and (Rational === a) == (Rational === b)
@@ -27,10 +18,12 @@ module Kredki
         in Layout::Basic
           param
         else
-          @layouts[param] or raise "Unknown layout '#{param}'"
+          @layout_map[param] or raise "Unknown layout '#{param}'"
         end
       end
     end
+
+    self.layout_map = {}
   end
 
   require_relative 'ui/pad/pad'
@@ -58,48 +51,20 @@ module Kredki
   require_relative "ui/layout/xway"
   require_relative "ui/layout/yway"
 
-  UI.layouts = {
-    nil => UI::Layout::Basic.new(0, 0),
-    center: UI::Layout::Basic.new(0, 0),
-    column: UI::Layout::Yway.new(0, 0),
-    row: UI::Layout::Xway.new(0, 0),
-
-    c: UI::Layout::Basic.new(0, 0),
-    x: UI::Layout::Xway.new(0, 0),
-    xc: UI::Layout::Xway.new(0, 0),
-    xcc: UI::Layout::Xway.new(0, 0),
-    y: UI::Layout::Yway.new(0, 0),
-    yc: UI::Layout::Yway.new(0, 0),
-    ycc: UI::Layout::Yway.new(0, 0),
-
-    bb: UI::Layout::Basic.new(PB, PB),
-    xbb: UI::Layout::Xway.new(PB, PB),
-    ybb: UI::Layout::Yway.new(PB, PB),
-    eb: UI::Layout::Basic.new(PE, PB),
-    xeb: UI::Layout::Xway.new(PE, PB),
-    yeb: UI::Layout::Yway.new(PE, PB),
-    be: UI::Layout::Basic.new(PB, PE),
-    xbe: UI::Layout::Xway.new(PB, PE),
-    ybe: UI::Layout::Yway.new(PB, PE),
-    ee: UI::Layout::Basic.new(PE, PE),
-    xee: UI::Layout::Xway.new(PE, PE),
-    yee: UI::Layout::Yway.new(PE, PE),
-
-    bc: UI::Layout::Basic.new(PB, 0),
-    xbc: UI::Layout::Xway.new(PB, 0),
-    ybc: UI::Layout::Yway.new(PB, 0),
-    ec: UI::Layout::Basic.new(PE, 0),
-    xec: UI::Layout::Xway.new(PE, 0),
-    yec: UI::Layout::Yway.new(PE, 0),
-    cb: UI::Layout::Basic.new(0, PB),
-    xcb: UI::Layout::Xway.new(0, PB),
-    ycb: UI::Layout::Yway.new(0, PB),
-    ce: UI::Layout::Basic.new(0, PE),
-    xce: UI::Layout::Xway.new(0, PE),
-    yce: UI::Layout::Yway.new(0, PE),
-  }
-
   module UI
+    begin
+      layout_map[nil] = Layout::Basic.new :center, :center
+      layout_map[:center] = Layout::Basic.new :center, :center
+      layout_map[:x] = Layout::Xway.new :center, :center
+      layout_map[:y] = Layout::Yway.new :center, :center
+      
+      [:begin, :center, :end].repeated_permutation 2 do
+        layout_map["#{it[0]}_#{it[1]}".to_sym] = Layout::Basic.new it[0], it[1]
+        layout_map["x_#{it[0]}_#{it[1]}".to_sym] = Layout::Xway.new it[0], it[1]
+        layout_map["y_#{it[0]}_#{it[1]}".to_sym] = Layout::Yway.new it[0], it[1]
+      end
+    end
+
     module PadBase
       def! :pad!, Pad
       def! :space!, SpacePad
@@ -128,8 +93,6 @@ module Kredki
 
   Window.default_action = UI::Action
 end#Kredki
-
-include Kredki::UI
 
 class CarryFocusOnTab
   def self.plug_into target

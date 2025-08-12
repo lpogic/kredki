@@ -53,12 +53,12 @@ when /cygwin|mswin|mingw|bccwin|wince|emx/
 
   desc "Build pastele & update project binaries"
   task :build => "pastele:build"
-  task :build => "kredki/ext/dll"
+  task :build => "kredki/stuff/dll"
   task :build => "thorvg:import"
   task :build => "sdl:import"
   task :build => "pastele:import"
   
-  directory "kredki/ext/dll"
+  directory "kredki/stuff/dll"
 
   namespace :thorvg do
     desc "Build thorvg"
@@ -87,7 +87,7 @@ when /cygwin|mswin|mingw|bccwin|wince|emx/
   
     task :import do
       check_vars :$thorvg
-      target = "kredki/ext/dll/thorvg-1.dll"
+      target = "kredki/stuff/dll/thorvg-1.dll"
       source = "#$thorvg/builddir/src/thorvg-1.dll"
       cp source, target
     end
@@ -110,7 +110,7 @@ when /cygwin|mswin|mingw|bccwin|wince|emx/
   
     task :import do
       check_vars :$sdl
-      target = "kredki/ext/dll/SDL3.dll"
+      target = "kredki/stuff/dll/SDL3.dll"
       source = "#$sdl/builddir/Release/SDL3.dll"
       cp source, target
     end
@@ -191,7 +191,7 @@ when /cygwin|mswin|mingw|bccwin|wince|emx/
     end
   
     task :import do
-      target = "kredki/ext/dll/pastele.dll"
+      target = "kredki/stuff/dll/pastele.dll"
       source = "pastele/cmaked/Release/pastele.dll"
       cp source, target
     end

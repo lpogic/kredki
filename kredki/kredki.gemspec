@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.email       = "oficjalnyadreslukasza@gmail.com"
   s.files       = [
     *Dir.glob('lib/**/*'),
-    *Dir.glob('ext/**/*'),
+    *Dir.glob('stuff/**/*'),
   ]
   s.homepage    = "https://github.com/lpogic/kredki"
   s.license       = "Zlib"

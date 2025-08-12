@@ -84,8 +84,8 @@ module Kredki
             ph = get_h p1, p1.h, ch
             p1.set_size pw, ph
             p1.arrange
-            px = p1.get_x cw, pw, (get_c @x, cw, pw)
-            py = p1.get_y ch, ph, (get_c @y, ch, ph)
+            px = p1.get_x cw, pw, (get_x @x, cw, pw)
+            py = p1.get_y ch, ph, (get_y @y, ch, ph)
             p1.set_xy px, py
             p1.set_margin
             if p1.layoutic?
@@ -116,7 +116,7 @@ module Kredki
       def sketch p0
         super
 
-        layout! NoteLayout.new(PB, 0)
+        layout! NoteLayout.new(:begin, :center)
         mousy!
         keyboardy!
         stroke_size! 1

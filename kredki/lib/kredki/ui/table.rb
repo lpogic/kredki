@@ -15,8 +15,7 @@ module Kredki
         when Range
           b = case w.begin
           when Rational
-            r = pcw * w.begin.to_f
-            w.begin.denominator == 1 ? r / 100 : r
+            pcw * w.begin
           when Numeric
             w.begin < 0 ? pcw + w.begin : w.begin
           when nil
@@ -25,8 +24,7 @@ module Kredki
           end
           e = case w.end
           when Rational
-            r = pcw * w.end.to_f
-            w.end.denominator == 1 ? r / 100 : r
+            pcw * w.end
           when Numeric
             w.end < 0 ? pcw + w.end : w.end
           when nil
@@ -110,16 +108,14 @@ module Kredki
         end
 
         cx = case @x
-        when Rational 
-          r = cw * @x.to_f
-          @x.denominator == 1 ? r / 100 : r
+        when Rational
+          @x * cw - sw * 0.5
         when Proc
           @x[cw, sw]
         when Numeric
-          @x < 0 ? cw - sw + @x : @x
+          @x
         else raise @x
         end
-        cx -= sw * 0.5
 
         lx = lxm = ly = lym = 0
         
@@ -127,26 +123,24 @@ module Kredki
         pad.arrange_pads.each do |p1|
           if p1.layoutic?
             pw = p1.sw
-            hpw = (@measurement[i] || pw) * 0.5
             ph = p1.sh
-            cx += hpw
             px = p1.get_x cw, pw, cx
-            py = p1.get_y ch, ph, (get_c @y, ch, ph)
+            py = p1.get_y ch, ph, (get_y @y, ch, ph)
             p1.set_xy px, py
             p1.set_margin
             p1.arrange
-            cx += hpw + @space
+            cx += (@measurement[i] || pw) + @space
             i += 1
-            lx = [lx, px - hpw].min
+            lx = [lx, px].min
             ly = [ly, py].min
-            lxm = [lxm, px + hpw].max
+            lxm = [lxm, px + pw].max
             lym = [lym, py + ph].max
           else
             pw = get_w p1, p1.w, cw
             ph = get_h p1, p1.h, ch
             p1.set_size pw, ph
-            px = p1.get_x cw, pw, (get_c @x, cw, pw)
-            py = p1.get_y ch, ph, (get_c @y, ch, ph)
+            px = p1.get_x cw, pw, (get_x @x, cw, pw)
+            py = p1.get_y ch, ph, (get_y @y, ch, ph)
             p1.set_xy px, py
             p1.set_margin
             p1.arrange

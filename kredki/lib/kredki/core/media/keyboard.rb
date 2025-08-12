@@ -1,37 +1,43 @@
 
 module Kredki
   class Keyboard
-    model :keys, keywords: true do
-      @inverted_keys = @keys.invert
-    end
+    include Alterable
 
-    def key param
-      case param
-      when Key
-        param
-      when Symbol
-        Key.new @keys[param] || (raise "Unknown mouse button symbol :#{param}"), param
-      when Integer
-        Key.new param, @inverted_keys[param]
-      end
-    end
-    
     class Key
-  
-      model :keycode, :symbol
+
+      model :id, :keycode
   
       def to_i
         @keycode
       end
   
       def to_sym
-        @symbol
+        @id
       end
   
       def ==(other)
         Key === other &&
-        scancode == other.scancode &&
-        symbol == other.symbol
+        @keycode == other.keycode &&
+        @id == other.id
+      end
+    end
+
+    def initialize &block
+      @key_map = {}
+      @keycode_map = {}
+      alter &block
+    end
+
+    def key! id, keycode
+      @key_map[id] = @keycode_map[keycode] = Key.new id, keycode
+    end
+
+    def key param
+      case param
+      when Key
+        param
+      else
+        @keycode_map[param] or @key_map[param] or raise "Unknown key #{param.inspect}"
       end
     end
 

@@ -19,7 +19,7 @@ module Kredki
     #internal api
 
     def redraw
-      draw!.rectangle! @xs * 2 - @stroke_size, @ys * 2 - @stroke_size, @blunt.to_f
+      draw!.xy!(@w * 0.5 , @h * 0.5).rectangle! @w - @stroke_size, @h - @stroke_size, @blunt.to_f
     end
 
     def set_stroke_size ...

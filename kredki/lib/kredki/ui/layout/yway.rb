@@ -50,16 +50,20 @@ module Kredki
           end
 
           cy = case @y
+          when :center
+            (ch - sh) * 0.5
+          when :begin
+            0
+          when :end
+            ch - sh
           when Rational 
-            r = ch * @y.to_f
-            @y.denominator == 1 ? r / 100 : r
+            ch * @y
           when Proc
             @y[ch, sh]
           when Numeric
             @y
-          else raise @y
+          else raise_is @y
           end
-          cy -= sh * 0.5
 
           lx = lxm = ly = lym = 0
 
@@ -67,24 +71,22 @@ module Kredki
             if p1.layoutic?
               pw = p1.sw
               ph = p1.sh
-              hph = ph * 0.5
-              cy += hph
-              px = p1.get_x cw, pw, (get_c @x, cw, pw)
+              px = p1.get_x cw, pw, (get_x @x, cw, pw)
               py = p1.get_y ch, ph, cy
               p1.set_xy px, py
               p1.set_margin
               p1.arrange
-              cy += hph + space
+              cy += ph + space
               lx = [lx, px].min
-              ly = [ly, py - hph].min
+              ly = [ly, py].min
               lxm = [lxm, px + pw].max
-              lym = [lym, py + hph].max
+              lym = [lym, py + ph].max
             else
               pw = get_w p1, p1.w, cw
               ph = get_h p1, p1.h, ch
               p1.set_size pw, ph
-              px = p1.get_x cw, pw, (get_c @x, cw, pw)
-              py = p1.get_y ch, ph, (get_c @y, ch, ph)
+              px = p1.get_x cw, pw, (get_x @x, cw, pw)
+              py = p1.get_y ch, ph, (get_y @y, ch, ph)
               p1.set_xy px, py
               p1.set_margin
               p1.arrange

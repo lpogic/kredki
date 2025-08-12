@@ -60,14 +60,6 @@ module Kredki
         action.layer!(...)
       end
 
-      def weak_tag tag, weakref
-        define_singleton_method tag do
-          obj = weakref.__getobj__
-          weakref.weakref_alive? ? obj : nil
-        end
-      end
-
-
       #internal api
 
       def initialize

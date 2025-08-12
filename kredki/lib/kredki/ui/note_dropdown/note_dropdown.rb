@@ -25,17 +25,17 @@ module Kredki
         super
 
         @picked = nil
-        @arrow = new ButtonPad, w: 20, h: 100r, x: :e do
+        @arrow = new ButtonPad, w: 20, h: 100r, x: :end do
           theme! :gray
           stroke_size! 0
           keyboardy! false
           text.detach!
           new Pad, mousy: false, keyboardy: false, color: 0, wh: 100r do
             stroke! color: :text, size: 3, cap: :round, join: :miter
-            area! do |xs, ys|
-              xy! xs * -0.5, ys * -0.3
-              line! 0, ys * 0.2
-              line! xs * 0.5, ys * -0.3
+            area! do |w, h|
+              xy! w * 0.2, h * 0.3
+              line! w * 0.5, h * 0.7
+              line! w * 0.8, h * 0.3
             end
           end
         end

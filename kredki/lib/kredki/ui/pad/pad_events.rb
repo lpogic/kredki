@@ -98,7 +98,7 @@ module Kredki
       end
 
       def_delegators :@origin,
-        :symbol, :button, :repeat?, :clicks
+        :button_id, :button, :repeat?, :clicks
     end
 
     class MouseMoveEvent < MouseEvent
@@ -125,19 +125,19 @@ module Kredki
 
     class MouseButtonDownEvent < MouseEvent
       def_delegators :@origin,
-        :button_number
+        :button_code
     end
 
     class MouseButtonUpEvent < MouseEvent
       def_delegators :@origin,
-        :button_number
+        :button_code
 
         model :<, :drag
     end
 
     class MouseClickEvent < MouseEvent
-      def button_number
-        @origin&.button_number
+      def button_code
+        @origin&.button_code
       end
     end
 

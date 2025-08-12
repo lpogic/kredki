@@ -66,16 +66,15 @@ module Kredki
 
         @area.hide!
         wh! :fit, 24
-        verse_layout! :bc
+        verse_layout! :begin_center
         content! "TEXT"
       end
 
       def verse_metrics h
         case @linespace
         when Rational
-          ls = @linespace.denominator == 1 ? @linespace / 100 : @linespace
-          th = @verse_size == :auto ? h / (1 + (@verses.size - 1) * ls) : @verse_size
-          ls = th * ls
+          th = @verse_size == :auto ? h / (1 + (@verses.size - 1) * @linespace) : @verse_size
+          ls = th * @linespace
         when Numeric
           th = @verse_size == :auto ? (h + (@verses.size - 1) * @linespace) / @verses.size : @verse_size
           ls = th + @linespace
@@ -108,12 +107,13 @@ module Kredki
           w, h = swh
           th, ls = verse_metrics h
           tth = (@verses.size - 1) * ls + th
-          y = align_y(tth, h) - tth * 0.5 + th * 0.5
+          y = align_y tth, h
           @verses.each do |v|
             v.h! th
             x = align_x v.w, w
+            p [x, y, sx, sy]
             v.xy! x, y
-            y += ls
+            y -= ls
           end
         end
         true
@@ -122,22 +122,22 @@ module Kredki
       def align_x tw, w
         case @verse_layout
         when :b, :bb, :bc, :be
-          (tw - w) / 2
-        when :e, :eb, :ec, :ee
-          (w - tw) / 2
-        else
           0
+        when :e, :eb, :ec, :ee
+          w - tw
+        else
+          (w - tw) * 0.5
         end
       end
 
       def align_y th, h
         case @verse_layout
         when :b, :bb, :cb, :eb
-          (th - h) * 0.5
-        when :e, :be, :ce, :ee
-          (h - th) * 0.5
-        else
           0
+        when :e, :be, :ce, :ee
+          h - th
+        else
+          (h - th) * 0.5
         end
       end
     end

@@ -128,11 +128,11 @@ module Kredki
 
       def get_x pcw, sw, ax
         if @cursor.show?
-          hp = pcw * 0.5
-          if @cursor.x + sx < -hp
-            @cursor.xs - hp - @cursor.x
-          elsif @cursor.x + sx > hp
-            hp - @cursor.x - @cursor.xs
+          cx = @cursor.x + @cursor.w
+          if sx + cx > sw
+            sw - cx - @cursor.w / 2
+          elsif sx + @cursor.x < 0
+            @cursor.w / 2 - @cursor.x
           else
             sx
           end
@@ -143,11 +143,11 @@ module Kredki
 
       def get_y pch, sh, ay
         if @cursor.show?
-          hp = pch * 0.5
-          if @cursor.y + sy < -hp
-            @cursor.ys - hp - @cursor.y
-          elsif @cursor.y + sy > hp
-            hp - @cursor.y - @cursor.ys
+          cy = cursor.y + cursor.h
+          if sy + cy > sh
+            sh - cy
+          elsif sy + cursor.y < 0
+            -cursor.y
           else
             sy
           end
@@ -171,10 +171,10 @@ module Kredki
         total = 0
         last = @verses.last
         @verses.each do |v|
-          if v.y + v.ys < y && v != last
+          if v.y + v.h * 0.5 < y && v != last
             total += v.content.length + 1
           else
-            return total + v.nearest_character_index(x - v.x + v.xs)
+            return total + v.nearest_character_index(x - v.x + v.w * 0.5)
           end
         end
         total > 0 ? total - 1 : 0
@@ -183,13 +183,13 @@ module Kredki
       def update_cursor
         total = -1
         @cursor.h! @verse_size if @verse_size != :auto
-        @cursor.xy! align_x(@cursor.xs, sw), align_y(@cursor.h, sh)
+        @cursor.xy! align_x(@cursor.w * 0.5, sw), align_y(@cursor.h, sh)
         @verses.each do |verse|
           total += 1
           if @cursor_position <= total + verse.content.length
             @cursor.h! verse.h
             x = verse.substring_width @cursor_position - total
-            @cursor.xy! x + verse.x - verse.xs, verse.y
+            @cursor.xy! x + verse.x - @cursor.w * 0.5, verse.y
             break
           end
           total += verse.content.length
@@ -207,16 +207,16 @@ module Kredki
           elsif @selection_max >= next_total
             x1 = v.substring_width @selection_min - total
             s.wh! v.w - x1, v.h
-            s.xy! v.x + x1 * 0.5, v.y
+            s.xy! v.x + x1, v.y
           elsif @selection_min <= total
             x1 = v.substring_width @selection_max - total
             s.wh! x1, v.h
-            s.xy! v.x - v.xs + x1 * 0.5, v.y
+            s.xy! *v.xy
           else
             x1 = v.substring_width @selection_min - total
             x2 = v.substring_width @selection_max - total
             s.wh! x2 - x1, v.h
-            s.xy! v.x - v.xs + (x1 + x2) * 0.5, v.y
+            s.xy! v.x + x1, v.y
           end
           total = next_total
         end
@@ -227,7 +227,7 @@ module Kredki
         cursor_position = @verses.reduce -1 do |total, v|
           total += 1
           if total + v.content.length >= @cursor_position
-            break prev_v ? total - prev_v.content.length + prev_v.nearest_character_index(@cursor.x - prev_v.x + prev_v.xs) - 1 : 0
+            break prev_v ? total - prev_v.content.length + prev_v.nearest_character_index(@cursor.x - prev_v.x) - 1 : 0
           end
           prev_v = v
           total + v.content.length
@@ -256,7 +256,7 @@ module Kredki
         cursor_position = @verses.reduce -1 do |total, v|
           total += 1
           if total > @cursor_position
-            break total + v.nearest_character_index(@cursor.x - v.x + v.xs)
+            break total + v.nearest_character_index(@cursor.x - v.x)
           end
           total + v.content.length
         end

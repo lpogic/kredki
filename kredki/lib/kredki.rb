@@ -1,15 +1,20 @@
 require_relative 'kredki/ui'
 
-arena = Kredki.init
+arena = Kredki.arena!
 A = arena.window!
 module Kredki
-  extend Forwardable
+  module Extend
+    extend Forwardable
 
-  (A.methods - Object.instance_methods).each do
-      def_delegator :A, it
+    (A.methods - Object.instance_methods).each do
+        def_delegator :A, it
+    end
   end
 end
-extend Kredki
+extend Kredki::Extend
+include Kredki
+include Kredki::UI
+
 use! TerminateOnEsc
 use! CarryFocusOnTab
 window.alter{ resizable!; text_input! }

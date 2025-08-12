@@ -7,14 +7,14 @@ module Kredki
   class MouseButtonEvent < MouseEvent
     
     def button
-      @mouse.button(@abi.button).to_sym
+      @mouse.button @abi.button
     end
 
-    def symbol
-      button
+    def button_id
+      button.id
     end
 
-    def button_number
+    def button_code
       @abi.button
     end
 
@@ -35,7 +35,7 @@ module Kredki
     end
 
     def ~()
-      button
+      button.id
     end
   end
 

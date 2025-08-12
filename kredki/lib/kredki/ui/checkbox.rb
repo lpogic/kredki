@@ -53,10 +53,10 @@ module Kredki
         @theme = nil
         @check = new Pad, mousy: false, keyboardy: false, color: 0, wh: 100r do
           stroke! color: :text, size: 3
-          area! do |xs, ys|
-            xy! 2 - xs, 0
-            line! 0, xs - 1
-            line! xs - 2, 2 - ys
+          area! do |w, h|
+            xy! 2, h * 0.5
+            line! w * 0.5, h - 1
+            line! w - 2, 2
           end
           hide!
         end

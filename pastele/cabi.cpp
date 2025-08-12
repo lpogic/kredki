@@ -281,8 +281,8 @@ CABI void paint_set_transform(Paint* self, float px, float py, float x, float y,
     m.e11 = m.e22 = c;
     m.e12 = -s;
     m.e21 = s;
-    m.e13 = x - c * px + s * py;
-    m.e23 = y - s * px - c * py;
+    m.e13 = x + px - c * px + s * py;
+    m.e23 = y + py - s * px - c * py;
     self->transform(m);
 }
 

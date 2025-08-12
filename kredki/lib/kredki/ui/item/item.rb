@@ -96,7 +96,7 @@ module Kredki
 
         keyboardy!
         theme! :gray
-        layout! :xbc
+        layout! :x_begin_center
         h! 24
         w! :fit
 

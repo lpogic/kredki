@@ -101,7 +101,7 @@ module Kredki
         keyboardy!
         stroke_size! 1
         theme! :gray
-        layout! :xc
+        layout! :end_center
         wh! :fit
         m! 3
 

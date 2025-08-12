@@ -16,11 +16,36 @@ module Kredki
       super Abi.scene_new
       ObjectSpace.define_finalizer(self, self.class.proc.finalize(@pointer))
 
+      @px = @py = 0
       clear!
     end
 
     def new_paint klass, *a, show: true, at: nil, **na, &b
       put_paint(klass.new, show, at).paint.alter(*a, **na, &b)
+    end
+
+    param def px! px
+      return if @px == px
+      @px = px
+      update_transform
+      update
+    end
+
+    param def py! py
+      return if @py == py
+      @py = py
+      update_transform
+      update
+    end
+
+    param def pxy! x, y = x
+      return if @px == x && @py == y
+      @px = x
+      @py = y
+      update_transform
+      update
+    end, def pxy
+      [@px, @py]
     end
     
     def def_paint name, klass = nil, &block

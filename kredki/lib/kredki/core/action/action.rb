@@ -1,5 +1,6 @@
 require_relative '../event/manage/event_director'
 require_relative '../event/step_event'
+require_relative 'the'
 require_relative 'action_events'
 require_relative 'action_event_manager'
 require_relative '../media/local_media'
@@ -21,6 +22,7 @@ module Kredki
       @event_manager = ActionEventManager.new
       @event_director = EventDirector.new
       @fill = rectangle! xy: 0
+      @the = The.new
     end
 
     attr :last_frame_ms
@@ -36,6 +38,8 @@ module Kredki
     def action
       self
     end
+
+    attr :the
 
     param def color! *color
       @fill.fill_color = color.unpack_one
@@ -75,7 +79,8 @@ module Kredki
     def sketch p0
       
       on_window_resize!{ @fill.wh = ~it }
-      color! 0, 0, 0
+      @fill.wh = *wh
+      color! 20, 70, 20
     end
 
     def translate x, y, target = nil
@@ -89,8 +94,7 @@ module Kredki
 
     def screen_translate x, y, target = nil
       wx, wy = window.xy
-      ww, wh = window.wh
-      translate x - wx - ww / 2, y - wy - wh / 2, target
+      translate x - wx, y - wy, target
     end
 
     def push_animation animation

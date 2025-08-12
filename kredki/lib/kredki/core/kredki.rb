@@ -7,7 +7,7 @@ module Kredki
   class << self
     extend Forwardable
 
-    def init
+    def arena!
       if !@arena
         Abi.thorvg_engine_init 2, 4
         Abi.sdl_init ($kredki_joystick || joystick ? 1 : 0)
@@ -18,8 +18,7 @@ module Kredki
  
     def run! action = nil, *a, **na, &block
       if !@arena
-        init
-        @arena.window! action, *a, **na, &block
+        arena.window! action, *a, **na, &block
       else
         @arena.window.action! action, *a, **na, &block
       end
@@ -29,74 +28,62 @@ module Kredki
     def_delegators :@arena,
       :terminate!
 
-    attr_accessor :clipboard, :keyboard, :mouse
-    attr :arena, :fonts, :colors
+    attr_accessor :clipboard, :keyboard, :mouse, :joysticks
+    attr :arena
 
-    def joysticks=(joysticks)
-      @joysticks = joysticks
+    def clipboard! clipboard = nil
+      @clipboard = clipboard || Clipboard.new
     end
 
-    def joysticks
-      @joysticks ||= []
+    def keyboard! keyboard = nil, **na, &b
+      @keyboard = keyboard || Keyboard.new
+      @keyboard.alter **na, &b
     end
 
-    def joystick=(default_joystick)
-      self.joysticks = [default_joystick, *joysticks]
+    def mouse! mouse = nil, **na, &b
+      @mouse = mouse || Mouse.new
+      @mouse.alter **na, &b
     end
 
-    def joystick name = nil
-      name ? joysticks.find{ _1.name == name } : joysticks.first
+    def joystick! id = nil, joystick = nil, **na, &b
+      (@joysticks[id] = joystick || Joystick.new).alter **na, &b
     end
 
-    def fonts= fonts
-      values = fonts.values
-      Font.loaded_fonts.values.reject do |font|
-        values.find{ _1 == font || _1 == font.path }
-      end.each{ Font.unload _1 }
-      @fonts = fonts.map do |id, param|
-        case param
-        when String
-          [id, (Font.load param)]
-        when Font
-          [id, param]
-        end
-      end.to_h
+    def joystick id = nil
+      @joysticks[id] or raise "Joystick #{id.inspect} not registered"
+    end
+
+    attr_accessor :font_map
+    
+    def font! id, path
+      @font_map[id] = Font.new path
     end
 
     def font param = nil
       case param
       when nil
-        @fonts&.each_value&.first || (raise "No fonts loaded")
+        @font_map.each_value&.first or raise "No fonts loaded"
       when Font
         param
       when :rand
-        @fonts&.values.sample || (raise "No fonts loaded")
-      when Symbol
-        @fonts&.itself[param] || (raise "Unknown font '#{param}'")
+        @font_map.values.sample or raise "No fonts loaded"
       when String
-        @fonts&.each_value&.find{|font| font.name == param || font.path == param } || (raise "Unknown font '#{param}'")
+        @font_map.each_value.find{ it.name == param || it.path == param } or raise "Unknown font #{param.inspect}"
       else
-        raise "Unknown font '#{param}'"
+        @font_map.itself[param] or raise "Unknown font #{param.inspect}"
       end
     end
 
-    def colors= colors
-      @colors = colors.map do |id, param|
-        [id, case param
-        when Color
-          param
-        when Array
-          Color.new *param
-        else
-          raise "Unknown color '#{param}'"
-        end]
-      end.to_h
+    attr_accessor :color_map
+
+    def color! id, r, g, b, a
+      @color_map[id] = Color.new r, g, b, a
     end
 
     def color param = nil
       case param
       when nil
-        @colors&.each_value&.first || Color.new(255, 255, 255)
+        @color_map.each_value.first || Color.new(255, 255, 255)
       when Color
         param
       when :rand
@@ -104,18 +91,19 @@ module Kredki
       when Array
         Color.new *param
       else
-        @colors&.itself[param] || (raise "Unknown color '#{param}'")
+        @color_map[param] or raise "Unknown color #{param}"
       end
     end
 
-
     #internal api
 
-    def opened_joysticks
-      @opened_joysticks ||= {}
-    end
+    attr_accessor :opened_joysticks
 
   end
+  self.color_map = {}
+  self.font_map = {}
+  self.joysticks = {}
+  self.opened_joysticks = {}
 end
 
 require_relative 'abi/abi'

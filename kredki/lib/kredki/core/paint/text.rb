@@ -9,9 +9,9 @@ module Kredki
       @content = "TEXT"
       @font = Kredki.font
       @color = Kredki.color
-      @ys = 16
+      @h = 16
       set_content @content
-      set_font @font.name, @ys * 2, ""
+      set_font @font.name, @h, ""
       set_fill_color *@color.to_rgb_array
       update_size
     end
@@ -38,34 +38,24 @@ module Kredki
       update_size
     end
 
-    def xs
-      @xs
-    end
-
     def w
-      @xs * 2
+      @w
     end
 
-    param def ys! s
-      return if @ys == s
-      set_font Kredki.font(@font).name, s * 2, ""
-      @ys = s
+    param def h! s
+      return if @h == s
+      set_font Kredki.font(@font).name, s, ""
+      @h = s
       update_size
     end
 
-    param def h! h
-      ys! h * 0.5
-    end, def h
-      @ys * 2
-    end
-
     def wh
-      [@xs * 2, @ys * 2]
+      [@w, @h]
     end
 
     param def font! font
       return if @font == font
-      set_font Kredki.font(font).name, @ys * 2, ""
+      set_font Kredki.font(font).name, @h, ""
       @font = font
       update_size
     end
@@ -84,12 +74,12 @@ module Kredki
       Abi.text_delete pointer
     end
 
-    def pivot
-      [@xs, @ys]
+    def pxy
+      [@w * 0.5, @h * 0.5]
     end
 
     def update_size
-      @xs = substring_width * 0.5
+      @w = substring_width
       update_transform
       update
     end

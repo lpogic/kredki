@@ -198,10 +198,11 @@ module Kredki
         true
       end
 
-      param def spin! spin
+      param def spin! spin = nil, &b
+        return spin! b[@spin] if b
         return if @spin == spin
         @spin = spin
-        spin = spin.denominator == 1 ? Math::PI * spin / 50 : Math::PI * 2 * spin if spin.is_a? Rational
+        spin *= Math::PI * 2 if spin.is_a? Rational
         @scene.spin! spin
       end
 
@@ -371,7 +372,7 @@ module Kredki
       end
 
       def roi! x = 0, y = 0
-        report ROIEvent.new area.xs, area.ys, x, y
+        report ROIEvent.new *swh, x, y
       end
 
       def use! extension, *a, **na, &b
@@ -390,6 +391,7 @@ module Kredki
         @pads = []
         @x = @y = :layout
         @w = @h = 100
+        @spin = 0
         @mxb = @mxe = @myb = @mye = 0
         @stroke_size = 0
         @layout = nil
@@ -427,13 +429,13 @@ module Kredki
       end
 
       def mouse_down e
-        report KeyboardOfferEvent.new if e.button == :primary
-        pin_request e.xy, e.button
+        report KeyboardOfferEvent.new if e.button_id == :primary
+        pin_request e.xy, e.button_id
         e.resolve
       end
 
       def mouse_up e
-        pin_dispose e.button
+        pin_dispose e.button_id
         if !e.drag && include_point?(*layer.translate(*e.xy, self))
           report MouseClickEvent.new e.origin
         end
@@ -465,7 +467,6 @@ module Kredki
         case at
         when Integer
           paint_state = @clip_scene.put_paint pad.scene, true
-          p [at, pad]
           @pads.insert at, pad
         when Pad
           paint_state = @clip_scene.put_paint pad.scene, true, at.scene
@@ -501,44 +502,44 @@ module Kredki
       def get_x pcw, sw, ax
         case @x
         when Rational
-          r = pcw * @x.to_f
-          @x.denominator == 1 ? r / 100 : r
+          @x * pcw - sw * 0.5
         when Proc
           @x[pcw, sw]
         when Range
           ax + @x.begin
-        when :e
-          (pcw - sw) * 0.5
-        when :b
-          (sw - pcw) * 0.5
-        when :c
+        when :end
+          pcw - sw
+        when :begin
           0
+        when :center
+          (pcw - sw) * 0.5
         when :layout
           ax
-        else
+        when Numeric
           @x
+        else raise_is @x
         end
       end
 
       def get_y pch, sh, ay
         case @y
         when Rational
-          r = pch * @y.to_f
-          @y.denominator == 1 ? r / 100 : r
+          @y * pch - sh * 0.5
         when Proc
           @y[pch, sh]
         when Range
           ay + @y.begin
-        when :e
-          (pch - sh) * 0.5
-        when :b
-          (sh - pch) * 0.5
-        when :c
+        when :end
+          pch - sh
+        when :begin
           0
+        when :center
+          (pch - sh) * 0.5
         when :layout
           ay
-        else
+        when Numeric
           @y
+        else raise_is @y
         end
       end
 
@@ -546,6 +547,7 @@ module Kredki
         mx = @mxb + @mxe
         my = @myb + @mye
         @area.wh! w, h
+        @scene.pxy! w * 0.5, h * 0.5
         @clip_area.wh! w - mx, h - my
       end
 
@@ -644,8 +646,7 @@ module Kredki
       def get_w
         case @w
         when Rational
-          r = @pad_parent.get_w * @w.to_f
-          @w.denominator == 1 ? r / 100 : r
+          @pad_parent.get_w * @w
         when Proc
           @w[@pad_parent.get_w]
         when :fit
@@ -656,8 +657,7 @@ module Kredki
           pcw = nil
           b = case @w.begin
           when Rational
-            r = (pcw ||= @pad_parent.get_w) * @w.begin.to_f
-            @w.begin.denominator == 1 ? r / 100 : r
+            (pcw ||= @pad_parent.get_w) * @w.begin
           when Numeric
             @w.begin < 0 ? (pcw ||= @pad_parent.get_w) + @w.begin : @w.begin
           when nil
@@ -666,8 +666,7 @@ module Kredki
           end
           e = case @w.end
           when Rational
-            r = (pcw ||= @pad_parent.get_w) * @w.end.to_f
-            @w.end.denominator == 1 ? r / 100 : r
+            (pcw ||= @pad_parent.get_w) * @w.end
           when Numeric
             @w.end < 0 ? (pcw ||= @pad_parent.get_w) + @w.end : @w.end
           when nil
@@ -689,8 +688,7 @@ module Kredki
       def get_h
         case @h
         when Rational
-          r = @pad_parent.get_h * @h.to_f
-          @h.denominator == 1 ? r / 100 : r
+          @pad_parent.get_h * @h
         when Proc
           @h[@pad_parent.get_h]
         when :fit
@@ -701,7 +699,7 @@ module Kredki
           pch = nil
           b = case @h.begin
           when Rational
-            r = (pch ||= @pad_parent.get_h) * @h.begin.to_f
+            (pch ||= @pad_parent.get_h) * @h.begin
             @h.begin.denominator == 1 ? r / 100 : r
           when Numeric
             @h.begin < 0 ? (pch ||= @pad_parent.get_h) + @h.begin : @h.begin
@@ -711,8 +709,7 @@ module Kredki
           end
           e = case @h.end
           when Rational
-            r = (pch ||= @pad_parent.get_h) * @h.end.to_f
-            @h.end.denominator == 1 ? r / 100 : r
+            (pch ||= @pad_parent.get_h) * @h.end
           when Numeric
             @h.end < 0 ? (pch ||= @pad_parent.get_h) + @h.end : @h.end
           when nil
@@ -732,8 +729,8 @@ module Kredki
       end
 
       def set_margin
-        x = (@mxb - @mxe) * 0.5
-        y = (@myb - @mye) * 0.5
+        x = @mxb
+        y = @myb
         @clip_scene.xy! x, y
         @clip_area.xy! x, y
       end

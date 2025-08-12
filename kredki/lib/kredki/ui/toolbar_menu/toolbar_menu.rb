@@ -21,7 +21,7 @@ module Kredki
         w! 100r
         h! :fit
         xy! 0
-        layout! :xbc, space: 4
+        layout! :x_begin_center, space: 4
         color! :gray
       
         @item_group = new ToolbarItemGroup

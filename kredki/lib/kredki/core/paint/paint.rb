@@ -197,12 +197,12 @@ module Kredki
       Abi.paint_set_opacity @pointer, opacity
     end
 
-    def pivot
+    def pxy
       [0, 0]
     end
 
     def update_transform
-      Abi.paint_set_transform @pointer, *pivot, @x, @y, @spin, @scale
+      Abi.paint_set_transform @pointer, *pxy, @x, @y, @spin, @scale
     end
 
     def set_blend blend

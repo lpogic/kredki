@@ -36,9 +36,12 @@ module Kredki
 
       param def tag! tag
         @tags[tag] = true
-        layer.weak_tag tag.to_s[1..], WeakRef.new(self) if tag.start_with? "@"
       end, get: def tag
         @tags.keys
+      end
+
+      def the
+        action.the
       end
 
       def =~(filter)
@@ -112,7 +115,6 @@ module Kredki
 
       def initialize
         super
-        @action = nil
         @parent = nil
         @tags = {}
         @services = []

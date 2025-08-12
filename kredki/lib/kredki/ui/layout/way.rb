@@ -15,8 +15,7 @@ module Kredki
           when Range
             b = case s.begin
             when Rational
-              r = ps * s.begin.to_f
-              s.begin.denominator == 1 ? r / 100 : r
+              ps * s.begin
             when Numeric
               s.begin < 0 ? ps + s.begin : s.begin
             when nil
@@ -25,8 +24,7 @@ module Kredki
             end
             e = case s.end
             when Rational
-              r = ps * s.end.to_f
-              w.end.denominator == 1 ? r / 100 : r
+              ps * s.end
             when Numeric
               w.end < 0 ? ps + s.end : s.end
             when nil

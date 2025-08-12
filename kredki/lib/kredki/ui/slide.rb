@@ -66,7 +66,7 @@ module Kredki
         super
 
         on_mouse_scroll! do |e|
-          jump = Kredki.mouse.scrollbar_speed keyboard.alt?
+          jump = keyboard.alt? ? Kredki.mouse.scrollbar_alt_speed : Kredki.mouse.scrollbar_speed
           self.value -= jump * e.xory
           e.resolve
         end
@@ -81,7 +81,7 @@ module Kredki
           end
 
           on_mouse_down! do |e|
-            drag! e.xy, e.button
+            drag! e.xy, e.button_id
             e.resolve
           end
         end
@@ -103,7 +103,7 @@ module Kredki
             if e.drag
               s = sw
               max_x = p0.sw - s
-              x0 = sx + max_x * 0.5 if e.drag == :start
+              x0 = sx if e.drag == :start
               start_x = layer.pin_xy[0]
               x = [[0, x0 + e.x - start_x].max, max_x].min
               p0.value! 1.0 * x / max_x, false
@@ -113,7 +113,7 @@ module Kredki
         end
     
         on_mouse_down! :primary do |e|
-          @handle.drag! @handle.translate, :primary
+          @handle.drag! @handle.translate(@handle.sw * 0.5, 0), :primary
           e.resolve
           e.break
         end
@@ -126,7 +126,7 @@ module Kredki
         lw ||= 3 * w
         hw = (w.to_f / lw * w).clamp 20, [w - 20, 20].max
         @handle.set_size hw, sh
-        @handle.set_xy (w - hw) * (@value - 0.5), 0
+        @handle.set_xy (w - hw) * @value, 0
       end
     end
 
@@ -143,7 +143,7 @@ module Kredki
             if e.drag
               s = sh
               max_y = p0.sh - s
-              y0 = sy + max_y * 0.5 if e.drag == :start
+              y0 = sy if e.drag == :start
               start_y = layer&.pin_xy[1]
               y = [[0, y0 + e.y - start_y].max, max_y].min
               p0.value! 1.0 * y / max_y, false
@@ -154,7 +154,7 @@ module Kredki
         end
 
         on_mouse_down! :primary do |e|
-          @handle.drag! @handle.translate, :primary
+          @handle.drag! @handle.translate(0, @handle.sh * 0.5), :primary
           e.resolve
           e.break
         end
@@ -167,7 +167,7 @@ module Kredki
         lh ||= 3 * h
         hh = (h.to_f / lh * h).clamp 20, [h - 20, 20].max
         @handle.set_size sw, hh
-        @handle.set_xy 0, (h - hh) * (@value - 0.5)
+        @handle.set_xy 0, (h - hh) * @value
       end
     end
   end

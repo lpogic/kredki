@@ -16,14 +16,14 @@ module Kredki
           if x + sw > action.w
             x = [action.w - sw, 0].max
           end
-          x + sw * 0.5 - note.area.xs
+          x
         end
         @scroll.y = proc do |ph, sh|
           x, y = *note.translate(0, note.sh)
           if y + sh > action.h
             y = [y - sh, 0].max
           end
-          y + sh * 0.5 - note.area.ys
+          y
         end
         @scroll.w = proc{ note.sw }
         @pad.w = proc do

@@ -6,7 +6,7 @@ module Kredki
     include Area
 
     def initialize
-      @xs = @ys = 50
+      @w = @h = 100
       @redraw_flag = true
 
       super
@@ -25,9 +25,13 @@ module Kredki
 
     def to_hash
       super + {
-        w: w,
-        h: h
+        w: @w,
+        h: @h
       }
+    end
+
+    def pxy
+      [@w * 0.5, @h * 0.5]
     end
 
     def update

@@ -33,13 +33,13 @@ module Kredki
           stroke! color: :text, size: 3, cap: :round, join: :miter
           scenic! false
         end
-        @end_icon = new Pad, mousy: false, keyboardy: false, color: 0, x: :e, h: 100r do
+        @end_icon = new Pad, mousy: false, keyboardy: false, color: 0, x: :end, h: 100r do
           w! proc{ get_h }
           stroke! color: :text, size: 3, cap: :round, join: :miter
-          area! do |xs, ys|
-            xy! 0, ys * -0.3
-            line! xs * 0.3, 0
-            line! 0, ys * 0.3
+          area! do |w, h|
+            xy! w * 0.5, h * 0.3
+            line! w * 0.7, h * 0.5
+            line! w * 0.5, h * 0.7
           end
           scenic! false
         end
