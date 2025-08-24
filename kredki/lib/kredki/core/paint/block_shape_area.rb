@@ -9,7 +9,7 @@ module Kredki
     end
 
     def redraw
-      drawer = draw!
+      drawer = draw! true, @w * 0.5, @h * 0.5
       drawer.autoupdate = false
       drawer.instance_exec @w, @h, &@block
       drawer.commit!

@@ -1,10 +1,9 @@
-require_relative 'pad/sort_pad'
 require_relative 'slide'
 require_relative 'layout/basic'
 
 module Kredki
   module UI
-    class ScrollPad < SortPad
+    class ScrollPad < Pad
 
       #internal api
 
@@ -12,10 +11,11 @@ module Kredki
         super
         
         # @corner existence is checked in put_pad
-        corner = new Pad, layoutic: false, color: :gray, wh: 10, xy: :end
+        corner = new ShapePad, layoutic: false, color: :gray, wh: 10, xy: End
         @xslide = new HorizontalSlide, layoutic: false, h: 10
         @yslide = new VerticalSlide, layoutic: false, w: 10
         @corner = corner
+        @och = @ocw = 0
 
         @yslide.on_edit! do |e|
           layer&.break_layout
@@ -53,28 +53,12 @@ module Kredki
             if x < 0 || (x += e.w - sw) > 0
               @xslide.value += 1.0 * x / range
             end
-            # dw = cw * 0.5 - e.w
-            # if x.abs > dw
-            #   if x < 0
-            #     @xslide.value += (x + dw) / range
-            #   else
-            #     @xslide.value += (x - dw) / range
-            #   end
-            # end
           end
 
           if (range = (@lh || 0) - sh) > 0
             if y < 0 || (y += e.h - sh) > 0
               @yslide.value += 1.0 * y / range
             end
-            # dh = ch * 0.5 - e.h
-            # if y.abs > dh
-            #   if y < 0
-            #     @yslide.value += (y + dh) / range
-            #   else
-            #     @yslide.value += (y - dh) / range
-            #   end
-            # end
           end
         end
       end
@@ -94,7 +78,7 @@ module Kredki
       end
 
       def cw
-        super() - @ocw
+        super() + @ocw
       end
 
       def ch
@@ -112,8 +96,8 @@ module Kredki
           h = sh
           xscroll = w < @lw
           yscroll = h < @lh
-          yscroll ||= xscroll && h - 10 < @lh
-          xscroll ||= yscroll && w - 10 < @lw
+          yscroll ||= xscroll && h - oh < @lh
+          xscroll ||= yscroll && w - ow < @lw
           if prepare && (xscroll || yscroll)
             @ocw -= oh if yscroll
             @och -= ow if xscroll
@@ -121,23 +105,23 @@ module Kredki
           end
           
           @xslide.show = xscroll
-          pad_x = @ocw
+          pad_x = 0
           if xscroll
-            xs = w + @ocw
+            xs = yscroll ? w + @ocw : w
             @xslide.set_size xs, oh
             @xslide.set_xy 0, h - oh
             @xslide.arrange @lw
-            pad_x += ((xs - @lw) * @xslide.value).round
+            pad_x += ((xs - @lw) * @xslide.value).round - mx
           end
           
           @yslide.show = yscroll
-          pad_y = @och
+          pad_y = 0
           if yscroll
-            ys = h + @och
+            ys = xscroll ? h + @och : h
             @yslide.set_size ow, ys
             @yslide.set_xy w - ow, 0
             @yslide.arrange @lh
-            pad_y += ((ys - @lh) * @yslide.value).round
+            pad_y += ((ys - @lh) * @yslide.value).round - my
           end
           
           ps.each do |p1|

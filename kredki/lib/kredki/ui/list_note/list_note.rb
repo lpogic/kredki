@@ -1,22 +1,22 @@
 require_relative '../note'
-require_relative 'note_dropdown_layer'
+require_relative 'list_note_layer'
 
 module Kredki
   module UI
-    class NoteDropdown < Note
+    class ListNote < Pad
 
       attr :picked
 
       def dropdown! ...
-        @dropdown ||= new NoteDropdownLayer do
+        @dropdown ||= new ListNoteLayer do
           pad_detach
         end
 
         @dropdown.alter(...)
       end
 
-      def item! *a, **na, &b
-        dropdown!.item! *a, w: 100r, **na, &b
+      def item! ...
+        dropdown!.item!(w: 1r).alter(...)
       end
 
       #internal api
@@ -25,17 +25,17 @@ module Kredki
         super
 
         @picked = nil
-        @arrow = new ButtonPad, w: 20, h: 100r, x: :end do
-          theme! :gray
+        @note = new Note
+        @arrow = @note.new ButtonPad, w: 20, h: 1r do
           stroke_size! 0
           keyboardy! false
           text.detach!
-          new Pad, mousy: false, keyboardy: false, color: 0, wh: 100r do
+          new ShapePad, mousy: false, keyboardy: false, color: 0, wh: 1r do
             stroke! color: :text, size: 3, cap: :round, join: :miter
             area! do |w, h|
-              xy! w * 0.2, h * 0.3
-              line! w * 0.5, h * 0.7
-              line! w * 0.8, h * 0.3
+              xy! w * 0.2, h * 0.35
+              line! w * 0.5, h * 0.65
+              line! w * 0.8, h * 0.35
             end
           end
         end
@@ -44,8 +44,8 @@ module Kredki
       def sketch p0
         super
 
-        m! 1
-        @verse.w = -20
+        h! 24
+        @note.wh! 1r
         dropdown!
 
         Event.group on_key!(:enter) do
@@ -68,17 +68,13 @@ module Kredki
 
         @dropdown.on! Item::PickEvent do |e|
           @dropdown.unload!
-          content! ~e, :end
+          @note.content! ~e, :end
         end
 
         @dropdown.on_key! :escape do
           @dropdown.unload!
           it.resolve
         end
-
-        # @dropdown.on_mouse_button! do
-        #   @dropdown.unload!
-        # end
 
         on_focus_leave! do
           @dropdown.unload!

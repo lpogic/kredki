@@ -91,8 +91,8 @@ module Kredki
         self
       end
 
-      def clear!
-        clear_pads
+      def s! proc, *a, **na
+        instance_exec *a, **na, &proc
       end
 
       def attach! parent

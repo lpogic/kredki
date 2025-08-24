@@ -3,7 +3,7 @@ require_relative 'theme'
 
 module Kredki
   module UI
-    class ButtonPad < Pad
+    class ButtonPad < ShapePad
       extend Forwardable
       extend HasParams
       extend HasEventResolvers
@@ -101,8 +101,8 @@ module Kredki
         keyboardy!
         stroke_size! 1
         theme! :gray
-        layout! :end_center
-        wh! :fit
+        layout! End/Center
+        wh! Fit
         m! 3
 
         on_mouse_click! :primary do |e|

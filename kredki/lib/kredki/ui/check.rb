@@ -2,7 +2,7 @@ require_relative 'theme'
 
 module Kredki
   module UI
-    class Radiobox < Pad
+    class Check < ShapePad
       extend Forwardable
       extend HasParams
       extend HasFlags
@@ -43,7 +43,7 @@ module Kredki
         @theme = theme
       end
 
-      flag :checked, set: :update_checked
+      flag :checked, set: :set_checked
 
       #internal api
 
@@ -51,9 +51,12 @@ module Kredki
         super
 
         @theme = nil
-        @check = new Pad, mousy: false, keyboardy: false, color: :text, wh: 100r do
+        @check = new ShapePad, mousy: false, keyboardy: false, color: 0, wh: 1r do
+          stroke! color: :text, size: 3
           area! do |w, h|
-            ellipse! w, h
+            xy! 2, h * 0.5
+            line! w * 0.5, h - 1
+            line! w - 2, 2
           end
           hide!
         end
@@ -62,28 +65,17 @@ module Kredki
       def sketch p0
         super
 
-        area! do |w, h|
-          ellipse! w - 1, h - 1
-        end
         keyboardy!
         stroke_size! 1
-        layout! :center
-        wh! 16
-        m! 4
         theme! :gray
+        layout! Center
+        wh! 20
+        m! 3
 
         Event.group on_mouse_click!, on_key!(:space, :enter) do
-          checked!
+          checked! :~
         end
 
-        on_key_down! do |e|
-          parent.key e, self
-        end
-
-      end
-
-      def update_checked checked
-        parent&.set_checked self, checked or set_checked checked
       end
 
       def set_checked checked

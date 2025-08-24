@@ -3,7 +3,7 @@ require_relative 'tree_list_item'
 
 module Kredki
   module UI
-    class TreeList < Pad
+    class TreeList < ShapePad
       extend Forwardable
       extend HasParams
       extend HasEventResolvers
@@ -11,7 +11,7 @@ module Kredki
       event_resolver :on_pick!, Item::PickEvent
 
       def item! *a, **na, &b
-        @item_group.item! *a, w: 100r, **na, &b
+        @item_group.item! *a, w: 1r, **na, &b
       end
 
       #internal api
@@ -21,20 +21,38 @@ module Kredki
 
         keyboardy!
         color! :gray
-        layout! :y_begin_begin
+        layout! Y/Begin/Begin
 
-        @item_group = new ListItemGroup
+        @item_group = new TreeListItemGroup
 
         on! Item::PickEvent do
           item = it.target
-          kb = keyboard
-          if kb.shift?
-            item.select!
-          elsif kb.ctrl?
-            item.select! :~
+          ke = it.origin
+          if false #ke.is_a? KeyboardEvent
+            if ke.key.id == :enter
+              item.open! :~
+            else
+              kb = keyboard
+              if kb.shift?
+                item.select! :~
+              else
+                s[Item...]{ select! s == item }
+              end
+            end
           else
-            s[Item..]{ select! s == item }
-            item.open! :~
+            kb = keyboard
+            if kb.shift?
+              if kb.ctrl?
+                item.open! :~
+              else
+                item.select!
+              end
+            elsif kb.ctrl?
+              item.select! :~
+            else
+              s[Item..]{ select! s == item }
+              item.open! :~
+            end
           end
         end
 

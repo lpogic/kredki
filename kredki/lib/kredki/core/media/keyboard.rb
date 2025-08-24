@@ -37,7 +37,7 @@ module Kredki
       when Key
         param
       else
-        @keycode_map[param] or @key_map[param] or raise "Unknown key #{param.inspect}"
+        @keycode_map[param] or @key_map[param]
       end
     end
 

@@ -3,7 +3,7 @@ require_relative 'theme'
 
 module Kredki
   module UI
-    class Note < Pad
+    class Note < ShapePad
       include TextEdition
       extend Forwardable
       extend HasParams
@@ -72,31 +72,16 @@ module Kredki
 
       #internal api
 
-      class NoteLayout < Layout::Basic
-        def arrange pad
-          cw = pad.cw
-          ch = pad.ch
-
-          lx = lw = ly = lh = 0
-
-          pad.arrange_pads.each do |p1|
-            pw = get_w p1, p1.w, cw
-            ph = get_h p1, p1.h, ch
-            p1.set_size pw, ph
-            p1.arrange
-            px = p1.get_x cw, pw, (get_x @x, cw, pw)
-            py = p1.get_y ch, ph, (get_y @y, ch, ph)
-            p1.set_xy px, py
-            p1.set_margin
-            if p1.layoutic?
-              lx = [lx, px].min
-              ly = [ly, py].min
-              lw = [lw, pw].max
-              lh = [lh, ph].max
-            end
-          end
-
-          [lx, ly, lw, lh]
+      class NoteLayout < Layout::XWay
+        def arrange_layoutic pad, cw, ch, cx
+          pw = pad.sw
+          ph = pad.sh
+          px = pad.get_x cw, pw, cx
+          py = pad.get_y ch, ph, (get_y @y, ch, ph)
+          pad.arrange
+          pad.set_xy px, py
+          pad.set_margin
+          [pw, ph, px, py]
         end
       end
 
@@ -110,16 +95,17 @@ module Kredki
       end
 
       def initialize_verse
-        @verse = new EditableTextVerse, wh: 100r, mousy: false
+        @verse = new EditableTextVerse, "", wh: 1r, mousy: false
       end
 
       def sketch p0
         super
 
-        layout! NoteLayout.new(:begin, :center)
+        layout! NoteLayout.new(Begin, Center)
         mousy!
         keyboardy!
         stroke_size! 1
+        m! 1
         theme! :gray
         h! 24
 

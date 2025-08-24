@@ -3,7 +3,7 @@ require_relative '../theme'
 
 module Kredki
   module UI
-    class Item < Pad
+    class Item < ShapePad
       extend HasEventResolvers
 
       def << arg
@@ -96,9 +96,9 @@ module Kredki
 
         keyboardy!
         theme! :gray
-        layout! :x_begin_center
+        layout! X/Begin/Center
         h! 24
-        w! :fit
+        w! Fit
 
         on_mouse_click! :primary do |e|
           report PickEvent.new(content, e)
@@ -111,7 +111,8 @@ module Kredki
       end
 
       def mouse_enter e
-        parent&.mouse_enter self if action.event.is_a? Kredki::MouseEvent
+        # parent&.mouse_enter self if action.event.is_a? Kredki::UI::PositionEvent
+        parent&.mouse_enter self
       end
 
       def min_w

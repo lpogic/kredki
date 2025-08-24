@@ -98,8 +98,6 @@ module Kredki
       Abi.scene_delete pointer
     end
 
-    attr_accessor :base
-
     def each_paint &b
       Enumerator.new do |e|
         state = @paints[nil].after
@@ -118,7 +116,6 @@ module Kredki
       paint.detach! if paint.scene
       paint.scene = self
       if show
-
         Abi.scene_push @pointer, paint.pointer, next_shown(at)&.pointer
         update
       end

@@ -1,6 +1,6 @@
 module Kredki
   module UI
-    class ContextPad < Pad
+    class ContextPad < ShapePad
 
       def mouse_enter e
         e.resolve
@@ -13,8 +13,8 @@ module Kredki
       def sketch p0
         super
 
-        wh! :fit
-        layout! :y
+        wh! Fit
+        layout! Y
       end
     end
   end

@@ -8,7 +8,7 @@ module Kredki
     end
 
     def symbol
-      @keyboard.key(@abi.sym).to_sym
+      @keyboard.key(@abi.sym)&.to_sym
     end
 
     def keycode

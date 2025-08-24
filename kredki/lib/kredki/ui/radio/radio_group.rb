@@ -1,12 +1,11 @@
-require_relative 'pad/service'
-require_relative 'radiobox'
+require_relative 'radio_item'
 
 module Kredki
   module UI
     class RadioGroup < Service
 
-      def radio! ...
-        new(Radiobox, ...)
+      def item! ...
+        new(RadioItem, ...)
       end
 
       #internal api
@@ -27,17 +26,17 @@ module Kredki
       end
 
       def previous_radio radio
-        radios = self[Radiobox...].to_a
+        radios = self[RadioItem...].to_a
         radios[radios.index(radio) - 1]
       end
 
       def next_radio radio
-        radios = self[Radiobox...].to_a
+        radios = self[RadioItem...].to_a
         radios[(radios.index(radio) + 1) % radios.size]
       end
 
       def set_checked radio, checked
-        self[Radiobox...].select{ it.checked? }.each{ it.set_checked false } if checked
+        self[RadioItem...].select{ it.checked? }.each{ it.set_checked false } if checked
         radio.set_checked checked
       end
     end#RadioGroup

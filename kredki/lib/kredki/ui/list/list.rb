@@ -3,7 +3,7 @@ require_relative 'list_item'
 
 module Kredki
   module UI
-    class List < Pad
+    class List < ShapePad
       extend Forwardable
       extend HasParams
       extend HasEventResolvers
@@ -11,7 +11,7 @@ module Kredki
       event_resolver :on_pick!, Item::PickEvent
 
       def item! *a, **na, &b
-        @item_group.item! *a, w: 100r, **na, &b
+        @item_group.item! *a, w: 1r, **na, &b
       end
 
       #internal api
@@ -21,7 +21,8 @@ module Kredki
 
         keyboardy!
         color! :gray
-        layout! :y
+        layout! Y/Begin/Begin
+        h! Fit
 
         @item_group = new ListItemGroup
 
@@ -34,7 +35,6 @@ module Kredki
             item.select! :~
           else
             s[Item..]{ select! s == item }
-            item.open! :~
           end
         end
 

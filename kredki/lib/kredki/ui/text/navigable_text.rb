@@ -158,12 +158,13 @@ module Kredki
 
       def align_x tw, w
         case @verse_layout
-        when :b, :bb, :bc, :be
-          (tw - w) / 2 + @cursor.w
-        when :e, :eb, :ec, :ee
-          (w - tw) / 2 - @cursor.w
-        else
-          0
+        when :begin, :begin_begin, :begin_center, :begin_end
+          @cursor.w
+        when :end, :end_begin, :end_center, :end_end
+          w - tw - @cursor.w
+        when :center, :center_begin, :center_center, :center_end
+          (w - tw) * 0.5 + @cursor.w
+        else raise_is @verse_layout
         end
       end
 
@@ -171,10 +172,10 @@ module Kredki
         total = 0
         last = @verses.last
         @verses.each do |v|
-          if v.y + v.h * 0.5 < y && v != last
+          if v.y + v.h < y && v != last
             total += v.content.length + 1
           else
-            return total + v.nearest_character_index(x - v.x + v.w * 0.5)
+            return total + v.nearest_character_index(x - v.x)
           end
         end
         total > 0 ? total - 1 : 0

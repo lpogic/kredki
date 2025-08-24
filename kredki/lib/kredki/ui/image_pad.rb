@@ -5,9 +5,9 @@ module Kredki
       extend HasParams
 
       param def source! source
-        @picture.source! source, false
+        @area.source! source, false
       end, def source
-        @picture.source
+        @area.source
       end
 
       def << arg
@@ -21,21 +21,9 @@ module Kredki
 
       #internal api
 
-      def initialize
-        super
-        @picture = @scene.picture! wh: [sw, sh]
+      def initialize_area
+        @area = @scene.picture! wh: [@w, @h]
       end
-
-      def sketch p0
-        super
-        @area.hide!
-      end
-
-      def set_size w, h
-        super
-        @picture.wh! w, h
-      end
-
     end
   end
 end

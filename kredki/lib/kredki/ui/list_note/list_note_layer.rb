@@ -2,7 +2,7 @@ require_relative '../item/item_group'
 
 module Kredki
   module UI
-    class NoteDropdownLayer < Layer
+    class ListNoteLayer < Layer
 
       def arrange
         @note&.layer&.arrange
@@ -28,7 +28,7 @@ module Kredki
         @scroll.w = proc{ note.sw }
         @pad.w = proc do
           pw = parent.sw
-          pw -= 10 if @scroll.sh < get_h
+          pw -= 10 if @scroll.sh < @pad.get_h
           [pw, fit_w].max
         end
 
@@ -54,8 +54,8 @@ module Kredki
       def sketch p0
         super
 
-        @scroll = new ScrollPad
-        @pad = @scroll.new Pad, color: :gray, layout: :column, h: :fit
+        @scroll = new ScrollPad, layout: Y/Begin/Begin
+        @pad = @scroll.new ShapePad, color: :gray, layout: Y/Begin/Begin, h: Fit
         @item_group = @pad.new ItemGroup
       end
 

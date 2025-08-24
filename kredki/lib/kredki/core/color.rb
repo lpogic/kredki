@@ -31,6 +31,7 @@ module Kredki
     end
 
     def clarify a = 255
+      a = (255 * a).to_i if a.is_a? Rational
       Color.new *to_rgb_array, a
     end
 

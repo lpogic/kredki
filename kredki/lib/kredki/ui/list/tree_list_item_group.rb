@@ -1,6 +1,6 @@
 module Kredki
   module UI
-    class ListItemGroup < ItemGroup
+    class TreeListItemGroup < ItemGroup
 
       def item!(...)
         new(TreeListItem, ...)
@@ -32,7 +32,30 @@ module Kredki
         end
       end
 
-
+      def update_select_item item
+        case item
+        when :previous
+          items = self[Item...].to_a 
+          index = items.index{ it.keyboard_in? } || 1
+          update_select_item items[index - 1] if index > 0
+        when :next
+          found = nil
+          self[Item...].any? do
+            if found
+              break update_select_item it if it.show?
+            elsif it.keyboard_in?
+              found = it
+            end
+            false
+          end or found or self[Item]&.then{ update_select_item it }
+          # items = self[Item...].to_a 
+          # index = items.index{ it.keyboard_in? } || -1
+          # update_select_item items[index + 1] if index < items.length - 1
+        else
+          item&.focus!
+          item
+        end
+      end
     end
   end
 end

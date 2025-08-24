@@ -47,12 +47,22 @@ module Kredki
           s[...selection_min] + new_content
         end
         content! s, false
-        if @verse_layout.start_with? "e"
+        case @verse_layout
+        when :begin, :begin_begin, :begin_center, :begin_end
+          nil
+        when :end, :end_begin, :end_center, :end_end
           v = @verses.first
-          @scene.x = x >= 0 && v.w > sw ? @scene.x + v.w - w0 : 0
-        elsif @verse_layout.start_with? "c"
+          @scene.x = sx >= 0 && v.w > sw ? @scene.x + v.w - w0 : 0
+        when :center, :center_begin, :center_center, :center_end
           @scene.x = 0
+        else raise_is @verse_layout
         end
+        # if @verse_layout.start_with? "e"
+        #   v = @verses.first
+        #   @scene.x = x >= 0 && v.w > sw ? @scene.x + v.w - w0 : 0
+        # elsif @verse_layout.start_with? "c"
+        #   @scene.x = 0
+        # end
         reset_cursor selection_min + new_content.length
       end
     end

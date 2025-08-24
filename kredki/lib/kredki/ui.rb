@@ -1,5 +1,58 @@
 require_relative 'core'
 
+module Keyword
+  def coerce(other)
+    [self, self]
+  end
+
+  def <=> o
+    0
+  end
+
+  def === o
+    self == o
+  end
+
+  def / o
+    Keywords.new self, o
+  end
+end
+
+class Keywords
+  def initialize *words
+    @words = words.freeze
+  end
+
+  attr :words
+
+  def / o
+    Keywords.new *@words, o
+  end
+
+  def inspect
+    to_s
+  end
+
+  def to_s
+    @words.join "/"
+  end
+
+  def hash
+    @words.hash
+  end
+
+  def eql? o
+    Keywords === o and @words == o.words
+  end
+end
+
+class Fit extend Keyword end
+class Begin extend Keyword end
+class Center extend Keyword end
+class End extend Keyword end
+class X extend Keyword end
+class Y extend Keyword end
+
 module Kredki
   module UI
     class << self
@@ -26,7 +79,12 @@ module Kredki
     self.layout_map = {}
   end
 
+  require_relative "ui/layout/basic"
+  require_relative "ui/layout/x_way"
+  require_relative "ui/layout/y_way"
   require_relative 'ui/pad/pad'
+  require_relative 'ui/pad/sort_pad'
+  require_relative 'ui/pad/shape_pad'
   require_relative 'ui/action'
   require_relative 'ui/slide'
   require_relative 'ui/scroll_pad'
@@ -37,36 +95,32 @@ module Kredki
   require_relative 'ui/note'
   require_relative 'ui/notes'
   require_relative 'ui/button'
-  require_relative 'ui/checkbox'
-  require_relative 'ui/radio_group'
+  require_relative 'ui/check'
+  require_relative 'ui/radio/radio_group'
   require_relative 'ui/label'
-  require_relative 'ui/note_dropdown/note_dropdown'
+  require_relative 'ui/list_note/list_note'
   require_relative 'ui/table'
   require_relative 'ui/list/list'
   require_relative 'ui/list/tree_list'
   require_relative 'ui/context_menu/context_menu'
   require_relative 'ui/toolbar_menu/toolbar_menu'
 
-  require_relative "ui/layout/basic"
-  require_relative "ui/layout/xway"
-  require_relative "ui/layout/yway"
-
   module UI
     begin
-      layout_map[nil] = Layout::Basic.new :center, :center
-      layout_map[:center] = Layout::Basic.new :center, :center
-      layout_map[:x] = Layout::Xway.new :center, :center
-      layout_map[:y] = Layout::Yway.new :center, :center
+      layout_map[nil] = Layout::Basic.new Center, Center
+      layout_map[Center] = Layout::Basic.new Center, Center
+      layout_map[X] = Layout::XWay.new Center, Center
+      layout_map[Y] = Layout::YWay.new Center, Center
       
-      [:begin, :center, :end].repeated_permutation 2 do
-        layout_map["#{it[0]}_#{it[1]}".to_sym] = Layout::Basic.new it[0], it[1]
-        layout_map["x_#{it[0]}_#{it[1]}".to_sym] = Layout::Xway.new it[0], it[1]
-        layout_map["y_#{it[0]}_#{it[1]}".to_sym] = Layout::Yway.new it[0], it[1]
+      [Begin, Center, End].repeated_permutation 2 do
+        layout_map[it[0]/it[1]] = Layout::Basic.new it[0], it[1]
+        layout_map[X/it[0]/it[1]] = Layout::XWay.new it[0], it[1]
+        layout_map[Y/it[0]/it[1]] = Layout::YWay.new it[0], it[1]
       end
     end
 
     module PadBase
-      def! :pad!, Pad
+      def! :pad!, ShapePad
       def! :space!, SpacePad
       def! :scroll!, ScrollPad
       def! :image!, ImagePad
@@ -74,19 +128,19 @@ module Kredki
       def! :xslide!, HorizontalSlide
       def! :yslide!, VerticalSlide
       def! :button!, ButtonPad
-      def! :checkbox!, Checkbox
+      def! :check!, Check
       def! :note!, Note
       def! :notes!, Notes
       def! :label!, Label
-      def! :note_items!, NoteDropdown
+      def! :list_note!, ListNote
       def! :table!, Table
       def! :list!, List
-      def! :tree_list!, TreeList
+      def! :tree!, TreeList
 
-      def! :radios!, RadioGroup
+      def! :radio!, RadioGroup
 
-      def! :context_menu!, ContextMenu
-      def! :toolbar_menu!, ToolbarMenu
+      def! :context!, ContextMenu
+      def! :toolbar!, ToolbarMenu
 
     end#PadBase
   end#UI

@@ -23,7 +23,6 @@ module Kredki
 
       @picture = Picture.new Abi.animation_get_picture @pointer
       @play = false
-      @base = nil
       @ms = nil
       @total_frame = nil
       @on_end = EventManager.new
@@ -47,7 +46,7 @@ module Kredki
     end
 
     param_delegate :@picture,
-      :w, :h, :wh, :rotation, :scale
+      :w, :h, :wh, :spin, :scale
 
     param def frame! frame_index
       set_frame frame_index

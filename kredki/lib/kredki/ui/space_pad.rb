@@ -20,8 +20,7 @@ module Kredki
       def sketch p0
         super
         
-        area.hide!
-        wh! :fit
+        wh! Fit
       end
 
       def mouse_down e

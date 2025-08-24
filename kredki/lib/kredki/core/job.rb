@@ -22,7 +22,7 @@ module Kredki
       self
     end
 
-    def step! period: 0, &block
+    def step! period = 0, &block
       @step = block
       @step_period = period
       self
@@ -53,7 +53,7 @@ module Kredki
           @state = :step
           instance_exec @param, &@begin
         elsif @step && @state != :terminate
-          instance_exec dms + @step_period, &@step
+          @step.call dms + @step_period, self
           if @step_period > 0
             @next_step_ms += @step_period * (1 + dms / @step_period) 
           else

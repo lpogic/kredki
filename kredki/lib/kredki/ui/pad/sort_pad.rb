@@ -4,12 +4,6 @@ module Kredki
 
       #internal api
 
-      def sketch p0
-        super
-
-        area.hide!
-      end
-
       def point_pads x, y, pads, force = false
         if force || (mousy? && show? && include_point?(x, y))
           pads << self

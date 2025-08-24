@@ -28,18 +28,18 @@ module Kredki
         super
 
         @dropdown = nil
-        @begin_icon = new Pad, at: 0, mousy: false, keyboardy: false, color: 0, h: 100r do
+        @begin_icon = new ShapePad, at: 0, mousy: false, keyboardy: false, color: 0, h: 1r do
           w! proc{ get_h }
           stroke! color: :text, size: 3, cap: :round, join: :miter
           scenic! false
         end
-        @end_icon = new Pad, mousy: false, keyboardy: false, color: 0, x: :end, h: 100r do
+        @end_icon = new ShapePad, mousy: false, keyboardy: false, color: 0, x: End, h: 1r do
           w! proc{ get_h }
           stroke! color: :text, size: 3, cap: :round, join: :miter
           area! do |w, h|
-            xy! w * 0.5, h * 0.3
-            line! w * 0.7, h * 0.5
-            line! w * 0.5, h * 0.7
+            xy! w * 0.5, h * 0.35
+            line! w * 0.65, h * 0.5
+            line! w * 0.5, h * 0.65
           end
           scenic! false
         end

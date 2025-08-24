@@ -6,7 +6,7 @@ require_relative 'toolbar_item_group'
 
 module Kredki
   module UI
-    class ToolbarMenu < Pad
+    class ToolbarMenu < ShapePad
       extend HasEventResolvers
 
       def item!(...)
@@ -18,10 +18,10 @@ module Kredki
       def initialize
         super
 
-        w! 100r
-        h! :fit
+        w! 1r
+        h! Fit
         xy! 0
-        layout! :x_begin_center, space: 4
+        layout! X/Begin/Center, 4
         color! :gray
       
         @item_group = new ToolbarItemGroup

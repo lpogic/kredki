@@ -274,10 +274,10 @@ CABI void paint_delete(Paint* self)
     SDL_PushEvent(&event);
 }
 
-CABI void paint_set_transform(Paint* self, float px, float py, float x, float y, float rotation, float scale) {
+CABI void paint_set_transform(Paint* self, float px, float py, float x, float y, float spin, float scale) {
     auto m = self->transform();
-    auto s = sinf(rotation) * scale;
-    auto c = cosf(rotation) * scale;
+    auto s = sinf(spin) * scale;
+    auto c = cosf(spin) * scale;
     m.e11 = m.e22 = c;
     m.e12 = -s;
     m.e21 = s;
@@ -367,9 +367,72 @@ CABI void shape_append_rect(Shape* self, float x, float y, float w, float h, flo
     self->appendRect(x, y, w, h, rx, ry);
 }
 
+CABI void shape_append_rect1(Shape* self, float x, float y, float w, float h, float rbb, float reb, float rbe, float ree)
+{
+    #define PATH_KAPPA 0.552284f
+    Point pts[18];
+    PathCommand cmds[11];
+
+    auto s = Point{w * 0.5f, h * 0.5f};
+    auto minr = s.x > s.y ? s.y : s.x;
+    rbb = (rbb > minr) ? minr : rbb;
+    rbe = (rbe > minr) ? minr : rbe;
+    reb = (reb > minr) ? minr : reb;
+    ree = (ree > minr) ? minr : ree;
+    auto hr = 0.0f;
+
+    cmds[0] = PathCommand::MoveTo;
+    pts[0] = {x + w, y + reb}; //move
+    cmds[1] = PathCommand::LineTo;
+    pts[1] = {x + w, y + h - ree}; //line
+
+    auto pi = 2;
+    auto ci = 2;
+    if(ree > 0.0f) {
+        cmds[ci++] = PathCommand::CubicTo;
+        hr = ree * PATH_KAPPA;
+        pts[pi++] = {x + w, y + h - ree + hr}; 
+        pts[pi++] = {x + w - ree + hr, y + h}; 
+        pts[pi++] = {x + w - ree, y + h};  //cubic
+    }
+    cmds[ci++] = PathCommand::LineTo;
+    pts[pi++] = {x + rbe, y + h}; //line
+    if(rbe > 0.0f) {
+        cmds[ci++] = PathCommand::CubicTo;
+        hr = rbe * PATH_KAPPA;
+        pts[pi++] = {x + rbe - hr, y + h}; 
+        pts[pi++] = {x, y + h - rbe + hr}; 
+        pts[pi++] = {x, y + h - rbe};  //cubic
+    }
+    cmds[ci++] = PathCommand::LineTo;
+    pts[pi++] = {x, y + rbb}; //line
+    if(rbb > 0.0f) {
+        cmds[ci++] = PathCommand::CubicTo;
+        hr = rbb * PATH_KAPPA;
+        pts[pi++] = {x, y + rbb - hr}; 
+        pts[pi++] = {x + rbb - hr, y}; 
+        pts[pi++] = {x + rbb, y};  //cubic
+    }
+    cmds[ci++] = PathCommand::LineTo;
+    pts[pi++] = {x + w - reb, y}; //line
+    if(reb > 0.0f) {
+        cmds[ci++] = PathCommand::CubicTo;
+        hr = reb * PATH_KAPPA;
+        pts[pi++] = {x + w - reb + hr, y}; 
+        pts[pi++] = {x + w, y + reb - hr}; 
+        pts[pi++] = {x + w, y + reb};  //cubic
+    }
+    cmds[ci++] = PathCommand::Close;
+    cmds[ci++] = PathCommand::MoveTo;
+    pts[pi++] = {x, y};
+
+    self->appendPath(&cmds[0], ci, &pts[0], pi);
+}
+
 CABI void shape_append_circle(Shape* self, float cx, float cy, float rx, float ry)
 {
     self->appendCircle(cx, cy, rx, ry);
+    self->moveTo(cx, cy);
 }
 
 CABI void shape_set_stroke_width(Shape* self, float width)

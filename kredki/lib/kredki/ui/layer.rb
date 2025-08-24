@@ -2,7 +2,7 @@ require_relative 'pad/pad'
 
 module Kredki
   module UI
-    class Layer < Pad
+    class Layer < ShapePad
 
       class PinPad
         model :pad, :xy, :button, :drag
@@ -77,12 +77,12 @@ module Kredki
         color! false
 
         on_key_down! aim: true do |e|
-          @down_keys[~e] = true
+          @down_keys[~e || e.keycode] = true
         end
 
         on_key_up! aim: true do |e|
-          if @down_keys[~e]
-            @down_keys[~e] = false
+          if @down_keys[~e || e.keycode]
+            @down_keys[~e || e.keycode] = false
             keyboard_event KeyClickEvent.new e.origin
           end
         end

@@ -89,7 +89,11 @@ module Kredki
       when :rand
         Color.new rand(255), rand(255), rand(255)
       when Array
-        Color.new *param
+        if param.size == 2
+          color(param[0]).clarify param[1]
+        else
+          Color.new *param
+        end
       else
         @color_map[param] or raise "Unknown color #{param}"
       end

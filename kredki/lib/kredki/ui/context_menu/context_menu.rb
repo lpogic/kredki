@@ -11,7 +11,7 @@ module Kredki
     # Reopening class to avoid circular depedency 
     class ContextItemGroup
       def item! *a, **na, &b
-        new ContextItem, *a, w: 100r, **na, &b
+        new ContextItem, *a, w: 1r, **na, &b
       end
     end
     

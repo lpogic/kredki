@@ -1,6 +1,9 @@
+require_relative 'pad_inherited'
+
 module Kredki
   module UI
     module PadBase
+      extend PadInherited
 
       def [](filter, *extra_filters, &block)
         case filter
@@ -161,27 +164,6 @@ module Kredki
         end
       end
 
-      def self.def! name, klass = nil, *def_a, **def_na, &def_b
-        case klass
-        when Class
-          define_method name do |*a, **na, &b|
-            new(klass, name, *def_a, **def_na, **na, &def_b).alter *a, &b
-          end
-        when true
-          define_method name do |*a, **na, &b|
-            a = [name, *def_a, *a]
-            na = {**def_na, **na}
-            instance_exec(a, na, b, self, &def_b).alter *a, **na, &b
-          end
-        else
-          define_method name do |*a, **na, &b|
-            a = [name, *def_a, *a]
-            na = {**def_na, **na}
-            instance_exec a, na, b, self, &def_b
-          end
-        end
-      end
-
       def find_pad(filter, *extra_filters, &block)
         case filter
         when Integer
@@ -283,7 +265,7 @@ module Kredki
           end
         when :~
           parent&.each_pad(deep: false)
-          &.find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
+          &.find{|pad| pad != self && extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
 
             block ? pad.instance_exec(pad, &block) : pad
           end
@@ -296,6 +278,10 @@ module Kredki
 
       def begin! delay: false, exclusive: false, &block
         Job.new(self, exclusive).begin! delay:, &block
+      end
+
+      def step! period = 0, &block
+        begin!.step!(period, &block).call
       end
 
     end

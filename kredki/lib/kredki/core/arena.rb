@@ -203,8 +203,7 @@ module Kredki
       window.arena = self
       @window_threads[window_id] = Thread.new do
         loop do
-          # sleep 0.0162
-          sleep 0.06
+          sleep 0.02
           Abi.window_update window.pointer
         end
       end

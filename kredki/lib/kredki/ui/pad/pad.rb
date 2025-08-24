@@ -50,14 +50,16 @@ module Kredki
         [@x, @y]
       end
           
-      param def w! w
+      param def w! *w
+        w = w.unpack_one
         return if UI.eqr @w, w
         @w = w
         layer&.break_layout
         true
       end
 
-      param def h! h
+      param def h! *h
+        h = h.unpack_one
         return if UI.eqr @h, h
         @h = h
         layer&.break_layout
@@ -188,16 +190,6 @@ module Kredki
         @clip_area.wh
       end
 
-      param_prefix :stroke
-
-      param def stroke_size! size
-        return if @stroke_size == size
-        @stroke_size = size
-        @area.stroke_size = size
-        layer&.break_layout
-        true
-      end
-
       param def spin! spin = nil, &b
         return spin! b[@spin] if b
         return if @spin == spin
@@ -206,31 +198,11 @@ module Kredki
         @scene.spin! spin
       end
 
-      param_delegate :@scene,
-        :scale
-
-      param_delegate :@area, 
-        :stroke_color, 
-        :stroke_join, 
-        :stroke_cap,
-        :color
-
-      param def color! *color
-        @area.fill_color = color
-      end, def color
-        @area.fill_color
-      end
-
-      param def blunt! blunt, clip_blunt = true
-        change = false
-        change = @area.blunt! blunt if blunt
-        if clip_blunt
-          clip_blunt = blunt if clip_blunt == true
-          change = (@clip_area.blunt! clip_blunt or change)
-        end
-        change
-      end, def blunt clip = false
-        clip ? @clip_area.blunt : @area.blunt
+      param def scale! scale = nil, &b
+        return scale! b[scale] if b
+        @scene.scale! scale
+      end, def scale
+        @scene.scale
       end
 
       param def area! area = nil, &block
@@ -264,9 +236,9 @@ module Kredki
         true
       end
 
-      param def layout! layout = @layout, **params
-        return if @layout == layout && params.empty?
-        _layout = UI.layout(layout).tune **params
+      param def layout! layout = @layout, *a
+        return if @layout == layout && a.empty?
+        _layout = UI.layout(layout).tune *a
         @layout = layout
         return true if @_layout == _layout
         @_layout = _layout
@@ -383,19 +355,22 @@ module Kredki
 
       def initialize
         super
-        @pad_parent = nil
-        @scene = Scene.new
-        @area = @scene.rectangle!
-        @clip_scene = @scene.scene!
-        @clip_area = @clip_scene.rectangle! at: false, fill_color: false
-        @pads = []
         @x = @y = :layout
         @w = @h = 100
         @spin = 0
         @mxb = @mxe = @myb = @mye = 0
-        @stroke_size = 0
+        @pad_parent = nil
+        @scene = Scene.new
+        initialize_area
+        @clip_scene = @scene.scene!
+        @clip_area = @clip_scene.rectangle! at: false, fill_color: false
+        @pads = []
         @layout = nil
         @_layout = UI.layout
+      end
+
+      def initialize_area
+        @area = @scene.rectangle! show: false
       end
 
       def pad_tree
@@ -507,11 +482,11 @@ module Kredki
           @x[pcw, sw]
         when Range
           ax + @x.begin
-        when :end
+        when End
           pcw - sw
-        when :begin
+        when Begin
           0
-        when :center
+        when Center
           (pcw - sw) * 0.5
         when :layout
           ax
@@ -529,11 +504,11 @@ module Kredki
           @y[pch, sh]
         when Range
           ay + @y.begin
-        when :end
+        when End
           pch - sh
-        when :begin
+        when Begin
           0
-        when :center
+        when Center
           (pch - sh) * 0.5
         when :layout
           ay
@@ -576,7 +551,7 @@ module Kredki
         case @w
         when Rational, Proc
           m
-        when :fit
+        when Fit
           fit_w
         when :driven
           @area.w
@@ -612,7 +587,7 @@ module Kredki
         case @h
         when Rational, Proc
           m
-        when :fit
+        when Fit
           fit_h
         when :driven
           @area.h
@@ -624,7 +599,9 @@ module Kredki
             @h.begin < 0 ? m : @h.begin
           when nil
             m
-          else raise @h.begin
+          when Fit
+            fit_h
+          else raise_is @h.begin
           end
           e = case @h.end
           when Rational
@@ -633,7 +610,9 @@ module Kredki
             @h.end < 0 ? m : @h.end
           when nil
             Float::INFINITY
-          else raise @h.end
+          when Fit
+            fit_h
+          else raise_is @h.end
           end
           [b, e].min
         when Numeric
@@ -649,7 +628,7 @@ module Kredki
           @pad_parent.get_w * @w
         when Proc
           @w[@pad_parent.get_w]
-        when :fit
+        when Fit
           fit_w
         when :driven
           @area.w
@@ -691,7 +670,7 @@ module Kredki
           @pad_parent.get_h * @h
         when Proc
           @h[@pad_parent.get_h]
-        when :fit
+        when Fit
           fit_h
         when :driven
           @area.h

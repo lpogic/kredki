@@ -26,14 +26,15 @@ module Kredki
     class Drawer
       include Alterable
 
-      def initialize shape, reset
+      def initialize shape, reset = true, x = 0, y = 0
         @shape = shape
         @autoupdate = true
         Abi.shape_reset @shape.pointer if reset
-        xy! 0, 0
+        xy! x, y
       end
 
       attr_accessor :autoupdate
+      attr :shape
 
       def xy! x, y = x
         Abi.shape_move_to @shape.pointer, x, y
@@ -61,14 +62,12 @@ module Kredki
       def ellipse! w, h = w
         Abi.shape_append_circle @shape.pointer, @x, @y, w * 0.5, h * 0.5
         @shape.update if @autoupdate
-        xy! @x, @y
         self
       end
   
-      def rectangle! w, h = w, r1 = 0, r2 = r1
-        Abi.shape_append_rect @shape.pointer, @x - w * 0.5, @y - h * 0.5, w, h, r1, r2
+      def rectangle! w, h = w, rbb = 0, reb = rbb, rbe = rbb, ree = rbb
+        Abi.shape_append_rect1 @shape.pointer, @x - w * 0.5, @y - h * 0.5, w, h, rbb, reb, rbe, ree
         @shape.update if @autoupdate
-        xy! @x, @y
         self
       end
   
@@ -83,8 +82,8 @@ module Kredki
       end
     end
 
-    def draw! reset = true,  &block
-      drawer = Drawer.new self, reset
+    def draw! reset = true, x = 0, y = 0,  &block
+      drawer = Drawer.new self, reset, x, y
       if block
         drawer.autoupdate = false
         drawer.alter &block

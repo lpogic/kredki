@@ -2,7 +2,7 @@ require_relative 'theme'
 
 module Kredki
   module UI
-    class Slide < Pad
+    class Slide < ShapePad
       extend HasParams
       extend HasEventResolvers
 
@@ -97,7 +97,7 @@ module Kredki
 
         h! 10
 
-        @handle = new Pad, color: :gray do
+        @handle = new ShapePad, color: :gray do
           x0 = 0
           on_mouse_move! do |e|
             if e.drag
@@ -137,7 +137,7 @@ module Kredki
 
         w! 10
 
-        @handle = new Pad, color: :gray do
+        @handle = new ShapePad, color: :gray do
           y0 = 0
           on_mouse_move! do |e|
             if e.drag

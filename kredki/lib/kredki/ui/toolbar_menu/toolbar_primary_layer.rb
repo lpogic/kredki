@@ -25,7 +25,7 @@ module Kredki
         action = parent.action
         x, y = *item.translate(0, item.sh)
         if x + @items.sw > action.sw
-          x = [x - item.sw - @items.sw, 0].max
+          x = [action.sw - @items.sw, 0].max
         end
         if y + @items.sh > action.sh
           y = [action.sh - @items.sh, 0].max

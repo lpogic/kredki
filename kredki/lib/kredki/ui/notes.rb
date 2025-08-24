@@ -6,8 +6,16 @@ module Kredki
 
       #internal api
 
+      def sketch p0
+        super
+
+        h! 72
+        verse_size! 24
+        verse_layout! :begin_begin
+      end
+
       def initialize_verse
-        @verse = new EditableTextVerses, wh: 100r
+        @verse = new EditableTextVerses, wh: 1r
       end
 
       def sketch_verse

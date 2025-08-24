@@ -38,7 +38,7 @@ module Kredki
 
       def sketch p0
         super
-
+        
         on_key_down! :up do |e|
           select! if e.shift?
           item = parent.update_select_item(:previous)
@@ -64,7 +64,7 @@ module Kredki
       end
 
       def mouse_down e
-        parent.select_up_to self if keyboard.shift?
+        parent.select_up_to self if keyboard.then{ it.shift? && !it.ctrl? }
         super
       end
 

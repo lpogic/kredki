@@ -10,11 +10,11 @@ module Kredki
 
         def get_p cr, pc, sc
           case cr
-          when :center
+          when Center
             (pc - sc) * 0.5
-          when :begin
+          when Begin
             0
-          when :end
+          when End
             pc - sc
           when Rational
             cr * pc - sc * 0.5
@@ -34,59 +34,47 @@ module Kredki
           get_p cr, pc, sc
         end
 
-        def get_d d, pcd
-          case d
-          when Rational
-            pcd * d
-          when Proc
-            d[pcd]
-          when Range
-            b = case d.begin
-            when Rational
-              pcd * d.begin
-            when Numeric
-              d.begin < 0 ? pcd + d.begin : d.begin
-            when nil
-              0
-            else raise d.begin
-            end
-            e = case d.end
-            when Rational
-              pcd * d.end
-            when Numeric
-              d.end < 0 ? pcd + d.end : d.end
-            when nil
-              nil
-            else raise d.end
-            end
-            if e
-              b, e = *[b, e].minmax
-              [[e, pcd].min, b].max
-            else
-              [b, pcd].max
-            end
-          when Numeric
-            d < 0 ? [pcd + d, 0].max : d
-          else
-            raise d
-          end
-        end
-
         def get_w pad, w, pcw
           case w
-          when :fit
+          when Fit
             pad.fit_w
+          when Rational
+            pcw * w
+          when Proc
+            w[pcw]
+          when Range
+            b = get_w pad, w.begin || 0, pcw
+            e = get_w pad, w.end || Float::INFINITY, pcw
+            min, max = [b, e].minmax
+            pcw > min ? pcw < max ? pcw : max : min
+          when Numeric
+            w < 0 ? [pcw + w, 0].max : w
+          when Array
+            get_w pad, w[0], pcw * (w[1] || 1)
           else
-            get_d w, pcw
+            raise_ia w
           end
         end
 
         def get_h pad, h, pch
           case h
-          when :fit
+          when Fit
             pad.fit_h
+          when Rational
+            pch * h
+          when Proc
+            h[pch]
+          when Range
+            b = get_h pad, h.begin || 0, pch
+            e = get_h pad, h.end || Float::INFINITY, pch
+            min, max = [b, e].minmax
+            pch > min ? pch < max ? pch : max : min
+          when Numeric
+            h < 0 ? [pch + h, 0].max : h
+          when Array
+            get_h pad, h[0], pch * (h[1] || 1)
           else
-            get_d h, pch
+            raise_ia h
           end
         end
 
@@ -94,8 +82,10 @@ module Kredki
           cw = pad.cw
           ch = pad.ch
 
-          lx = lw = ly = lh = 0
-
+          lw = lh = 0
+          lx = cw
+          ly = ch
+          
           pad.arrange_pads.each do |p1|
             pw = get_w p1, p1.w, cw
             ph = get_h p1, p1.h, ch

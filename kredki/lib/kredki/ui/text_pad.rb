@@ -64,8 +64,7 @@ module Kredki
       def sketch p0
         super
 
-        @area.hide!
-        wh! :fit, 24
+        wh! Fit, 24
         verse_layout! :begin_center
         content! "TEXT"
       end
@@ -111,9 +110,8 @@ module Kredki
           @verses.each do |v|
             v.h! th
             x = align_x v.w, w
-            p [x, y, sx, sy]
             v.xy! x, y
-            y -= ls
+            y += ls
           end
         end
         true
@@ -121,23 +119,25 @@ module Kredki
 
       def align_x tw, w
         case @verse_layout
-        when :b, :bb, :bc, :be
+        when :begin, :begin_begin, :begin_center, :begin_end
           0
-        when :e, :eb, :ec, :ee
+        when :end, :end_begin, :end_center, :end_end
           w - tw
-        else
+        when :center, :center_begin, :center_center, :center_end
           (w - tw) * 0.5
+        else raise_is @verse_layout
         end
       end
 
       def align_y th, h
         case @verse_layout
-        when :b, :bb, :cb, :eb
+        when :begin_begin, :center_begin, :end_begin
           0
-        when :e, :be, :ce, :ee
+        when :begin_end, :center_end, :end_end
           h - th
-        else
+        when :begin, :center, :end, :begin_center, :center_center, :end_center
           (h - th) * 0.5
+        else raise_is @verse_layout
         end
       end
     end

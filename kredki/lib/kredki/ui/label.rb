@@ -11,7 +11,7 @@ module Kredki
       def initialize
         super
 
-        @text = new NavigableText, h: 100r do
+        @text = new NavigableText, h: 1r do
           cursor.w = 0
         end
       end
@@ -40,7 +40,7 @@ module Kredki
       def sketch p0
         super
 
-        wh! :fit, 24
+        wh! Fit, 24
         for! :~
         keyboardy!
 
