@@ -1,13 +1,13 @@
 module Kredki
-  class EventJobResolver
-    model :job, :@manager, :always
+  class MethodEventResolver
+    model :method, :@manager, :always
 
     def resolve event = nil
       return if !@always && event&.resolved?
       if event&.trace?
-        puts @job
+        puts @method.source_location
       end
-      @job.call event
+      @method.call event
     end
 
     def resolve! event = nil
@@ -18,11 +18,11 @@ module Kredki
     def detach!
       @manager&.detach! self
       @manager = nil
-      @job = nil
+      @method = nil
     end
 
     def attach! manager, always = false
-      self.class.new model_fields.map{ send _1.name }, manager:, always:;
+      self.class.new @method, manager, always
     end
   end
 end

@@ -96,7 +96,7 @@ module Kredki
     param_prefix :fill
 
     param def fill_color! *color
-      color = color.unpack_one
+      color = color.pick
       return if @fill_color == color
       set_fill_color *Kredki.color(color).to_rgba_array
       @fill_color = color
@@ -117,7 +117,7 @@ module Kredki
     param_prefix :stroke
 
     param def stroke_color! *color
-      color = color.unpack_one
+      color = color.pick
       return if @stroke_color == color
       set_stroke_color *Kredki.color(color).to_rgba_array
       @stroke_color = color
@@ -165,7 +165,13 @@ module Kredki
       update
     end
 
-    flag :stroke_behind, set: :set_stroke_behind
+    flag def stroke_behind! s = true
+      c, n = stroke_behind? s
+      return if c == n
+      set_stroke_behind n
+      @stroke_behind = n
+      true
+    end
 
     class StrokeTrim
       model :start, :finish, :simultaneous
@@ -187,7 +193,7 @@ module Kredki
     end
 
     param def stroke_trim! *trim
-      trim = trim.unpack_one
+      trim = trim.pick
       return if @stroke_trim == trim
       set_stroke_trim *StrokeTrim[trim].to_a
       @stroke_trim = trim

@@ -3,19 +3,19 @@ module Kredki
     class RadioItem < ShapePad
       extend Forwardable
       extend HasParams
-      extend HasFlags
 
-      class SimpleColorBasedTheme < Theme
+      class ColorTheme < Theme
         model :color
 
         def attach! pad
-          super pad,
+          super pad, [
             pad.on_focus_enter!,
             pad.on_focus_leave!,
             pad.on_mouse_down!,
             pad.on_mouse_up!,
             pad.on_mouse_enter!,
-            pad.on_mouse_leave!
+            pad.on_mouse_leave!,
+          ]
         end
 
         def repaint
@@ -25,7 +25,7 @@ module Kredki
       end
 
       def color_theme color
-        SimpleColorBasedTheme.new color
+        ColorTheme.new color
       end
 
       param def theme! theme
@@ -41,7 +41,11 @@ module Kredki
         @theme = theme
       end
 
-      flag :checked, set: :update_checked
+      flag def checked! s = true
+        c, n = show? s
+        return if c == n
+        update_checked n
+      end
 
       #internal api
 
@@ -90,9 +94,9 @@ module Kredki
       end
 
       def set_theme theme
-        @_theme&.detach!
+        @theme_object&.detach!
         theme.attach! self
-        @_theme = theme
+        @theme_object = theme
         true
       end
     end

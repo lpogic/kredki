@@ -42,7 +42,7 @@ module Kredki
     attr :the
 
     param def color! *color
-      @fill.fill_color = color.unpack_one
+      @fill.fill_color = color.pick
     end, def color
       @fill.fill_color
     end

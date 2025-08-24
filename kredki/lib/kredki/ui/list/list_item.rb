@@ -4,17 +4,18 @@ module Kredki
       extend HasEventResolvers
 
 
-      class SimpleColorBasedTheme < Theme
+      class ColorTheme < Theme
         model :color
 
         def attach! pad
-          super pad,
+          super pad, [
             pad.on_focus_enter!,
             pad.on_focus_leave!,
             pad.on_mouse_down!,
             pad.on_mouse_up!,
             pad.on_mouse_enter!,
-            pad.on_mouse_leave!
+            pad.on_mouse_leave!,
+          ]
         end
 
         def repaint
@@ -29,10 +30,16 @@ module Kredki
       end
 
       def color_theme color
-        SimpleColorBasedTheme.new color
+        ColorTheme.new color
       end
 
-      flag :select, set: :set_select
+      flag def select! s = true
+        c, n = show? s
+        return if c == n
+        @select = n
+        @theme.repaint
+        true
+      end
 
       #internal api
 
@@ -72,10 +79,6 @@ module Kredki
         @text.fit_w
       end
 
-      def set_select select
-        @select = select
-        @theme.repaint
-      end
     end
   end
 end

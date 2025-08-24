@@ -61,7 +61,7 @@ module Kredki
     end
 
     param def color! *color
-      color = color.unpack_one
+      color = color.pick
       return if @color == color
       set_fill_color *Kredki.color(color).to_rgb_array
       @color = color

@@ -20,15 +20,16 @@ module Kredki
       event_resolver :on_change!, ChangeEvent
       event_resolver :on_edit!, EditEvent
 
-      class SimpleColorBasedTheme < Theme
+      class ColorTheme < Theme
         model :color
 
         def attach! pad
-          super pad,
+          super pad, [
             pad.on_mouse_down!,
             pad.on_mouse_up!,
             pad.on_mouse_enter!,
-            pad.on_mouse_leave!
+            pad.on_mouse_leave!,
+          ]
         end
 
         def repaint
@@ -37,7 +38,7 @@ module Kredki
       end
 
       def color_theme color
-        SimpleColorBasedTheme.new color
+        ColorTheme.new color
       end
 
       param def theme! theme

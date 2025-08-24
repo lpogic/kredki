@@ -1,7 +1,6 @@
 module Kredki
   class Window
     include Alterable
-    extend HasFlags
     extend HasParams
     extend Forwardable
 
@@ -38,11 +37,40 @@ module Kredki
       Abi.window_restore @pointer
     end
 
-    flag :bordered, nil: true, set: :set_bordered
-    flag :grab, set: :set_grab
-    flag :fullscreen, nil: false, set: :set_fullscreen
+    flag def bordered! s = true
+      c, n = bordered? s
+      return if c == n
+      set_bordered n
+      @bordered = n
+      true
+    end, def bordered
+      @bordered.nil? || @bordered
+    end
 
-    flag :text_input, nil: false, set: :set_text_input, get: :get_text_input
+    flag def grab! s = true
+      c, n = grab? s
+      return if c == n
+      set_grab n
+      @grab = n
+      true
+    end
+
+    flag def fullscreen! s = true
+      c, n = fullscreen? s
+      return if c == n
+      set_fullscreen n
+      @fullscreen = n
+      true
+    end
+    
+    flag def text_input! s = true
+      c, n = text_input? s
+      return if c == n
+      set_text_input n
+      true
+    end, def text_input
+      get_text_input
+    end
 
     param def min_wh! w, h = nil
       set_minimum_size w, h || w
@@ -62,7 +90,13 @@ module Kredki
       get_position
     end
 
-    flag :resizable, set: :set_resizable
+    flag def resizable! s = true
+      c, n = resizable? s
+      return if c == n
+      set_resizable n
+      @resizable = n
+      true
+    end
 
     param def wh! w, h = nil
       set_size w, h || w
@@ -86,7 +120,13 @@ module Kredki
       set_title title.to_s
     end
 
-    flag :always_top, set: :set_always_top
+    flag def always_top! s = true
+      c, n = always_top? s
+      return if c == n
+      set_always_top n
+      @always_top = n
+      true
+    end
 
     param def action! action = nil, ...
       action ||= Window.default_action
@@ -184,7 +224,6 @@ module Kredki
 
     def set_resizable set
       Abi.window_set_resizable @pointer, set ? 1 : 0
-      @resizable = set
     end
 
     def set_size x, y

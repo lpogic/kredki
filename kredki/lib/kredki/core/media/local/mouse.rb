@@ -2,7 +2,6 @@ module Kredki
   module LocalMedia
     class Mouse
       extend Forwardable
-      extend HasFlags
       extend HasParams
 
       model :reference, :mouse
@@ -39,8 +38,23 @@ module Kredki
         @reference.on_leave!(...)
       end
 
-      flag :capture, set: :set_capture, get: :get_capture
-      flag :grab, set: :set_grab, get: :get_grab
+      flag def capture! s = true
+        c, n = capture? s
+        return if c == n
+        set_capture n
+        true
+      end, def capture
+        get_capture
+      end
+
+      flag def grab! s = true
+        c, n = grab? s
+        return if c == n
+        set_grab n
+        true
+      end, def grab
+        get_grab
+      end
 
       def x
         xy[0]

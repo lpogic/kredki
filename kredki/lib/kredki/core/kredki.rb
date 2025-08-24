@@ -1,6 +1,5 @@
 require_relative 'alterable'
 require_relative 'has_params'
-require_relative 'has_flags'
 require_relative 'event/manage/has_event_resolvers'
 
 module Kredki

@@ -1,10 +1,6 @@
 module Kredki
-  class EventResolver
+  class BlockEventResolver
     model :block, :@manager, :always
-
-    def on_resolve! &block
-      @block = block
-    end
 
     def resolve event = nil
       return if !@always && event&.resolved?
@@ -26,7 +22,7 @@ module Kredki
     end
 
     def attach! manager, always = false
-      self.class.new model_fields.map{ send _1.name }, manager:, always:;
+      self.class.new @block, manager, always
     end
   end
 end

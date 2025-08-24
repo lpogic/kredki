@@ -64,7 +64,7 @@ class Array
     [self - both, both, others]
   end
 
-  def unpack_one
+  def pick
     case size
     when 0 then nil
     when 1 then first

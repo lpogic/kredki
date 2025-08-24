@@ -2,17 +2,27 @@ module Kredki
   module UI
     class TreeListItem < ListItem
 
-      flag :open, nil: true, set: :set_open
-      flag :dir, set: :set_dir
+      flag def open! s = true
+        c, n = open? s
+        return if c == n
+        set_open n
+        @open = n
+        true
+      end, def open
+        @open.nil? || @open
+      end
+
+      flag def dir! s = true
+        c, n = dir? s
+        return if c == n
+        @dir = n
+        update_level
+        true
+      end
 
       def item! *a, **na, &b
         parent.item! *a, w: 1r, at: pad_index + 1, level: level + 1, **na, &b
         dir!
-      end
-
-      def set_dir dir
-        @dir = dir
-        update_level
       end
 
       param def level! level
@@ -27,7 +37,6 @@ module Kredki
       #internal api
 
       def set_open open
-        @open = open
         parent.update_show
       end
 

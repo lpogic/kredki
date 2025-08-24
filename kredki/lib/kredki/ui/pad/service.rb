@@ -13,7 +13,6 @@ module Kredki
       include PadEvents
       extend Forwardable
       extend HasParams
-      extend HasFlags
       extend PadInherited
 
       def <<(arg)

@@ -4,10 +4,10 @@ module Kredki
 
     def attach! attached, always: false
       resolver = case attached
-      when EventResolver
-        EventResolver.new attached.block, self, always
+      when BlockEventResolver
+        BlockEventResolver.new attached.block, self, always
       when Proc
-        EventResolver.new attached, self, always
+        BlockEventResolver.new attached, self, always
       else raise "Unsupported attached type (#{attached.class})"
       end
       @managers.each{ _1.resolvers << resolver }

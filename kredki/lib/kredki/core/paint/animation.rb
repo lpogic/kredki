@@ -1,7 +1,6 @@
 module Kredki
   class Animation
     include Alterable
-    extend HasFlags
     extend HasParams
 
     def << param
@@ -95,7 +94,14 @@ module Kredki
       @picture.detach!
     end
 
-    flag :show, set: :set_show, get: :get_show
+    flag def show! s = true
+      c, n = show? s
+      return if c == n
+      set_show n
+      true
+    end, def show
+      get_show
+    end
 
     def finish!
       if @play

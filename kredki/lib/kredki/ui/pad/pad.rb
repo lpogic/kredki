@@ -13,7 +13,6 @@ module Kredki
       include PadEvents
       extend Forwardable
       extend HasParams
-      extend HasFlags
       extend PadInherited
 
       def <<(arg)
@@ -51,7 +50,7 @@ module Kredki
       end
           
       param def w! *w
-        w = w.unpack_one
+        w = w.pick
         return if UI.eqr @w, w
         @w = w
         layer&.break_layout
@@ -59,7 +58,7 @@ module Kredki
       end
 
       param def h! *h
-        h = h.unpack_one
+        h = h.pick
         return if UI.eqr @h, h
         @h = h
         layer&.break_layout
@@ -271,14 +270,37 @@ module Kredki
         pad.in_pad? self
       end
 
-      flag :show, set: :set_show, get: :get_show
+      flag def show! s = true
+        c, n = show? s
+        return if c == n
+        set_show n
+        true
+      end, def show
+        get_show
+      end
 
       def hide!
         show! false
       end
 
-      flag :layoutic, nil: true, set: :set_layoutic
-      flag :scenic, nil: true, set: :set_scenic, get: :get_scenic
+      flag def layoutic! s = true
+        c, n = layoutic? s
+        return if c == n
+        layer&.break_layout
+        @layoutic = n
+        true
+      end, def layoutic
+        @layoutic.nil? || @layoutic
+      end
+
+      flag def scenic! s = true
+        c, n = scenic? s
+        return if c == n
+        set_scenic n
+        true
+      end, def scenic
+        get_scenic
+      end
 
       def include_point? x, y
         @area.contain? x, y
@@ -312,10 +334,39 @@ module Kredki
         layer&.check_pin self, button, true
       end
 
-      flag :keyboardy
-      flag :mousy, nil: true
-      flag :focus, set: :set_focus, get: :keyboard_top?
-      flag :pin, set: :set_pin, get: :pin_top?
+      flag def keyboardy! s = true
+        c, n = keyboardy? s
+        return if c == n
+        @keyboardy = n
+        true
+      end
+
+      flag def mousy! s = true
+        c, n = mousy? s
+        return if c == n
+        @mousy = n
+        true
+      end, def mousy
+        @mousy.nil? || @mousy
+      end
+      
+      flag def focus! s = true
+        c, n = focus? s
+        return if c == n
+        set_focus n
+        true
+      end, def focus
+        keyboard_top?
+      end
+
+      flag def pin! s = true
+        c, n = pin? s
+        return if c == n
+        set_pin n
+        true
+      end, def pin
+        pin_top?
+      end
 
       def drag! start_xy = nil, button = nil
         mouse_xy = action.mouse.xy
@@ -380,14 +431,14 @@ module Kredki
       def sketch p0
         @clip_scene.clip! @clip_area
 
-        on_mouse_down!{ mouse_down it }
-        on_mouse_up!{ mouse_up it }
-        on_mouse_enter!{ mouse_enter it }
-        on_mouse_leave!{ mouse_leave it }
-        on_mouse_move!{ mouse_move it }
-        on_focus_enter!{ focus_enter it }
-        on_focus_leave!{ focus_leave it }
-        on!(KeyboardOfferEvent){ keyboard_offer it }
+        on_mouse_down! do: method(:mouse_down)
+        on_mouse_up! do: method(:mouse_up)
+        on_mouse_enter! do: method(:mouse_enter)
+        on_mouse_leave! do: method(:mouse_leave)
+        on_mouse_move! do: method(:mouse_move)
+        on_focus_enter! do: method(:focus_enter)
+        on_focus_leave! do: method(:focus_leave)
+        on! KeyboardOfferEvent, do: method(:keyboard_offer)
       end
 
       def keyboard_offer e
@@ -714,18 +765,12 @@ module Kredki
         @clip_area.xy! x, y
       end
 
-      def set_layoutic layoutic
-        @layoutic = layoutic
-        layer&.break_layout
-        true
-      end
-
       def set_scenic scenic
         @scene.set_show scenic
       end
 
       def get_scenic
-        @scene.show? true
+        @scene.get_show true
       end
 
       def set_show show
@@ -744,7 +789,7 @@ module Kredki
       end
 
       def get_show
-        @scene.show? false
+        @scene.get_show false
       end
 
       def show_propagate

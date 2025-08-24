@@ -12,7 +12,7 @@ module Kredki
         model :color
 
         def attach! pad
-          super pad,
+          super pad, [
             pad.on_focus_enter!,
             pad.on_focus_leave!,
             pad.on_mouse_down!,
@@ -20,7 +20,8 @@ module Kredki
             pad.on_mouse_enter!,
             pad.on_mouse_leave!,
             pad.on_key_down!,
-            pad.on_key_up!
+            pad.on_key_up!,
+          ]
         end
 
         def repaint
@@ -39,7 +40,7 @@ module Kredki
       end
 
       param def theme! *theme
-        theme = theme.unpack_one
+        theme = theme.pick
         return if @theme == theme
         set_theme case theme
         when Theme
@@ -55,7 +56,7 @@ module Kredki
       param def color! *color
         theme! *color
       end, def color
-        @_theme.color
+        @theme_object.color
       end
 
       def text
@@ -105,6 +106,10 @@ module Kredki
         wh! Fit
         m! 3
 
+        driver
+      end
+
+      def driver
         on_mouse_click! :primary do |e|
           report ButtonClickEvent.new e
           e.resolve
@@ -117,9 +122,9 @@ module Kredki
       end
 
       def set_theme theme
-        @_theme&.detach!
+        @theme_object&.detach!
         theme.attach! self
-        @_theme = theme
+        @theme_object = theme
         true
       end
     end

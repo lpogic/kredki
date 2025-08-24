@@ -1,7 +1,6 @@
 module Kredki
   class Paint
     include Alterable
-    extend HasFlags
     extend HasParams
 
     def initialize pointer
@@ -130,10 +129,13 @@ module Kredki
       @scene = scene
     end
 
-    flag :show, set: :set_show, get: :get_show, test: false
-
-    def show? direct = false
-      get_show direct
+    flag def show! s = true
+      c, n = show? s
+      return if c == n
+      set_show n
+      true
+    end, def show
+      get_show
     end
 
     def hide!
@@ -181,7 +183,7 @@ module Kredki
       show ? @scene&.show_paint(self) : @scene&.hide_paint(self)
     end
 
-    def get_show direct = true
+    def get_show direct = false
       @scene&.paint_shown self, direct
     end
 

@@ -8,6 +8,38 @@ module Kredki
     def aliasing name, *aliases
       aliases.each{ alias_method it, name }
     end
+
+    def flag set, get = true
+      if set.end_with?("=")
+        param_name = set.to_s[...-1]
+      else
+        param_name = set.end_with?("!") ? set.to_s[...-1] : set
+        alias_method "#{param_name}=", set
+      end
+      if get == true
+        class_eval <<~xx
+          def #{param_name}
+            @#{param_name}
+          end
+        xx
+      end
+      class_eval <<~xx
+        def #{param_name}? set_request = nil
+          _#{param_name} = #{param_name}
+          case set_request
+          when nil
+            !!_#{param_name}
+          when true
+            [!!_#{param_name}, true]
+          when false
+            [!!_#{param_name}, false]
+          when :~, :^, :-
+            [!!_#{param_name}, !_#{param_name}]
+          else raise_ia set_request
+          end
+        end
+      xx
+    end
   
     def param set, get = true
       if set.end_with?("=")

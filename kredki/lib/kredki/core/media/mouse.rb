@@ -2,7 +2,6 @@ module Kredki
   class Mouse
     include Alterable
     extend HasParams
-    extend HasFlags
 
     class Button
       model :id, :buttoncode
@@ -68,13 +67,26 @@ module Kredki
       get_cursor_position
     end
 
-    flag :relative, set: :set_relative
+    flag def relative! s = true
+      c, n = relative? s
+      return if c == n
+      set_relative n
+      @relative = n
+      true
+    end
 
     def scrollbar_speed alt = false
       alt ? @scrollbar_alt_speed : @scrollbar_speed
     end
 
-    flag :in_window, get: :get_in_window
+    flag def in_window! s = true
+      c, n = in_window? s
+      return if c == n
+      @in_window = n
+      true
+    end, def in_window
+      get_in_window
+    end
 
     #internal api
 

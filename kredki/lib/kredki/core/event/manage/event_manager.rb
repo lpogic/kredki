@@ -1,5 +1,6 @@
-require_relative 'event_resolver'
-require_relative 'event_job_resolver'
+require_relative 'block_event_resolver'
+require_relative 'method_event_resolver'
+require_relative 'job_event_resolver'
 
 module Kredki
   class EventManager
@@ -16,14 +17,17 @@ module Kredki
       end
     end
 
-    def attach! attached, always: false, last: false
+    def attach! attached = nil, always: false, last: false, &block
+      attached ||= block
       resolver = case attached
-      when EventResolver
+      when BlockEventResolver
         attached.attach! self, always
       when Proc
-        EventResolver.new attached, self, always
+        BlockEventResolver.new attached, self, always
+      when Method
+        MethodEventResolver.new attached, self, always
       when Job
-        EventJobResolver.new attached, self, always
+        JobEventResolver.new attached, self, always
       else raise "Unsupported attached type (#{attached.class})"
       end
       if last
