@@ -1,6 +1,5 @@
 module Kredki
   class Shape < Paint
-    include Alterable
 
     def initialize extended = false
       super Abi.shape_new
@@ -24,7 +23,6 @@ module Kredki
     end
 
     class Drawer
-      include Alterable
 
       def initialize shape, reset = true, x = 0, y = 0
         @shape = shape

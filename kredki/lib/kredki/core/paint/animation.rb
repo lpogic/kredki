@@ -1,6 +1,5 @@
 module Kredki
   class Animation
-    include Alterable
     extend HasParams
 
     def << param

@@ -6,7 +6,6 @@ module Kredki
       extend HasParams
 
       class Column
-        include Alterable
 
         model :size
 
@@ -210,7 +209,7 @@ module Kredki
         end
 
         def cell! ...
-          new(ShapePad, wh: 1r).alter(...)
+          new(ShapePad, wh: 1r, color: false).alter(...)
         end
       end
 

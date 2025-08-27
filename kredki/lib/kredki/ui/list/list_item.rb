@@ -25,6 +25,7 @@ module Kredki
             @pad.area.stroke_color = :stroke_focus
           else
             @pad.area.stroke_size = 0
+            @pad.area.stroke_color = @color
           end
         end
       end
@@ -34,7 +35,7 @@ module Kredki
       end
 
       flag def select! s = true
-        c, n = show? s
+        c, n = select? s
         return if c == n
         @select = n
         @theme.repaint

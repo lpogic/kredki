@@ -5,7 +5,7 @@ module Kredki
     class ContextSecondaryLayer < ContextLayer
 
       def load! item
-        arrange
+        item.layer&.arrange
         action = parent.action
         x, y = *item.translate(item.sw, 0)
         if x + @items.sw > action.sw
@@ -45,7 +45,7 @@ module Kredki
           @parent_events[] = parent.on_focus_leave! do |e|
             unload! if loaded?
           end
-
+          
           @parent_events[] = on_key! :left do |e|
             if loaded?
               unload!

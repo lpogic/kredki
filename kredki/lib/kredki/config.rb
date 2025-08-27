@@ -5,19 +5,19 @@ module Kredki
   color! 0, 0, 0, 0, 0
 
   color! :stroke_focus, 182, 182, 0, 255
-  color! :text_selection, 0, 0, 222, 123
-  color! :text_selection_inactive, 0, 0, 222, 83
+  color! :text_selection, 70, 80, 122, 255
+  color! :text_selection_inactive, 70, 80, 112, 255
   color! :text, 255, 255, 255, 255
 
   color! :white, 255, 255, 255, 255
   color! :black, 0, 0, 0, 255
-  color! :red, 222, 0, 0, 255
-  color! :green, 0, 222, 0, 255
-  color! :blue, 0, 0, 222, 255
+  color! :red, 122, 0, 0, 255
+  color! :green, 0, 122, 0, 255
+  color! :blue, 0, 0, 122, 255
   color! :gray, 111, 111, 111, 255
   color! :light_gray, 211, 211, 211, 255
   color! :dark_gray, 88, 88, 88, 255
-  color! :yellow, 222, 222, 0, 255
+  color! :yellow, 150, 150, 0, 255
   color! :transparent, 0, 0, 0, 0
 
   font! :arial, stuff("font/Arial.ttf")
@@ -173,7 +173,7 @@ K = Kredki
 
 class TerminateOnEsc
   def self.plug_into target
-    target.on_key_up! :escape do |event|
+    target.on_key! :escape do |event|
       target.action.window.terminate!
     end
   end
@@ -181,7 +181,7 @@ end
 
 class CloseOnEsc
   def self.plug_into target
-    target.on_key_up! :escape do |event|
+    target.on_key! :escape do |event|
       target.action.window.destroy!
     end
   end

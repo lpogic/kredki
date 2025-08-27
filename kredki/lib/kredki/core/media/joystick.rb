@@ -1,6 +1,5 @@
 module Kredki
   class Joystick
-    include Alterable
 
     class Button
       model :id, :code

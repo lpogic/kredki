@@ -1,6 +1,5 @@
 module Kredki
   class Text < Paint
-    include Alterable
 
     def initialize
       super Abi.text_new

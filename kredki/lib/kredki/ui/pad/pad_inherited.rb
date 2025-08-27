@@ -15,24 +15,25 @@ module Kredki
         XX
       end
 
-      def def! name, klass = nil, *def_a, **def_na, &def_b
+      def define name, klass = nil, &block
         case klass
         when Class
-          define_method name do |*a, **na, &b|
-            new(klass, name, *def_a, **def_na, **na, &def_b).alter *a, &b
+          class_eval <<~xx
+            def #{name} ...
+              new(#{klass}, :#{name}, ...)
+            end
+          xx
+        when nil
+          if block.parameters.empty?
+            define_method name do |*a, **na, &b|
+              instance_exec(&block).alter *a, **na, &b
+            end
+          else
+            define_method name do |*a, **na, &b|
+              instance_exec(*a, **na, &block).alter &b
+            end
           end
-        when true
-          define_method name do |*a, **na, &b|
-            a = [name, *def_a, *a]
-            na = {**def_na, **na}
-            instance_exec(a, na, b, self, &def_b).alter *a, **na, &b
-          end
-        else
-          define_method name do |*a, **na, &b|
-            a = [name, *def_a, *a]
-            na = {**def_na, **na}
-            instance_exec a, na, b, self, &def_b
-          end
+        else raise_ia klass
         end
       end
 

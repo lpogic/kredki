@@ -3,7 +3,6 @@ require_relative 'area'
 
 module Kredki
   class Picture < Paint
-    include Alterable
     include Area
 
     def initialize pointer = nil

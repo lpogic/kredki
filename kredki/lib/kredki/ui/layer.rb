@@ -44,8 +44,8 @@ module Kredki
         @pin_pad&.drag
       end
 
-      def def! ...
-        action.def!(...)
+      def define ...
+        action.define(...)
       end
 
       def detach! transfer = false

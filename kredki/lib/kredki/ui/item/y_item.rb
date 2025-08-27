@@ -8,14 +8,20 @@ module Kredki
       def sketch p0
         super
 
-        on_key_down! :up do |e|
-          parent.update_select_item(:previous)&.roi!
-          e.resolve
+        on_key! :up do |e|
+          item = parent.update_select_item :previous 
+          if item && item != self
+            item.roi!
+            e.resolve
+          end
         end
 
-        on_key_down! :down do |e|
-          parent.update_select_item(:next)&.roi!
-          e.resolve
+        on_key! :down do |e|
+          item = parent.update_select_item :next
+          if item && item != self
+            item.roi!
+            e.resolve
+          end
         end
       end
     end

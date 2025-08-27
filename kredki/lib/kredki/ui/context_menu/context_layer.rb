@@ -28,6 +28,18 @@ module Kredki
         @item_group = @items.new ContextItemGroup
       end
 
+      def sketch p0
+        super
+
+        driver
+      end
+
+      def driver
+        on_key! :up, :down do |e|
+          e.resolve
+        end
+      end
+
       def mouse_down e
       end
 

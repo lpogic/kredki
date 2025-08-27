@@ -1,7 +1,6 @@
 
 module Kredki
   class Keyboard
-    include Alterable
 
     class Key
 

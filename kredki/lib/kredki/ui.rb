@@ -120,27 +120,29 @@ module Kredki
     end
 
     module PadBase
-      def! :pad!, ShapePad
-      def! :space!, SpacePad
-      def! :scroll!, ScrollPad
-      def! :image!, ImagePad
-      def! :text!, NavigableText, keyboardy: true
-      def! :xslide!, HorizontalSlide
-      def! :yslide!, VerticalSlide
-      def! :button!, ButtonPad
-      def! :check!, Check
-      def! :note!, Note
-      def! :notes!, Notes
-      def! :label!, Label
-      def! :list_note!, ListNote
-      def! :table!, Table
-      def! :list!, List
-      def! :tree!, TreeList
+      define :pad!, ShapePad
+      define :space!, SpacePad
+      define :scroll!, ScrollPad
+      define :image!, ImagePad
+      def text! *a, **na, &b
+        new NavigableText, :text!, *a, keyboardy: true, **na, &b
+      end
+      define :xslide!, HorizontalSlide
+      define :yslide!, VerticalSlide
+      define :button!, ButtonPad
+      define :check!, Check
+      define :note!, Note
+      define :notes!, Notes
+      define :label!, Label
+      define :list_note!, ListNote
+      define :table!, Table
+      define :list!, List
+      define :tree!, TreeList
 
-      def! :radio!, RadioGroup
+      define :radio!, RadioGroup
 
-      def! :context!, ContextMenu
-      def! :toolbar!, ToolbarMenu
+      define :context!, ContextMenu
+      define :toolbar!, ToolbarMenu
 
     end#PadBase
   end#UI

@@ -2,7 +2,6 @@ require_relative 'paint'
 
 module Kredki
   class Scene < Paint
-    include Alterable
 
     class PaintState
       struct :paint, :before, :after, :shown
@@ -47,37 +46,37 @@ module Kredki
     end, def pxy
       [@px, @py]
     end
-    
-    def def_paint name, klass = nil, &block
-      if block
-        Scene.define_method name do |*a, **na, &b|
-          paint = instance_exec self, a, b, **na, &block
-          paint.alter *a, **na, &b if klass
-          paint
-        end
-      else
-        Scene.define_method name do |*a, **na, &b|
-          new_paint klass, *a, **na, &b
-        end
-      end
+
+    def shape! ...
+      new_paint(Shape, ...)
     end
 
-    def self.def_paint name, klass = nil, &block
-      if block
-        define_method name do |*a, **na, &b|
-          paint = instance_exec self, a, b, **na, &block
-          paint.alter *a, **na, &b if klass
-          paint
-        end
-      else
-        define_method name do |*a, **na, &b|
-          new_paint klass, *a, **na, &b
-        end
-      end
+    def rectangle! ...
+      new_paint(Rectangle, ...)
     end
 
-    def new_animation show = true, at = nil
-      Animation.new.attach! self, show, at
+    def ellipse! ...
+      new_paint(Ellipse, ...)
+    end
+
+    def picture! ...
+      new_paint(Picture, ...)
+    end
+
+    def text! ...
+      new_paint(Text, ...)
+    end
+
+    def scene! ...
+      new_paint(Scene, ...)
+    end
+
+    def animation! ...
+      new_animation(...)
+    end
+
+    def new_animation *a, show: true, at: nil, **na, &b
+      Animation.new.attach!(self, show, at).alter(*a, **na, &b)
     end
 
     def clear!

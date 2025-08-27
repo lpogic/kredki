@@ -35,10 +35,16 @@ module Kredki
 
         mx! 2
 
-        Event.group on_click!, on_key_down!(:down, :up, :enter, :space) do |e|
+        on_key_down! :down, :up, :enter, :space do |e|
           if @dropdown
             @dropdown.load! self unless @dropdown.loaded?
             @dropdown[Item]&.focus! and e.resolve
+          end
+        end
+
+        on_click! do |e|
+          if @dropdown
+            @dropdown.load! self unless @dropdown.loaded?
           end
         end
       end

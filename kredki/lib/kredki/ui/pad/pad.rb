@@ -8,7 +8,6 @@ module Kredki
   module UI
     class Pad < Service
       include PadBase
-      include Alterable
       include LocalMedia
       include PadEvents
       extend Forwardable

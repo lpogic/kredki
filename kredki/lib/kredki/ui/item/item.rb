@@ -65,10 +65,6 @@ module Kredki
       param_delegate :@text,
         :content
 
-      # param_service def text
-      #   @text
-      # end
-
       def has_subitem?
         false
       end

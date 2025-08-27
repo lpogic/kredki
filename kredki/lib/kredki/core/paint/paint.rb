@@ -1,6 +1,5 @@
 module Kredki
   class Paint
-    include Alterable
     extend HasParams
 
     def initialize pointer

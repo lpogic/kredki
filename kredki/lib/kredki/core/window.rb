@@ -1,7 +1,6 @@
 module Kredki
   class Window
-    include Alterable
-    extend HasParams
+        extend HasParams
     extend Forwardable
 
     def initialize w = 400, h = 400

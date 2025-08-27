@@ -1,6 +1,5 @@
 module Kredki
   class Mouse
-    include Alterable
     extend HasParams
 
     class Button

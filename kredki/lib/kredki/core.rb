@@ -16,18 +16,4 @@ end
 
 require_relative 'core/kredki'
 
-module Kredki
-  class Scene
-    def_paint :shape!, Shape
-    def_paint :rectangle!, Rectangle
-    def_paint :ellipse!, Ellipse
-    def_paint :picture!, Picture
-    def_paint :text!, Text
-    def_paint :scene!, Scene
-    def_paint :animation!, true do
-      new_animation
-    end
-  end
-end
-
 load $kredki_config || 'kredki/config.rb'

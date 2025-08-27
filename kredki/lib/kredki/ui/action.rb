@@ -17,8 +17,8 @@ module Kredki
         self
       end
 
-      def def! ...
-        PadBase.def!(...)
+      def define ...
+        PadBase.define(...)
       end
 
       def pad_parent

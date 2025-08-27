@@ -3,24 +3,6 @@ module Kredki
     class ToolbarPrimaryLayer < ToolbarLayer
 
       def load! item
-        # arrange
-        # action = parent.action
-        # x, y = *item.translate(-item.area.xs, -item.area.ys)
-        # w = action.w * 0.5
-        # x_max = w - @items.sw
-        # x = [x_max, -w].max if x > x_max
-        # h = action.h * 0.5
-        # y_min = @items.sh - h
-        # if y < y_min
-        #   y_max = y + item.sh + @items.sh
-        #   if y_max < h
-        #     y = y_max
-        #   else
-        #     y = h
-        #   end
-        # end
-        # load_common x + @items.area.xs, y - @items.area.ys
-
         arrange
         action = parent.action
         x, y = *item.translate(0, item.sh)
@@ -35,8 +17,7 @@ module Kredki
 
       #internal api
 
-      def sketch p0
-        super
+      def driver
 
         on! Item::PickEvent do |e|
           if e.target.has_subitem?
@@ -46,7 +27,7 @@ module Kredki
             pad_detach
           end
         end
-
+      
         on_key! :escape do |e|
           pad_detach
           e.resolve

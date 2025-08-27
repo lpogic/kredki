@@ -1,10 +1,6 @@
 module Kredki
   module UI
     class ShapePad < Pad
-      include PadBase
-      include Alterable
-      include LocalMedia
-      include PadEvents
       extend Forwardable
       extend HasParams
       extend PadInherited

@@ -9,11 +9,16 @@ module Kredki
     (A.methods - Object.instance_methods).each do
         def_delegator :A, it
     end
+
+    def define ...
+      def_delegator :A, PadBase.define(...)
+    end
   end
 end
 extend Kredki::Extend
 include Kredki
 include Kredki::UI
+extend Forwardable
 
 use! TerminateOnEsc
 use! CarryFocusOnTab
