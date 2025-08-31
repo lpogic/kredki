@@ -44,6 +44,10 @@ class Keywords
   def eql? o
     Keywords === o and @words == o.words
   end
+
+  def == o
+    eql? o
+  end
 end
 
 class Fit extend Keyword end
@@ -91,6 +95,7 @@ module Kredki
   require_relative 'ui/space_pad'
   require_relative 'ui/image_pad'
   require_relative 'ui/text_pad'
+  require_relative 'ui/animation_pad'
   require_relative 'ui/text/navigable_text'
   require_relative 'ui/note'
   require_relative 'ui/notes'
@@ -124,6 +129,7 @@ module Kredki
       define :space!, SpacePad
       define :scroll!, ScrollPad
       define :image!, ImagePad
+      define :animation!, AnimationPad
       def text! *a, **na, &b
         new NavigableText, :text!, *a, keyboardy: true, **na, &b
       end

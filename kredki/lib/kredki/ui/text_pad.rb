@@ -17,11 +17,12 @@ module Kredki
         true
       end
 
-      def color! *color
-        super
+      param def color! *color
         @verses.each do |v|
           v.color! *color
         end
+      end, def color
+        @verses.first.color
       end
 
       param def verse_layout! layout
@@ -65,7 +66,7 @@ module Kredki
         super
 
         wh! Fit, 24
-        verse_layout! :begin_center
+        verse_layout! Begin/Center
         content! "TEXT"
       end
 
@@ -119,11 +120,11 @@ module Kredki
 
       def align_x tw, w
         case @verse_layout
-        when :begin, :begin_begin, :begin_center, :begin_end
+        when Begin, Begin/Begin, Begin/Center, Begin/End
           0
-        when :end, :end_begin, :end_center, :end_end
+        when End, End/Begin, End/Center, End/End
           w - tw
-        when :center, :center_begin, :center_center, :center_end
+        when Center, Center/Begin, Center/Center, Center/End
           (w - tw) * 0.5
         else raise_is @verse_layout
         end
@@ -131,11 +132,11 @@ module Kredki
 
       def align_y th, h
         case @verse_layout
-        when :begin_begin, :center_begin, :end_begin
+        when Begin/Begin, Center/Begin, End/Begin
           0
-        when :begin_end, :center_end, :end_end
+        when Begin/End, Center/End, End/End
           h - th
-        when :begin, :center, :end, :begin_center, :center_center, :end_center
+        when Begin, Center, End, Begin/Center, Center/Center, End/Center
           (h - th) * 0.5
         else raise_is @verse_layout
         end

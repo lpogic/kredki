@@ -196,9 +196,9 @@ module Kredki
         @scene.spin! spin
       end
 
-      param def scale! scale = nil, &b
-        return scale! b[scale] if b
-        @scene.scale! scale
+      param def scale! x = nil, y = nil, &b
+        return scale! b[*self.scale] if b
+        @scene.scale! x, y
       end, def scale
         @scene.scale
       end

@@ -8,7 +8,8 @@ module Kredki
       @x = 0
       @y = 0
       @spin = 0
-      @scale = 1
+      @scale_x = 1
+      @scale_y = 1
       @opacity = 255
       @blend = nil
     end
@@ -18,7 +19,8 @@ module Kredki
         x: @x,
         y: @y,
         spin: @spin,
-        scale: @scale,
+        scale_x: @scale_x,
+        scale_y: @scale_y,
         opacity: @opacity,
         blend: @blend,
       }
@@ -59,11 +61,29 @@ module Kredki
       update
     end
 
-    param def scale! scale
-      return if @scale == scale
-      @scale = scale
+    param def scale_x! scale
+      return if @scale_x == scale
+      @scale_x = scale
       update_transform
       update
+    end
+
+    param def scale_y! scale
+      return if @scale_y == scale
+      @scale_y = scale
+      update_transform
+      update
+    end
+
+    param def scale! x, y = nil
+      y ||= @scale_y
+      return if @scale_x == x && @scale_y == y
+      @scale_x = x
+      @scale_y = y
+      update_transform
+      update
+    end, def scale
+      [@scale_x, @scale_y]
     end
 
     def bounds
@@ -203,7 +223,7 @@ module Kredki
     end
 
     def update_transform
-      Abi.paint_set_transform @pointer, *pxy, @x, @y, @spin, @scale
+      Abi.paint_set_transform @pointer, *pxy, @x, @y, @spin, @scale_x, @scale_y
     end
 
     def set_blend blend

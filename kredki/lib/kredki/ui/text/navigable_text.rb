@@ -158,11 +158,11 @@ module Kredki
 
       def align_x tw, w
         case @verse_layout
-        when :begin, :begin_begin, :begin_center, :begin_end
+        when Begin, Begin/Begin, Begin/Center, Begin/End
           @cursor.w
-        when :end, :end_begin, :end_center, :end_end
+        when End, End/Begin, End/Center, End/End
           w - tw - @cursor.w
-        when :center, :center_begin, :center_center, :center_end
+        when Center, Center/Begin, Center/Center, Center/End
           (w - tw) * 0.5 + @cursor.w
         else raise_is @verse_layout
         end

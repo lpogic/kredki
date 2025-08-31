@@ -6,6 +6,14 @@ module Kredki
   class << self
     extend Forwardable
 
+    def sin01 value, scale = 1
+      (Math.sin(Math::PI * value / scale) * 0.5 + 0.5) * scale
+    end
+
+    def cos01 value, scale = 1
+      (Math.cos(Math::PI * value / scale) * 0.5 + 0.5) * scale
+    end
+
     def arena!
       if !@arena
         Abi.thorvg_engine_init 2, 4
@@ -75,8 +83,8 @@ module Kredki
 
     attr_accessor :color_map
 
-    def color! id, r, g, b, a
-      @color_map[id] = Color.new r, g, b, a
+    def color! id, *a
+      @color_map[id] = Color.parse *a
     end
 
     def color param = nil
@@ -131,7 +139,12 @@ require_relative 'paint/rectangle'
 require_relative 'paint/text'
 require_relative 'paint/picture'
 require_relative 'paint/animation'
-require_relative 'job'
+require_relative 'job/job'
+require_relative 'job/stop_job'
+require_relative 'job/root_job'
+require_relative 'job/after_job'
+require_relative 'job/loop_job'
+require_relative 'job/side_job'
 
 require_relative 'action/action'
 require_relative 'window'

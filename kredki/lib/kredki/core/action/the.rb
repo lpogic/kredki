@@ -1,8 +1,13 @@
 module Kredki
   class The
     
-    def initialize
+    def initialize action
+      @action = action
       @map = ObjectSpace::WeakMap.new
+    end
+
+    def [](...)
+      @action.[](...)
     end
 
     def respond_to? name

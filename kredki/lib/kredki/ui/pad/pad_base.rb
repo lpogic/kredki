@@ -276,14 +276,27 @@ module Kredki
         end
       end
 
-      def begin! delay: false, exclusive: false, &block
-        Job.new(self, exclusive).begin! delay:, &block
+      def job &block
+        RootJob.new action, block
       end
 
-      def step! period = 0, &block
-        begin!.step!(period, &block).call
+      def after! delay = 0, &block
+        job = AfterJob.new action, block, delay
+        job.play
+        job
       end
 
+      def loop! period = 0, &block
+        job = LoopJob.new action, block, period
+        job.play
+        job
+      end
+
+      def side! &block
+        job = SideJob.new action, block
+        job.play
+        job
+      end
     end
   end
 end

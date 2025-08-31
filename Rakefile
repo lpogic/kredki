@@ -6,7 +6,6 @@ desc "[DEFAULT] Run sketch"
 task :run => "sketch/sketch.rb"
 task :run do
   $LOAD_PATH << File.expand_path(".")
-  $LOAD_PATH << File.expand_path("kredki-core/lib")
   $LOAD_PATH << File.expand_path("kredki/lib")
   require_relative "sketch/sketch"
 end
@@ -15,6 +14,14 @@ directory "sketch"
 file "sketch/sketch.rb" => "sketch" do
   cp "kredki/sample/hello_world.rb", it.name
 end
+
+task :sample, [:path] do |task, args|
+  $LOAD_PATH << File.expand_path(".")
+  $LOAD_PATH << File.expand_path("kredki/lib")
+  chdir "kredki/sample"
+  require_relative "kredki/sample/#{args[:path]}"
+end
+
 
 def check_vars *vars, file: true
   vars.each do |v|

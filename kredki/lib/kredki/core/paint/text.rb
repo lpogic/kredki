@@ -61,7 +61,7 @@ module Kredki
 
     param def color! *color
       color = color.pick
-      return if @color == color
+      return if @color == color && color != :rand
       set_fill_color *Kredki.color(color).to_rgb_array
       @color = color
       update

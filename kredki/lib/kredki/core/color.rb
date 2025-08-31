@@ -4,6 +4,18 @@ module Kredki
       @a ||= 255
     end
 
+    def self.parse *a
+      case a = a.pick
+      when String
+        a = a[1..] if a.start_with? "#"
+        alpha = a.length > 6 ? a[6...8].to_i(16) : nil
+        Color.new a[0...2].to_i(16), a[2...4].to_i(16), a[4...6].to_i(16), alpha
+      when Array
+        Color.new *a
+      else raise_ia a
+      end
+    end
+
     def to_rgba_array
       [@r, @g, @b, @a]
     end

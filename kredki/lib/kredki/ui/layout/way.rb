@@ -83,6 +83,7 @@ module Kredki
             end
 
             ad = span_pads.map{ it[3] }.sum
+            ad += @space * (span_pads_size - 1) if @space
           end
           [ad, span_pads]
         end

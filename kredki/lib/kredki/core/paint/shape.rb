@@ -95,7 +95,7 @@ module Kredki
 
     param def fill_color! *color
       color = color.pick
-      return if @fill_color == color
+      return if @fill_color == color && color != :rand
       set_fill_color *Kredki.color(color).to_rgba_array
       @fill_color = color
       update
@@ -116,7 +116,7 @@ module Kredki
 
     param def stroke_color! *color
       color = color.pick
-      return if @stroke_color == color
+      return if @stroke_color == color && color != :rand
       set_stroke_color *Kredki.color(color).to_rgba_array
       @stroke_color = color
       update

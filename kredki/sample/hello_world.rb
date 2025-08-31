@@ -1,11 +1,14 @@
 require 'kredki'
 
-color! 10, 30, 10
-layout! :center
+# A simple but expressive api sample.
 
-button! m: 5 do
-  text << "Hello world!"
+layout! X, 10
+
+button! do
+  text << "Say hello"
   on_click! do
-    R.terminate!
+    puts "Hello world!"
   end
 end
+
+button! "Exit", on_click: proc{ K.terminate! }

@@ -1,25 +1,26 @@
-require 'kredki/ui'
+require 'kredki'
 
-Kredki.run! do |a|
-  use! TerminateOnEsc
-  window.alter{ resizable!; always_top! }
-  color! 10, 30, 10
+# Standard layouts overview.
 
-  layouts = Kredki::UI.layouts.keys
-  
-  pad! color: :rand
-  pad! color: :rand
-  pad! color: :rand
+layouts = Kredki::UI.layout_map.keys
 
-  layer! do
-    layout! :center
-    button! m: 5 do
-      text << "Click here to change layout"
-      on_click! do
-        layouts.rotate!
-        text << "#{layouts.first || "nil"}"
-        a.layout! layouts.first
-      end
+pad! color: :rand, wh: 140
+pad! color: :rand, wh: 120
+pad! color: :rand
+l = layer
+
+def button_text layout
+  "Click here to change layout\nCurrent layout: #{layout || "nil"}"
+end
+
+layer! do
+  button! do
+    text << button_text(layouts.first)
+
+    on_click! do
+      layouts.rotate!
+      text << button_text(layouts.first)
+      l.layout! layouts.first
     end
   end
 end

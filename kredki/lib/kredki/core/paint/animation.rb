@@ -46,6 +46,10 @@ module Kredki
     param_delegate :@picture,
       :w, :h, :wh, :spin, :scale
 
+    def contain? ...
+      @picture.contain?(...)
+    end
+
     param def frame! frame_index
       set_frame frame_index
       @picture.update
@@ -159,7 +163,7 @@ module Kredki
           frame! (d2 - rem) * @total_frame / d
         end
       when Proc
-        if frame = @play.call ms
+        if frame = @play.call ms, duration
           frame! frame * @total_frame / d
         else
           finish!

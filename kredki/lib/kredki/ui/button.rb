@@ -97,12 +97,15 @@ module Kredki
 
         new TextPad, "Button" do
           mousy! false
+          h! Fit
+          verse_size! 24
+          verse_layout! Center
         end
 
         keyboardy!
         stroke_size! 1
         theme! :gray
-        layout! End/Center
+        layout! Center
         wh! Fit
         m! 3
 

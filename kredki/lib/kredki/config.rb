@@ -18,6 +18,7 @@ module Kredki
   color! :light_gray, 211, 211, 211, 255
   color! :dark_gray, 88, 88, 88, 255
   color! :yellow, 150, 150, 0, 255
+  color! :orange, "#f06000"
   color! :transparent, 0, 0, 0, 0
 
   font! :arial, stuff("font/Arial.ttf")

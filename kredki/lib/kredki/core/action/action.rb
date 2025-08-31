@@ -22,7 +22,7 @@ module Kredki
       @event_manager = ActionEventManager.new
       @event_director = EventDirector.new
       @fill = rectangle! xy: 0
-      @the = The.new
+      @the = The.new self
     end
 
     attr :last_frame_ms
