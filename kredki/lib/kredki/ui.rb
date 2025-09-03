@@ -104,7 +104,7 @@ module Kredki
   require_relative 'ui/radio/radio_group'
   require_relative 'ui/label'
   require_relative 'ui/list_note/list_note'
-  require_relative 'ui/table'
+  require_relative 'ui/table/table'
   require_relative 'ui/list/list'
   require_relative 'ui/list/tree_list'
   require_relative 'ui/context_menu/context_menu'

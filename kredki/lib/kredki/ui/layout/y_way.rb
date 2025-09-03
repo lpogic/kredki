@@ -5,39 +5,44 @@ module Kredki
     module Layout
       class YWay < Way
 
-        def get_span pad, pch
-          h = pad.h
+        model :<
+
+        def get_span pad, h, pch
           case h
           when Rational
-            [h, 0, Float::INFINITY, 0, pad]
+            [h, 0, Float::INFINITY, 0]
           when Array
             case h[0]
             when Range
               min = h[0].begin || 0
               max = h[0].end || Float::INFINITY
-              [h[1], a = get_h(pad, min, pch), get_h(pad, max, pch), a, pad]
+              [h[1], a = get_h(pad, min, pch), get_h(pad, max, pch), a]
             else raise_ia h
             end
           when Range
             min = h.begin || 0
             max = h.end || Float::INFINITY
-            [1r, a = get_h(pad, min, pch), get_h(pad, max, pch), a, pad]
+            [1r, a = get_h(pad, min, pch), get_h(pad, max, pch), a]
           else
-            [0, a = get_h(pad, h, pch), a, a, pad]
+            [0, a = get_h(pad, h, pch), a, a]
           end
         end
 
         def arrange pad
           cw = pad.cw
           ch = pad.ch
-          sh, span_pads = spans pad, ch
-          return if !span_pads
-          span_pads.each do |span|
-            p1 = span[4]
+          sp = pad.layout_pads.map{ get_span it, it.h, ch }
+          measurement, sh = spans sp, ch, @space || 0
+ 
+          pad.layout_pads.zip measurement do |p1, m|
             pw = get_w p1, p1.w, cw
-            p1.set_size pw, span[3]
+            p1.set_size pw, m
           end
 
+          arrange_pads pad.arrange_pads, sh, cw, ch
+        end
+
+        def arrange_pads pads, sh, cw, ch
           cy = case @y
           when Center
             (ch - sh) * 0.5
@@ -57,7 +62,7 @@ module Kredki
           lx = lxm = ly = lym = 0
           space = @space || 0
 
-          pad.arrange_pads.each do |p1|
+          pads.each do |p1|
             if p1.layoutic?
               pw, ph, px, py = arrange_layoutic p1, cw, ch, cy
               cy += ph + space
@@ -66,14 +71,7 @@ module Kredki
               lxm = [lxm, px + pw].max
               lym = [lym, py + ph].max
             else
-              pw = get_w p1, p1.w, cw
-              ph = get_h p1, p1.h, ch
-              p1.set_size pw, ph
-              px = p1.get_x cw, pw, (get_x @x, cw, pw)
-              py = p1.get_y ch, ph, (get_y @y, ch, ph)
-              p1.set_xy px, py
-              p1.set_margin
-              p1.arrange
+              arrange_non_layoutic p1, cw, ch
             end
           end
           

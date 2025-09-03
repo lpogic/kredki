@@ -10,26 +10,24 @@ module Kredki
           @space == a[0] ? self : self.class.new(@x, @y, a[0])
         end
 
-        def spans pad, pd
+        def spans sp, pd, space
           ad = 0
           sd = 0
           total_span = 0
-          span_pads = pad.layout_pads.map do
-            span = get_span it, pd
+          sp.each do |span|
             sd += span[1] if span[0] == 0
             ad += span[1]
             total_span += span[0]
-            span
           end
-          span_pads_size = span_pads.size
-          return if span_pads_size < 1
-          sd += @space * (span_pads_size - 1) if @space
+          return if sp.empty?
+          total_space = space * (sp.size - 1)
+          sd += total_space
 
           rd = pd - sd
           if total_span > 0 && rd > 0
             nd = rd / total_span
             rd = 0
-            span_pads.each do |span|
+            sp.each do |span|
               if span[0] > 0
                 od = nd * span[0]
                 if od > span[2]
@@ -46,11 +44,11 @@ module Kredki
 
             loop do
               if rd > 0
-                total_span = span_pads.map{ it[3] < it[2] ? it[0] : 0 }.sum
+                total_span = sp.map{ it[3] < it[2] ? it[0] : 0 }.sum
                 break if total_span == 0
                 nd = rd / total_span
                 rd = 0
-                span_pads.each do |span|
+                sp.each do |span|
                   if span[3] < span[2]
                     od = nd * span[0] + span[3]
                     if od > span[2]
@@ -62,11 +60,11 @@ module Kredki
                   end
                 end
               elsif rd < 0
-                total_span = span_pads.map{ it[3] > it[1] ? it[0] : 0 }.sum
+                total_span = sp.map{ it[3] > it[1] ? it[0] : 0 }.sum
                 break if total_span == 0
                 nd = rd / total_span
                 rd = 0
-                span_pads.each do |span|
+                sp.each do |span|
                   if span[3] > span[1]
                     od = nd * span[0] + span[3]
                     if od < span[1]
@@ -81,11 +79,21 @@ module Kredki
                 break
               end
             end
-
-            ad = span_pads.map{ it[3] }.sum
-            ad += @space * (span_pads_size - 1) if @space
+            
+            return [m = sp.map{ it[3] }, m.sum + total_space]
           end
-          [ad, span_pads]
+          [sp.map{ it[3] }, ad + total_space]
+        end
+
+        def arrange_non_layoutic pad, cw, ch
+          pw = get_w pad, pad.w, cw
+          ph = get_h pad, pad.h, ch
+          pad.set_size pw, ph
+          px = pad.get_x cw, pw, (get_x @x, cw, pw)
+          py = pad.get_y ch, ph, (get_y @y, ch, ph)
+          pad.set_xy px, py
+          pad.set_margin
+          pad.arrange
         end
         
       end#Way

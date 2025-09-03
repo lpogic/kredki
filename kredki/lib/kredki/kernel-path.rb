@@ -99,3 +99,9 @@ class Array
     end
   end
 end
+
+module Enumerable
+  def zip_map *hair, &block
+    zip(*hair).map(&block)
+  end
+end

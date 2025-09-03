@@ -22,6 +22,12 @@ task :sample, [:path] do |task, args|
   require_relative "kredki/sample/#{args[:path]}"
 end
 
+task :samples do
+  Dir["kredki/sample/*.rb"].each do |file|
+    p file
+    `rake sample[#{file[14...-3]}]`
+  end
+end
 
 def check_vars *vars, file: true
   vars.each do |v|

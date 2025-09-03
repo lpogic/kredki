@@ -25,19 +25,25 @@ module Kredki
       end
 
       [:rbb, :reb, :rbe, :ree, :rxb, :rxe, :ryb, :rye, :r].each do |n|
-        class_eval <<~xx
-          param def #{n}! r, clip = true
+        class_eval <<~RUBY
+          param def #{n}! r, r_clip = true
             change = false
             change = @area.#{n}! r if r
-            if clip
-              clip = r if clip == true
-              change = (@clip_area.#{n}! r or change)
+            if r_clip == true
+              rcbb = r - (@mxb + @myb) * 0.5
+              rcbe = r - (@mxb + @mye) * 0.5
+              rceb = r - (@mxe + @myb) * 0.5
+              rcee = r - (@mxe + @mye) * 0.5
+              @clip_area.r! rcbb, rceb, rcbe, rcee or change
+            elsif r_clip
+              @clip_area.#{n} = r_clip or change
+            else
+              change
             end
-            change
           end, def #{n} clip = false
             clip ? @clip_area.#{n} : @area.#{n}
           end
-        xx
+        RUBY
       end
 
       # internal api

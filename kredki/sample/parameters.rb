@@ -1,20 +1,24 @@
 require 'kredki'
 
-# Sample shows different ways of parametrization. Every case gives same result.
+# Shows different ways of parametrization. Every "Via" gives the same result.
 
 layout! Y, 4
+params = {wh: 50, rbb: 20, ree: 20, color: :yellow}
 
 # 1. Via named arguments
 pad! wh: 50, rbb: 20, ree: 20, color: :yellow
 
 # 2. Via hash argument
-params = {wh: 50, rbb: 20, ree: 20, color: :yellow}
 pad! params
 
 # 3. Via named arguments (splatted hash)
-pad! color: :green, **params
+pad! **params
 
-# 4. Via block
+# 4. Via splatted hash (after creation)
+pad = pad!
+pad.alter **params
+
+# 5. Via block
 pad! do
   wh! 50
   rbb! 20
@@ -22,13 +26,22 @@ pad! do
   color! :yellow
 end
 
-# 5. Via procedural definition
-define :small_pad! do |**na|
+# 6. Via definition (procedural)
+define :small_pad_proc! do |**na|
   pad! wh: 50, rbb: 20, ree: 20, **na
 end
 
-small_pad! color: :yellow
+small_pad_proc! color: :yellow
 
-# 6. Via splatted hash (after creation)
-pad = pad!
-pad.alter **params
+# 7. Via definition (object-oriented)
+class SmallPadClass < ShapePad
+  def sketch p1
+    p1.color = :yellow
+    rbb! 20
+    ree! 20
+  end
+end
+
+define :small_pad_class!, SmallPadClass
+
+small_pad_class! wh: 50

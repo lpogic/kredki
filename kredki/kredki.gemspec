@@ -3,11 +3,11 @@ module Kredki
 end
 
 Gem::Specification.new do |s|
-  s.name        = "rogal"
-  s.version     = Rogal::VERSION
-  s.summary     = "Ruby-Oriented Graphic Applications Library"
+  s.name        = "kredki"
+  s.version     = Kredki::VERSION
+  s.summary     = "Ruby-Oriented graphical application toolkit"
   s.description = <<~EOT
-    The GUI toolkit written in Ruby from skratch. Rendered by ThorVG. Connected with resources via SDL.
+    A library for playing with vector graphics in Ruby. It allows you to create simple simulations, games and applications.
   EOT
   s.authors     = ["Łukasz Pomietło"]
   s.email       = "oficjalnyadreslukasza@gmail.com"

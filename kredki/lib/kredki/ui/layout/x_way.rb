@@ -5,39 +5,44 @@ module Kredki
     module Layout
       class XWay < Way
 
-        def get_span pad, pcw
-          w = pad.w
+        model :<
+
+        def get_span pad, w, pcw
           case w
           when Rational
-            [w, 0, Float::INFINITY, 0, pad]
+            [w, 0, Float::INFINITY, 0]
           when Array
             case w[0]
             when Range
               min = w[0].begin || 0
               max = w[0].end || Float::INFINITY
-              [w[1], a = get_w(pad, min, pcw), get_w(pad, max, pcw), a, pad]
+              [w[1], a = get_w(pad, min, pcw), get_w(pad, max, pcw), a]
             else raise_ia w
             end
           when Range
             min = w.begin || 0
             max = w.end || Float::INFINITY
-            [1r, a = get_w(pad, min, pcw), get_w(pad, max, pcw), a, pad]
+            [1r, a = get_w(pad, min, pcw), get_w(pad, max, pcw), a]
           else
-            [0, a = get_w(pad, w, pcw), a, a, pad]
+            [0, a = get_w(pad, w, pcw), a, a]
           end
         end
 
         def arrange pad
           cw = pad.cw
           ch = pad.ch
-          sw, span_pads = spans pad, cw
+          sp = pad.layout_pads.map{ get_span it, it.w, cw }
+          measurement, sw = spans sp, cw, @space || 0
  
-          span_pads.each do |span|
-            p1 = span[4]
+          pad.layout_pads.zip measurement do |p1, m|
             ph = get_h p1, p1.h, ch
-            p1.set_size span[3], ph
+            p1.set_size m, ph
           end
 
+          arrange_pads pad.arrange_pads, sw, cw, ch
+        end
+
+        def arrange_pads pads, sw, cw, ch
           cx = case @x
           when Center
             (cw - sw) * 0.5
@@ -53,11 +58,11 @@ module Kredki
             @x
           else raise_ia @x
           end
-
+          p [sw, cw, cx]
           lx = lxm = ly = lym = 0
           space = @space || 0
           
-          pad.arrange_pads.each do |p1|
+          pads.each do |p1|
             if p1.layoutic?
               pw, ph, px, py = arrange_layoutic p1, cw, ch, cx
               cx += pw + space
@@ -66,14 +71,7 @@ module Kredki
               lxm = [lxm, px + pw].max
               lym = [lym, py + ph].max
             else
-              pw = get_w p1, p1.w, cw
-              ph = get_h p1, p1.h, ch
-              p1.set_size pw, ph
-              px = p1.get_x cw, pw, (get_x @x, cw, pw)
-              py = p1.get_y ch, ph, (get_y @y, ch, ph)
-              p1.set_xy px, py
-              p1.set_margin
-              p1.arrange
+              arrange_non_layoutic p1, cw, ch
             end
           end
 
