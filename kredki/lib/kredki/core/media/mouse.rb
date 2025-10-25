@@ -28,12 +28,16 @@ module Kredki
       alter &block
     end
 
-    param def scrollbar_speed! speed
+    param def scrollbar_speed! speed = @scrollbar_speed
+      return scrollbar_speed! yield @scrollbar_speed if block_given?
       @scrollbar_speed = speed
+      true
     end
 
-    param def scrollbar_alt_speed! speed
+    param def scrollbar_alt_speed! speed = @scrollbar_alt_speed
+      return scrollbar_alt_speed! yield @scrollbar_alt_speed if block_given?
       @scrollbar_alt_speed = speed
+      true
     end
 
     def button! id, code
@@ -65,12 +69,11 @@ module Kredki
     def xy
       get_cursor_position
     end
-
-    flag def relative! s = true
-      c, n = relative? s
-      return if c == n
-      set_relative n
-      @relative = n
+    
+    flag def relative! value = true
+      return if (c = relative) == (value = block_given? ? (yield c) : value == :not ? !c : value)
+      set_relative value
+      @relative = value
       true
     end
 
@@ -78,10 +81,9 @@ module Kredki
       alt ? @scrollbar_alt_speed : @scrollbar_speed
     end
 
-    flag def in_window! s = true
-      c, n = in_window? s
-      return if c == n
-      @in_window = n
+    flag def in_window! value = true
+      return if (c = in_window) == (value = block_given? ? (yield c) : value == :not ? !c : value)
+      @in_window = value
       true
     end, def in_window
       get_in_window

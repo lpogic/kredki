@@ -1,4 +1,6 @@
 require_relative 'rake-config' if File.exist? "rake-config.rb"
+require 'yard'
+require_relative 'yard-extension'
 
 task default: :run
 
@@ -8,6 +10,11 @@ task :run do
   $LOAD_PATH << File.expand_path(".")
   $LOAD_PATH << File.expand_path("kredki/lib")
   require_relative "sketch/sketch"
+end
+
+desc "Run interactive session"
+task :irb do
+  system "irb -I #{File.expand_path(".")} -I #{File.expand_path("kredki/lib")} -r kredki"
 end
 
 directory "sketch"
@@ -24,9 +31,19 @@ end
 
 task :samples do
   Dir["kredki/sample/*.rb"].each do |file|
-    p file
+    puts file
     `rake sample[#{file[14...-3]}]`
   end
+end
+
+YARD::Rake::YardocTask.new do |t|
+  t.files = ['kredki/lib/**/*.rb', '-', './parameters.md']
+  # t.files = ['sketch/sketch.rb']
+  t.options = [
+    '--tag', 'public', 
+    '--hide-tag', 'public', 
+    '--query', '@public',
+  ]
 end
 
 def check_vars *vars, file: true

@@ -4,55 +4,44 @@ module Kredki
       extend Forwardable
       extend HasParams
 
-      class ColorTheme < Theme
-        model :color
+      param def color! *color
+        return color! *Util.cover(yield self.color) if block_given?
+        color = Util.uncover color
+        return if @color == color
+        @color = color
+        repaint
+        true
+      end
 
-        def attach! pad
-          super pad, [
-            pad.on_focus_enter!,
-            pad.on_focus_leave!,
-            pad.on_mouse_down!,
-            pad.on_mouse_up!,
-            pad.on_mouse_enter!,
-            pad.on_mouse_leave!,
-          ]
-        end
-
-        def repaint
-          @pad.area.fill_color = @pad.pin_top? ? @color.darken : @pad.mouse_in? ? @color.lighten : @color
-          @pad.area.stroke_color = @pad.keyboard_in? ? :stroke_focus : @color.darken
+      def theme
+        Event.each(
+          on_focus_enter!,
+          on_focus_leave!,
+          on_mouse_down!,
+          on_mouse_up!,
+          on_mouse_enter!,
+          on_mouse_leave!,
+        ) do
+          repaint
         end
       end
 
-      def color_theme color
-        ColorTheme.new color
+      def repaint
+        color = Kredki.color @color
+        area.fill_color = pin_top? ? color.darken : mouse_in? ? color.lighten : color
+        area.stroke_color = keyboard_in? ? :stroke_focus : color.darken
       end
 
-      param def theme! theme
-        theme = theme.size > 1 ? theme : theme.first
-        return if @theme == theme
-        set_theme case theme
-        when Theme
-          theme
-        when Symbol, Array, Color
-          color_theme Kredki.color theme
-        else raise_ia theme 
-        end
-        @theme = theme
-      end
-
-      flag def checked! s = true
-        c, n = show? s
-        return if c == n
-        update_checked n
+      flag def checked! value = true, &block
+        return if (c = checked) == (value = block ? block[c] : value == :not ? !c : value)
+        update_checked value
       end
 
       #internal api
 
       def initialize
         super
-
-        @theme = nil
+        
         @check = new ShapePad, mousy: false, keyboardy: false, color: :text, wh: 1r do
           area! do |w, h|
             ellipse! w, h
@@ -69,19 +58,23 @@ module Kredki
         end
         keyboardy!
         stroke_size! 1
-        layout! :center
+        layout! :acc
         wh! 16
         m! 4
-        theme! :gray
+        color! :gray
 
-        Event.group on_mouse_click!, on_key!(:space, :enter) do
+        theme
+        drive
+      end
+
+      def drive
+        Event.each on_mouse_click!, on_key!(:space, :enter) do
           checked!
         end
 
         on_key_down! do |e|
           parent.key e, self
         end
-
       end
 
       def update_checked checked
@@ -91,13 +84,6 @@ module Kredki
       def set_checked checked
         @checked = checked
         @check.show! checked
-      end
-
-      def set_theme theme
-        @theme_object&.detach!
-        theme.attach! self
-        @theme_object = theme
-        true
       end
     end
   end

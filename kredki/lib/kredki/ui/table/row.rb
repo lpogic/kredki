@@ -6,7 +6,7 @@ module Kredki
         def sketch p1
           super
 
-          wh! 1r, Fit
+          wh! 1r, :fit
           color! false
         end
 

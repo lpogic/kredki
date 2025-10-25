@@ -1,62 +1,30 @@
 require_relative 'text_pad'
-require_relative 'theme'
 
 module Kredki
   module UI
-    class ButtonPad < ShapePad
+    class Button < ShapePad
       extend Forwardable
-      extend HasParams
       extend HasEventResolvers
-
-      class ColorTheme < Theme
-        model :color
-
-        def attach! pad
-          super pad, [
-            pad.on_focus_enter!,
-            pad.on_focus_leave!,
-            pad.on_mouse_down!,
-            pad.on_mouse_up!,
-            pad.on_mouse_enter!,
-            pad.on_mouse_leave!,
-            pad.on_key_down!,
-            pad.on_key_up!,
-          ]
-        end
-
-        def repaint
-          kb_in = @pad.keyboard_in?
-          @pad.area.fill_color = @pad.down?(kb_in) ? @color.darken : @pad.mouse_in? ? @color.lighten : @color
-          @pad.area.stroke_color = kb_in && !@pad.pin_top?(:primary) ? :stroke_focus : @color.darken
-        end
-      end
 
       class ButtonClickEvent < Event
         model :origin, :<
       end
 
-      def color_theme color
-        ColorTheme.new color
+      class ButtonDownEvent < Event
+        model :origin, :<
       end
 
-      param def theme! *theme
-        theme = theme.pick
-        return if @theme == theme
-        set_theme case theme
-        when Theme
-          theme
-        when Symbol, Array, Color
-          color_theme Kredki.color theme
-        else raise_ia theme 
-        end
-        @theme = theme
-        true
+      class ButtonUpEvent < Event
+        model :origin, :<
       end
 
       param def color! *color
-        theme! *color
-      end, def color
-        @theme_object.color
+        return color! *Util.cover(yield self.color) if block_given?
+        color = Util.uncover color
+        return if @color == color
+        @color = color
+        repaint
+        true
       end
 
       def text
@@ -74,18 +42,15 @@ module Kredki
 
       event_resolver :on_click!, ButtonClickEvent
 
-      def down? keyboard_in = nil
-        keyboard_in = keyboard_in? if keyboard_in.nil?
-        pin_top? :primary or (
-          keyboard_in and (
-            key_down? :space or
-            key_down? :enter
-          )
-        )
+      flag def down! value = true, event = nil
+        return if (c = down) == (value = block_given? ? (yield c) : value == :not ? !c : value)
+        @down = value
+        report (@down ? ButtonDownEvent.new(event) : ButtonUpEvent.new(event)) if event
+        true
       end
 
       #internal api
-
+      
       def initialize
         super
 
@@ -97,38 +62,64 @@ module Kredki
 
         new TextPad, "Button" do
           mousy! false
-          h! Fit
+          h! :fit
           verse_size! 24
-          verse_layout! Center
+          verse_layout! :c
         end
 
         keyboardy!
         stroke_size! 1
-        theme! :gray
-        layout! Center
-        wh! Fit
+        layout! :acc
+        wh! :fit
+        color! :gray
         m! 3
-
-        driver
+        
+        drive
+        theme
       end
 
-      def driver
-        on_mouse_click! :primary do |e|
-          report ButtonClickEvent.new e
-          e.resolve
+      def drive
+        Event.each on_mouse_down!(:primary), on_key_down!(:enter, :space) do |e|
+          down! true, e
         end
 
-        on_key! :space, :enter do |e|
-          report ButtonClickEvent.new e
-          e.resolve
+        on_focus_leave! do |e|
+          down! false, e
+        end
+
+        on_mouse_up! :primary do |e|
+          down = keyboard_in? && ( key_down?(:space) || key_down?(:enter) )
+          report ButtonClickEvent.new e if !down && down!(false, e) && !e.drag && include_point?(*layer.translate(*e.xy, self))
+        end
+
+        on_key_up! :enter do |e|
+          down = pin_top?(:primary) || ( keyboard_in? && key_down?(:space) )
+          report ButtonClickEvent.new e if !down && down!(false, e)
+        end
+
+        on_key_up! :space do |e|
+          down = pin_top?(:primary) || ( keyboard_in? && key_down?(:enter) )
+          report ButtonClickEvent.new e if !down && down!(false, e)
         end
       end
 
-      def set_theme theme
-        @theme_object&.detach!
-        theme.attach! self
-        @theme_object = theme
-        true
+      def theme
+        Event.each(
+          on_focus_enter!, 
+          on_focus_leave!, 
+          on_mouse_enter!, 
+          on_mouse_leave!, 
+          on!(ButtonDownEvent), 
+          on!(ButtonUpEvent)
+        ) do
+          repaint
+        end
+      end
+
+      def repaint
+        color = Kredki.color @color
+        area.fill_color = down? ? color.darken : mouse_in? ? color.lighten : color
+        area.stroke_color = keyboard_in? ? :stroke_focus : color.darken
       end
     end
   end

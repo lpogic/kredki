@@ -13,7 +13,8 @@ module Kredki
         self.reset_cursor if reset_cursor
       end
 
-      param def font! font
+      param def font! font = nil
+        return font! (yield self.font) if block_given?
         @lines.each{ _1.text.font! font }
       end, def font
         @lines.first.text.font
@@ -158,12 +159,12 @@ module Kredki
 
       def align_x tw, w
         case @verse_layout
-        when Begin, Begin/Begin, Begin/Center, Begin/End
+        when :b, :bb, :bc, :be
           @cursor.w
-        when End, End/Begin, End/Center, End/End
+        when :e, :eb, :ec, :ee
           w - tw - @cursor.w
-        when Center, Center/Begin, Center/Center, Center/End
-          (w - tw) * 0.5 + @cursor.w
+        when :c, :cb, :cc, :ce
+          (w - tw + @cursor.w) * 0.5
         else raise_is @verse_layout
         end
       end

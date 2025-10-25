@@ -1,5 +1,4 @@
 require_relative '../text_pad'
-require_relative '../theme'
 
 module Kredki
   module UI
@@ -23,41 +22,30 @@ module Kredki
         end
       end
 
-      class ColorTheme < Theme
-        model :color
+      param def color! *color
+        color = Util.uncover color
+        return if @color == color
+        @color = color
+        repaint
+        true
+      end
 
-        def attach! pad
-          super pad, [
-            pad.on_focus_enter!,
-            pad.on_focus_leave!,
-            pad.on_mouse_down!,
-            pad.on_mouse_up!,
-            pad.on_mouse_enter!,
-            pad.on_mouse_leave!,
-          ]
-        end
-
-        def repaint
-          @pad.area.fill_color = @pad.pin_in? ? @color.darken : @pad.keyboard_in? ? @color.lighten : @color
+      def theme
+        Event.each(
+          on_focus_enter!,
+          on_focus_leave!,
+          on_mouse_down!,
+          on_mouse_up!,
+          on_mouse_enter!,
+          on_mouse_leave!,
+        ) do
+          repaint
         end
       end
 
-      def color_theme color
-        ColorTheme.new color
-      end
-
-      param def theme! theme
-        theme = case theme
-        when Theme
-          theme
-        when Symbol, Array
-          color_theme Kredki.color theme
-        else raise_ia theme 
-        end
-        @theme != theme && begin
-          @theme = theme
-          theme.attach! self
-        end
+      def repaint
+        color = Kredki.color @color
+        area.fill_color = pin_in? ? color.darken : keyboard_in? ? color.lighten : color
       end
 
       event_resolver :on_pick!, PickEvent
@@ -92,11 +80,16 @@ module Kredki
         super
 
         keyboardy!
-        theme! :gray
-        layout! X/Begin/Center
+        layout! :xbc
+        color! :gray
         h! 24
-        w! Fit
+        w! :fit
 
+        theme
+        drive
+      end
+
+      def drive
         on_mouse_click! :primary do |e|
           report PickEvent.new(content, e)
         end

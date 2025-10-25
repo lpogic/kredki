@@ -274,10 +274,10 @@ CABI void paint_delete(Paint* self)
     SDL_PushEvent(&event);
 }
 
-CABI void paint_set_transform(Paint* self, float pivot_x, float pivot_y, float x, float y, float spin, float scale_x, float scale_y) {
+CABI void paint_set_transform(Paint* self, float pivot_x, float pivot_y, float x, float y, float a, float scale_x, float scale_y) {
     auto m = self->transform();
-    auto s = sinf(spin);
-    auto c = cosf(spin);
+    auto s = sinf(a);
+    auto c = cosf(a);
     m.e11 = c * scale_x;
     m.e12 = -s * scale_x;
     m.e13 = x + pivot_x - c * scale_x * pivot_x + s * scale_x * pivot_y;

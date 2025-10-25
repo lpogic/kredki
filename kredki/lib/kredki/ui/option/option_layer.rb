@@ -2,7 +2,7 @@ require_relative '../item/item_group'
 
 module Kredki
   module UI
-    class ListNoteLayer < Layer
+    class OptionLayer < Layer
 
       def arrange
         @note&.layer&.arrange
@@ -54,8 +54,8 @@ module Kredki
       def sketch p0
         super
 
-        @scroll = new ScrollPad, layout: Y/Begin/Begin
-        @pad = @scroll.new ShapePad, color: :gray, layout: Y/Begin/Begin, h: Fit
+        @scroll = new ScrollPad, layout: :ybb
+        @pad = @scroll.new ShapePad, color: :gray, layout: :ybb, h: :fit
         @item_group = @pad.new ItemGroup
       end
 

@@ -17,28 +17,36 @@ module Kredki
       def <<(arg)
         case arg
         when Pad
-          arg.attach! self
+          put! arg
         else
           super
         end
       end
 
-      param def x! x
+      param def x! x = @x
+        return x! yield @x if block_given?
         return if UI.eqr @x, x
         @x = x
         layer&.break_layout
         true
       end
 
-      param def y! y
+      param def y! y = @y
+        return y! yield @y if block_given?
         return if UI.eqr @y, y
         @y = y
         layer&.break_layout
         true
       end
 
-      param def xy! x, y = nil
-        y ||= x
+      param def xy! x = nil, y = nil
+        return xy! *Util.cover(yield self.xy) if block_given?
+        if x
+          y ||= x
+        else
+          x ||= @x
+          y ||= @y
+        end
         return if (UI.eqr @y, y) && (UI.eqr @x, x)
         @x = x
         @y = y
@@ -49,7 +57,8 @@ module Kredki
       end
           
       param def w! *w
-        w = w.pick
+        return w! *Util.cover(yield @w) if block_given?
+        w = Util.uncover w
         return if UI.eqr @w, w
         @w = w
         layer&.break_layout
@@ -57,15 +66,22 @@ module Kredki
       end
 
       param def h! *h
-        h = h.pick
+        return h! *Util.cover(yield @h) if block_given?
+        h = Util.uncover h
         return if UI.eqr @h, h
         @h = h
         layer&.break_layout
         true
       end
 
-      param def wh! w, h = nil
-        h ||= w
+      param def wh! w = nil, h = nil
+        return wh! *Util.cover(yield self.wh) if block_given?
+        if w
+          h ||= w
+        else
+          w ||= @w
+          h ||= @h
+        end
         return if (UI.eqr @w, w) && (UI.eqr @h, h)
         @w = w
         @h = h
@@ -75,60 +91,98 @@ module Kredki
         [@w, @h]
       end
 
-      param def mxb! m
+      param def mxb! m = @mxb
+        return mxb! yield @mxb if block_given?
         return if UI.eqr @mxb, m
         @mxb = m
         layer&.break_layout
         true
       end
 
-      param def mxe! m
+      param def mxe! m = @mxe
+        return mxe! yield @mxe if block_given?
         return if UI.eqr @mxe, m
         @mxe = m
         layer&.break_layout
         true
       end
 
-      param def myb! m
+      param def myb! m = @myb
+        return myb! yield @myb if block_given?
         return if UI.eqr @myb, m
         @myb = m
         layer&.break_layout
         true
       end
 
-      param def mye! m
+      param def mye! m = @mye
+        return mye! yield @mye if block_given?
         return if UI.eqr @mye, m
         @mye = m
         layer&.break_layout
         true
       end
 
-      param def mx! mb, me = nil
-        me ||= mb
+      param def mx! mb = nil, me = nil
+        return mx! *Util.cover(yield self.mx) if block_given?
+        case m.size
+        when 0 then return
+        when 1
+          mb = me = m[0]
+        when 2
+          mb = m[0]
+          me = m[1]
+        else
+          raise_ia m
+        end
         return if (UI.eqr @mxb, mb) && (UI.eqr @mxe, me)
         @mxb = mb
         @mxe = me
         layer&.break_layout
         true
       end, def mx
-        (UI.eqr @mxb, @mxe) ? @mb : [@mxb, @mxe]
+        [@mxb, @mxe]
       end
 
-      param def my! mb, me = nil
-        me ||= mb
+      param def my! mb = nil, me = nil
+        return my! *Util.cover(yield self.my) if block_given?
+        case m.size
+        when 0 then return
+        when 1
+          mb = me = m[0]
+        when 2
+          mb = m[0]
+          me = m[1]
+        else
+          raise_ia m
+        end
         return if (UI.eqr @myb, mb) && (UI.eqr @mye, me)
         @myb = mb
         @mye = me
         layer&.break_layout
         true
       end, def my
-        (UI.eqr @myb, @mye) ? @myb : [@myb, @mye]
+        [@myb, @mye]
       end
 
-      param def m! mxb, mxe = nil, myb = nil, mye = nil
-        mxe ||= mxb
-        myb ||= mxb
-        mye ||= myb
+      param def m! *m
+        return m! *Util.cover(yield self.m) if block_given?
+        case m.size
+        when 0 then return
+        when 1
+          mxb = mxe = myb = mye = m[0]
+        when 2
+          mxb = mxe = m[0]
+          myb = mye = m[1]
+        when 3
+          mxb = m[0]
+          mxe = m[1]
+          myb = mye = m[2]
+        when 4
+          mxb, mxe, myb, mye = *m
+        else
+          raise_ia m
+        end
         return if (UI.eqr @mxb, mxb) && (UI.eqr @mxe, mxe) && (UI.eqr @myb, myb) && (UI.eqr @mye, mye)
         @mxb = mxb
         @mxe = mxe
@@ -137,7 +191,15 @@ module Kredki
         layer&.break_layout
         true
       end, def m
-        (UI.eqr @mxb, @mxe) && (UI.eqr @myb, @mye) ? (UI.eqr @mxb, @myb) ? @mxb : [@mxb, @myb] : [@mxb, @mxe, @myb, @mye]
+        [@mxb, @mxe, @myb, @mye]
+      end
+
+      param def mi! m
+        return mi! yield @mi if block_given?
+        return if UI.eqr @mi, m
+        @mi = m
+        layer&.break_layout
+        true
       end
 
       def sx
@@ -188,20 +250,15 @@ module Kredki
         @clip_area.wh
       end
 
-      param def spin! spin = nil, &b
-        return spin! b[@spin] if b
-        return if @spin == spin
-        @spin = spin
-        spin *= Math::PI * 2 if spin.is_a? Rational
-        @scene.spin! spin
+      param def a! a = @a
+        return a! yield @a if block_given?
+        return if @a == a
+        @a = a
+        a *= Math::PI * 2 if a.is_a? Rational
+        @scene.a! a
       end
 
-      param def scale! x = nil, y = nil, &b
-        return scale! b[*self.scale] if b
-        @scene.scale! x, y
-      end, def scale
-        @scene.scale
-      end
+      param_delegate :@scene, :scale
 
       param def area! area = nil, &block
         if block
@@ -234,12 +291,13 @@ module Kredki
         true
       end
 
-      param def layout! layout = @layout, *a
-        return if @layout == layout && a.empty?
-        _layout = UI.layout(layout).tune *a
+      param def layout! layout = nil
+        return layout! yield @layout if block_given?
+        return if @layout == layout
         @layout = layout
-        return true if @_layout == _layout
-        @_layout = _layout
+        layout = UI.layout layout
+        return true if @ui_layout == layout
+        @ui_layout = layout
         layer&.break_layout
         true
       end
@@ -269,10 +327,9 @@ module Kredki
         pad.in_pad? self
       end
 
-      flag def show! s = true
-        c, n = show? s
-        return if c == n
-        set_show n
+      flag def show! value = true
+        return if (c = show) == (value = block_given? ? (yield c) : value == :not ? !c : value)
+        set_show value
         true
       end, def show
         get_show
@@ -282,20 +339,18 @@ module Kredki
         show! false
       end
 
-      flag def layoutic! s = true
-        c, n = layoutic? s
-        return if c == n
+      flag def layoutic! value = true
+        return if (c = layoutic) == (value = block_given? ? (yield c) : value == :not ? !c : value)
         layer&.break_layout
-        @layoutic = n
+        @layoutic = value
         true
       end, def layoutic
-        @layoutic.nil? || @layoutic
+        @layoutic || @layoutic.nil?
       end
 
-      flag def scenic! s = true
-        c, n = scenic? s
-        return if c == n
-        set_scenic n
+      flag def scenic! value = true
+        return if (c = scenic) == (value = block_given? ? (yield c) : value == :not ? !c : value)
+        set_scenic value
         true
       end, def scenic
         get_scenic
@@ -333,35 +388,31 @@ module Kredki
         layer&.check_pin self, button, true
       end
 
-      flag def keyboardy! s = true
-        c, n = keyboardy? s
-        return if c == n
-        @keyboardy = n
+      flag def keyboardy! value = true
+        return if (c = keyboardy) == (value = block_given? ? (yield c) : value == :not ? !c : value)
+        @keyboardy = value
         true
-      end
-
-      flag def mousy! s = true
-        c, n = mousy? s
-        return if c == n
-        @mousy = n
-        true
-      end, def mousy
-        @mousy.nil? || @mousy
       end
       
-      flag def focus! s = true
-        c, n = focus? s
-        return if c == n
-        set_focus n
+      flag def mousy! value = true
+        return if (c = mousy) == (value = block_given? ? (yield c) : value == :not ? !c : value)
+        @mousy = value
+        true
+      end, def mousy
+        @mousy || @mousy.nil?
+      end
+
+      flag def focus! value = true
+        return if (c = focus) == (value = block_given? ? (yield c) : value == :not ? !c : value)
+        set_focus value
         true
       end, def focus
         keyboard_top?
       end
-
-      flag def pin! s = true
-        c, n = pin? s
-        return if c == n
-        set_pin n
+      
+      flag def pin! value = true
+        return if (c = pin) == (value = block_given? ? (yield c) : value == :not ? !c : value)
+        set_pin value
         true
       end, def pin
         pin_top?
@@ -407,7 +458,7 @@ module Kredki
         super
         @x = @y = :layout
         @w = @h = 100
-        @spin = 0
+        @a = 0
         @mxb = @mxe = @myb = @mye = 0
         @pad_parent = nil
         @scene = Scene.new
@@ -416,7 +467,7 @@ module Kredki
         @clip_area = @clip_scene.rectangle! at: false, fill_color: false
         @pads = []
         @layout = nil
-        @_layout = UI.layout
+        @ui_layout = UI.layout
       end
 
       def initialize_area
@@ -532,11 +583,11 @@ module Kredki
           @x[pcw, sw]
         when Range
           ax + @x.begin
-        when End
+        when :e
           pcw - sw
-        when Begin
+        when :b
           0
-        when Center
+        when :c
           (pcw - sw) * 0.5
         when :layout
           ax
@@ -554,11 +605,11 @@ module Kredki
           @y[pch, sh]
         when Range
           ay + @y.begin
-        when End
+        when :e
           pch - sh
-        when Begin
+        when :b
           0
-        when Center
+        when :c
           (pch - sh) * 0.5
         when :layout
           ay
@@ -585,15 +636,15 @@ module Kredki
       end
 
       def arrange
-        @_layout.arrange self
+        @ui_layout.arrange self
       end
 
       def fit_w
-        @mxb + @mxe + @_layout.fit_w(self)
+        @mxb + @mxe + @ui_layout.fit_w(self)
       end
 
       def fit_h
-        @myb + @mye + @_layout.fit_h(self)
+        @myb + @mye + @ui_layout.fit_h(self)
       end
 
       def min_w
@@ -601,7 +652,7 @@ module Kredki
         case @w
         when Rational, Proc
           m
-        when Fit
+        when :fit
           fit_w
         when :driven
           @area.w
@@ -637,7 +688,7 @@ module Kredki
         case @h
         when Rational, Proc
           m
-        when Fit
+        when :fit
           fit_h
         when :driven
           @area.h
@@ -649,7 +700,7 @@ module Kredki
             @h.begin < 0 ? m : @h.begin
           when nil
             m
-          when Fit
+          when :fit
             fit_h
           else raise_is @h.begin
           end
@@ -660,7 +711,7 @@ module Kredki
             @h.end < 0 ? m : @h.end
           when nil
             Float::INFINITY
-          when Fit
+          when :fit
             fit_h
           else raise_is @h.end
           end
@@ -678,7 +729,7 @@ module Kredki
           @pad_parent.get_w * @w
         when Proc
           @w[@pad_parent.get_w]
-        when Fit
+        when :fit
           fit_w
         when :driven
           @area.w
@@ -720,7 +771,7 @@ module Kredki
           @pad_parent.get_h * @h
         when Proc
           @h[@pad_parent.get_h]
-        when Fit
+        when :fit
           fit_h
         when :driven
           @area.h
@@ -833,7 +884,7 @@ module Kredki
       end
 
       def pin_dispose button = nil
-        layer&.update_pin_pad nil
+        layer&.update_pin_pad nil if !button || button == layer&.pin_button
       end
 
       def set_pin set

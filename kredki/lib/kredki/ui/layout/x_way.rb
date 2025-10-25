@@ -5,8 +5,6 @@ module Kredki
     module Layout
       class XWay < Way
 
-        model :<
-
         def get_span pad, w, pcw
           case w
           when Rational
@@ -32,23 +30,23 @@ module Kredki
           cw = pad.cw
           ch = pad.ch
           sp = pad.layout_pads.map{ get_span it, it.w, cw }
-          measurement, sw = spans sp, cw, @space || 0
+          measurement, sw = spans sp, cw, pad.mi || 0
  
           pad.layout_pads.zip measurement do |p1, m|
             ph = get_h p1, p1.h, ch
             p1.set_size m, ph
           end
 
-          arrange_pads pad.arrange_pads, sw, cw, ch
+          arrange_pads pad.arrange_pads, sw, cw, ch, pad.mi || 0
         end
 
-        def arrange_pads pads, sw, cw, ch
+        def arrange_pads pads, sw, cw, ch, space
           cx = case @x
-          when Center
+          when :c
             (cw - sw) * 0.5
-          when Begin
+          when :b
             0
-          when End
+          when :e
             cw - sw
           when Rational 
             cw * @x
@@ -58,9 +56,7 @@ module Kredki
             @x
           else raise_ia @x
           end
-          p [sw, cw, cx]
           lx = lxm = ly = lym = 0
-          space = @space || 0
           
           pads.each do |p1|
             if p1.layoutic?
@@ -90,7 +86,7 @@ module Kredki
         end
 
         def fit_w pad
-          space = @space || 0
+          space = pad.mi || 0
           pad.layout_pads.map{|p1| p1.min_w }.reduce{ _1 + space + _2 } || 0
         end
       end#XWay

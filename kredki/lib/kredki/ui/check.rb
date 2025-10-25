@@ -1,54 +1,22 @@
-require_relative 'theme'
-
 module Kredki
   module UI
     class Check < ShapePad
       extend Forwardable
       extend HasParams
 
-      class ColorTheme < Theme
-        model :color
-
-        def attach! pad
-          super pad, [
-            pad.on_focus_enter!,
-            pad.on_focus_leave!,
-            pad.on_mouse_down!,
-            pad.on_mouse_up!,
-            pad.on_mouse_enter!,
-            pad.on_mouse_leave!,
-          ]
-        end
-
-        def repaint
-          @pad.area.fill_color = @pad.pin_top? ? @color.darken : @pad.mouse_in? ? @color.lighten : @color
-          @pad.area.stroke_color = @pad.keyboard_in? ? :stroke_focus : @color.darken
-        end
+      param def color! *color
+        return color! *Util.cover(yield self.color) if block_given?
+        color = Util.uncover color
+        return if @color == color
+        @color = color
+        repaint
+        true
       end
 
-      def color_theme color
-        ColorTheme.new color
-      end
-
-      param def theme! theme
-        theme = theme.size > 1 ? theme : theme.first
-        return if @theme == theme
-        set_theme case theme
-        when Theme
-          theme
-        when Symbol, Array, Color
-          color_theme Kredki.color theme
-        else raise_ia theme 
-        end
-        @theme = theme
-      end
-
-
-      flag def checked! s = true
-        c, n = show? s
-        return if c == n
-        checked n
-        @checked = n
+      flag def checked! value = true
+        return if (c = checked) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+        set_checked value
+        @checked = value
         true
       end
 
@@ -56,8 +24,7 @@ module Kredki
 
       def initialize
         super
-
-        @theme = nil
+        
         @check = new ShapePad, mousy: false, keyboardy: false, color: 0, wh: 1r do
           stroke! color: :text, size: 3
           area! do |w, h|
@@ -74,26 +41,42 @@ module Kredki
 
         keyboardy!
         stroke_size! 1
-        theme! :gray
-        layout! Center
+        layout! :acc
         wh! 20
+        color! :gray
         m! 3
 
-        Event.group on_mouse_click!, on_key!(:space, :enter) do
-          checked! :~
-        end
+        drive
+        theme
+      end
 
+      def drive
+        Event.each on_mouse_click!, on_key!(:space, :enter) do
+          checked! :not
+        end
+      end
+
+      def theme
+        Event.each(
+          on_focus_enter!,
+          on_focus_leave!,
+          on_mouse_down!,
+          on_mouse_up!,
+          on_mouse_enter!,
+          on_mouse_leave!,
+        ) do
+          repaint
+        end
+      end
+
+      def repaint
+        color = Kredki.color @color
+        area.fill_color = pin_top? ? color.darken : mouse_in? ? color.lighten : color
+        area.stroke_color = keyboard_in? ? :stroke_focus : color.darken
       end
 
       def set_checked checked
         @check.show! checked
-      end
-
-      def set_theme theme
-        @theme_object&.detach!
-        theme.attach! self
-        @theme_object = theme
-        true
       end
     end
   end

@@ -124,7 +124,7 @@ CABI int window_get_text_input(pas::Window* self);
 CABI int window_get_flags(pas::Window* self);
 
 CABI void paint_delete(Paint* self);
-CABI void paint_set_transform(Paint* self, float pivot_x, float pivot_y, float x, float y, float spin, float scale_x, float scale_y);
+CABI void paint_set_transform(Paint* self, float pivot_x, float pivot_y, float x, float y, float a, float scale_x, float scale_y);
 CABI void paint_set_opacity(Paint* self, uint8_t opacity);
 CABI void paint_get_bounds(Paint* self, Bounds* bounds);
 CABI void paint_set_clip(Paint* self, Shape* clipper);

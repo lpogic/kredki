@@ -94,7 +94,8 @@ module Kredki
     param_prefix :fill
 
     param def fill_color! *color
-      color = color.pick
+      return fill_color! *Util.cover(yield @fill_color) if block_given?
+      color = Util.uncover color
       return if @fill_color == color && color != :rand
       set_fill_color *Kredki.color(color).to_rgba_array
       @fill_color = color
@@ -105,7 +106,8 @@ module Kredki
       enum :winding, :even_odd
     end
 
-    param def fill_rule! rule
+    param def fill_rule! rule = @fill_rule
+      return fill_rule! yield @fill_rule if block_given?
       return if @fill_rule == rule
       set_fill_rule FillRule[rule || :winding].to_i
       @fill_rule = rule
@@ -115,14 +117,16 @@ module Kredki
     param_prefix :stroke
 
     param def stroke_color! *color
-      color = color.pick
+      return stroke_color! *Util.cover(yield @stroke_color) if block_given?
+      color = Util.uncover color
       return if @stroke_color == color && color != :rand
       set_stroke_color *Kredki.color(color).to_rgba_array
       @stroke_color = color
       update
     end
 
-    param def stroke_size! size
+    param def stroke_size! size = @stroke_size
+      return stroke_size! yield @stroke_size if block_given?
       return if @stroke_size == size
       set_stroke_size size.to_f
       @stroke_size = size
@@ -133,7 +137,8 @@ module Kredki
       enum :square, :round, :butt
     end
 
-    param def stroke_cap! cap
+    param def stroke_cap! cap = @stroke_cap
+      return stroke_cap! yield @stroke_cap if block_given?
       return if @stroke_cap == cap
       set_stroke_cap StrokeCap[cap || :square].to_i
       @stroke_cap = cap
@@ -144,7 +149,8 @@ module Kredki
       enum :bevel, :round, :miter
     end
 
-    param def stroke_join! join
+    param def stroke_join! join = @stroke_join
+      return stroke_join! yield @stroke_join if block_given?
       return if @stroke_join == join
       if join.is_a? Numeric
         set_stroke_join StrokeJoin[:miter].to_i
@@ -157,17 +163,17 @@ module Kredki
     end
 
     param def stroke_dash! *dash
+      return stroke_dash! *Util.cover(yield @stroke_dash) if block_given?
       return if @stroke_dash == dash
       set_stroke_dash_pattern dash
       @stroke_dash = dash
       update
     end
 
-    flag def stroke_behind! s = true
-      c, n = stroke_behind? s
-      return if c == n
-      set_stroke_behind n
-      @stroke_behind = n
+    flag def stroke_behind! value = true
+      return if (c = stroke_behind) == (value = block_given? ? (yield c) : value == :not ? !c : value)
+      set_stroke_behind value
+      @stroke_behind = value
       true
     end
 
@@ -191,7 +197,8 @@ module Kredki
     end
 
     param def stroke_trim! *trim
-      trim = trim.pick
+      return stroke_trim! *Util.cover(yield @stroke_trim) if block_given?
+      trim = Util.uncover trim
       return if @stroke_trim == trim
       set_stroke_trim *StrokeTrim[trim].to_a
       @stroke_trim = trim

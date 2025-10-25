@@ -16,13 +16,15 @@ module Kredki
         end
       end
 
-      param def for! for_
-        return if @for == for_
-        @for = for_
+      param def for! new_for = nil
+        return for! (yield self.for) if block_given?
+        return if @for == new_for
+        @for = new_for
         true
       end
 
-      param def text! text
+      param def text! text = ""
+        return text! (yield self.text) if block_given?
         @text.content! text
       end, def text
         @text.content
@@ -40,7 +42,7 @@ module Kredki
       def sketch p0
         super
 
-        wh! Fit, 24
+        wh! :fit, 24
         for! :~
         keyboardy!
 

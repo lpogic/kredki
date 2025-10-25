@@ -29,8 +29,8 @@ module Kredki
       end
     end
 
-    param def content! content = nil, &block
-      return content! block[@content] if block_given?
+    param def content! content = nil
+      return content! yield @content if block_given?
       return if @content == content
       set_content content.to_s
       @content = content
@@ -41,10 +41,11 @@ module Kredki
       @w
     end
 
-    param def h! s
-      return if @h == s
-      set_font Kredki.font(@font).name, s, ""
-      @h = s
+    param def h! h = nil
+      return h! yield @h if block_given?
+      return if @h == h
+      set_font Kredki.font(@font).name, h, ""
+      @h = h
       update_size
     end
 
@@ -53,6 +54,7 @@ module Kredki
     end
 
     param def font! font
+      return font! yield @font if block_given?
       return if @font == font
       set_font Kredki.font(font).name, @h, ""
       @font = font
@@ -60,7 +62,8 @@ module Kredki
     end
 
     param def color! *color
-      color = color.pick
+      return color! *Util.cover(yield self.color) if block_given?
+      color = Util.uncover color
       return if @color == color && color != :rand
       set_fill_color *Kredki.color(color).to_rgb_array
       @color = color

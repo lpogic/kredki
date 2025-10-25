@@ -38,19 +38,17 @@ module Kredki
         @reference.on_leave!(...)
       end
 
-      flag def capture! s = true
-        c, n = capture? s
-        return if c == n
-        set_capture n
+      flag def capture! value = true
+        return if (c = capture) == (value = block_given? ? (yield c) : value == :not ? !c : value)
+        set_capture value
         true
       end, def capture
         get_capture
       end
 
-      flag def grab! s = true
-        c, n = grab? s
-        return if c == n
-        set_grab n
+      flag def grab! value = true
+        return if (c = grab) == (value = block_given? ? (yield c) : value == :not ? !c : value)
+        set_grab value
         true
       end, def grab
         get_grab

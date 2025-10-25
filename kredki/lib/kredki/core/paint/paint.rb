@@ -1,4 +1,6 @@
+# @public
 module Kredki
+  # @public
   class Paint
     extend HasParams
 
@@ -7,7 +9,7 @@ module Kredki
       @scene = nil
       @x = 0
       @y = 0
-      @spin = 0
+      @a = 0
       @scale_x = 1
       @scale_y = 1
       @opacity = 255
@@ -18,7 +20,7 @@ module Kredki
       {
         x: @x,
         y: @y,
-        spin: @spin,
+        a: @a,
         scale_x: @scale_x,
         scale_y: @scale_y,
         opacity: @opacity,
@@ -30,21 +32,38 @@ module Kredki
       raise_ia param
     end
 
-    param def x! x
+    # @group Parameters
+
+    # @public
+    # Sets position along the X axis.
+    param def x! x = @x
+      return x! yield @x if block_given?
       return if @x == x
       @x = x
       update_transform
       update
     end
 
-    param def y! y
+    # @public
+    # Sets position along the Y axis.
+    param def y! y = @y
+      return y! yield @y if block_given?
       return if @y == y
       @y = y
       update_transform
       update
     end
 
-    param def xy! x, y = x
+    # @public
+    # Sets position along X and Y axes.
+    param def xy! x = nil, y = nil
+      return xy! *Util.cover(yield self.xy) if block_given?
+      if x
+        y ||= x
+      else
+        x ||= @x
+        y ||= @y
+      end
       return if @x == x && @y == y
       @x = x
       @y = y
@@ -54,29 +73,48 @@ module Kredki
       [@x, @y]
     end
 
-    param def spin! spin
-      return if @spin == spin
-      @spin = spin
+    # @public
+    # Sets rotation aroud pivot point.
+    param def a! a = @a
+      return a! yield @a if block_given?
+      return if @a == a
+      @a = a
       update_transform
       update
     end
 
-    param def scale_x! scale
+    # @public
+    # Sets scale along the X axis.
+    param def scale_x! scale = @scale_x
+      return scale_x! yield @scale_x if block_given?
       return if @scale_x == scale
       @scale_x = scale
       update_transform
       update
     end
 
-    param def scale_y! scale
+    # @public
+    # Sets scale along the Y axis.
+    param def scale_y! scale = @scale_y
+      return scale_y! yield @scale_y if block_given?
       return if @scale_y == scale
       @scale_y = scale
       update_transform
       update
     end
 
-    param def scale! x, y = nil
-      y ||= @scale_y
+    # @public
+    # Sets scale along X and Y axes.
+    # @param x [Numeric] Paint scale along the X axis.
+    # @param y [Numeric, nil] Paint scale along the Y axis.
+    param def scale! x = nil, y = nil
+      return scale! *Util.cover(yield self.scale) if block_given?
+      if x
+        y ||= x
+      else
+        x ||= @scale_x
+        y ||= @scale_y
+      end
       return if @scale_x == x && @scale_y == y
       @scale_x = x
       @scale_y = y
@@ -85,6 +123,8 @@ module Kredki
     end, def scale
       [@scale_x, @scale_y]
     end
+
+    # @endgroup
 
     def bounds
       bounds = Abi::Bounds.malloc(Fiddle::RUBY_FREE)
@@ -105,7 +145,8 @@ module Kredki
         :hardlight, :softlight
     end
 
-    param def blend! blend
+    param def blend! blend = @blend
+      return blend! yield @blend if block_given?
       return if @blend == blend
       set_blend BlendMethod[blend || :normal].to_i
       @blend = blend
@@ -127,7 +168,8 @@ module Kredki
       # :add, :substract, :intersect, :difference, :lighten, :darken
     end
 
-    param def mask! mask, target = nil
+    param def mask! mask = @mask, target = nil
+      return mask! *Util.cover(yield @mask, @mask_target) if block_given?
       return if @mask == mask && @mask_target == target
       @mask_target&.unset_masking
       target&.set_masking self
@@ -148,14 +190,20 @@ module Kredki
       @scene = scene
     end
 
-    flag def show! s = true
-      c, n = show? s
-      return if c == n
-      set_show n
+    # @group Parameters
+
+    # @public
+    # Set whether paint should be drawn on the scene.
+    # @note All lower level scenes must be shown for the paint to be displayed on the screen.
+    flag def show! value = true
+      return if (c = show) == (value = block_given? ? (yield c) : value == :not ? !c : value)
+      set_show value
       true
     end, def show
       get_show
     end
+
+    # @endgroup
 
     def hide!
       set_show false
@@ -223,7 +271,7 @@ module Kredki
     end
 
     def update_transform
-      Abi.paint_set_transform @pointer, *pxy, @x, @y, @spin, @scale_x, @scale_y
+      Abi.paint_set_transform @pointer, *pxy, @x, @y, @a, @scale_x, @scale_y
     end
 
     def set_blend blend

@@ -10,7 +10,7 @@ pad! color: :rand
 l = layer
 
 def button_text layout
-  "Click here to change layout\nCurrent layout: #{layout || "nil"}"
+  "Click here to change layout\nCurrent layout: #{layout ? ":#{layout}" : "nil"}"
 end
 
 layer! do

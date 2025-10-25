@@ -3,18 +3,16 @@ module Kredki
     class Table
       class ColumnLayout < Layout::XWay
         extend HasParams
-
-        model :table, :< do
+        
+        def initialize table, x, y
+          super(x, y)
+          @table = table
           @columns = []
           @measurement = nil
         end
-
-        def tune *a
-          self
-        end
         
         def column! *a, **na, &b
-          @columns << Column.new(a.pick).alter(**na, &b)
+          @columns << Column.new(Util.uncover a).alter(**na, &b)
         end
 
         param def space! space
@@ -30,7 +28,7 @@ module Kredki
         def measure_arrange pad
           cw = @table.cw
 
-          @spans = pad.layout_pads.zip_map @columns, @spans do |p1, c, s|
+          @spans = pad.layout_pads.zip(@columns, @spans).map do |p1, c, s|
             n = get_span p1, c.size, cw
             s ? [n[0], a = [n[1], s[1]].max, [n[2], s[2]].min, a] : n
           end
@@ -52,7 +50,7 @@ module Kredki
             p1.set_size w, ph
           end
 
-          arrange_pads pad.arrange_pads, sw, cw, ch
+          arrange_pads pad.arrange_pads, sw, cw, ch, @space || 0
         end
   
         def prepare

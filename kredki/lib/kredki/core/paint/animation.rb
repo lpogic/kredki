@@ -15,20 +15,10 @@ module Kredki
       end
     end
 
-    def initialize
-      @pointer = Abi.animation_new
-      ObjectSpace.define_finalizer(self, Animation.proc.finalize(@pointer))
-
-      @picture = Picture.new Abi.animation_get_picture @pointer
-      @play = false
-      @ms = nil
-      @total_frame = nil
-      @on_end = EventManager.new
-    end
-
     attr :picture
 
-    param def source! source
+    param def source! source = @source
+      return source! yield @source if block_given?
       return if @source == source
       set_source source
       @source = source
@@ -44,16 +34,16 @@ module Kredki
     end
 
     param_delegate :@picture,
-      :w, :h, :wh, :spin, :scale
+      :w, :h, :wh, :a, :scale
 
     def contain? ...
       @picture.contain?(...)
     end
 
-    param def frame! frame_index
+    def frame! frame_index
       set_frame frame_index
       @picture.update
-    end, false
+    end
 
     attr :total_frame
 
@@ -71,9 +61,9 @@ module Kredki
       true
     end
 
-    param def segment! *segment
+    def segment! *segment
       Abi.animation_set_segment @pointer, *segment
-    end, false
+    end
 
     def on_end! &block
       @on_end << block
@@ -97,10 +87,9 @@ module Kredki
       @picture.detach!
     end
 
-    flag def show! s = true
-      c, n = show? s
-      return if c == n
-      set_show n
+    flag def show! value = true
+      return if (c = show) == (value = block_given? ? (yield c) : value == :not ? !c : value)
+      set_show value
       true
     end, def show
       get_show
@@ -114,6 +103,17 @@ module Kredki
     end
 
     #internal api
+
+    def initialize
+      @pointer = Abi.animation_new
+      ObjectSpace.define_finalizer(self, Animation.proc.finalize(@pointer))
+
+      @picture = Picture.new Abi.animation_get_picture @pointer
+      @play = false
+      @ms = nil
+      @total_frame = nil
+      @on_end = EventManager.new
+    end
 
     def self.finalize pointer
       Abi.animation_delete pointer
@@ -163,7 +163,7 @@ module Kredki
           frame! (d2 - rem) * @total_frame / d
         end
       when Proc
-        if frame = @play.call ms, duration
+        if frame = @play.call(ms, duration)
           frame! frame * @total_frame / d
         else
           finish!

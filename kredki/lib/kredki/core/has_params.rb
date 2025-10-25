@@ -8,58 +8,37 @@ module Kredki
     def aliasing name, *aliases
       aliases.each{ alias_method it, name }
     end
-
-    def flag set, get = true
-      if set.end_with?("=")
-        param_name = set.to_s[...-1]
+  
+    def param set, get = nil
+      raise "Param setter need to end with '!'. Given: #{set}" unless set.end_with? "!"
+      param_name = set.to_s[...-1]
+      if instance_method(set).parameters.then{ it.size > 1 || it.first.first == :rest }
+        class_eval <<~xx
+          def #{param_name}= param
+            Array === param ? (#{set} *param) : (#{set} param)
+          end
+        xx
       else
-        param_name = set.end_with?("!") ? set.to_s[...-1] : set
         alias_method "#{param_name}=", set
       end
-      if get == true
+      if get == nil
         class_eval <<~xx
           def #{param_name}
             @#{param_name}
           end
         xx
+      elsif get.to_s != param_name
+        raise "Param '#{set} getter shoud be named '#{param_name}'. Given: #{get}"
       end
-      class_eval <<~xx
-        def #{param_name}? set_request = nil
-          _#{param_name} = #{param_name}
-          case set_request
-          when nil
-            !!_#{param_name}
-          when true
-            [!!_#{param_name}, true]
-          when false
-            [!!_#{param_name}, false]
-          when :~, :^, :-
-            [!!_#{param_name}, !_#{param_name}]
-          else raise_ia set_request
-          end
-        end
-      xx
     end
-  
-    def param set, get = true
-      if set.end_with?("=")
-        param_name = set.to_s[...-1]
-      else
-        param_name = set.end_with?("!") ? set.to_s[...-1] : set
-        if instance_method(set).parameters.then{ it.size > 1 || it.first.first == :rest }
-          class_eval <<~xx
-            def #{param_name}= param
-              Array === param ? (#{set} *param) : (#{set} param)
-            end
-          xx
-        else
-          alias_method "#{param_name}=", set
-        end
-      end
-      if get == true
+
+    def flag set, get = nil
+      param set, get
+      param_name = set.to_s[...-1]
+      if get || get == nil
         class_eval <<~xx
-          def #{param_name}
-            @#{param_name}
+          def #{param_name}?
+            !!#{param_name}
           end
         xx
       end

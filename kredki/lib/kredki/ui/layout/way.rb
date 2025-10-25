@@ -1,14 +1,8 @@
-require_relative 'basic'
-
 module Kredki
   module UI
     module Layout
-      class Way < Basic
-        model :<, :space
-
-        def tune *a
-          @space == a[0] ? self : self.class.new(@x, @y, a[0])
-        end
+      class Way
+        include Layout
 
         def spans sp, pd, space
           ad = 0

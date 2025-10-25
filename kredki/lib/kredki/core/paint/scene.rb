@@ -23,21 +23,30 @@ module Kredki
       put_paint(klass.new, show, at).paint.alter(*a, **na, &b)
     end
 
-    param def px! px
+    param def px! px = @px
+      return px! yield @px if block_given?
       return if @px == px
       @px = px
       update_transform
       update
     end
 
-    param def py! py
+    param def py! py = @py
+      return py! yield @py if block_given?
       return if @py == py
       @py = py
       update_transform
       update
     end
 
-    param def pxy! x, y = x
+    param def pxy! x = nil, y = nil
+      return pxy! *Util.cover(yield self.pxy) if block_given?
+      if x
+        y ||= x
+      else
+        x ||= @px
+        y ||= @py
+      end
       return if @px == x && @py == y
       @px = x
       @py = y

@@ -36,7 +36,7 @@ module Kredki
               lineage(!filter.exclude_end?).filter{|pad| extra_filters.all?{|ef| pad =~ ef } }.then do |pads|
                 block ? pads.each{ _1.instance_exec _1, &block } : pads
               end
-            when :-
+            when :not
               if filter.exclude_end?
                 parent&.each_service(deep: false, reverse: true)&.drop_while{|a| a != self }&.drop(1)
                 &.filter{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
@@ -92,7 +92,7 @@ module Kredki
           lineage(false).find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
             block ? pad.instance_exec(pad, &block) : pad
           end
-        when :-
+        when :not
           parent&.each_service(deep: false, reverse: true)&.drop_while{|a| a != self }&.drop(1)
           &.find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
               
@@ -195,7 +195,7 @@ module Kredki
               pad_lineage(!filter.exclude_end?).filter{|pad| extra_filters.all?{|ef| pad =~ ef } }.then do |pads|
                 block ? pads.each{ _1.instance_exec _1, &block } : pads
               end
-            when :-
+            when :not
               if filter.exclude_end?
                 parent&.each_pad(deep: false, reverse: true)&.drop_while{|a| a != self }&.drop(1)
                 &.filter{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
@@ -251,7 +251,7 @@ module Kredki
           pad_lineage(false).find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
             block ? pad.instance_exec(pad, &block) : pad
           end
-        when :-
+        when :not
           parent&.each_pad(deep: false, reverse: true)&.drop_while{|a| a != self }&.drop(1)
           &.find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
               

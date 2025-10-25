@@ -4,8 +4,8 @@ module Kredki
       extend Forwardable
       extend HasParams
 
-      param def content! content = @content, &block
-        return content! block[self.content] if block_given?
+      param def content! content = @content
+        return content! (yield self.content) if block_given?
         return if @content == content
         @content = content
         @verses&.each{ it.detach! }
@@ -18,24 +18,31 @@ module Kredki
       end
 
       param def color! *color
-        @verses.each do |v|
-          v.color! *color
-        end
+        return color! *Util.cover(yield self.color) if block_given?
+        return unless @area.fill_color! *color
+        @verses.each{ it.color! *color }
+        true
       end, def color
-        @verses.first.color
+        @area.fill_color
       end
 
-      param def verse_layout! layout
+      param_prefix :verse
+
+      param def verse_layout! layout = nil
+        return verse_layout! (yield self.verse_layout) if block_given?
         return if @verse_layout == layout
         @verse_layout = layout
         arrange_verses
       end
 
-      param def linespace! linespace
-        return if @linespace == linespace
-        @linespace = linespace
+      param def verse_space! verse_space = nil
+        return verse_space! (yield self.verse_space) if block_given?
+        return if @verse_space == verse_space
+        @verse_space = verse_space
         layer&.break_layout
         true
+      end, def verse_space
+        @verse_space || 0
       end
 
       def << arg
@@ -48,6 +55,7 @@ module Kredki
       end
 
       param def verse_size! size
+        return verse_size! (yield self.verse_size) if block_given?
         return if @verse_size == size
         @verse_size = size
         arrange_verses
@@ -65,37 +73,47 @@ module Kredki
       def sketch p0
         super
 
-        wh! Fit, 24
-        verse_layout! Begin/Center
+        wh! :fit
+        verse_layout! :bc
+        verse_size! 24
         content! "TEXT"
       end
 
       def verse_metrics h
-        case @linespace
+        case @verse_space
         when Rational
-          th = @verse_size == :auto ? h / (1 + (@verses.size - 1) * @linespace) : @verse_size
-          ls = th * @linespace
+          size = @verse_size == :auto ? h / (1 + (@verses.size - 1) * @verse_space) : @verse_size
+          space = size * @verse_space
         when Numeric
-          th = @verse_size == :auto ? (h + (@verses.size - 1) * @linespace) / @verses.size : @verse_size
-          ls = th + @linespace
+          size = @verse_size == :auto ? (h + (@verses.size - 1) * @verse_space) / @verses.size : @verse_size
+          space = @verse_space
+        when :auto
+          if @verses.size > 0
+            size = @verse_size == :auto ? h / @verses.size : @verse_size
+            space = (h - @verses.size * size) / (@verses.size - 1)
+          else
+            size = 0
+            space = 0
+          end
         else
           if @verses.size > 0
-            th = @verse_size == :auto ? h / @verses.size : @verse_size
+            size = @verse_size == :auto ? h / @verses.size : @verse_size
           else
-            th = 0
+            size = 0
           end
-          ls = th
+          space = 0
         end
-        [th, ls]
+        [size, space]
       end
 
       def fit_w
-        th, ls = verse_metrics get_h
-        @verses.map{ th * it.w / it.h }.max
+        size, _ = verse_metrics get_h
+        @verses.map{ size * it.w / it.h }.max
       end
 
       def fit_h
-        @verse_size == :auto ? 0 : @verse_size * @verses.size
+        size, space = verse_metrics 0
+        @myb + @mye + (size + space) * @verses.size - space
       end
 
       def set_size w, h
@@ -105,14 +123,14 @@ module Kredki
       def arrange_verses
         if @verses.size > 0
           w, h = swh
-          th, ls = verse_metrics h
-          tth = (@verses.size - 1) * ls + th
-          y = align_y tth, h
+          size, space = verse_metrics h
+          tsize = (size + space) * @verses.size - space
+          y = align_y tsize, h
           @verses.each do |v|
-            v.h! th
+            v.h! size
             x = align_x v.w, w
             v.xy! x, y
-            y += ls
+            y += size + space
           end
         end
         true
@@ -120,11 +138,11 @@ module Kredki
 
       def align_x tw, w
         case @verse_layout
-        when Begin, Begin/Begin, Begin/Center, Begin/End
+        when :b, :bb, :bc, :be
           0
-        when End, End/Begin, End/Center, End/End
+        when :e, :eb, :ec, :ee
           w - tw
-        when Center, Center/Begin, Center/Center, Center/End
+        when :c, :cb, :cc, :ce
           (w - tw) * 0.5
         else raise_is @verse_layout
         end
@@ -132,11 +150,11 @@ module Kredki
 
       def align_y th, h
         case @verse_layout
-        when Begin/Begin, Center/Begin, End/Begin
+        when :bb, :cb, :eb
           0
-        when Begin/End, Center/End, End/End
+        when :be, :ce, :ee
           h - th
-        when Begin, Center, End, Begin/Center, Center/Center, End/Center
+        when :b, :c, :e, :bc, :cc, :ec
           (h - th) * 0.5
         else raise_is @verse_layout
         end

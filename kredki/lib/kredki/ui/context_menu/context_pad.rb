@@ -13,7 +13,7 @@ module Kredki
       def sketch p0
         super
 
-        wh! Fit
+        wh! :fit
         layout! Y
       end
     end

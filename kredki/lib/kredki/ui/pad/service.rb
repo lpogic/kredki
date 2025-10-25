@@ -32,10 +32,11 @@ module Kredki
         self
       end
 
-      param def tag! tag
-        @tags[tag] = true
-      end, get: def tag
-        @tags.keys
+      param def tag! tag, set = true
+        return tag! tag, (yield self.tag tag) if block_given?
+        @tags[tag] = set
+      end, def tag t = nil
+        t ? @tags[t] : @tags.keys
       end
 
       def the

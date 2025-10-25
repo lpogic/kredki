@@ -1,4 +1,5 @@
 require_relative 'radio_item'
+require_relative 'radio_label_item'
 
 module Kredki
   module UI
@@ -6,6 +7,14 @@ module Kredki
 
       def item! ...
         new(RadioItem, ...)
+      end
+
+      def item_label! ...
+        p0 = self
+        new RadioLabelItem do
+          put! p0.item!
+          new Label, "Radio label item"
+        end.alter(...)
       end
 
       #internal api

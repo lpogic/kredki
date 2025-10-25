@@ -1,14 +1,14 @@
 require_relative '../note'
-require_relative 'list_note_layer'
+require_relative 'option_layer'
 
 module Kredki
   module UI
-    class ListNote < Pad
+    class Option < Pad
 
       attr :picked
 
       def dropdown! ...
-        @dropdown ||= new ListNoteLayer do
+        @dropdown ||= new OptionLayer do
           pad_detach
         end
 
@@ -26,7 +26,7 @@ module Kredki
 
         @picked = nil
         @note = new Note
-        @arrow = @note.new ButtonPad, w: 20, h: 1r do
+        @arrow = @note.new Button, w: 20, h: 1r do
           stroke_size! 0
           keyboardy! false
           text.detach!
@@ -48,11 +48,15 @@ module Kredki
         @note.wh! 1r
         dropdown!
 
-        Event.group on_key!(:enter) do
+        drive
+      end
+
+      def drive
+        Event.each on_key!(:enter) do
           @dropdown.load! self unless @dropdown.loaded?
         end
 
-        Event.group on_move!, on_resize! do |e|
+        Event.each on_move!, on_resize! do |e|
           @dropdown.break_layout
         end
 

@@ -26,8 +26,16 @@ module Kredki
         !!@down_keys[key]
       end
 
+      def pin_pad
+        @pin_pad
+      end
+
       def pin_xy
         @pin_pad&.xy
+      end
+
+      def pin_button
+        @pin_pad&.button
       end
 
       def check_pin pad, button, top_only
@@ -60,6 +68,10 @@ module Kredki
         action.layer!(...)
       end
 
+      def window! ...
+        action.window!(...)
+      end
+
       #internal api
 
       def initialize
@@ -90,7 +102,7 @@ module Kredki
 
       def arrange
         return unless @layout_broken
-        @_layout.arrange self
+        @ui_layout.arrange self
         @layout_broken = false
         true
       end
@@ -120,20 +132,25 @@ module Kredki
       
       def update_pin_pad pad, xy = nil, button = nil, drag = false
         if pad
-          @pin_pad = PinPad.new pad, xy, button, drag
+          if !@pin_pad || !@pin_pad.button || @pin_pad.button == button
+            @pin_pad = PinPad.new pad, xy, button, drag
+          else 
+            return false
+          end
         else
           @pin_pad = nil
+          layer.update_mouse_location PositionEvent.new *mouse.xy
         end
         true
       end
 
       def mouse_down e
         keyboard_request if keyboardy?
-        pin_request e.xy
+        pin_request e.xy, e.button_id
       end
 
       def mouse_up e
-        pin_dispose
+        pin_dispose e.button_id
         if !e.drag && include_point?(e.x, e.y)
           report MouseClickEvent.new e.origin
         end
@@ -150,7 +167,7 @@ module Kredki
         arrange
         mouse_pads = []
         included = point_pads *xy, mouse_pads
-        enter, stay, leave = *mouse_pads.polarize(@mouse_pads)
+        enter, stay, leave = *Util.polarize(mouse_pads, @mouse_pads)
         @mouse_pads = mouse_pads
 
         leave.reverse_each{ it.report MouseLeaveEvent.new(event, *xy), false }
@@ -176,7 +193,7 @@ module Kredki
           @keyboard_pads = []
         else
           keyboard_pads = keyboard_pad.pad_lineage.to_a.reverse
-          enter, no_change, leave = *keyboard_pads.polarize(@keyboard_pads)
+          enter, no_change, leave = *Util.polarize(keyboard_pads, @keyboard_pads)
           @keyboard_pads = keyboard_pads
           leave.reverse_each{ it.report FocusLeaveEvent.new, false }
           enter.reverse_each{ it.report FocusEnterEvent.new, false }
@@ -190,7 +207,7 @@ module Kredki
           pads << self
           x -= @clip_scene.x
           y -= @clip_scene.y
-          return true if @pads.reverse_each.find{ _1.point_pads x - _1.sx, y - _1.sy, pads }
+          return true if @pads.reverse_each.find{ it.point_pads x - it.sx, y - it.sy, pads }
         end
         return false
       end

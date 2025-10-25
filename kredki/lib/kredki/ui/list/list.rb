@@ -21,8 +21,8 @@ module Kredki
 
         keyboardy!
         color! :gray
-        layout! Y/Begin/Begin
-        h! Fit
+        layout! :ybb
+        h! :fit
 
         @item_group = new ListItemGroup
 
@@ -32,7 +32,7 @@ module Kredki
           if kb.shift?
             item.select!
           elsif kb.ctrl?
-            item.select! :~
+            item.select! :not
           else
             s[Item..]{ select! s == item }
           end

@@ -5,8 +5,6 @@ module Kredki
     module Layout
       class YWay < Way
 
-        model :<
-
         def get_span pad, h, pch
           case h
           when Rational
@@ -32,23 +30,23 @@ module Kredki
           cw = pad.cw
           ch = pad.ch
           sp = pad.layout_pads.map{ get_span it, it.h, ch }
-          measurement, sh = spans sp, ch, @space || 0
+          measurement, sh = spans sp, ch, pad.mi || 0
  
           pad.layout_pads.zip measurement do |p1, m|
             pw = get_w p1, p1.w, cw
             p1.set_size pw, m
           end
 
-          arrange_pads pad.arrange_pads, sh, cw, ch
+          arrange_pads pad.arrange_pads, sh, cw, ch, pad.mi || 0
         end
 
-        def arrange_pads pads, sh, cw, ch
+        def arrange_pads pads, sh, cw, ch, space
           cy = case @y
-          when Center
+          when :c
             (ch - sh) * 0.5
-          when Begin
+          when :b
             0
-          when End
+          when :e
             ch - sh
           when Rational 
             ch * @y
@@ -60,7 +58,6 @@ module Kredki
           end
 
           lx = lxm = ly = lym = 0
-          space = @space || 0
 
           pads.each do |p1|
             if p1.layoutic?
@@ -90,7 +87,7 @@ module Kredki
         end
         
         def fit_h pad
-          space = @space || 0
+          space = pad.mi || 0
           pad.layout_pads.map{|p1| p1.min_h }.reduce{ _1 + space + _2 } || 0
         end
       end#YWay

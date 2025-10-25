@@ -1,5 +1,4 @@
 require_relative '../text_pad'
-require_relative '../theme'
 require_relative '../item/x_item'
 
 module Kredki

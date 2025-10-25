@@ -2,20 +2,18 @@ module Kredki
   module UI
     class TreeListItem < ListItem
 
-      flag def open! s = true
-        c, n = open? s
-        return if c == n
-        set_open n
-        @open = n
+      flag def open! value = true, &block
+        return if (c = open) == (value = block ? block[c] : value == :not ? !c : value)
+        set_open value
+        @open = value
         true
       end, def open
-        @open.nil? || @open
+        @open || @open.nil?
       end
 
-      flag def dir! s = true
-        c, n = dir? s
-        return if c == n
-        @dir = n
+      flag def dir! value = true, &block
+        return if (c = dir) == (value = block ? block[c] : value == :not ? !c : value)
+        @dir = value
         update_level
         true
       end

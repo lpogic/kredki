@@ -7,19 +7,20 @@ module Kredki
         @column_layout.column!(...) and layer&.break_layout
       end
 
-      param def gap! x, y = x
+      param def gap! x = 0, y = x
+        return gap! *Util.cover(yield self.gap) if block_given?
         x_changed = @column_layout.space! x
-        y_changed = layout! layout, y
+        y_changed = mi! y
         layer&.break_layout if x_changed && !y_changed
         x_changed || y_changed
       end, def gap
-        [@column_layout.space, layout.space]
+        [@column_layout.space, mi]
       end
 
       def row
         {
           w: 1r,
-          h: Fit,
+          h: :fit,
           layout: @column_layout
         }
       end
@@ -29,7 +30,7 @@ module Kredki
       end
 
       def scroll_rows! ...
-        new(ScrollRows, layout: [Y/Begin/Begin, @_layout.space]).alter(...)
+        new(ScrollRows, layout: :ybb, mi: mi).alter(...)
       end
 
       #internal api
@@ -44,8 +45,8 @@ module Kredki
         super 
 
         color! false
-        layout! Y/Begin/Begin
-        h! Fit
+        layout! :ybb
+        h! :fit
       end
 
       def arrange

@@ -2,8 +2,10 @@ module Kredki
   class Clipboard
     extend HasParams
 
-    param def content! content
+    param def content! content = nil
+      return content! yield self.content if block_given?
       set_text content.to_s
+      true
     end, def content
       get_text
     end

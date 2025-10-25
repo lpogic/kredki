@@ -4,7 +4,7 @@ module Kredki
   module UI
     class ToolbarItemGroup < ItemGroup
       def item! *a, **na, &b
-        new ToolbarItem, *a, w: Fit, **na, &b
+        new ToolbarItem, *a, w: :fit, **na, &b
       end
 
       def mouse_enter pad

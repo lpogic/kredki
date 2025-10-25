@@ -1,8 +1,9 @@
 require 'kredki'
 
-# Shows different ways of parametrization. Every "Via" gives the same result.
+# Shows different ways of parametrization. Every point gives the same result.
 
-layout! Y, 4
+layout! :ybb
+mi! 4
 params = {wh: 50, rbb: 20, ree: 20, color: :yellow}
 
 # 1. Via named arguments

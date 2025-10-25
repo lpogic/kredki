@@ -21,7 +21,7 @@ module Kredki
 
         keyboardy!
         color! :gray
-        layout! Y/Begin/Begin
+        layout! :ybb
 
         @item_group = new TreeListItemGroup
 
@@ -30,11 +30,11 @@ module Kredki
           ke = it.origin
           if false #ke.is_a? KeyboardEvent
             if ke.key.id == :enter
-              item.open! :~
+              item.open! :not
             else
               kb = keyboard
               if kb.shift?
-                item.select! :~
+                item.select! :not
               else
                 s[Item...]{ select! s == item }
               end
@@ -43,15 +43,15 @@ module Kredki
             kb = keyboard
             if kb.shift?
               if kb.ctrl?
-                item.open! :~
+                item.open! :not
               else
                 item.select!
               end
             elsif kb.ctrl?
-              item.select! :~
+              item.select! :not
             else
               s[Item..]{ select! s == item }
-              item.open! :~
+              item.open! :not
             end
           end
         end

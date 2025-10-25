@@ -11,7 +11,7 @@ module Kredki
 
         h! 72
         verse_size! 24
-        verse_layout! :begin_begin
+        verse_layout! :bb
       end
 
       def initialize_verse

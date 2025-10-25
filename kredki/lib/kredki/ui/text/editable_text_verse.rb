@@ -48,12 +48,12 @@ module Kredki
         end
         content! s, false
         case @verse_layout
-        when :begin, :begin_begin, :begin_center, :begin_end
+        when :b, :bb, :bc, :be
           nil
-        when :end, :end_begin, :end_center, :end_end
+        when :e, :eb, :ec, :ee
           v = @verses.first
           @scene.x = sx >= 0 && v.w > sw ? @scene.x + v.w - w0 : 0
-        when :center, :center_begin, :center_center, :center_end
+        when :c, :cb, :cc, :ce
           @scene.x = 0
         else raise_is @verse_layout
         end

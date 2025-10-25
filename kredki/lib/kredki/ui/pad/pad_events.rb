@@ -58,7 +58,7 @@ module Kredki
         !!@trace
       end
 
-      def self.group *event_managers, &block
+      def self.each *event_managers, &block
         event_managers.map{ it.attach! block }
       end
     end

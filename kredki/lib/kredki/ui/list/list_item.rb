@@ -3,41 +3,42 @@ module Kredki
     class ListItem < YItem
       extend HasEventResolvers
 
+      param def color! *color
+        color = Util.uncover color
+        return if @color == color
+        @color = color
+        repaint
+        true
+      end
 
-      class ColorTheme < Theme
-        model :color
-
-        def attach! pad
-          super pad, [
-            pad.on_focus_enter!,
-            pad.on_focus_leave!,
-            pad.on_mouse_down!,
-            pad.on_mouse_up!,
-            pad.on_mouse_enter!,
-            pad.on_mouse_leave!,
-          ]
+      def theme
+        Event.each(
+          on_focus_enter!,
+          on_focus_leave!,
+          on_mouse_down!,
+          on_mouse_up!,
+          on_mouse_enter!,
+          on_mouse_leave!,
+        ) do
+          repaint
         end
+      end
 
-        def repaint
-          @pad.area.fill_color = @pad.select? ? :text_selection : @pad.mouse_in? ? @color.lighten : @color
-          if @pad.keyboard_in?
-            @pad.area.stroke_size = 1
-            @pad.area.stroke_color = :stroke_focus
+      def repaint
+        color = Kredki.color @color
+        area.fill_color = select? ? :text_selection : mouse_in? ? color.lighten : color
+          if keyboard_in?
+            area.stroke_size = 1
+            area.stroke_color = :stroke_focus
           else
-            @pad.area.stroke_size = 0
-            @pad.area.stroke_color = @color
+            area.stroke_size = 0
+            area.stroke_color = color
           end
-        end
       end
 
-      def color_theme color
-        ColorTheme.new color
-      end
-
-      flag def select! s = true
-        c, n = select? s
-        return if c == n
-        @select = n
+      flag def select! value = true, &block
+        return if (c = select) == (value = block ? block[c] : value == :not ? !c : value)
+        @select = value
         @theme.repaint
         true
       end
@@ -46,7 +47,12 @@ module Kredki
 
       def sketch p0
         super
-        
+
+        theme
+        drive
+      end
+
+      def drive
         on_key_down! :up do |e|
           select! if e.shift?
           item = parent.update_select_item(:previous)

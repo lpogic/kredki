@@ -111,8 +111,8 @@ module Kredki
         @services.map{ [it, it.pad_tree] }.to_h
       end
 
-      def build *a, **na, &block
-        @services.last.alter *a, **na, &block
+      def main
+        @services.last
       end
 
       def mouse_event event

@@ -1,8 +1,7 @@
 require 'kredki'
 
-# A simple but expressive api sample.
-
-layout! X, 10
+layout! :xbb # how pads are positioned by default
+mi! 10 # distance between pads
 
 button! do
   text << "Say hello"

@@ -1,5 +1,4 @@
 require_relative 'text/editable_text_verse'
-require_relative 'theme'
 
 module Kredki
   module UI
@@ -8,42 +7,32 @@ module Kredki
       extend Forwardable
       extend HasParams
 
-      class ColorTheme < Theme
-        model :color
+      param def color! *color
+        return color! *Util.cover(yield self.color) if block_given?
+        color = Util.uncover color
+        return if @color == color
+        @color = color
+        repaint
+        true
+      end
 
-        def attach! pad
-          super pad, [
-            pad.on_focus_enter!,
-            pad.on_focus_leave!,
-            pad.on_mouse_enter!,
-            pad.on_mouse_leave!,
-          ]
-        end
-
-        def repaint
-          kb_top = @pad.keyboard_top?
-          @pad.area.fill_color = kb_top ? @color.darken : @pad.mouse_in? ? @color.lighten : @color
-          @pad.area.stroke_color = kb_top ? :stroke_focus : @color
-          @pad.verse.selection.each_paint{ it.fill_color! kb_top ? :text_selection : :text_selection_inactive }
+      def theme
+        Event.each(
+          on_focus_enter!, 
+          on_focus_leave!, 
+          on_mouse_enter!, 
+          on_mouse_leave!,
+        ) do
+          repaint
         end
       end
 
-      def color_theme color
-        ColorTheme.new color
-      end
-
-      param def theme! theme
-        theme = case theme
-        when Theme
-          theme
-        when Symbol, Array
-          color_theme Kredki.color theme
-        else raise_ia theme 
-        end
-        @theme != theme && begin
-          @theme = theme
-          theme.attach! self
-        end
+      def repaint
+        color = Kredki.color @color
+        kb_top = keyboard_top?
+        area.fill_color = kb_top ? color.darken : mouse_in? ? color.lighten : color
+        area.stroke_color = kb_top ? :stroke_focus : color
+        verse.selection.each_paint{ it.fill_color! kb_top ? :text_selection : :text_selection_inactive }
       end
 
       def << arg
@@ -59,17 +48,18 @@ module Kredki
         @verse.cursor
       end
 
-      param def content! string, cursor = false
+      param def content! string = "", cursor = false
+        return content! (yield self.content) if block_given?
         @verse.content! string, cursor
-      end, def string
+      end, def content
         @verse.content
       end
 
       param_prefix :verse
 
       param_delegate :@verse,
-      :verse_size,
-      :verse_layout
+        :verse_size,
+        :verse_layout
 
       #internal api
 
@@ -102,15 +92,16 @@ module Kredki
       def sketch p0
         super
 
-        layout! NoteLayout.new(Begin, Center)
+        layout! NoteLayout.new(:b, :c)
         mousy!
         keyboardy!
         stroke_size! 1
         m! 1
-        theme! :gray
+        color! :gray
         h! 24
 
         sketch_verse
+        theme
       end
 
       def sketch_verse

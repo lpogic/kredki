@@ -4,7 +4,8 @@ module Kredki
       extend Forwardable
       extend HasParams
 
-      param def source! source
+      param def source! source = nil
+        return source! (yield self.source) if block_given?
         @area.source! source, false
       end, def source
         @area.source

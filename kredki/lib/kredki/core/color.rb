@@ -5,7 +5,7 @@ module Kredki
     end
 
     def self.parse *a
-      case a = a.pick
+      case a = Util.uncover a
       when String
         a = a[1..] if a.start_with? "#"
         alpha = a.length > 6 ? a[6...8].to_i(16) : nil

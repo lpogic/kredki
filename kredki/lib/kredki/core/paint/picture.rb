@@ -27,6 +27,7 @@ module Kredki
     end
 
     param def source! source, pull_size = false
+      return source! yield @source if block_given?
       return if @source == source
       set_source source.to_s
       @source = source

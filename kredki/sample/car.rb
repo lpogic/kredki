@@ -34,15 +34,16 @@ end
 define :car! do |*a, body: :blue, rim: :gray, tire: :black, **na, &b|
   space! **na do
     car_body! color: body, wh: 1r
-    wheel! x: 1/4r, y: End, wh: 1/2r, rim:, tire:;
-    wheel! x: 3/4r, y: End, wh: 1/2r, rim:, tire:;
+    wheel! x: 1/4r, y: :e, wh: 1/2r, rim:, tire:;
+    wheel! x: 3/4r, y: :e, wh: 1/2r, rim:, tire:;
   end.alter &b
 end
 
-# We have defined car! pad procedurally. We can use it now as any other pad.
+# Now we can use car!
 
 space! wh: 2/3r do
-  layout! Y, 60
+  layout! :ybb
+  mi! 60
   car! wh: 1r, rim: :green, body: :orange
   car! wh: 1r, scale: -1, rim: :red, body: :gray
 end

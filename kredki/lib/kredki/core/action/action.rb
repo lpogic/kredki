@@ -41,32 +41,14 @@ module Kredki
 
     attr :the
 
-    param def color! *color
-      @fill.fill_color = color.pick
+    param def color! ...
+      @fill.fill_color!(...)
     end, def color
       @fill.fill_color
     end
 
-    def job! repeat: false, run: true, &b
-      job = Job.new repeat:, run:, &b
-      @jobs << job
-      job
-    end
-  
-    def after! delay = nil, run: true, &b
-      if delay
-        job! run: do |j|
-          sleep(delay / 1000.0)
-          j.tips << nil
-        end.on_tip &b
-      else
-        job!(run: false).on_tip(&b).tap{ _1.tips << nil }
-      end
-    end
-
     def_delegators :window,
-      :w, :h, :wh
-      :window!
+      :w, :h, :wh, :window!
 
     #internal api
 
@@ -148,8 +130,8 @@ module Kredki
       Abi.sdl_get_ticks
     end
 
-    def build *a, **na, &block
-      alter *a, **na, &block
+    def main
+      self
     end
   end
 end

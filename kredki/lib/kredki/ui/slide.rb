@@ -1,5 +1,3 @@
-require_relative 'theme'
-
 module Kredki
   module UI
     class Slide < ShapePad
@@ -20,39 +18,29 @@ module Kredki
       event_resolver :on_change!, ChangeEvent
       event_resolver :on_edit!, EditEvent
 
-      class ColorTheme < Theme
-        model :color
+      param def color! *color
+        return color! *Util.cover(yield self.color) if block_given?
+        color = Util.uncover color
+        return if @color == color
+        @color = color
+        repaint
+        true
+      end
 
-        def attach! pad
-          super pad, [
-            pad.on_mouse_down!,
-            pad.on_mouse_up!,
-            pad.on_mouse_enter!,
-            pad.on_mouse_leave!,
-          ]
-        end
-
-        def repaint
-          @pad.handle.area.fill_color = @pad.mouse_in? ? @color.lighten : @color.darken
+      def theme
+        Event.each(
+          on_mouse_down!, 
+          on_mouse_up!, 
+          on_mouse_enter!, 
+          on_mouse_leave!,
+        ) do
+          repaint
         end
       end
 
-      def color_theme color
-        ColorTheme.new color
-      end
-
-      param def theme! theme
-        theme = case theme
-        when Theme
-          theme
-        when Symbol, Array
-          color_theme Kredki.color theme
-        else raise_ia theme 
-        end
-        @theme != theme && begin
-          @theme = theme
-          theme.attach! self
-        end
+      def repaint
+        color = Kredki.color @color
+        handle.area.fill_color = mouse_in? ? color.lighten : color.darken
       end
 
       #internal api
@@ -63,18 +51,20 @@ module Kredki
         @value = 0.0
       end
 
-      def sketch p0
-        super
+      def sketch2 p0
+        color! :gray
+        theme
+        drive
+      end
 
+      def drive
         on_mouse_scroll! do |e|
           jump = keyboard.alt? ? Kredki.mouse.scrollbar_alt_speed : Kredki.mouse.scrollbar_speed
           self.value -= jump * e.xory
           e.resolve
         end
-      end
 
-      def sketch2 p0
-        theme! :gray
+        p0 = self
 
         @handle.alter do
           on_mouse_up! do |e|

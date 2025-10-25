@@ -1,5 +1,4 @@
 require_relative '../text_pad'
-require_relative '../theme'
 require_relative '../item/y_item'
 
 module Kredki
@@ -33,7 +32,7 @@ module Kredki
           stroke! color: :text, size: 3, cap: :round, join: :miter
           scenic! false
         end
-        @end_icon = new ShapePad, mousy: false, keyboardy: false, color: 0, x: End, h: 1r do
+        @end_icon = new ShapePad, mousy: false, keyboardy: false, color: 0, x: :e, h: 1r do
           w! proc{ get_h }
           stroke! color: :text, size: 3, cap: :round, join: :miter
           area! do |w, h|

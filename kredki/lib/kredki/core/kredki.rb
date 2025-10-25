@@ -6,14 +6,6 @@ module Kredki
   class << self
     extend Forwardable
 
-    def sin01 value, scale = 1
-      (Math.sin(Math::PI * value / scale) * 0.5 + 0.5) * scale
-    end
-
-    def cos01 value, scale = 1
-      (Math.cos(Math::PI * value / scale) * 0.5 + 0.5) * scale
-    end
-
     def arena!
       if !@arena
         Abi.thorvg_engine_init 2, 4
@@ -25,7 +17,7 @@ module Kredki
  
     def run! action = nil, *a, **na, &block
       if !@arena
-        arena.window! action, *a, **na, &block
+        arena!.window! action, *a, **na, &block
       else
         @arena.window.action! action, *a, **na, &block
       end

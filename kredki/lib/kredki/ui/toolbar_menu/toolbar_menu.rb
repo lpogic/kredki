@@ -19,9 +19,9 @@ module Kredki
         super
 
         w! 1r
-        h! Fit
+        h! :fit
         xy! 0
-        layout! X/Begin/Center, 4
+        layout! :xbc, 4
         color! :gray
       
         @item_group = new ToolbarItemGroup

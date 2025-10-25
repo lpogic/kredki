@@ -84,24 +84,14 @@ class Class
   end
 end
 
-class Array
-  def polarize other
-    both = []
-    others = other.reject{|item| both << item if include? item }
-    [self - both, both, others]
-  end
-
-  def pick
-    case size
-    when 0 then nil
-    when 1 then first
-    else self
-    end
+class TrueClass
+  def not
+    false
   end
 end
 
-module Enumerable
-  def zip_map *hair, &block
-    zip(*hair).map(&block)
+class FalseClass
+  def not
+    true
   end
 end

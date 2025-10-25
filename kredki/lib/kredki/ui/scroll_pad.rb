@@ -1,5 +1,4 @@
 require_relative 'slide'
-require_relative 'layout/basic'
 
 module Kredki
   module UI
@@ -10,13 +9,19 @@ module Kredki
       def sketch p0
         super
         
-        # @corner existence is checked in put_pad
-        corner = new ShapePad, layoutic: false, color: :gray, wh: 10, xy: End
+        # this component creation order is intentional; @corner existence is checked in put_pad
+        corner = new ShapePad, layoutic: false, color: :gray, wh: 10, xy: :e
         @xslide = new HorizontalSlide, layoutic: false, h: 10
         @yslide = new VerticalSlide, layoutic: false, w: 10
         @corner = corner
         @och = @ocw = 0
 
+        drive
+      end
+
+      def drive
+        p0 = self
+        
         @yslide.on_edit! do |e|
           layer&.break_layout
           e.resolve
