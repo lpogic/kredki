@@ -16,7 +16,7 @@ module Kredki
 
       #internal api
 
-      def sketch p0
+      def sketch_behavior
         super
 
         on! Item::PickEvent, aim: true do |e|

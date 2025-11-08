@@ -16,7 +16,7 @@ module Kredki
 
       #internal api
 
-      def sketch p0
+      def sketch
         super
 
         keyboardy!
@@ -24,6 +24,10 @@ module Kredki
         layout! :ybb
 
         @item_group = new TreeListItemGroup
+      end
+
+      def sketch_behavior
+        super
 
         on! Item::PickEvent do
           item = it.target

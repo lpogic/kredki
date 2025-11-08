@@ -10,7 +10,7 @@ module Kredki
         e.resolve
       end
 
-      def sketch p0
+      def sketch
         super
 
         wh! :fit

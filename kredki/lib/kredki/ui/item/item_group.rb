@@ -11,10 +11,6 @@ module Kredki
       
       #internal api
 
-      def sketch p0
-        super
-      end
-
       def mouse_enter pad
         pad.focus! if self[Item...].find{ it.keyboard_in? } != pad
       end

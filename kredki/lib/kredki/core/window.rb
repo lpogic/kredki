@@ -154,7 +154,7 @@ module Kredki
       if action.is_a? Class
         action = action.new
         set_action action
-        action.sketch action
+        action.sketch
       else
         set_action action
       end

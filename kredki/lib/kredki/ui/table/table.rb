@@ -41,7 +41,7 @@ module Kredki
         @column_layout = ColumnLayout.new self, 0, 0
       end
 
-      def sketch p0
+      def sketch
         super 
 
         color! false

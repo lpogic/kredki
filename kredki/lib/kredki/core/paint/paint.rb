@@ -10,8 +10,8 @@ module Kredki
       @x = 0
       @y = 0
       @a = 0
-      @scale_x = 1
-      @scale_y = 1
+      @dx = 1
+      @dy = 1
       @opacity = 255
       @blend = nil
     end
@@ -21,8 +21,8 @@ module Kredki
         x: @x,
         y: @y,
         a: @a,
-        scale_x: @scale_x,
-        scale_y: @scale_y,
+        dx: @dx,
+        dy: @dy,
         opacity: @opacity,
         blend: @blend,
       }
@@ -85,20 +85,20 @@ module Kredki
 
     # @public
     # Sets scale along the X axis.
-    param def scale_x! scale = @scale_x
-      return scale_x! yield @scale_x if block_given?
-      return if @scale_x == scale
-      @scale_x = scale
+    param def dx! dx = @dx
+      return dx! yield @dx if block_given?
+      return if @dx == dx
+      @dx = dx
       update_transform
       update
     end
 
     # @public
     # Sets scale along the Y axis.
-    param def scale_y! scale = @scale_y
-      return scale_y! yield @scale_y if block_given?
-      return if @scale_y == scale
-      @scale_y = scale
+    param def dy! dy = @dy
+      return dy! yield @dy if block_given?
+      return if @dy == dy
+      @dy = dy
       update_transform
       update
     end
@@ -107,21 +107,21 @@ module Kredki
     # Sets scale along X and Y axes.
     # @param x [Numeric] Paint scale along the X axis.
     # @param y [Numeric, nil] Paint scale along the Y axis.
-    param def scale! x = nil, y = nil
-      return scale! *Util.cover(yield self.scale) if block_given?
-      if x
-        y ||= x
+    param def d! dx = nil, dy = nil
+      return d! *Util.cover(yield self.d) if block_given?
+      if dx
+        dy ||= dx
       else
-        x ||= @scale_x
-        y ||= @scale_y
+        dx ||= @dx
+        y ||= @dy
       end
-      return if @scale_x == x && @scale_y == y
-      @scale_x = x
-      @scale_y = y
+      return if @dx == dx && @dy == dy
+      @dx = dx
+      @dy = dy
       update_transform
       update
-    end, def scale
-      [@scale_x, @scale_y]
+    end, def d
+      [@dx, @dy]
     end
 
     # @endgroup
@@ -271,7 +271,7 @@ module Kredki
     end
 
     def update_transform
-      Abi.paint_set_transform @pointer, *pxy, @x, @y, @a, @scale_x, @scale_y
+      Abi.paint_set_transform @pointer, *pxy, @x, @y, @a, @dx, @dy
     end
 
     def set_blend blend

@@ -6,7 +6,7 @@ module Kredki
 
       #internal api
 
-      def sketch p0
+      def sketch
         super
         
         # this component creation order is intentional; @corner existence is checked in put_pad
@@ -15,11 +15,10 @@ module Kredki
         @yslide = new VerticalSlide, layoutic: false, w: 10
         @corner = corner
         @och = @ocw = 0
-
-        drive
       end
 
-      def drive
+      def sketch_behavior
+        super
         p0 = self
         
         @yslide.on_edit! do |e|

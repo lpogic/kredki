@@ -41,17 +41,17 @@ module Kredki
         end
       end
 
-      def sketch p0
+      def sketch
         super
 
         h! 24
         @note.wh! 1r
         dropdown!
-
-        drive
       end
 
-      def drive
+      def sketch_behavior
+        super
+
         Event.each on_key!(:enter) do
           @dropdown.load! self unless @dropdown.loaded?
         end

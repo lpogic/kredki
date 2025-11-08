@@ -51,7 +51,7 @@ module Kredki
 
       #internal api
 
-      def sketch p0
+      def sketch
         super
 
         @scroll = new ScrollPad, layout: :ybb

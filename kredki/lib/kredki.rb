@@ -23,8 +23,8 @@ else
   include Kredki::UI
   extend Forwardable
 
-  use! TerminateOnEsc
-  use! CarryFocusOnTab
+  use! :terminate_on_esc
+  use! :carry_focus_on_tab
   window.alter{ resizable!; text_input! }
   color! 110, 301, 101
 

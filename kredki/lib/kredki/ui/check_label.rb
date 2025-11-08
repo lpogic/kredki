@@ -30,7 +30,7 @@ module Kredki
         @label = new Label, "Check label"
       end
 
-      def sketch p0
+      def sketch
         super
 
         mi! 5

@@ -44,11 +44,11 @@ module Kredki
         @pin_pad&.pad&.in_pad? pad
       end
 
-      def mouse_pad_drag? xy
-        bxy = @pin_pad&.xy and (bxy[0] - xy[0]) ** 2 + (bxy[1] - xy[1]) ** 2 > 100
+      def pin_pad_drag? xy
+        bxy = @pin_pad&.xy and @pin_pad.pad.drag_check bxy, xy
       end
 
-      def mouse_pad_drag
+      def pin_pad_drag
         @pin_pad&.drag
       end
 
@@ -80,9 +80,10 @@ module Kredki
         @pin_pad = nil
         @keyboard_pads = []
         @mouse_pads = []
+        @mouse_click_pad = nil
       end
 
-      def sketch p0
+      def sketch
         super
 
         keyboardy!
@@ -98,6 +99,29 @@ module Kredki
             keyboard_event KeyClickEvent.new e.origin
           end
         end
+
+        on! MouseClickEvent, aim: true, do: method(:mouse_click)
+      end
+
+      class MouseClickPad
+        model :pad, :xy, :timestamp, :combo
+      end
+
+      def mouse_click event
+        if @mouse_click_pad && 
+          @mouse_click_pad.pad == event.target && 
+          !event.target.drag_check(@mouse_click_pad.xy, event.xy) && 
+          event.origin.timestamp - @mouse_click_pad.timestamp < 200000000
+        then
+          combo = @mouse_click_pad.combo + 1
+        else
+          combo = 1
+        end
+        @mouse_click_pad = MouseClickPad.new event.target, event.xy, event.origin.timestamp, combo
+      end
+
+      def mouse_clicks
+        @mouse_click_pad&.combo || 0
       end
 
       def arrange
@@ -160,7 +184,7 @@ module Kredki
         xy = event.xy
 
         if @pin_pad
-          @pin_pad.drag ||= mouse_pad_drag? xy
+          @pin_pad.drag ||= pin_pad_drag? xy
           @pin_pad.pad.report MouseMoveEvent.new(@pin_pad.drag, event, *xy)
           return true
         end

@@ -29,10 +29,14 @@ module Kredki
         @dropdown = nil
       end
 
-      def sketch p0
+      def sketch
         super
 
         mx! 2
+      end
+
+      def sketch_behavior
+        super
 
         on_key_down! :down, :up, :enter, :space do |e|
           if @dropdown

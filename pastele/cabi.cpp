@@ -274,16 +274,16 @@ CABI void paint_delete(Paint* self)
     SDL_PushEvent(&event);
 }
 
-CABI void paint_set_transform(Paint* self, float pivot_x, float pivot_y, float x, float y, float a, float scale_x, float scale_y) {
+CABI void paint_set_transform(Paint* self, float pivot_x, float pivot_y, float x, float y, float a, float dx, float dy) {
     auto m = self->transform();
     auto s = sinf(a);
     auto c = cosf(a);
-    m.e11 = c * scale_x;
-    m.e12 = -s * scale_x;
-    m.e13 = x + pivot_x - c * scale_x * pivot_x + s * scale_x * pivot_y;
-    m.e21 = s * scale_y;
-    m.e22 = c * scale_y;
-    m.e23 = y + pivot_y - s * scale_y * pivot_x - c * scale_y * pivot_y;
+    m.e11 = c * dx;
+    m.e12 = -s * dx;
+    m.e13 = x + pivot_x - m.e11 * pivot_x - m.e12 * pivot_y;
+    m.e21 = s * dy;
+    m.e22 = c * dy;
+    m.e23 = y + pivot_y - m.e21 * pivot_x - m.e22 * pivot_y;
     self->transform(m);
 }
 
@@ -710,8 +710,12 @@ CABI void text_delete(Text* self) {
     SDL_PushEvent(&event);
 }
 
-CABI void text_set_font(Text* self, const char* name, float size, const char* style) {
-    self->font(name, size, style);
+CABI void text_set_font(Text* self, const char* fontName) {
+    self->font(fontName);
+}
+
+CABI void text_set_size(Text* self, float size) {
+    self->size(size);
 }
 
 CABI void text_set_text(Text* self, const char* text) {

@@ -16,25 +16,6 @@ module Kredki
         true
       end
 
-      def theme
-        Event.each(
-          on_focus_enter!, 
-          on_focus_leave!, 
-          on_mouse_enter!, 
-          on_mouse_leave!,
-        ) do
-          repaint
-        end
-      end
-
-      def repaint
-        color = Kredki.color @color
-        kb_top = keyboard_top?
-        area.fill_color = kb_top ? color.darken : mouse_in? ? color.lighten : color
-        area.stroke_color = kb_top ? :stroke_focus : color
-        verse.selection.each_paint{ it.fill_color! kb_top ? :text_selection : :text_selection_inactive }
-      end
-
       def << arg
         case arg
         when String
@@ -82,30 +63,48 @@ module Kredki
         super
       
         initialize_verse
-        @theme = nil
       end
 
       def initialize_verse
-        @verse = new EditableTextVerse, "", wh: 1r, mousy: false
+        @verse = new EditableTextVerse, "", wh: 1r, mousy: false, verse_size: 1r
       end
 
-      def sketch p0
+      def sketch
         super
 
         layout! NoteLayout.new(:b, :c)
         mousy!
         keyboardy!
         stroke_size! 1
-        m! 1
+        m! 2
         color! :gray
         h! 24
 
         sketch_verse
-        theme
       end
 
       def sketch_verse
         text_edition @verse, false
+      end
+
+      def sketch_presence
+        super
+
+        Event.each(
+          on_focus_enter!, 
+          on_focus_leave!, 
+          on_mouse_enter!, 
+          on_mouse_leave!,
+          do: method(:repaint)
+        )
+      end
+
+      def repaint event = nil
+        color = Kredki.color @color
+        kb_top = keyboard_top?
+        area.fill_color = kb_top ? color.darken : mouse_in? ? color.lighten : color
+        area.stroke_color = kb_top ? :stroke_focus : color
+        verse.selection.each_paint{ it.fill_color! kb_top ? :text_selection : :text_selection_inactive }
       end
     end
   end

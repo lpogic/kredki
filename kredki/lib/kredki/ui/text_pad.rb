@@ -70,39 +70,71 @@ module Kredki
         @verse_size = :auto
       end
 
-      def sketch p0
+      def sketch
         super
 
         wh! :fit
-        verse_layout! :bc
+        verse_layout! :ybc
         verse_size! 24
         content! "TEXT"
       end
 
       def verse_metrics h
-        case @verse_space
-        when Rational
-          size = @verse_size == :auto ? h / (1 + (@verses.size - 1) * @verse_space) : @verse_size
-          space = size * @verse_space
-        when Numeric
-          size = @verse_size == :auto ? (h + (@verses.size - 1) * @verse_space) / @verses.size : @verse_size
-          space = @verse_space
+        case @verse_size
         when :auto
-          if @verses.size > 0
-            size = @verse_size == :auto ? h / @verses.size : @verse_size
-            space = (h - @verses.size * size) / (@verses.size - 1)
+          size = 0
+          case @verse_space
+          when Rational
+            size = h / (1 + (@verses.size - 1) * @verse_space) if @verses.size > 0
+            space = size * @verse_space
+          when Numeric
+            size = (h + (@verses.size - 1) * @verse_space) / @verses.size if @verses.size > 0
+            space = @verse_space
+          when :auto
+            if @verses.size > 0
+              size = h / @verses.size
+              space = (h - @verses.size * size) / (@verses.size - 1)
+            else
+              space = 0
+            end
           else
-            size = 0
+            size = h / @verses.size if @verses.size > 0
+            space = 0
+          end
+        when Rational
+          size = @verses.size > 0 ? @verse_size * h : 0
+          case @verse_space
+          when Rational
+            space = size * @verse_space
+          when Numeric
+            space = @verse_space
+          when :auto
+            if @verses.size > 0
+              space = (h - @verses.size * size) / (@verses.size - 1)
+            else
+              space = 0
+            end
+          else
             space = 0
           end
         else
-          if @verses.size > 0
-            size = @verse_size == :auto ? h / @verses.size : @verse_size
+          size = @verses.size > 0 ? @verse_size : 0
+          case @verse_space
+          when Rational
+            space = size * @verse_space
+          when Numeric
+            space = @verse_space
+          when :auto
+            if @verses.size > 0
+              space = (h - @verses.size * size) / (@verses.size - 1)
+            else
+              space = 0
+            end
           else
-            size = 0
+            space = 0
           end
-          space = 0
         end
+
         [size, space]
       end
 
@@ -138,11 +170,11 @@ module Kredki
 
       def align_x tw, w
         case @verse_layout
-        when :b, :bb, :bc, :be
+        when :ybb, :ybc, :ybe
           0
-        when :e, :eb, :ec, :ee
+        when :yeb, :yec, :yee
           w - tw
-        when :c, :cb, :cc, :ce
+        when :ycb, :ycc, :yce
           (w - tw) * 0.5
         else raise_is @verse_layout
         end
@@ -150,11 +182,11 @@ module Kredki
 
       def align_y th, h
         case @verse_layout
-        when :bb, :cb, :eb
+        when :ybb, :ycb, :yeb
           0
-        when :be, :ce, :ee
+        when :ybe, :yce, :yee
           h - th
-        when :b, :c, :e, :bc, :cc, :ec
+        when :ybc, :ycc, :yec
           (h - th) * 0.5
         else raise_is @verse_layout
         end

@@ -41,12 +41,12 @@ module Kredki
       def initialize
         super
 
-        @_level = new ShapePad, at: 0, color: 0, h: 1r, w: 16 do
+        @level_pad = new ShapePad, at: 0, color: 0, h: 1r, w: 16 do
           stroke! color: :text, size: 2, cap: :round, join: :miter
         end
       end
 
-      def sketch p0
+      def sketch
         super
 
         update_level
@@ -55,7 +55,7 @@ module Kredki
       def update_level
         l = level
         dir = @dir
-        @_level.alter do
+        @level_pad.alter do
           w! (l + 1) * 16
           if dir
             area! do |w, h|

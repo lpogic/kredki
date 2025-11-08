@@ -39,7 +39,6 @@ void Window::step(Uint64 ms) {
     if (needResize) {
         resize();
         needResize = false;
-        needDraw = true;
     }
 
     if(stepHandler) {
@@ -69,6 +68,7 @@ bool Window::update(tvg::Canvas* canvas) {
         return false;
     } else {
         canvas->update();
+        // canvas->sync();
         // for(auto paint : toUpdate) {
         //     canvas->update(paint);
         // }

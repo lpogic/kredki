@@ -4,9 +4,9 @@ module Kredki
   color! false, 0, 0, 0, 0
   color! 0, 0, 0, 0, 0
 
-  color! :stroke_focus, 182, 182, 0, 255
+  color! :stroke_focus, 182, 142, 0, 255
   color! :text_selection, 70, 80, 122, 255
-  color! :text_selection_inactive, 70, 80, 112, 255
+  color! :text_selection_inactive, 70, 80, 112, 155
   color! :text, 255, 255, 255, 255
 
   color! :white, 255, 255, 255, 255
@@ -167,14 +167,26 @@ module Kredki
     axis! :y, 1
     axis! :z, 2
   end
-end
 
+  plugin! :terminate_on_esc do
+    on_key_down! :escape do |event|
+      action.window.terminate!
+    end
+  end
+
+  plugin! :close_on_esc do
+    on_key_down! :escape do |event|
+      action.window.destroy!
+    end
+  end
+end
 
 K = Kredki
 
+
 class TerminateOnEsc
   def self.plug_into target
-    target.on_key! :escape do |event|
+    target.on_key_down! :escape do |event|
       target.action.window.terminate!
     end
   end
@@ -182,7 +194,7 @@ end
 
 class CloseOnEsc
   def self.plug_into target
-    target.on_key! :escape do |event|
+    target.on_key_down! :escape do |event|
       target.action.window.destroy!
     end
   end

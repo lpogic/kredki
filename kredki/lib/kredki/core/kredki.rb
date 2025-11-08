@@ -27,7 +27,7 @@ module Kredki
     def_delegators :@arena,
       :terminate!
 
-    attr_accessor :clipboard, :keyboard, :mouse, :joysticks
+    attr_accessor :clipboard, :keyboard, :mouse, :joysticks, :plugins
     attr :arena
 
     def clipboard! clipboard = nil
@@ -50,6 +50,14 @@ module Kredki
 
     def joystick id = nil
       @joysticks[id] or raise "Joystick #{id.inspect} not registered"
+    end
+
+    def plugin! id, &b
+      @plugins[id] = b
+    end
+
+    def plugin id
+      @plugins[id]
     end
 
     attr_accessor :font_map
@@ -103,10 +111,12 @@ module Kredki
     attr_accessor :opened_joysticks
 
   end
+
   self.color_map = {}
   self.font_map = {}
   self.joysticks = {}
   self.opened_joysticks = {}
+  self.plugins = {}
 end
 
 require_relative 'abi/abi'

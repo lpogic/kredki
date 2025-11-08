@@ -55,7 +55,7 @@ module Kredki
 
       def layer! klass = Layer, *a, **na, &b
         layer = klass.new
-        layer.sketch layer
+        layer.sketch_pad
         put_pad layer
         layer.alter *a, **na, &b
         layer
@@ -63,7 +63,7 @@ module Kredki
 
       #internal api
 
-      def sketch p0
+      def sketch
         super
         @mouse_stale = false
 
@@ -74,6 +74,7 @@ module Kredki
         @event_manager.mouse_manager Kredki::MouseButtonUpEvent, [], proc{|e| mouse_event MouseButtonUpEvent.new e }
         @event_manager.manager Kredki::MouseScrollEvent, proc{|e| mouse_event e }
 
+        p0 = self
         keyboard do
           on_down! do |e|
             p0.keyboard_event KeyDownEvent.new e
@@ -119,9 +120,7 @@ module Kredki
         arrange
         @services.reverse_each do |layer|
           event.target = nil
-          if event.is_a? MouseButtonUpEvent
-            event.drag = layer.mouse_pad_drag
-          end
+          event.drag = layer.pin_pad_drag if event.is_a? MouseButtonUpEvent
           layer.mouse_pad&.report event
           @event_director.resolve
           event.resolved?

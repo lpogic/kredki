@@ -27,22 +27,6 @@ module Kredki
         true
       end
 
-      def theme
-        Event.each(
-          on_mouse_down!, 
-          on_mouse_up!, 
-          on_mouse_enter!, 
-          on_mouse_leave!,
-        ) do
-          repaint
-        end
-      end
-
-      def repaint
-        color = Kredki.color @color
-        handle.area.fill_color = mouse_in? ? color.lighten : color.darken
-      end
-
       #internal api
 
       def initialize
@@ -51,13 +35,34 @@ module Kredki
         @value = 0.0
       end
 
-      def sketch2 p0
+      attr :handle
+
+      def sketch
+        super
+
         color! :gray
-        theme
-        drive
       end
 
-      def drive
+      def sketch_presence
+        super
+
+        Event.each(
+          on_mouse_down!, 
+          on_mouse_up!, 
+          on_mouse_enter!, 
+          on_mouse_leave!,
+          do: method(:repaint)
+        )
+      end
+
+      def repaint event = nil
+        color = Kredki.color @color
+        handle.area.fill_color = mouse_in? ? color.lighten : color.darken
+      end
+
+      def sketch_behavior
+        super 
+
         on_mouse_scroll! do |e|
           jump = keyboard.alt? ? Kredki.mouse.scrollbar_alt_speed : Kredki.mouse.scrollbar_speed
           self.value -= jump * e.xory
@@ -77,17 +82,14 @@ module Kredki
           end
         end
       end
-
-      attr :handle
     end
 
     class HorizontalSlide < Slide
 
-      def sketch p0
+      def initialize
         super
 
-        h! 10
-
+        p0 = self
         @handle = new ShapePad, color: :gray do
           x0 = 0
           on_mouse_move! do |e|
@@ -102,14 +104,22 @@ module Kredki
             end
           end
         end
-    
+      end
+
+      def sketch
+        super
+
+        h! 10
+      end
+
+      def sketch_behavior
+        super
+
         on_mouse_down! :primary do |e|
           @handle.drag! @handle.translate(@handle.sw * 0.5, 0), :primary
           e.resolve
           e.break
         end
-
-        sketch2 p0
       end
 
       def arrange lw = nil
@@ -123,11 +133,10 @@ module Kredki
 
     class VerticalSlide < Slide
 
-      def sketch p0
+      def initialize
         super
 
-        w! 10
-
+        p0 = self
         @handle = new ShapePad, color: :gray do
           y0 = 0
           on_mouse_move! do |e|
@@ -141,16 +150,23 @@ module Kredki
               e.resolve
             end
           end
-
         end
+      end
+
+      def sketch
+        super
+
+        w! 10
+      end
+
+      def sketch_behavior
+        super
 
         on_mouse_down! :primary do |e|
           @handle.drag! @handle.translate(0, @handle.sh * 0.5), :primary
           e.resolve
           e.break
         end
-
-        sketch2 p0
       end
 
       def arrange lh = nil

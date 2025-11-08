@@ -27,8 +27,10 @@ module Kredki
 
     attr :last_frame_ms
 
-    def use! extension, *a, **na, &b
-      extension.plug_into self, *a, **na, &b if extension.respond_to? :plug_into
+    def use! id
+      plugin = Kredki.plugin id
+      raise_ia id unless plugin
+      alter &plugin
     end
 
     def window ...
@@ -58,7 +60,7 @@ module Kredki
       @scene&.update_paint paint
     end
 
-    def sketch p0
+    def sketch
       
       on_window_resize!{ @fill.wh = ~it }
       @fill.wh = *wh

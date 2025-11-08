@@ -23,8 +23,9 @@ module Kredki
 
       #internal api
 
-      def sketch p0
+      def sketch
         super
+
         mi! 5
         layout! :xbc
       end

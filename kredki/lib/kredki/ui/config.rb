@@ -51,23 +51,21 @@ module Kredki
   end#UI
 
   Window.default_action = UI::Action
-end#Kredki
 
-class CarryFocusOnTab
-  def self.plug_into target
-    target.on_key_down! :tab do |event|
-      next_pad = target.layer.keyboard_pad&.then do |p0|
-        target.each_pad(reverse: event.shift?, deep: true)
+  plugin! :carry_focus_on_tab do
+    on_key_down! :tab do |event|
+      next_pad = layer.keyboard_pad&.then do |p0|
+        each_pad(reverse: event.shift?, deep: true)
           .lazy
           .drop_while{|p1| p0 != p1 }
           .drop(1)
           .filter{ it.keyboardy? && it.show? }
           .first
-      end || target.each_pad(reverse: event.shift?, deep: true)
+      end || each_pad(reverse: event.shift?, deep: true)
         .lazy
         .filter{ it.keyboardy? && it.show? }
         .first
       next_pad.keyboard_request if next_pad
     end
   end
-end
+end#Kredki

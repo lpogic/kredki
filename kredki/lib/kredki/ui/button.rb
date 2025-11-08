@@ -50,21 +50,15 @@ module Kredki
       end
 
       #internal api
-      
-      def initialize
-        super
 
-        @theme = nil
-      end
-
-      def sketch p0
+      def sketch
         super
 
         new TextPad, "Button" do
           mousy! false
           h! :fit
           verse_size! 24
-          verse_layout! :c
+          verse_layout! :ycc
         end
 
         keyboardy!
@@ -73,12 +67,31 @@ module Kredki
         wh! :fit
         color! :gray
         m! 3
-        
-        drive
-        theme
       end
 
-      def drive
+      def sketch_presence
+        super
+
+        Event.each(
+          on_focus_enter!, 
+          on_focus_leave!, 
+          on_mouse_enter!, 
+          on_mouse_leave!, 
+          on!(ButtonDownEvent), 
+          on!(ButtonUpEvent),
+          do: method(:repaint)
+        )
+      end
+
+      def repaint event = nil
+        color = Kredki.color @color
+        area.fill_color = down? ? color.darken : mouse_in? ? color.lighten : color
+        area.stroke_color = keyboard_in? ? :stroke_focus : color.darken
+      end
+
+      def sketch_behavior
+        super
+
         Event.each on_mouse_down!(:primary), on_key_down!(:enter, :space) do |e|
           down! true, e
         end
@@ -101,25 +114,6 @@ module Kredki
           down = pin_top?(:primary) || ( keyboard_in? && key_down?(:enter) )
           report ButtonClickEvent.new e if !down && down!(false, e)
         end
-      end
-
-      def theme
-        Event.each(
-          on_focus_enter!, 
-          on_focus_leave!, 
-          on_mouse_enter!, 
-          on_mouse_leave!, 
-          on!(ButtonDownEvent), 
-          on!(ButtonUpEvent)
-        ) do
-          repaint
-        end
-      end
-
-      def repaint
-        color = Kredki.color @color
-        area.fill_color = down? ? color.darken : mouse_in? ? color.lighten : color
-        area.stroke_color = keyboard_in? ? :stroke_focus : color.darken
       end
     end
   end

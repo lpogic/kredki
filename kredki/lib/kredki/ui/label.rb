@@ -39,7 +39,7 @@ module Kredki
         end
       end
 
-      def sketch p0
+      def sketch
         super
 
         wh! :fit, 24

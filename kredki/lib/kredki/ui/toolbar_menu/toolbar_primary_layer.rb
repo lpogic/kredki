@@ -17,7 +17,7 @@ module Kredki
 
       #internal api
 
-      def driver
+      def sketch_behavior
 
         on! Item::PickEvent do |e|
           if e.target.has_subitem?

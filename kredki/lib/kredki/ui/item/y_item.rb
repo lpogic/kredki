@@ -5,7 +5,7 @@ module Kredki
     class YItem < Item
       #internal api
 
-      def sketch p0
+      def sketch_behavior
         super
 
         on_key! :up do |e|

@@ -118,6 +118,9 @@ module Kredki
         @cursor = @scene.rectangle! fill_color: :text, w: 2, show: false
       end
 
+      def mouse_down e
+      end
+
       def fit_w
         super + @cursor.w * 2
       end
@@ -159,11 +162,11 @@ module Kredki
 
       def align_x tw, w
         case @verse_layout
-        when :b, :bb, :bc, :be
+        when :ybb, :ybc, :ybe
           @cursor.w
-        when :e, :eb, :ec, :ee
+        when :yeb, :yec, :yee
           w - tw - @cursor.w
-        when :c, :cb, :cc, :ce
+        when :ycb, :ycc, :yce
           (w - tw + @cursor.w) * 0.5
         else raise_is @verse_layout
         end
@@ -182,14 +185,29 @@ module Kredki
         total > 0 ? total - 1 : 0
       end
 
+      def arrange_verses
+        w, h = swh
+        size, space = verse_metrics h
+        @cursor.h! size
+        if @verses.size > 0
+          tsize = (size + space) * @verses.size - space
+          y = align_y tsize, h
+          @verses.each do |v|
+            v.h! size
+            x = align_x v.w, w
+            v.xy! x, y
+            y += size + space
+          end
+        end
+        true
+      end
+
       def update_cursor
         total = -1
-        @cursor.h! @verse_size if @verse_size != :auto
         @cursor.xy! align_x(@cursor.w * 0.5, sw), align_y(@cursor.h, sh)
         @verses.each do |verse|
           total += 1
           if @cursor_position <= total + verse.content.length
-            @cursor.h! verse.h
             x = verse.substring_width @cursor_position - total
             @cursor.xy! x + verse.x - @cursor.w * 0.5, verse.y
             break

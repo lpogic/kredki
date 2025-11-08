@@ -23,10 +23,17 @@ file "sketch/sketch.rb" => "sketch" do
 end
 
 task :sample, [:path] do |task, args|
-  $LOAD_PATH << File.expand_path(".")
-  $LOAD_PATH << File.expand_path("kredki/lib")
-  chdir "kredki/sample"
-  require_relative "kredki/sample/#{args[:path]}"
+  if args[:path] == "*"
+    chdir "kredki/sample"
+    Dir["*.rb"].each do |sample|
+      system "rake sample[#{sample}]"
+    end
+  else
+    $LOAD_PATH << File.expand_path(".")
+    $LOAD_PATH << File.expand_path("kredki/lib")
+    chdir "kredki/sample"
+    require_relative "kredki/sample/#{args[:path]}"
+  end
 end
 
 task :samples do

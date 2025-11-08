@@ -48,21 +48,15 @@ module Kredki
         end
         content! s, false
         case @verse_layout
-        when :b, :bb, :bc, :be
+        when :ybb, :ybc, :ybe
           nil
-        when :e, :eb, :ec, :ee
+        when :yeb, :yec, :yee
           v = @verses.first
           @scene.x = sx >= 0 && v.w > sw ? @scene.x + v.w - w0 : 0
-        when :c, :cb, :cc, :ce
+        when :ycb, :ycc, :yce
           @scene.x = 0
         else raise_is @verse_layout
         end
-        # if @verse_layout.start_with? "e"
-        #   v = @verses.first
-        #   @scene.x = x >= 0 && v.w > sw ? @scene.x + v.w - w0 : 0
-        # elsif @verse_layout.start_with? "c"
-        #   @scene.x = 0
-        # end
         reset_cursor selection_min + new_content.length
       end
     end

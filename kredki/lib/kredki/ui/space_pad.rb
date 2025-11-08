@@ -17,7 +17,7 @@ module Kredki
 
       #internal api
 
-      def sketch p0
+      def sketch
         super
         
         wh! :fit

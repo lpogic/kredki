@@ -36,8 +36,8 @@ small_pad_proc! color: :yellow
 
 # 7. Via definition (object-oriented)
 class SmallPadClass < ShapePad
-  def sketch p1
-    p1.color = :yellow
+  def sketch
+    self.color = :yellow
     rbb! 20
     ree! 20
   end

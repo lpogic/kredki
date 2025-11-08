@@ -10,7 +10,8 @@ module Kredki
       @color = Kredki.color
       @h = 16
       set_content @content
-      set_font @font.name, @h, ""
+      set_font @font.name
+      set_size @h
       set_fill_color *@color.to_rgb_array
       update_size
     end
@@ -44,7 +45,7 @@ module Kredki
     param def h! h = nil
       return h! yield @h if block_given?
       return if @h == h
-      set_font Kredki.font(@font).name, h, ""
+      set_size h
       @h = h
       update_size
     end
@@ -56,7 +57,7 @@ module Kredki
     param def font! font
       return font! yield @font if block_given?
       return if @font == font
-      set_font Kredki.font(font).name, @h, ""
+      set_font Kredki.font(font).name
       @font = font
       update_size
     end
@@ -99,8 +100,12 @@ module Kredki
       Abi.text_set_text @pointer, content
     end
 
-    def set_font font_name, height, style
-      Abi.text_set_font @pointer, font_name, height, style
+    def set_font font_name
+      Abi.text_set_font @pointer, font_name
+    end
+
+    def set_size size
+      Abi.text_set_size @pointer, size
     end
 
     def set_fill_color r, g, b

@@ -58,8 +58,9 @@ module Kredki
         !!@trace
       end
 
-      def self.each *event_managers, &block
-        event_managers.map{ it.attach! block }
+      def self.each *event_managers, do: nil, &block
+        attached = block || binding.local_variable_get(:do)
+        event_managers.map{ it.attach! attached }
       end
     end
 
@@ -98,7 +99,7 @@ module Kredki
       end
 
       def_delegators :@origin,
-        :button_id, :button, :repeat?, :clicks
+        :button_id, :button, :repeat?
     end
 
     class MouseMoveEvent < MouseEvent

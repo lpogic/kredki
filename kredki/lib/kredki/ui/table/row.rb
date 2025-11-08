@@ -3,7 +3,7 @@ module Kredki
     class Table
       class Row < ShapePad
 
-        def sketch p1
+        def sketch
           super
 
           wh! 1r, :fit

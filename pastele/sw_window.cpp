@@ -15,7 +15,7 @@ SwWindow::~SwWindow()
 void SwWindow::initialize()
 {
     //Create a Canvas
-    canvas = tvg::SwCanvas::gen();
+    canvas = tvg::SwCanvas::gen(tvg::EngineOption::Default);
     if (!canvas) {
         cout << "SwCanvas is not supported. Did you enable the SwEngine?" << endl;
         return;
@@ -36,7 +36,8 @@ void SwWindow::resize()
 
     canvas->sync();
     verify(canvas->target((uint32_t*)surface->pixels, surface->w, surface->pitch / 4, surface->h, tvg::ColorSpace::ARGB8888));
-    canvas->update();
+    canvas->draw();
+    canvas->sync();
 }
 
 bool SwWindow::syncAndUpdateSurface()

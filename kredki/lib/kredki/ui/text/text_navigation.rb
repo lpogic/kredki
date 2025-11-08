@@ -66,7 +66,7 @@ module Kredki
           if keyboard.shift?
             text.drag *text.layer.translate(*e.xy, text)
           else
-            if e.clicks < 2
+            if layer.mouse_clicks < 2
               cursor_position = text.cursor_position_for_coordinates *text.layer.translate(*e.xy, text)
               text.reset_cursor cursor_position
             end
@@ -87,7 +87,7 @@ module Kredki
         end
 
         on_mouse_click! do |e|
-          if e.clicks == 2 && !keyboard.shift?
+          if layer.mouse_clicks == 2 && !keyboard.shift?
             sl = text.content.to_s.length
             unless text.cursor_position == sl && text.selection_min == 0 && sl == text.selection_max
               text.select 0, sl

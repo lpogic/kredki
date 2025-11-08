@@ -58,7 +58,7 @@ void Arena::run() {
                     for(auto window : windows) {
                         if(window->paintDelete(paint)) break;
                     }
-                    delete paint;
+                    tvg::Paint::rel(paint);
                     break;
                 }
                 case USEREVENT_DELETESCENE: {
@@ -66,7 +66,7 @@ void Arena::run() {
                     for(auto window : windows) {
                         if(window->paintDelete(scene)) break;
                     }
-                    delete scene;
+                    tvg::Paint::rel(scene);
                     break;
                 }
                 case USEREVENT_DELETESHAPE: {
@@ -74,7 +74,7 @@ void Arena::run() {
                     for(auto window : windows) {
                         if(window->paintDelete(shape)) break;
                     }
-                    delete shape;
+                    tvg::Paint::rel(shape);
                     break;
                 }
                 case USEREVENT_DELETETEXT: {
@@ -82,7 +82,7 @@ void Arena::run() {
                     for(auto window : windows) {
                         if(window->paintDelete(text)) break;
                     }
-                    delete text;
+                    tvg::Paint::rel(text);
                     break;
                 }
                 case USEREVENT_DELETEANIMATION: {

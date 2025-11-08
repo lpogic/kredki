@@ -44,7 +44,7 @@ module Kredki
         end
       end
 
-      def sketch p0
+      def sketch
         super
 
         on_key_down! :right do |e|

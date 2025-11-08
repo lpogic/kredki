@@ -13,25 +13,6 @@ module Kredki
         true
       end
 
-      def theme
-        Event.each(
-          on_focus_enter!,
-          on_focus_leave!,
-          on_mouse_down!,
-          on_mouse_up!,
-          on_mouse_enter!,
-          on_mouse_leave!,
-        ) do
-          repaint
-        end
-      end
-
-      def repaint
-        color = Kredki.color @color
-        area.fill_color = pin_top? ? color.darken : mouse_in? ? color.lighten : color
-        area.stroke_color = keyboard_in? ? :stroke_focus : color.darken
-      end
-
       flag def checked! value = true, &block
         return if (c = checked) == (value = block ? block[c] : value == :not ? !c : value)
         update_checked value
@@ -50,7 +31,7 @@ module Kredki
         end
       end
 
-      def sketch p0
+      def sketch
         super
 
         area! do |w, h|
@@ -62,12 +43,31 @@ module Kredki
         wh! 16
         m! 4
         color! :gray
-
-        theme
-        drive
       end
 
-      def drive
+      def sketch_presence
+        super
+
+        Event.each(
+          on_focus_enter!,
+          on_focus_leave!,
+          on_mouse_down!,
+          on_mouse_up!,
+          on_mouse_enter!,
+          on_mouse_leave!,
+          do: method(:repaint)
+        )
+      end
+
+      def repaint event = nil
+        color = Kredki.color @color
+        area.fill_color = pin_top? ? color.darken : mouse_in? ? color.lighten : color
+        area.stroke_color = keyboard_in? ? :stroke_focus : color.darken
+      end
+
+      def sketch_behavior
+        super
+
         Event.each on_mouse_click!, on_key!(:space, :enter) do
           checked!
         end

@@ -45,5 +45,5 @@ space! wh: 2/3r do
   layout! :ybb
   mi! 60
   car! wh: 1r, rim: :green, body: :orange
-  car! wh: 1r, scale: -1, rim: :red, body: :gray
+  car! wh: 1r, d: -1, rim: :red, body: :gray
 end

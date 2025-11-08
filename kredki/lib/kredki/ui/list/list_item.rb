@@ -11,7 +11,18 @@ module Kredki
         true
       end
 
-      def theme
+      flag def select! value = true, &block
+        return if (c = select) == (value = block ? block[c] : value == :not ? !c : value)
+        @select = value
+        repaint
+        true
+      end
+
+      #internal api
+
+      def sketch_presence
+        super
+
         Event.each(
           on_focus_enter!,
           on_focus_leave!,
@@ -19,12 +30,11 @@ module Kredki
           on_mouse_up!,
           on_mouse_enter!,
           on_mouse_leave!,
-        ) do
-          repaint
-        end
+          do: method(:repaint)
+        )
       end
 
-      def repaint
+      def repaint event = nil
         color = Kredki.color @color
         area.fill_color = select? ? :text_selection : mouse_in? ? color.lighten : color
           if keyboard_in?
@@ -36,23 +46,9 @@ module Kredki
           end
       end
 
-      flag def select! value = true, &block
-        return if (c = select) == (value = block ? block[c] : value == :not ? !c : value)
-        @select = value
-        @theme.repaint
-        true
-      end
-
-      #internal api
-
-      def sketch p0
+      def sketch_behavior
         super
 
-        theme
-        drive
-      end
-
-      def drive
         on_key_down! :up do |e|
           select! if e.shift?
           item = parent.update_select_item(:previous)

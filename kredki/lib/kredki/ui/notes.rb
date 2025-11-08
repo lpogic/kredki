@@ -6,12 +6,12 @@ module Kredki
 
       #internal api
 
-      def sketch p0
+      def sketch
         super
 
-        h! 72
+        h! 74
         verse_size! 24
-        verse_layout! :bb
+        verse_layout! :ybb
       end
 
       def initialize_verse
@@ -21,6 +21,7 @@ module Kredki
       def sketch_verse
         text_edition @verse, true
       end
+
     end
   end
 end

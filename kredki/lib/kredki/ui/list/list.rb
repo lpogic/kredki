@@ -16,7 +16,7 @@ module Kredki
 
       #internal api
 
-      def sketch p0
+      def sketch
         super
 
         keyboardy!
@@ -25,6 +25,10 @@ module Kredki
         h! :fit
 
         @item_group = new ListItemGroup
+      end
+
+      def sketch_behavior
+        super
 
         on! Item::PickEvent do
           item = it.target

@@ -1,12 +1,6 @@
 module Kredki
   module UI
     class ContextLayer < Layer
-
-      def load_common x, y
-        @items.xy! x, y
-        parent.action.push_layer self
-        break_layout
-      end
       
       def unload!
         update_keyboard_pad nil
@@ -28,13 +22,15 @@ module Kredki
         @item_group = @items.new ContextItemGroup
       end
 
-      def sketch p0
-        super
-
-        driver
+      def load_common x, y
+        @items.xy! x, y
+        parent.action.push_layer self
+        break_layout
       end
 
-      def driver
+      def sketch_behavior
+        super
+
         on_key! :up, :down do |e|
           e.resolve
         end

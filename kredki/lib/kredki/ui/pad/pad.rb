@@ -258,7 +258,7 @@ module Kredki
         @scene.a! a
       end
 
-      param_delegate :@scene, :scale
+      param_delegate :@scene, :d, :dx, :dy
 
       param def area! area = nil, &block
         if block
@@ -448,8 +448,10 @@ module Kredki
         report ROIEvent.new *swh, x, y
       end
 
-      def use! extension, *a, **na, &b
-        extension.plug_into self, *a, **na, &b if extension.respond_to? :plug_into
+      def use! id
+        plugin = Kredki.plugin id
+        raise_ia id unless plugin
+        alter &plugin
       end
 
       #internal api
@@ -478,9 +480,20 @@ module Kredki
         @pads.map{ [it, it.pad_tree] }.to_h
       end
 
-      def sketch p0
-        @clip_scene.clip! @clip_area
+      def sketch_pad
+        sketch
+        sketch_presence
+        sketch_behavior
+      end
 
+      def sketch
+      end
+
+      def sketch_presence
+        @clip_scene.clip! @clip_area
+      end
+
+      def sketch_behavior
         on_mouse_down! do: method(:mouse_down)
         on_mouse_up! do: method(:mouse_up)
         on_mouse_enter! do: method(:mouse_enter)
@@ -519,11 +532,9 @@ module Kredki
       end
 
       def focus_enter e
-        e.resolve
       end
 
       def focus_leave e
-        e.resolve
       end
 
       def pad_detach transfer = false
@@ -889,6 +900,10 @@ module Kredki
 
       def set_pin set
         set ? pin_request : pin_dispose
+      end
+
+      def drag_check bxy, xy
+        (bxy[0] - xy[0]) ** 2 + (bxy[1] - xy[1]) ** 2 > 100
       end
 
       def translate x = 0, y = 0, target = nil

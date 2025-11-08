@@ -106,8 +106,10 @@ module Kredki
         @parent = nil
       end
 
-      def use! extension, *a, **na, &b
-        extension.plug_into self, *a, **na, &b if extension.respond_to? :plug_into
+      def use! id
+        plugin = Kredki.plugin id
+        raise_ia id unless plugin
+        alter &plugin
       end
 
       #internal api
@@ -120,7 +122,7 @@ module Kredki
         @event_manager = PadEventManager.new
       end
 
-      def sketch p0
+      def sketch
       end
 
       def inspect
@@ -133,7 +135,7 @@ module Kredki
 
       def new klass, *a, at: nil, **na, &b
         service = klass.new
-        service.sketch service
+        service.sketch_pad
         push_service service, at if at != false
         service.alter *a, **na, &b
         service

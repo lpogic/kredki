@@ -30,24 +30,6 @@ module Kredki
         true
       end
 
-      def theme
-        Event.each(
-          on_focus_enter!,
-          on_focus_leave!,
-          on_mouse_down!,
-          on_mouse_up!,
-          on_mouse_enter!,
-          on_mouse_leave!,
-        ) do
-          repaint
-        end
-      end
-
-      def repaint
-        color = Kredki.color @color
-        area.fill_color = pin_in? ? color.darken : keyboard_in? ? color.lighten : color
-      end
-
       event_resolver :on_pick!, PickEvent
 
       param_delegate :@text,
@@ -71,12 +53,11 @@ module Kredki
 
       def initialize
         super
-
-        @theme = nil
+        
         @text = new TextPad, "", mousy: false
       end
 
-      def sketch p0
+      def sketch
         super
 
         keyboardy!
@@ -84,12 +65,30 @@ module Kredki
         color! :gray
         h! 24
         w! :fit
-
-        theme
-        drive
       end
 
-      def drive
+      def sketch_presence
+        super
+        
+        Event.each(
+          on_focus_enter!,
+          on_focus_leave!,
+          on_mouse_down!,
+          on_mouse_up!,
+          on_mouse_enter!,
+          on_mouse_leave!,
+          do: method(:repaint)
+        )
+      end
+
+      def repaint event = nil
+        color = Kredki.color @color
+        area.fill_color = pin_in? ? color.darken : keyboard_in? ? color.lighten : color
+      end
+
+      def sketch_behavior
+        super
+
         on_mouse_click! :primary do |e|
           report PickEvent.new(content, e)
         end

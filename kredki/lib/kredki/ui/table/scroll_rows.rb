@@ -3,7 +3,7 @@ module Kredki
     class Table
       class ScrollRows < ScrollPad
 
-        def sketch p0
+        def sketch
           super
 
           w! 1r

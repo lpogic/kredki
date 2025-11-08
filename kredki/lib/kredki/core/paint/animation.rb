@@ -34,7 +34,7 @@ module Kredki
     end
 
     param_delegate :@picture,
-      :w, :h, :wh, :a, :scale
+      :w, :h, :wh, :a, :d, :dx, :dy
 
     def contain? ...
       @picture.contain?(...)

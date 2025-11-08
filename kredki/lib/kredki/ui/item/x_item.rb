@@ -3,7 +3,7 @@ module Kredki
     class XItem < Item
       #internal api
 
-      def sketch p0
+      def sketch_behavior
         super
 
         on_key! :left do |e|
