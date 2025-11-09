@@ -15,21 +15,21 @@ module Kredki
       @event_manager.manager event_type, block || binding.local_variable_get(:do)
     end
 
-    event_resolver def on_key_down! *filtered_keys, &block
+    event_resolver def on_key_down! *filtered_keys, do: nil, &block
       keycodes = keyboard.keycodes filtered_keys
-      @event_manager.keyboard_manager KeyDownEvent, keycodes, block
+      @event_manager.keyboard_manager KeyDownEvent, keycodes, block || binding.local_variable_get(:do)
     end
 
-    event_resolver def on_key_up! *filtered_keys, &block
+    event_resolver def on_key_up! *filtered_keys, do: nil, &block
       keycodes = keyboard.keycodes filtered_keys
-      @event_manager.keyboard_manager KeyUpEvent, keycodes, block
+      @event_manager.keyboard_manager KeyUpEvent, keycodes, block || binding.local_variable_get(:do)
     end
 
     event_resolver :on_text!, TextEvent
 
-    event_resolver def on_mouse_down! *filtered_buttons, &block
+    event_resolver def on_mouse_down! *filtered_buttons, do: nil, &block
       indexes = mouse.indexes filtered_buttons
-      @event_manager.mouse_manager MouseButtonDownEvent, indexes, block
+      @event_manager.mouse_manager MouseButtonDownEvent, indexes, block || binding.local_variable_get(:do)
     end
 
     event_resolver def on_mouse_up! *filtered_buttons, do: nil, &block
@@ -42,22 +42,22 @@ module Kredki
     event_resolver :on_mouse_move!, MouseMoveEvent
     event_resolver :on_mouse_scroll!, MouseScrollEvent
 
-    event_resolver def on_joystick_down! joystick, *filtered_buttons, &block
+    event_resolver def on_joystick_down! joystick, *filtered_buttons, do: nil, &block
       action_joystick = self.joystick joystick
       indexes = action_joystick.buttons filtered_buttons
-      @event_manager.joystick_manager JoystickButtonDownEvent, action_joystick.joystick, indexes, block
+      @event_manager.joystick_manager JoystickButtonDownEvent, action_joystick.joystick, indexes, block || binding.local_variable_get(:do)
     end
 
-    event_resolver def on_joystick_up! joystick, *filtered_buttons, &block
+    event_resolver def on_joystick_up! joystick, *filtered_buttons, do: nil, &block
       action_joystick = self.joystick joystick
       indexes = action_joystick.buttons filtered_buttons
-      @event_manager.joystick_manager JoystickButtonUpEvent, action_joystick.joystick, indexes, block
+      @event_manager.joystick_manager JoystickButtonUpEvent, action_joystick.joystick, indexes, block || binding.local_variable_get(:do)
     end
 
-    event_resolver def on_joystick_move! joystick, *filtered_axes, &block
+    event_resolver def on_joystick_move! joystick, *filtered_axes, do: nil, &block
       action_joystick = self.joystick joystick
       indexes = action_joystick.axes filtered_axes
-      @event_manager.joystick_manager JoystickAxisEvent, action_joystick.joystick, indexes, block
+      @event_manager.joystick_manager JoystickAxisEvent, action_joystick.joystick, indexes, block || binding.local_variable_get(:do)
     end
 
     event_resolver :on_drop_begin!, DropBeginEvent

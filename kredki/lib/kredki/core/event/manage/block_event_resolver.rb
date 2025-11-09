@@ -4,10 +4,12 @@ module Kredki
 
     def resolve event = nil
       return if !@always && event&.resolved?
-      if event&.trace?
-        puts [@block.binding.receiver, @block]
-      end
-      @block.call event, self
+      event&.resolver! self
+      @block.call event
+    end
+
+    def inspect
+      "#{self.class}:#{object_id} #{[@block.binding.receiver, @block]}"
     end
 
     def resolve! event = nil

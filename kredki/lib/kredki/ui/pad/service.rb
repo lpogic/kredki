@@ -35,6 +35,13 @@ module Kredki
       param def tag! tag, set = true
         return tag! tag, (yield self.tag tag) if block_given?
         @tags[tag] = set
+        if plugin = Kredki.plugin tag
+          if set
+            instance_exec &plugin
+          else
+          end
+        end
+        true
       end, def tag t = nil
         t ? @tags[t] : @tags.keys
       end
@@ -106,10 +113,19 @@ module Kredki
         @parent = nil
       end
 
-      def use! id
+      def use! id, *a, **na
         plugin = Kredki.plugin id
         raise_ia id unless plugin
-        alter &plugin
+        instance_exec *a, **na, &plugin
+      end
+
+      def play! param, &block
+        @animations[param]&.stop
+        @animations[param] = loop! &block
+      end
+
+      def stop! param
+        @animations.delete(param)&.stop
       end
 
       #internal api
@@ -120,6 +136,7 @@ module Kredki
         @tags = {}
         @services = []
         @event_manager = PadEventManager.new
+        @animations = {}
       end
 
       def sketch

@@ -88,6 +88,10 @@ module Kredki
 
         keyboardy!
         color! false
+      end
+
+      def sketch_behavior
+        super
 
         on_key_down! aim: true do |e|
           @down_keys[~e || e.keycode] = true
@@ -102,6 +106,7 @@ module Kredki
 
         on! MouseClickEvent, aim: true, do: method(:mouse_click)
       end
+
 
       class MouseClickPad
         model :pad, :xy, :timestamp, :combo

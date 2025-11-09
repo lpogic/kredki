@@ -15,11 +15,16 @@ module Kredki
       @ms
     end
 
+    def total_ms
+      @total_ms
+    end
+
     def step ms
       dms = ms - @next_ms
       if dms >= 0
         @ms = dms + @period
-        @block.call self
+        @total_ms += @ms
+        @block.call self, @param
         if @period > 0
           @next_ms += @period * (1 + dms / @period) 
         else
@@ -42,6 +47,7 @@ module Kredki
       stop
       @param = param
       @next_ms = @action.ms
+      @total_ms = 0
       @action.put_job self
     end
 

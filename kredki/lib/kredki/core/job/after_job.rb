@@ -12,7 +12,7 @@ module Kredki
       dms = ms - @start_ms
       if dms >= 0
         if @block
-          result = @block.call dms + @start_ms, self
+          result = @block.call self, @param
         else
           result = @param
         end

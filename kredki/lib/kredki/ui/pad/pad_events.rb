@@ -11,10 +11,10 @@ module Kredki
   module UI
 
     class Event
+      extend HasParams
     
       model :target do
         @resolved = false
-        @break = false
       end
 
       def inspect
@@ -32,32 +32,12 @@ module Kredki
       def resolve
         @resolved = true
       end
-  
-      def break?
-        @break
-      end
-  
-      def break
-        @break = true
-      end
-  
-      def unbreak
-        @break = false
-      end  
 
-      def trace
-        @trace = true
-        self
+      param def resolver! resolver
+        @resolver = resolver
+        true
       end
   
-      def trace= trace
-        @trace = trace
-      end
-  
-      def trace?
-        !!@trace
-      end
-
       def self.each *event_managers, do: nil, &block
         attached = block || binding.local_variable_get(:do)
         event_managers.map{ it.attach! attached }
@@ -83,10 +63,6 @@ module Kredki
 
       def resolve
         @origin ? @origin.resolve : super
-      end
-
-      def trace?
-        super || @origin&.trace?
       end
     end
 

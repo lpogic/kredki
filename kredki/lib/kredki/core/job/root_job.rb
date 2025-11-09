@@ -9,7 +9,7 @@ module Kredki
     def play param = nil
       stop
       @param = param
-      result = @block&.call self
+      result = @block ? @block.call(self, param) : param
       @event_manager.resolve PlayEvent.new result
     end
 

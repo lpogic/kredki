@@ -453,7 +453,7 @@ module Kredki
         raise_ia id unless plugin
         alter &plugin
       end
-
+      
       #internal api
 
       def initialize

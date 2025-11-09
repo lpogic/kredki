@@ -4,10 +4,12 @@ module Kredki
 
     def resolve event = nil
       return if !@always && event&.resolved?
-      if event&.trace?
-        puts @method.source_location
-      end
+      event&.resolver! self
       @method.call event
+    end
+
+    def inspect
+      "#{self.class}:#{object_id} #{@method.source_location}"
     end
 
     def resolve! event = nil

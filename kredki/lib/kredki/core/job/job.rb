@@ -25,13 +25,11 @@ module Kredki
       end
     end
 
-    param def param! param
-      @param = param
+    def ~
+      @param
     end
 
-    def ~
-      param
-    end
+    attr :param
 
     def -@
       StopJob.new self

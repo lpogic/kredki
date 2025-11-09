@@ -1,0 +1,31 @@
+require 'kredki'
+
+plugin! :mouse_in_scale do
+  on_mouse_enter! do
+    play! :mouse_in_scale do |job|
+      if job.total_ms > 350
+        stop! :mouse_in_scale
+      else
+        d! 1 + Util.sin01(job.total_ms, 700) / 3200
+      end
+    end
+  end
+
+  on_mouse_leave! do
+    play! :mouse_in_scale do |job|
+      if job.total_ms > 350
+        stop! :mouse_in_scale
+        d! 1
+      else
+        d! 1 + Util.sin01(700 + job.total_ms, 700) / 3200
+      end
+    end
+  end
+end
+
+layout! :xcc
+mi! 10
+
+button! :mouse_in_scale
+button! "Hello", :mouse_in_scale
+button! :mouse_in_scale, color: :green

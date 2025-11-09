@@ -55,8 +55,8 @@ module Kredki
       play = block if play == true && block
       return if @play == play
       action = scene.action
-      action.push_animation self unless @play
-      action.remove_animation self unless play
+      action.put_job self unless @play
+      action.remove_job self unless play
       @play = play
       true
     end
@@ -76,9 +76,9 @@ module Kredki
     end
 
     def attach! scene, show = true, at = nil
-      @picture.action&.remove_animation self if @play
+      @picture.action&.remove_job self if @play
       @picture.attach! scene, show, at
-      @picture.action&.push_animation self if @play
+      @picture.action&.put_job self if @play
       self
     end
 
@@ -96,10 +96,7 @@ module Kredki
     end
 
     def finish!
-      if @play
-        play! false
-        @on_end.resolve Event.new
-      end
+      play! false and @on_end.resolve Event.new
     end
 
     #internal api
@@ -128,15 +125,13 @@ module Kredki
       case @play
       when :once, true
         if ms > d
-          finish!
-          detach!
+          final_step
         else
           frame! ms * @total_frame / d
         end
       when :back
         if ms > d
-          finish!
-          detach!
+          final_step
         else
           frame! (d - ms) * @total_frame / d
         end
@@ -147,13 +142,14 @@ module Kredki
         elsif ms < d2
           frame! (d2 - ms) * @total_frame / d
         else
-          finish!
-          detach!
+          final_step
         end
       when :loop
         frame! (ms % d) * @total_frame / d
+        true
       when :back_loop
         frame! (d - (ms % d)) * @total_frame / d
+        true
       when :bounce_loop
         d2 = d * 2
         rem = ms % d2
@@ -162,14 +158,22 @@ module Kredki
         else
           frame! (d2 - rem) * @total_frame / d
         end
+        true
       when Proc
         if frame = @play.call(ms, duration)
           frame! frame * @total_frame / d
         else
-          finish!
-          detach!
+          final_step
         end
       end
+    end
+
+    def final_step
+      if @play
+        @play = false
+        @on_end.resolve Event.new
+      end
+      false
     end
 
     def set_source source

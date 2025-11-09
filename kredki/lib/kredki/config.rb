@@ -179,23 +179,7 @@ module Kredki
       action.window.destroy!
     end
   end
+
 end
 
 K = Kredki
-
-
-class TerminateOnEsc
-  def self.plug_into target
-    target.on_key_down! :escape do |event|
-      target.action.window.terminate!
-    end
-  end
-end
-
-class CloseOnEsc
-  def self.plug_into target
-    target.on_key_down! :escape do |event|
-      target.action.window.destroy!
-    end
-  end
-end

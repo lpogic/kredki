@@ -12,7 +12,7 @@ module Kredki
       stop
       @param = param
       @thread = Thread.new do
-        @result = @block.call self
+        @result = @block.call self, @param
       end
       @action.put_job self
     end

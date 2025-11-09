@@ -1,7 +1,8 @@
 module Kredki
   class Event
+    extend HasParams
     
-    model :target, :trace, :@resolved#, :@break
+    model :target, :@resolved
 
     def inspect
       "#{self.class}:#{object_id}"
@@ -19,20 +20,19 @@ module Kredki
       @resolved = true
     end
 
-    # def break?
-    #   @break
-    # end
+    def trace
+      Util.cover @resolver
+    end
 
-    # def break
-    #   @break = true
-    # end
-
-    # def unbreak
-    #   @break = false
-    # end
-
-    def trace?
-      !!@trace
+    param def resolver! resolver
+      if Array === @resolver
+        @resolver << resolver
+      else
+        @resolver = resolver
+      end
+      true
+    end, def resolver
+      Array === @resolver ? @resolver.last : @resolver
     end
   end
 

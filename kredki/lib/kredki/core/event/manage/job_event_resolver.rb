@@ -4,10 +4,12 @@ module Kredki
 
     def resolve event = nil
       return if !@always && event&.resolved?
-      if event&.trace?
-        puts @job
-      end
+      event&.resolver! self
       @job.call event
+    end
+
+    def inspect
+      "#{self.class}:#{object_id} #{@job}"
     end
 
     def resolve! event = nil

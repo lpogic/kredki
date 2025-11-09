@@ -16,6 +16,10 @@ else
       def define ...
         def_delegator :A, PadBase.define(...)
       end
+
+      def plugin! ...
+        Kredki.plugin!(...)
+      end
     end
   end
   extend Kredki::Extend

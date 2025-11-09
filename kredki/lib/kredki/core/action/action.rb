@@ -18,7 +18,6 @@ module Kredki
       @step_callback = Fiddle::Closure::BlockCaller.new(Fiddle::TYPE_VOID, [Fiddle::TYPE_INT], &proc.step)
 
       @jobs = []
-      @animations = []
       @event_manager = ActionEventManager.new
       @event_director = EventDirector.new
       @fill = rectangle! xy: 0
@@ -81,29 +80,8 @@ module Kredki
       translate x - wx, y - wy, target
     end
 
-    def push_animation animation
-      @animations << animation
-    end
-
-    def remove_animation animation
-      @animations.delete animation
-    end
-
     def put_job job
       @jobs << job unless @jobs.include? job
-    end
-
-    def check_job_exclusion job
-      !!@jobs.find{ check_ab_job_exclusion it, job }
-    end
-
-    def check_ab_job_exclusion a, b
-      if a.exclusive == true || b.exclusive == true
-        return true if a.pad == b.pad
-      elsif a.exclusive == b.exclusive
-        return true if a.pad == b.pad
-      end
-      return false
     end
 
     def remove_job job
@@ -124,8 +102,6 @@ module Kredki
     def step ms
       @last_frame_ms = ms
       @jobs.filter!{ it.step ms }
-      @animations.each{ it.step ms }
-      # resolve StepEvent.new ms
     end
 
     def ms
