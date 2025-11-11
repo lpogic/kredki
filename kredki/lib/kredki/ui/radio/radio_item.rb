@@ -1,14 +1,12 @@
 module Kredki
   module UI
     class RadioItem < ShapePad
-      extend Forwardable
-      extend HasParams
 
-      param def color! *color
-        return color! *Util.cover(yield self.color) if block_given?
-        color = Util.uncover color
-        return if @color == color
-        @color = color
+      param def fill! *fill
+        return fill! *Util.cover(yield self.fill) if block_given?
+        fill = Util.uncover fill
+        return if @fill == fill
+        @fill = fill
         repaint
         true
       end
@@ -23,7 +21,7 @@ module Kredki
       def initialize
         super
         
-        @check = new ShapePad, mousy: false, keyboardy: false, color: :text, wh: 1r do
+        @check = new ShapePad, mousy: false, keyboardy: false, fill: :text, wh: 1r do
           area! do |w, h|
             ellipse! w, h
           end
@@ -38,11 +36,11 @@ module Kredki
           ellipse! w - 1, h - 1
         end
         keyboardy!
-        stroke_size! 1
+        out_w! 1
         layout! :acc
         wh! 16
         m! 4
-        color! :gray
+        fill! :gray
       end
 
       def sketch_presence
@@ -60,9 +58,9 @@ module Kredki
       end
 
       def repaint event = nil
-        color = Kredki.color @color
-        area.fill_color = pin_top? ? color.darken : mouse_in? ? color.lighten : color
-        area.stroke_color = keyboard_in? ? :stroke_focus : color.darken
+        color = Kredki.color @fill
+        area.fill = pin_top? ? color.darken : mouse_in? ? color.lighten : color
+        area.out_fill = keyboard_in? ? :outline_focus : color.darken
       end
 
       def sketch_behavior

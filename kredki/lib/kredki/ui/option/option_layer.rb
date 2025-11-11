@@ -55,7 +55,7 @@ module Kredki
         super
 
         @scroll = new ScrollPad, layout: :ybb
-        @pad = @scroll.new ShapePad, color: :gray, layout: :ybb, h: :fit
+        @pad = @scroll.new ShapePad, fill: :gray, layout: :ybb, h: :fit
         @item_group = @pad.new ItemGroup
       end
 

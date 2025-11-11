@@ -41,8 +41,8 @@ module Kredki
       def initialize
         super
 
-        @level_pad = new ShapePad, at: 0, color: 0, h: 1r, w: 16 do
-          stroke! color: :text, size: 2, cap: :round, join: :miter
+        @level_pad = new ShapePad, at: 0, fill: 0, h: 1r, w: 16 do
+          out! fill: :text, w: 2, cap: :round, join: :miter
         end
       end
 

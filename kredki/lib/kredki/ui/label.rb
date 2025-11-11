@@ -4,7 +4,6 @@ module Kredki
   module UI
     class Label < SortPad
       include TextNavigation
-      extend HasParams
       
       #internal api
 

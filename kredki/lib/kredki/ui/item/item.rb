@@ -22,10 +22,10 @@ module Kredki
         end
       end
 
-      param def color! *color
-        color = Util.uncover color
-        return if @color == color
-        @color = color
+      param def fill! *fill
+        fill = Util.uncover fill
+        return if @fill == fill
+        @fill = fill
         repaint
         true
       end
@@ -62,7 +62,7 @@ module Kredki
 
         keyboardy!
         layout! :xbc
-        color! :gray
+        fill! :gray
         h! 24
         w! :fit
       end
@@ -82,8 +82,8 @@ module Kredki
       end
 
       def repaint event = nil
-        color = Kredki.color @color
-        area.fill_color = pin_in? ? color.darken : keyboard_in? ? color.lighten : color
+        color = Kredki.color @fill
+        area.fill = pin_in? ? color.darken : keyboard_in? ? color.lighten : color
       end
 
       def sketch_behavior

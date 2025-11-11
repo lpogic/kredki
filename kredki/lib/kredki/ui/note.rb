@@ -4,14 +4,12 @@ module Kredki
   module UI
     class Note < ShapePad
       include TextEdition
-      extend Forwardable
-      extend HasParams
 
-      param def color! *color
-        return color! *Util.cover(yield self.color) if block_given?
-        color = Util.uncover color
-        return if @color == color
-        @color = color
+      param def fill! *fill
+        return fill! *Util.cover(yield self.fill) if block_given?
+        fill = Util.uncover fill
+        return if @fill == fill
+        @fill = fill
         repaint
         true
       end
@@ -36,20 +34,19 @@ module Kredki
         @verse.content
       end
 
-      param_prefix :verse
-
       param_delegate :@verse,
+        :verse,
         :verse_size,
         :verse_layout
 
       #internal api
 
       class NoteLayout < Layout::XWay
-        def arrange_layoutic pad, cw, ch, cx
+        def arrange_layoutic pad, clw, clh, cx
           pw = pad.sw
           ph = pad.sh
-          px = pad.get_x cw, pw, cx
-          py = pad.get_y ch, ph, (get_y @y, ch, ph)
+          px = pad.get_x clw, pw, cx
+          py = pad.get_y clh, ph, (get_y @y, clh, ph)
           pad.arrange
           pad.set_xy px, py
           pad.set_margin
@@ -75,9 +72,9 @@ module Kredki
         layout! NoteLayout.new(:b, :c)
         mousy!
         keyboardy!
-        stroke_size! 1
+        out_w! 1
         m! 2
-        color! :gray
+        fill! :gray
         h! 24
 
         sketch_verse
@@ -100,11 +97,11 @@ module Kredki
       end
 
       def repaint event = nil
-        color = Kredki.color @color
+        color = Kredki.color @fill
         kb_top = keyboard_top?
-        area.fill_color = kb_top ? color.darken : mouse_in? ? color.lighten : color
-        area.stroke_color = kb_top ? :stroke_focus : color
-        verse.selection.each_paint{ it.fill_color! kb_top ? :text_selection : :text_selection_inactive }
+        area.fill = kb_top ? color.darken : mouse_in? ? color.lighten : color
+        area.out_fill = kb_top ? :outline_focus : color
+        verse.selection.each_paint{ it.fill! kb_top ? :text_selection : :text_selection_inactive }
       end
     end
   end

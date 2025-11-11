@@ -3,10 +3,10 @@ module Kredki
     class ListItem < YItem
       extend HasEventResolvers
 
-      param def color! *color
-        color = Util.uncover color
-        return if @color == color
-        @color = color
+      param def fill! *fill
+        fill = Util.uncover fill
+        return if @fill == fill
+        @fill = fill
         repaint
         true
       end
@@ -35,14 +35,14 @@ module Kredki
       end
 
       def repaint event = nil
-        color = Kredki.color @color
-        area.fill_color = select? ? :text_selection : mouse_in? ? color.lighten : color
+        color = Kredki.color @fill
+        area.fill = select? ? :text_selection : mouse_in? ? color.lighten : color
           if keyboard_in?
-            area.stroke_size = 1
-            area.stroke_color = :stroke_focus
+            area.out_w = 1
+            area.out_fill = :outline_focus
           else
-            area.stroke_size = 0
-            area.stroke_color = color
+            area.out_w = 0
+            area.out_fill = color
           end
       end
 

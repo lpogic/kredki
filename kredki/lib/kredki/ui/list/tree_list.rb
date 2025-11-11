@@ -4,8 +4,6 @@ require_relative 'tree_list_item'
 module Kredki
   module UI
     class TreeList < ShapePad
-      extend Forwardable
-      extend HasParams
       extend HasEventResolvers
 
       event_resolver :on_pick!, Item::PickEvent
@@ -20,7 +18,7 @@ module Kredki
         super
 
         keyboardy!
-        color! :gray
+        fill! :gray
         layout! :ybb
 
         @item_group = new TreeListItemGroup

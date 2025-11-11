@@ -1,8 +1,6 @@
 module Kredki
   module UI
     class RadioLabelItem < SpacePad
-      extend Forwardable
-      extend HasParams
 
       def item
         self[RadioItem]

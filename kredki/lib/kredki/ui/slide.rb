@@ -1,7 +1,6 @@
 module Kredki
   module UI
     class Slide < ShapePad
-      extend HasParams
       extend HasEventResolvers
 
       param def value! v, report_change = true
@@ -18,11 +17,11 @@ module Kredki
       event_resolver :on_change!, ChangeEvent
       event_resolver :on_edit!, EditEvent
 
-      param def color! *color
-        return color! *Util.cover(yield self.color) if block_given?
-        color = Util.uncover color
-        return if @color == color
-        @color = color
+      param def fill! *fill
+        return fill! *Util.cover(yield self.fill) if block_given?
+        fill = Util.uncover fill
+        return if @fill == fill
+        @fill = fill
         repaint
         true
       end
@@ -40,7 +39,7 @@ module Kredki
       def sketch
         super
 
-        color! :gray
+        fill! :gray
       end
 
       def sketch_presence
@@ -56,8 +55,8 @@ module Kredki
       end
 
       def repaint event = nil
-        color = Kredki.color @color
-        handle.area.fill_color = mouse_in? ? color.lighten : color.darken
+        color = Kredki.color @fill
+        handle.area.fill = mouse_in? ? color.lighten : color.darken
       end
 
       def sketch_behavior
@@ -90,7 +89,7 @@ module Kredki
         super
 
         p0 = self
-        @handle = new ShapePad, color: :gray do
+        @handle = new ShapePad, fill: :gray do
           x0 = 0
           on_mouse_move! do |e|
             if e.drag
@@ -123,7 +122,7 @@ module Kredki
       end
 
       def arrange lw = nil
-        w = cw
+        w = clw
         lw ||= 3 * w
         hw = (w.to_f / lw * w).clamp 20, [w - 20, 20].max
         @handle.set_size hw, sh
@@ -137,7 +136,7 @@ module Kredki
         super
 
         p0 = self
-        @handle = new ShapePad, color: :gray do
+        @handle = new ShapePad, fill: :gray do
           y0 = 0
           on_mouse_move! do |e|
             if e.drag
@@ -170,7 +169,7 @@ module Kredki
       end
 
       def arrange lh = nil
-        h = ch
+        h = clh
         lh ||= 3 * h
         hh = (h.to_f / lh * h).clamp 20, [h - 20, 20].max
         @handle.set_size sw, hh

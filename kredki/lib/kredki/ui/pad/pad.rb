@@ -10,8 +10,6 @@ module Kredki
       include PadBase
       include LocalMedia
       include PadEvents
-      extend Forwardable
-      extend HasParams
       extend PadInherited
 
       def <<(arg)
@@ -238,27 +236,27 @@ module Kredki
         [cx, cy]
       end
       
-      def cw
+      def clw
         @clip_area.w
       end
 
-      def ch
+      def clh
         @clip_area.h
       end
 
-      def cwh
+      def clwh
         @clip_area.wh
       end
 
-      param def a! a = @a
-        return a! yield @a if block_given?
-        return if @a == a
-        @a = a
-        a *= Math::PI * 2 if a.is_a? Rational
-        @scene.a! a
+      param def rot! rot = @rot
+        return rot! yield @rot if block_given?
+        return if @rot == rot
+        @rot = rot
+        rot *= Math::PI * 2 if rot.is_a? Rational
+        @scene.rot! rot
       end
 
-      param_delegate :@scene, :d, :dx, :dy
+      param_delegate :@scene, :mag, :magx, :magy
 
       param def area! area = nil, &block
         if block
@@ -460,13 +458,13 @@ module Kredki
         super
         @x = @y = :layout
         @w = @h = 100
-        @a = 0
+        @rot = 0
         @mxb = @mxe = @myb = @mye = 0
         @pad_parent = nil
         @scene = Scene.new
         initialize_area
         @clip_scene = @scene.scene!
-        @clip_area = @clip_scene.rectangle! at: false, fill_color: false
+        @clip_area = @clip_scene.rectangle! at: false, fill: false
         @pads = []
         @layout = nil
         @ui_layout = UI.layout
@@ -586,20 +584,20 @@ module Kredki
         @scene.xy! x, y
       end
 
-      def get_x pcw, sw, ax
+      def get_x pclw, sw, ax
         case @x
         when Rational
-          @x * pcw - sw * 0.5
+          @x * pclw - sw * 0.5
         when Proc
-          @x[pcw, sw]
+          @x[pclw, sw]
         when Range
           ax + @x.begin
         when :e
-          pcw - sw
+          pclw - sw
         when :b
           0
         when :c
-          (pcw - sw) * 0.5
+          (pclw - sw) * 0.5
         when :layout
           ax
         when Numeric
@@ -745,21 +743,21 @@ module Kredki
         when :driven
           @area.w
         when Range
-          pcw = nil
+          pclw = nil
           b = case @w.begin
           when Rational
-            (pcw ||= @pad_parent.get_w) * @w.begin
+            (pclw ||= @pad_parent.get_w) * @w.begin
           when Numeric
-            @w.begin < 0 ? (pcw ||= @pad_parent.get_w) + @w.begin : @w.begin
+            @w.begin < 0 ? (pclw ||= @pad_parent.get_w) + @w.begin : @w.begin
           when nil
             0
           else raise @w.begin
           end
           e = case @w.end
           when Rational
-            (pcw ||= @pad_parent.get_w) * @w.end
+            (pclw ||= @pad_parent.get_w) * @w.end
           when Numeric
-            @w.end < 0 ? (pcw ||= @pad_parent.get_w) + @w.end : @w.end
+            @w.end < 0 ? (pclw ||= @pad_parent.get_w) + @w.end : @w.end
           when nil
             Float::INFINITY
           else raise @w.end

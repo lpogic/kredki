@@ -6,7 +6,7 @@ plugin! :mouse_in_scale do
       if job.total_ms > 350
         stop! :mouse_in_scale
       else
-        d! 1 + Util.sin01(job.total_ms, 700) / 3200
+        mag! 1 + Util.sin01(job.total_ms, 700) / 3200
       end
     end
   end
@@ -15,9 +15,9 @@ plugin! :mouse_in_scale do
     play! :mouse_in_scale do |job|
       if job.total_ms > 350
         stop! :mouse_in_scale
-        d! 1
+        mag! 1
       else
-        d! 1 + Util.sin01(700 + job.total_ms, 700) / 3200
+        mag! 1 + Util.sin01(700 + job.total_ms, 700) / 3200
       end
     end
   end
@@ -28,4 +28,4 @@ mi! 10
 
 button! :mouse_in_scale
 button! "Hello", :mouse_in_scale
-button! :mouse_in_scale, color: :green
+button! :mouse_in_scale, fill: :green

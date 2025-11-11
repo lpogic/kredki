@@ -60,8 +60,8 @@ KredkiProc = proc do
 
     use! :terminate_on_esc
     use! :carry_focus_on_tab
-    window.alter{ resizable!; text_input!; always_top! }
-    color! 110, 301, 101
+    window.alter{ resizable!; text_input!; top! }
+    fill! 110, 301, 101
 
     kredki_workspace = KredkiWorkSpace.new binding
     IRB.CurrentContext.replace_workspace kredki_workspace

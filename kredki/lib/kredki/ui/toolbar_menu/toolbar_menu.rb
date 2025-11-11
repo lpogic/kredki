@@ -22,7 +22,7 @@ module Kredki
         h! :fit
         xy! 0
         layout! :xbc, 4
-        color! :gray
+        fill! :gray
       
         @item_group = new ToolbarItemGroup
 

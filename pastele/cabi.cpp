@@ -274,15 +274,15 @@ CABI void paint_delete(Paint* self)
     SDL_PushEvent(&event);
 }
 
-CABI void paint_set_transform(Paint* self, float pivot_x, float pivot_y, float x, float y, float a, float dx, float dy) {
+CABI void paint_set_transform(Paint* self, float pivot_x, float pivot_y, float x, float y, float a, float magx, float fy) {
     auto m = self->transform();
     auto s = sinf(a);
     auto c = cosf(a);
-    m.e11 = c * dx;
-    m.e12 = -s * dx;
+    m.e11 = c * magx;
+    m.e12 = -s * magx;
     m.e13 = x + pivot_x - m.e11 * pivot_x - m.e12 * pivot_y;
-    m.e21 = s * dy;
-    m.e22 = c * dy;
+    m.e21 = s * fy;
+    m.e22 = c * fy;
     m.e23 = y + pivot_y - m.e21 * pivot_x - m.e22 * pivot_y;
     self->transform(m);
 }
@@ -363,12 +363,18 @@ CABI void shape_close(Shape* self)
     self->close();
 }
 
-CABI void shape_append_rect(Shape* self, float x, float y, float w, float h, float rx, float ry)
+CABI void shape_append_rect(Shape* self, float x, float y, float w, float h)
 {
-    self->appendRect(x, y, w, h, rx, ry);
+    self->appendRect(x, y, w, h);
 }
 
-CABI void shape_append_rect1(Shape* self, float x, float y, float w, float h, float rbb, float reb, float rbe, float ree)
+CABI void shape_append_circle(Shape* self, float cx, float cy, float rx, float ry)
+{
+    self->appendCircle(cx, cy, rx, ry);
+    self->moveTo(cx, cy);
+}
+
+CABI void shape_append_round_rect(Shape* self, float x, float y, float w, float h, float crbb, float creb, float crbe, float cree)
 {
     #define PATH_KAPPA 0.552284f
     Point pts[18];
@@ -376,64 +382,58 @@ CABI void shape_append_rect1(Shape* self, float x, float y, float w, float h, fl
 
     auto s = Point{w * 0.5f, h * 0.5f};
     auto minr = s.x > s.y ? s.y : s.x;
-    rbb = (rbb > minr) ? minr : rbb;
-    rbe = (rbe > minr) ? minr : rbe;
-    reb = (reb > minr) ? minr : reb;
-    ree = (ree > minr) ? minr : ree;
+    crbb = (crbb > minr) ? minr : crbb;
+    crbe = (crbe > minr) ? minr : crbe;
+    creb = (creb > minr) ? minr : creb;
+    cree = (cree > minr) ? minr : cree;
     auto hr = 0.0f;
 
     cmds[0] = PathCommand::MoveTo;
-    pts[0] = {x + w, y + reb}; //move
+    pts[0] = {x + w, y + creb}; //move
     cmds[1] = PathCommand::LineTo;
-    pts[1] = {x + w, y + h - ree}; //line
+    pts[1] = {x + w, y + h - cree}; //line
 
     auto pi = 2;
     auto ci = 2;
-    if(ree > 0.0f) {
+    if(cree > 0.0f) {
         cmds[ci++] = PathCommand::CubicTo;
-        hr = ree * PATH_KAPPA;
-        pts[pi++] = {x + w, y + h - ree + hr}; 
-        pts[pi++] = {x + w - ree + hr, y + h}; 
-        pts[pi++] = {x + w - ree, y + h};  //cubic
+        hr = cree * PATH_KAPPA;
+        pts[pi++] = {x + w, y + h - cree + hr}; 
+        pts[pi++] = {x + w - cree + hr, y + h}; 
+        pts[pi++] = {x + w - cree, y + h};  //cubic
     }
     cmds[ci++] = PathCommand::LineTo;
-    pts[pi++] = {x + rbe, y + h}; //line
-    if(rbe > 0.0f) {
+    pts[pi++] = {x + crbe, y + h}; //line
+    if(crbe > 0.0f) {
         cmds[ci++] = PathCommand::CubicTo;
-        hr = rbe * PATH_KAPPA;
-        pts[pi++] = {x + rbe - hr, y + h}; 
-        pts[pi++] = {x, y + h - rbe + hr}; 
-        pts[pi++] = {x, y + h - rbe};  //cubic
+        hr = crbe * PATH_KAPPA;
+        pts[pi++] = {x + crbe - hr, y + h}; 
+        pts[pi++] = {x, y + h - crbe + hr}; 
+        pts[pi++] = {x, y + h - crbe};  //cubic
     }
     cmds[ci++] = PathCommand::LineTo;
-    pts[pi++] = {x, y + rbb}; //line
-    if(rbb > 0.0f) {
+    pts[pi++] = {x, y + crbb}; //line
+    if(crbb > 0.0f) {
         cmds[ci++] = PathCommand::CubicTo;
-        hr = rbb * PATH_KAPPA;
-        pts[pi++] = {x, y + rbb - hr}; 
-        pts[pi++] = {x + rbb - hr, y}; 
-        pts[pi++] = {x + rbb, y};  //cubic
+        hr = crbb * PATH_KAPPA;
+        pts[pi++] = {x, y + crbb - hr}; 
+        pts[pi++] = {x + crbb - hr, y}; 
+        pts[pi++] = {x + crbb, y};  //cubic
     }
     cmds[ci++] = PathCommand::LineTo;
-    pts[pi++] = {x + w - reb, y}; //line
-    if(reb > 0.0f) {
+    pts[pi++] = {x + w - creb, y}; //line
+    if(creb > 0.0f) {
         cmds[ci++] = PathCommand::CubicTo;
-        hr = reb * PATH_KAPPA;
-        pts[pi++] = {x + w - reb + hr, y}; 
-        pts[pi++] = {x + w, y + reb - hr}; 
-        pts[pi++] = {x + w, y + reb};  //cubic
+        hr = creb * PATH_KAPPA;
+        pts[pi++] = {x + w - creb + hr, y}; 
+        pts[pi++] = {x + w, y + creb - hr}; 
+        pts[pi++] = {x + w, y + creb};  //cubic
     }
     cmds[ci++] = PathCommand::Close;
     cmds[ci++] = PathCommand::MoveTo;
     pts[pi++] = {x, y};
 
     self->appendPath(&cmds[0], ci, &pts[0], pi);
-}
-
-CABI void shape_append_circle(Shape* self, float cx, float cy, float rx, float ry)
-{
-    self->appendCircle(cx, cy, rx, ry);
-    self->moveTo(cx, cy);
 }
 
 CABI void shape_set_stroke_width(Shape* self, float width)
@@ -892,11 +892,11 @@ CABI void animation_delete(Animation* self) {
 // }
 
 
-// CABI int tvg_lottie_animation_get_marker(Tvg_Animation* animation, uint32_t idx, const char** name)
+// CABI int tvg_lottie_animation_get_marker(Tvg_Animation* animation, uint32_t ifx, const char** name)
 // {
 // #ifdef THORVG_LOTTIE_LOADER_SUPPORT
 //     if (!animation || !name) return TVG_RESULT_INVALID_ARGUMENT;
-//     *name = reinterpret_cast<LottieAnimation*>(animation)->marker(idx);
+//     *name = reinterpret_cast<LottieAnimation*>(animation)->marker(ifx);
 //     if (!(*name)) return TVG_RESULT_INVALID_ARGUMENT;
 //     return TVG_RESULT_SUCCESS;
 // #endif

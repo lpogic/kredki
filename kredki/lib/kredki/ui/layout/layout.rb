@@ -32,23 +32,23 @@ module Kredki
         get_p cr, pc, sc
       end
 
-      def get_w pad, w, pcw
+      def get_w pad, w, pclw
         case w
         when :fit
           pad.fit_w
         when Rational
-          pcw * w
+          pclw * w
         when Proc
-          w[pcw]
+          w[pclw]
         when Range
-          b = get_w pad, w.begin || 0, pcw
-          e = get_w pad, w.end || Float::INFINITY, pcw
+          b = get_w pad, w.begin || 0, pclw
+          e = get_w pad, w.end || Float::INFINITY, pclw
           min, max = [b, e].minmax
-          pcw > min ? pcw < max ? pcw : max : min
+          pclw > min ? pclw < max ? pclw : max : min
         when Numeric
-          w < 0 ? [pcw + w, 0].max : w
+          w < 0 ? [pclw + w, 0].max : w
         when Array
-          get_w pad, w[0], pcw * (w[1] || 1)
+          get_w pad, w[0], pclw * (w[1] || 1)
         else
           raise_ia w
         end
@@ -77,19 +77,19 @@ module Kredki
       end
 
       def arrange pad
-        cw = pad.cw
-        ch = pad.ch
+        clw = pad.clw
+        clh = pad.clh
 
         lw = lh = 0
-        lx = cw
-        ly = ch
+        lx = clw
+        ly = clh
         
         pad.arrange_pads.each do |p1|
-          pw = get_w p1, p1.w, cw
-          ph = get_h p1, p1.h, ch
+          pw = get_w p1, p1.w, clw
+          ph = get_h p1, p1.h, clh
           p1.set_size pw, ph
-          px = p1.get_x cw, pw, (get_x @x, cw, pw)
-          py = p1.get_y ch, ph, (get_y @y, ch, ph)
+          px = p1.get_x clw, pw, (get_x @x, clw, pw)
+          py = p1.get_y clh, ph, (get_y @y, clh, ph)
           p1.set_xy px, py
           p1.set_margin
           p1.arrange

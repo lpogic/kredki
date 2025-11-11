@@ -26,31 +26,31 @@ module Kredki
         end
 
         def measure_arrange pad
-          cw = @table.cw
+          clw = @table.clw
 
           @spans = pad.layout_pads.zip(@columns, @spans).map do |p1, c, s|
-            n = get_span p1, c.size, cw
+            n = get_span p1, c.size, clw
             s ? [n[0], a = [n[1], s[1]].max, [n[2], s[2]].min, a] : n
           end
         end
 
         def proper_arrange pad
-          ch = pad.ch
-          cw = @table.cw
+          clh = pad.clh
+          clw = @table.clw
           sw = @sw
 
           pad.layout_pads.zip @measurement do |p1, m|
             if m
               w = m
             else
-              w = cw - sw
-              sw = cw
+              w = clw - sw
+              sw = clw
             end
-            ph = get_h p1, p1.h, ch
+            ph = get_h p1, p1.h, clh
             p1.set_size w, ph
           end
 
-          arrange_pads pad.arrange_pads, sw, cw, ch, @space || 0
+          arrange_pads pad.arrange_pads, sw, clw, clh, @space || 0
         end
   
         def prepare
@@ -59,7 +59,7 @@ module Kredki
         end
   
         def designate
-          @measurement, @sw = spans @spans, @table.cw, @space || 0
+          @measurement, @sw = spans @spans, @table.clw, @space || 0
         end
   
         def release

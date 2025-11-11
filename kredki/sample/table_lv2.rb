@@ -1,14 +1,14 @@
 require 'kredki'
 
 table! w: 3/4r do
-  color! :black
+  fill! :black
   m! 2
   column! :fit.., 1r
   column! 2r
   column! 100
   gap! 2
 
-  c = {color: :black}
+  c = {fill: :black}
 
   row! do
     cell!(layout: :aec).text! "Header 1", c
@@ -18,7 +18,7 @@ table! w: 3/4r do
 
   scroll_rows! do
     (0..10).each do |i|
-      row! color: :green do
+      row! fill: :green do
         cell!.text! "Cell/#{i}/1", c
         cell!.text! "Cell/#{i}/2", c
         cell!.text! "Cell/#{i}/3", c

@@ -30,7 +30,7 @@ else
   use! :terminate_on_esc
   use! :carry_focus_on_tab
   window.alter{ resizable!; text_input! }
-  color! 110, 301, 101
+  fill! 110, 301, 101
 
   if $kredki_run != false
     at_exit do

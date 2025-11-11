@@ -1,8 +1,6 @@
 module Kredki
   module UI
     class CheckLabel < SpacePad
-      extend Forwardable
-      extend HasParams
 
       def check
         self[Check]

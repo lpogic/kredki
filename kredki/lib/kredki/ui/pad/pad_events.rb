@@ -221,10 +221,12 @@ module Kredki
         @event_manager.mouse_manager MouseButtonUpEvent, indexes, block || binding.local_variable_get(:do), aim, always
       end
 
-      aliasing def on_click! *filtered_buttons, aim: false, always: false, do: nil, &block
+      def on_click! *filtered_buttons, aim: false, always: false, do: nil, &block
         indexes = mouse.indexes filtered_buttons
         @event_manager.mouse_manager MouseClickEvent, indexes, block || binding.local_variable_get(:do), aim, always
-      end, :on_mouse_click!
+      end
+
+      alias_method :on_mouse_click!, :on_click!
   
       event_resolver :on_mouse_enter!, MouseEnterEvent
       event_resolver :on_mouse_leave!, MouseLeaveEvent

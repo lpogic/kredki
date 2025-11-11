@@ -4,10 +4,10 @@ require 'kredki'
 
 layout! :ybb
 mi! 4
-params = {wh: 50, rbb: 20, ree: 20, color: :yellow}
+params = {wh: 50, cr: 20, fill: :yellow}
 
 # 1. Via named arguments
-pad! wh: 50, rbb: 20, ree: 20, color: :yellow
+pad! wh: 50, cr: 20, fill: :yellow
 
 # 2. Via hash argument
 pad! params
@@ -22,24 +22,22 @@ pad.alter **params
 # 5. Via block
 pad! do
   wh! 50
-  rbb! 20
-  ree! 20
-  color! :yellow
+  cr! 20
+  fill! :yellow
 end
 
 # 6. Via definition (procedural)
 define :small_pad_proc! do |**na|
-  pad! wh: 50, rbb: 20, ree: 20, **na
+  pad! wh: 50, cr: 20, **na
 end
 
-small_pad_proc! color: :yellow
+small_pad_proc! fill: :yellow
 
 # 7. Via definition (object-oriented)
 class SmallPadClass < ShapePad
   def sketch
-    self.color = :yellow
-    rbb! 20
-    ree! 20
+    self.fill = :yellow
+    cr! 20
   end
 end
 

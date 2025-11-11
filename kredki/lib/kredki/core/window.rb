@@ -1,7 +1,6 @@
 module Kredki
   class Window
     extend HasParams
-    extend Forwardable
 
     def initialize w = 400, h = 400
       @pointer = Abi.window_new w, h
@@ -36,13 +35,13 @@ module Kredki
       Abi.window_restore @pointer
     end
 
-    flag def bordered! value = true
-      return if (c = bordered) == (value = block_given? ? (yield c) : value == :not ? !c : value)
+    flag def outline! value = true
+      return if (c = outline) == (value = block_given? ? (yield c) : value == :not ? !c : value)
       set_bordered value
-      @bordered = value
+      @outline = value
       true
-    end, def bordered
-      @bordered || @bordered.nil?
+    end, def outline
+      @outline || @outline.nil?
     end
 
     flag def grab! value = true
@@ -142,10 +141,10 @@ module Kredki
       true
     end
 
-    flag def always_top! value = true
-      return if (c = always_top) == (value = block_given? ? (yield c) : value == :not ? !c : value)
-      set_always_top value
-      @always_top = value
+    flag def top! value = true
+      return if (c = top) == (value = block_given? ? (yield c) : value == :not ? !c : value)
+      set_top value
+      @top = value
       true
     end
 
@@ -266,9 +265,8 @@ module Kredki
       true
     end
 
-    def set_always_top set
+    def set_top set
       Abi.window_set_always_on_top @pointer, set ? 1 : 0
-      @always_top = set
     end
 
     def set_text_input set

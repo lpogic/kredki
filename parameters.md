@@ -1,51 +1,44 @@
-# @title Parameters and Flags
+# @title Params and Flags
 
-# Parameters and Flags
+# Params and Flags
 
-From API user point of view, kredki parameter is collection of methods with common root.
-One is for reading some value and two, ending with '=' and '!', for updating.
-For example if object of Circle class has `radius` parameter, 
-it would has `#radius`, `#radius=` and `#radius!` defined:
+Params is Kredki DSL for accessing object attributes. Like the standard attr_accessor, it defines a getter and a setter. 
+Additionally, it defines a setter with the suffix '!':
 
-    circle = Circle.new
-    circle.radius! 10
-    circle.radius       # => 10
-    circle.radius += 5
-    circle.radius       # => 15
+```
+  circle = Circle.new # assume that Circle has radius param
+  circle.radius = 10 # set radius to 10
+  circle.radius # => 10
+  circle.radius! 15 # set radius to 15
+  circle.radius # => 15
+```
 
-These update methods are interchangeable. Both have unique features that suit different situations.
-The case in the example above may look like a simple access to an object attribute, 
-but there can be much more going on for a parameter. First of all, 
-updating the parameter value can perform additional tasks, e.g. request an update of the canvas.
-When a value is read, it can be retrieved from an external library that stores the actual state.
+The '!' suffix method may seem redundant, but it actually has some useful advantages over the '...=' method:
+- it can accept any number of arguments, named arguments and blocks ('...=' always single argument)
+- it can return any value ('...=' always return the receiver)
+- it can be called with an automatic receiver ('...=' must be called in the form `receiver.param = ...`)
 
-In _Kredki_ the parameters appear so often that a dedicated DSL was designed for them.
-To define the simplest parameter, just create a method with the suffix '!' and 
-add `param` before the keyword `def`, as in the example below:
+On the other hand, the method with the '=' suffix offers a unique feature of operators with assigment (+=, -= etc.).
 
-    class Circle
-      param def radius! r
-        @radius = r  # store new radius in @radius attribute
-      end
-    end
+Setters with the '!' suffix are mostly designed according to the following rules:
+- if it is called with a block, the block will be called with the current value as an argument before the update, and its result will be the new value
+```
+  obj.x = 1
+  obj.x # => 1
+  obj.x!{ it + 2 } # take the x value, add 2 to it and sets result as a new value
+  obj.x # => 3
+```
+- if the new value is the same as current, no update is executed and `nil` is returned 
+```
+  obj.x = 1
+  obj.x! 1 # => nil
+```
+- if value was changed, `true` is returned
+```
+  obj.x = 1
+  obj.x! 2 # => true
+```
 
-Methods `#radius` and `#radius=` are auto-created by DSL. Multi-argument, named arguments 
-and blocks are allowed for method with '!' suffix. This is one of its advantages over method with '='.
-If the read method is automatically generated, it is essential that the value is stored in 
-an attribute of the same name. DSL generates something like this by default: `def radius; @radius; end`.
-When a read method should do something more, it should be defined after a comma, as in the example below:
-
-    class Rectangle
-      param def size! width, height = width
-        @width = width
-        @height = height
-        true
-      end, def size
-        [@width, @height]
-      end
-    end
-
-The name of the reading method should be updating method name without trailing '!'.
 
 # Flags
 

@@ -2,18 +2,18 @@ module Kredki
   module Area
     extend HasParams
 
-    param def w! s = @w
+    param def w! w = @w
       return w! yield @w if block_given?
-      return if @w == s
-      @w = s
+      return if @w == w
+      @w = w
       @redraw_flag = true
       update
     end
 
-    param def h! s
+    param def h! h = @h
       return h! yield @h if block_given?
-      return if @h == s
-      @h = s
+      return if @h == h
+      @h = h
       @redraw_flag = true
       update
     end

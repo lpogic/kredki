@@ -1,8 +1,6 @@
 module Kredki
   module UI
     class TextPad < Pad
-      extend Forwardable
-      extend HasParams
 
       param def content! content = @content
         return content! (yield self.content) if block_given?
@@ -10,23 +8,41 @@ module Kredki
         @content = content
         @verses&.each{ it.detach! }
         @verses = "#{content}\n".each_line(chomp: true).map do |line|
-          @scene.text! line.chomp, color: @area.fill_color
+          @scene.text! line.chomp, fill: @area.fill
         end
         arrange_verses
         layer&.break_layout
         true
       end
 
-      param def color! *color
-        return color! *Util.cover(yield self.color) if block_given?
-        return unless @area.fill_color! *color
-        @verses.each{ it.color! *color }
+      param def fill! *fill
+        return fill! *Util.cover(yield self.fill) if block_given?
+        return unless @area.fill! *fill
+        @verses.each{ it.fill! *fill }
         true
-      end, def color
-        @area.fill_color
+      end, def fill
+        @area.fill
       end
 
-      param_prefix :verse
+      param def verse! *a, **na
+        (
+          a.map do
+            case it
+            when Hash
+              verse! **it
+            when Numeric, :auto
+              verse_size! it
+            else
+              verse_layout! it
+            end
+          end.each + 
+          na.map do
+            send "verse_#{_1}!", *Util.cover(_2)
+          end
+        ).reduce(false){ _1 || _2 }
+      end, def verse
+        [verse_size, verse_layout]
+      end
 
       param def verse_layout! layout = nil
         return verse_layout! (yield self.verse_layout) if block_given?

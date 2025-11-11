@@ -1,7 +1,6 @@
 module Kredki
   module LocalMedia
     class Keyboard
-      extend Forwardable
       extend HasParams
 
       model :resource, :keyboard
@@ -10,13 +9,21 @@ module Kredki
         input.flatten.map{ _1.is_a?(String) ? _1.downcase.codepoints : _1 }.flatten.map{ @keyboard.key(_1).to_i }.uniq
       end
 
-      aliasing def on_down! ...
+      def on_down! ...
         @resource.on_key_down!(...)
-      end, :on_key_down!
+      end
 
-      aliasing def on_up! ...
+      def on_key_down! ...
+        @resource.on_key_down!(...)
+      end
+
+      def on_up! ...
         @resource.on_key_up!(...)
-      end, :on_key_up!
+      end
+
+      def on_key_up! ...
+        @resource.on_key_up!(...)
+      end
 
       def on_text! ...
         @resource.on_text!(...)

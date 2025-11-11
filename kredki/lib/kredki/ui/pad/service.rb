@@ -10,7 +10,6 @@ module Kredki
       include PadBase
       include LocalMedia
       include PadEvents
-      extend Forwardable
       extend HasParams
       extend PadInherited
 
@@ -81,6 +80,10 @@ module Kredki
 
       def action
         layer&.pad_parent
+      end
+
+      def window
+        action&.window
       end
 
       def in? grand

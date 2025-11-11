@@ -12,8 +12,8 @@ define :circle! do
 end
 
 define :wheel! do |*a, rim:, tire: :black, **na, &b|
-  circle! **na, color: tire do
-    circle! wh: 1/2r, color: rim
+  circle! **na, fill: tire do
+    circle! wh: 1/2r, fill: rim
   end.alter &b
 end
 
@@ -33,7 +33,7 @@ end
 
 define :car! do |*a, body: :blue, rim: :gray, tire: :black, **na, &b|
   space! **na do
-    car_body! color: body, wh: 1r
+    car_body! fill: body, wh: 1r
     wheel! x: 1/4r, y: :e, wh: 1/2r, rim:, tire:;
     wheel! x: 3/4r, y: :e, wh: 1/2r, rim:, tire:;
   end.alter &b
@@ -45,5 +45,5 @@ space! wh: 2/3r do
   layout! :ybb
   mi! 60
   car! wh: 1r, rim: :green, body: :orange
-  car! wh: 1r, d: -1, rim: :red, body: :gray
+  car! wh: 1r, mag: -1, rim: :red, body: :gray
 end

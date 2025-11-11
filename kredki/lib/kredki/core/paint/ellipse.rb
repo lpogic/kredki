@@ -12,10 +12,10 @@ module Kredki
     #internal api
 
     def redraw
-      draw!(true, @w * 0.5, @h * 0.5).ellipse! @w - @stroke_size, @h - @stroke_size
+      draw!(true, @w * 0.5, @h * 0.5).ellipse! @w - @out_w, @h - @out_w
     end
 
-    def set_stroke_size ...
+    def set_out_w ...
       super
       @redraw_flag = true
     end

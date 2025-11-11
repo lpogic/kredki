@@ -124,7 +124,7 @@ CABI int window_get_text_input(pas::Window* self);
 CABI int window_get_flags(pas::Window* self);
 
 CABI void paint_delete(Paint* self);
-CABI void paint_set_transform(Paint* self, float pivot_x, float pivot_y, float x, float y, float a, float dx, float dy);
+CABI void paint_set_transform(Paint* self, float pivot_x, float pivot_y, float x, float y, float a, float magx, float fy);
 CABI void paint_set_opacity(Paint* self, uint8_t opacity);
 CABI void paint_get_bounds(Paint* self, Bounds* bounds);
 CABI void paint_set_clip(Paint* self, Shape* clipper);
@@ -138,9 +138,9 @@ CABI void shape_move_to(Shape* self, float x, float y);
 CABI void shape_line_to(Shape* self, float x, float y);
 CABI void shape_cubic_to(Shape* self, float cx1, float cy1, float cx2, float cy2, float x, float y);
 CABI void shape_close(Shape* self);
-CABI void shape_append_rect(Shape* self, float x, float y, float w, float h, float rx, float ry);
-CABI void shape_append_rect1(Shape* self, float x, float y, float w, float h, float rbb, float rbe, float reb, float ree);
+CABI void shape_append_rect(Shape* self, float x, float y, float w, float h);
 CABI void shape_append_circle(Shape* self, float cx, float cy, float rx, float ry);
+CABI void shape_append_round_rect(Shape* self, float x, float y, float w, float h, float crbb, float crbe, float creb, float cree);
 CABI void shape_set_stroke_width(Shape* self, float width);
 CABI void shape_set_stroke_color(Shape* self, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 // CABI int tvg_shape_set_stroke_linear_gradient(Shape* self, Tvg_Gradient* grad);
@@ -211,7 +211,7 @@ CABI void animation_delete(Animation* self);
 // CABI int tvg_lottie_animation_override(Animation* self, const char* slot);
 // CABI int tvg_lottie_animation_set_marker(Animation* self, const char* marker);
 // CABI int tvg_lottie_animation_get_markers_cnt(Animation* self, uint32_t* cnt);
-// CABI int tvg_lottie_animation_get_marker(Animation* self, uint32_t idx, const char** name);
+// CABI int tvg_lottie_animation_get_marker(Animation* self, uint32_t ifx, const char** name);
 
 #ifdef __cplusplus
 }

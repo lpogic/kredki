@@ -1,7 +1,6 @@
 module Kredki
   module LocalMedia
     class Mouse
-      extend Forwardable
       extend HasParams
 
       model :reference, :mouse

@@ -4,147 +4,147 @@ module Kredki
   class Rectangle < ShapeArea
 
     def initialize
-      @rbb = @rbe = @reb = @ree = 0
+      @crbb = @crbe = @creb = @cree = 0
       super
       update
     end
 
-    param def rbb! r = @rbb
-      return rbb! yield @rbb if block_given?
-      return if @rbb == r
-      @rbb = r
+    param def crbb! crbb = @crbb
+      return crbb! yield @crbb if block_given?
+      return if @crbb == crbb
+      @crbb = crbb
       @redraw_flag = true
       update
     end
 
-    param def rbe! r = @rbe
-      return rbe! yield @rbe if block_given?
-      return if @rbe == r
-      @rbe = r
+    param def crbe! crbe = @crbe
+      return crbe! yield @crbe if block_given?
+      return if @crbe == crbe
+      @crbe = crbe
       @redraw_flag = true
       update
     end
 
-    param def reb! r = @reb
-      return reb! yield @reb if block_given?
-      return if @reb == r
-      @reb = r
+    param def creb! creb = @creb
+      return creb! yield @creb if block_given?
+      return if @creb == creb
+      @creb = creb
       @redraw_flag = true
       update
     end
 
-    param def ree! r = @ree
-      return ree! yield @ree if block_given?
-      return if @ree == r
-      @ree = r
+    param def cree! cree = @cree
+      return cree! yield @cree if block_given?
+      return if @cree == cree
+      @cree = cree
       @redraw_flag = true
       update
     end
 
-    param def rxb! rbb = nil, rbe = nil
-      return rxb! *Util.cover(yield self.rxb) if block_given?
-      if rbb
-        rbe ||= rbb
+    param def crxb! crbb = nil, crbe = nil
+      return crxb! *Util.cover(yield self.crxb) if block_given?
+      if crbb
+        crbe ||= crbb
       else
-        rbb ||= @rbb
-        rbe ||= @rbe
+        crbb ||= @crbb
+        crbe ||= @crbe
       end
-      return if @rbb == rbb && @rbe == rbe
-      @rbb = rbb
-      @rbe = rbe
+      return if @crbb == crbb && @crbe == crbe
+      @crbb = crbb
+      @crbe = crbe
       @redraw_flag = true
       update
-    end, def rxb
-      [@rbb, @rbe]
+    end, def crxb
+      [@crbb, @crbe]
     end
 
-    param def rxe! reb = nil, ree = nil
-      return rxe! *Util.cover(yield self.rxe) if block_given?
-      if reb
-        ree ||= reb
+    param def crxe! creb = nil, cree = nil
+      return crxe! *Util.cover(yield self.crxe) if block_given?
+      if creb
+        cree ||= creb
       else
-        reb ||= @reb
-        ree ||= @ree
+        creb ||= @creb
+        cree ||= @cree
       end
-      return if @reb == reb && @ree == ree
-      @reb = reb
-      @ree = ree
+      return if @creb == creb && @cree == cree
+      @creb = creb
+      @cree = cree
       @redraw_flag = true
       update
-    end, def rxe
-      [@reb, @ree]
+    end, def crxe
+      [@creb, @cree]
     end
 
-    param def ryb! rbb = nil, reb = nil
-      return ryb! *Util.cover(yield self.ryb) if block_given?
-      if rbb
-        reb ||= rbb
+    param def cryb! crbb = nil, creb = nil
+      return cryb! *Util.cover(yield self.cryb) if block_given?
+      if crbb
+        creb ||= crbb
       else
-        rbb ||= @rbb
-        reb ||= @reb
+        crbb ||= @crbb
+        creb ||= @creb
       end
-      return if @rbb == rbb && @reb == reb
-      @rbb = rbb
-      @reb = reb
+      return if @crbb == crbb && @creb == creb
+      @crbb = crbb
+      @creb = creb
       @redraw_flag = true
       update
-    end, def ryb
-      [@rbb, @reb]
+    end, def cryb
+      [@crbb, @creb]
     end
 
-    param def rye! rbe = nil, ree = nil
-      return rye! *Util.cover(yield self.rye) if block_given?
-      if rbe
-        ree ||= rbe
+    param def crye! crbe = nil, cree = nil
+      return crye! *Util.cover(yield self.crye) if block_given?
+      if crbe
+        cree ||= crbe
       else
-        rbe ||= @rbe
-        ree ||= @ree
+        crbe ||= @crbe
+        cree ||= @cree
       end
-      return if @rbe == rbe && @ree == ree
-      @rbe = rbe
-      @ree = ree
+      return if @crbe == crbe && @cree == cree
+      @crbe = crbe
+      @cree = cree
       @redraw_flag = true
       update
-    end, def rye
-      [@rbe, @ree]
+    end, def crye
+      [@crbe, @cree]
     end
     
-    param def r! *r
-      return r! *Util.cover(yield self.r) if block_given?
-      case r.size
+    param def cr! *cr
+      return cr! *Util.cover(yield self.cr) if block_given?
+      case cr.size
       when 0 then return
       when 1
-        rbb = rbe = reb = ree = r[0]
+        crbb = crbe = creb = cree = cr[0]
       when 2
-        rbb = rbe = r[0]
-        reb = ree = r[1]
+        crbb = crbe = cr[0]
+        creb = cree = cr[1]
       when 3
-        rbb = r[0]
-        rbe = r[1]
-        reb = ree = r[2]
+        crbb = cr[0]
+        crbe = cr[1]
+        creb = cree = cr[2]
       when 4
-        rbb, rbe, reb, ree = *r
+        crbb, crbe, creb, cree = *cr
       else
-        raise_ia r
+        raise_ia cr
       end
-      return if @rbb == rbb && @reb == reb && @rbe == rbe && @ree == ree
-      @rbb = rbb
-      @reb = reb
-      @rbe = rbe
-      @ree = ree
+      return if @crbb == crbb && @creb == creb && @crbe == crbe && @cree == cree
+      @crbb = crbb
+      @creb = creb
+      @crbe = crbe
+      @cree = cree
       @redraw_flag = true
       update
-    end, def r
-      [@rbb, @reb, @rbe, @ree]
+    end, def cr
+      [@crbb, @creb, @crbe, @cree]
     end
 
     #internal api
 
     def redraw
-      draw!(true, @w * 0.5 , @h * 0.5).rectangle! @w - @stroke_size, @h - @stroke_size, @rbb, @reb, @rbe, @ree
+      draw!(true, @w * 0.5 , @h * 0.5).rectangle! @w - @out_w, @h - @out_w, @crbb, @creb, @crbe, @cree
     end
 
-    def set_stroke_size ...
+    def set_out_w ...
       super
       @redraw_flag = true
     end

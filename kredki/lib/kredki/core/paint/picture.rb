@@ -20,17 +20,17 @@ module Kredki
       in Numeric
         wh! param
       in String
-        source! param
+        content! param
       else
         super
       end
     end
 
-    param def source! source, pull_size = false
-      return source! yield @source if block_given?
-      return if @source == source
-      set_source source.to_s
-      @source = source
+    param def content! content, pull_size = false
+      return content! yield @content if block_given?
+      return if @content == content
+      set_content content.to_s
+      @content = content
       if pull_size
         @w, @h = get_size
         update_transform
@@ -56,8 +56,8 @@ module Kredki
       [size.x, size.y]
     end
 
-    def set_source source
-      Abi.picture_load @pointer, source
+    def set_content content
+      Abi.picture_load @pointer, content
     end
 
     def pxy

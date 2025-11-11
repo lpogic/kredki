@@ -1,14 +1,12 @@
 module Kredki
   module UI
     class Check < ShapePad
-      extend Forwardable
-      extend HasParams
 
-      param def color! *color
-        return color! *Util.cover(yield self.color) if block_given?
-        color = Util.uncover color
-        return if @color == color
-        @color = color
+      param def fill! *fill
+        return fill! *Util.cover(yield self.fill) if block_given?
+        fill = Util.uncover fill
+        return if @fill == fill
+        @fill = fill
         repaint
         true
       end
@@ -25,8 +23,10 @@ module Kredki
       def initialize
         super
         
-        @check = new ShapePad, mousy: false, keyboardy: false, color: 0, wh: 1r do
-          stroke! color: :text, size: 3
+        @check = new ShapePad, mousy: false, keyboardy: false, fill: 0, wh: 1r do
+          out! fill: :text, w: 3
+          out_fill! :text
+          out_w! 3
           area! do |w, h|
             xy! 2, h * 0.5
             line! w * 0.5, h - 1
@@ -40,10 +40,10 @@ module Kredki
         super
 
         keyboardy!
-        stroke_size! 1
+        out_w! 1
         layout! :acc
         wh! 20
-        color! :gray
+        fill! :gray
         m! 3
       end
 
@@ -62,9 +62,9 @@ module Kredki
       end
 
       def repaint event = nil
-        color = Kredki.color @color
-        area.fill_color = pin_top? ? color.darken : mouse_in? ? color.lighten : color
-        area.stroke_color = keyboard_in? ? :stroke_focus : color.darken
+        color = Kredki.color @fill
+        area.fill = pin_top? ? color.darken : mouse_in? ? color.lighten : color
+        area.out_fill = keyboard_in? ? :outline_focus : color.darken
       end
 
       def sketch_behavior

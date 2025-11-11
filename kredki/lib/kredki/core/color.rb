@@ -16,15 +16,16 @@ module Kredki
       end
     end
 
-    def to_rgba_array
-      [@r, @g, @b, @a]
+    def to_a mode = :rgba
+      case mode
+      when :rgb
+        [@r, @g, @b]
+      else
+        [@r, @g, @b, @a]
+      end
     end
 
-    def to_rgb_array
-      [@r, @g, @b]
-    end
-
-    alias_method :to_array, :to_rgba_array
+    alias_method :to_ary, :to_a
 
     def ==(other)
       Color === other &&
@@ -35,16 +36,16 @@ module Kredki
     end
 
     def lighten level = 10
-      Color.new *to_rgb_array.map{ (_1 + level).clamp(0, 255) }, @a
+      Color.new *to_a(:rgb).map{ (_1 + level).clamp(0, 255) }, @a
     end
 
     def darken level = 10
-      Color.new *to_rgb_array.map{ (_1 - level).clamp(0, 255) }, @a
+      Color.new *to_a(:rgb).map{ (_1 - level).clamp(0, 255) }, @a
     end
 
     def clarify a = 255
       a = (255 * a).to_i if a.is_a? Rational
-      Color.new *to_rgb_array, a
+      Color.new *to_a(:rgb), a
     end
 
     def tune r = 0, g = 0, b = 0

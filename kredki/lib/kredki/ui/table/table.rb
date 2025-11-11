@@ -1,7 +1,6 @@
 module Kredki
   module UI
     class Table < ShapePad
-      extend HasParams
 
       def column! ...
         @column_layout.column!(...) and layer&.break_layout
@@ -44,7 +43,7 @@ module Kredki
       def sketch
         super 
 
-        color! false
+        fill! false
         layout! :ybb
         h! :fit
       end

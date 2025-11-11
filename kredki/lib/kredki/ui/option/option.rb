@@ -27,11 +27,11 @@ module Kredki
         @picked = nil
         @note = new Note
         @arrow = @note.new Button, w: 20, h: 1r do
-          stroke_size! 0
+          out_w! 0
           keyboardy! false
           text.detach!
-          new ShapePad, mousy: false, keyboardy: false, color: 0, wh: 1r do
-            stroke! color: :text, size: 3, cap: :round, join: :miter
+          new ShapePad, mousy: false, keyboardy: false, fill: 0, wh: 1r do
+            out! fill: :text, w: 3, cap: :round, join: :miter
             area! do |w, h|
               xy! w * 0.2, h * 0.35
               line! w * 0.5, h * 0.65

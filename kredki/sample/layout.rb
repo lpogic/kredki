@@ -4,9 +4,9 @@ require 'kredki'
 
 layouts = Kredki::UI.layout_map.keys
 
-pad! color: :rand, wh: 140
-pad! color: :rand, wh: 120
-pad! color: :rand
+pad! fill: :rand, wh: 140
+pad! fill: :rand, wh: 120
+pad! fill: :rand
 l = layer
 
 def button_text layout

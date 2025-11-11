@@ -9,7 +9,6 @@ module Kredki
   class Action < Scene
     include LocalMedia
     include ActionEvents
-    extend Forwardable
     extend HasParams
     
     def initialize
@@ -42,10 +41,10 @@ module Kredki
 
     attr :the
 
-    param def color! ...
-      @fill.fill_color!(...)
-    end, def color
-      @fill.fill_color
+    param def fill! ...
+      @fill.fill!(...)
+    end, def fill
+      @fill.fill
     end
 
     def_delegators :window,
@@ -63,7 +62,7 @@ module Kredki
       
       on_window_resize!{ @fill.wh = ~it }
       @fill.wh = *wh
-      color! 20, 70, 20
+      fill! 20, 70, 20
     end
 
     def translate x, y, target = nil

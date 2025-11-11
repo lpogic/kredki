@@ -5,7 +5,7 @@ require 'kredki'
 define :anim do |*a, play: nil, name: nil, **na, &b|
   space! wh: 1r do
     area! scene.animation! "1643-exploding-star.json", play: play
-    text! "#{name || play}", color: :white
+    text! "#{name || play}", fill: :white
   end.alter *a, **na, &b
 end
 

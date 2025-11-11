@@ -5,7 +5,7 @@ module Kredki
     module Layout
       class XWay < Way
 
-        def get_span pad, w, pcw
+        def get_span pad, w, pclw
           case w
           when Rational
             [w, 0, Float::INFINITY, 0]
@@ -14,44 +14,44 @@ module Kredki
             when Range
               min = w[0].begin || 0
               max = w[0].end || Float::INFINITY
-              [w[1], a = get_w(pad, min, pcw), get_w(pad, max, pcw), a]
+              [w[1], a = get_w(pad, min, pclw), get_w(pad, max, pclw), a]
             else raise_ia w
             end
           when Range
             min = w.begin || 0
             max = w.end || Float::INFINITY
-            [1r, a = get_w(pad, min, pcw), get_w(pad, max, pcw), a]
+            [1r, a = get_w(pad, min, pclw), get_w(pad, max, pclw), a]
           else
-            [0, a = get_w(pad, w, pcw), a, a]
+            [0, a = get_w(pad, w, pclw), a, a]
           end
         end
 
         def arrange pad
-          cw = pad.cw
-          ch = pad.ch
-          sp = pad.layout_pads.map{ get_span it, it.w, cw }
-          measurement, sw = spans sp, cw, pad.mi || 0
+          clw = pad.clw
+          clh = pad.clh
+          sp = pad.layout_pads.map{ get_span it, it.w, clw }
+          measurement, sw = spans sp, clw, pad.mi || 0
  
           pad.layout_pads.zip measurement do |p1, m|
-            ph = get_h p1, p1.h, ch
+            ph = get_h p1, p1.h, clh
             p1.set_size m, ph
           end
 
-          arrange_pads pad.arrange_pads, sw, cw, ch, pad.mi || 0
+          arrange_pads pad.arrange_pads, sw, clw, clh, pad.mi || 0
         end
 
-        def arrange_pads pads, sw, cw, ch, space
+        def arrange_pads pads, sw, clw, clh, space
           cx = case @x
           when :c
-            (cw - sw) * 0.5
+            (clw - sw) * 0.5
           when :b
             0
           when :e
-            cw - sw
+            clw - sw
           when Rational 
-            cw * @x
+            clw * @x
           when Proc
-            @x[cw, sw]
+            @x[clw, sw]
           when Numeric
             @x
           else raise_ia @x
@@ -60,25 +60,25 @@ module Kredki
           
           pads.each do |p1|
             if p1.layoutic?
-              pw, ph, px, py = arrange_layoutic p1, cw, ch, cx
+              pw, ph, px, py = arrange_layoutic p1, clw, clh, cx
               cx += pw + space
               lx = [lx, px].min
               ly = [ly, py].min
               lxm = [lxm, px + pw].max
               lym = [lym, py + ph].max
             else
-              arrange_non_layoutic p1, cw, ch
+              arrange_non_layoutic p1, clw, clh
             end
           end
 
           [lx, ly, lxm - lx, lym - ly]
         end
 
-        def arrange_layoutic pad, cw, ch, cx
+        def arrange_layoutic pad, clw, clh, cx
           pw = pad.sw
           ph = pad.sh
-          px = pad.get_x cw, pw, cx
-          py = pad.get_y ch, ph, (get_y @y, ch, ph)
+          px = pad.get_x clw, pw, cx
+          py = pad.get_y clh, ph, (get_y @y, clh, ph)
           pad.set_xy px, py
           pad.set_margin
           pad.arrange

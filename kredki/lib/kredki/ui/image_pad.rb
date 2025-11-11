@@ -1,20 +1,18 @@
 module Kredki
   module UI
     class ImagePad < Pad
-      extend Forwardable
-      extend HasParams
 
-      param def source! source = nil
-        return source! (yield self.source) if block_given?
-        @area.source! source, false
-      end, def source
-        @area.source
+      param def content! content = nil
+        return content! (yield self.content) if block_given?
+        @area.content! content, false
+      end, def content
+        @area.content
       end
 
       def << arg
         case arg
         when String
-          source! arg
+          content! arg
         else
           super
         end

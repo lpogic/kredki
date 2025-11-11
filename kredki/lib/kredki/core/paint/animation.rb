@@ -9,7 +9,7 @@ module Kredki
       in Numeric
         wh! param
       in String
-        source! param
+        content! param
       else
         super
       end
@@ -17,11 +17,11 @@ module Kredki
 
     attr :picture
 
-    param def source! source = @source
-      return source! yield @source if block_given?
-      return if @source == source
-      set_source source
-      @source = source
+    param def content! content = @content
+      return content! yield @content if block_given?
+      return if @content == content
+      set_content content
+      @content = content
       @picture.update
     end
 
@@ -34,7 +34,7 @@ module Kredki
     end
 
     param_delegate :@picture,
-      :w, :h, :wh, :a, :d, :dx, :dy
+      :w, :h, :wh, :rot, :mag, :magx, :magy
 
     def contain? ...
       @picture.contain?(...)
@@ -176,8 +176,8 @@ module Kredki
       false
     end
 
-    def set_source source
-      Abi.picture_load @picture.pointer, source
+    def set_content content
+      Abi.picture_load @picture.pointer, content
       @total_frame = Abi.animation_get_total_frame @pointer
     end
 

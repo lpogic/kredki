@@ -7,7 +7,7 @@ module Kredki
           super
 
           wh! 1r, :fit
-          color! false
+          fill! false
         end
 
         def cell! ...

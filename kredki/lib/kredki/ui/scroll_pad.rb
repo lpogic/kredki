@@ -10,11 +10,11 @@ module Kredki
         super
         
         # this component creation order is intentional; @corner existence is checked in put_pad
-        corner = new ShapePad, layoutic: false, color: :gray, wh: 10, xy: :e
+        corner = new ShapePad, layoutic: false, fill: :gray, wh: 10, xy: :e
         @xslide = new HorizontalSlide, layoutic: false, h: 10
         @yslide = new VerticalSlide, layoutic: false, w: 10
         @corner = corner
-        @och = @ocw = 0
+        @och = @oclw = 0
       end
 
       def sketch_behavior
@@ -81,19 +81,19 @@ module Kredki
         pads.take_while{ it != @xslide }
       end
 
-      def cw
-        super() + @ocw
+      def clw
+        super() + @oclw
       end
 
-      def ch
+      def clh
         super() + @och
       end
 
       def arrange prepare = true
-        @ocw = @och = 0 if prepare
+        @oclw = @och = 0 if prepare
         mx, my, @lw, @lh = super()
         oh = @xslide.get_h
-        ow = @yslide.get_w
+        out_w = @yslide.get_w
         ps = arrange_pads
         if !ps.empty?
           w = sw
@@ -101,17 +101,17 @@ module Kredki
           xscroll = w < @lw
           yscroll = h < @lh
           yscroll ||= xscroll && h - oh < @lh
-          xscroll ||= yscroll && w - ow < @lw
+          xscroll ||= yscroll && w - out_w < @lw
           if prepare && (xscroll || yscroll)
-            @ocw -= oh if yscroll
-            @och -= ow if xscroll
+            @oclw -= oh if yscroll
+            @och -= out_w if xscroll
             return arrange false
           end
           
           @xslide.show = xscroll
           pad_x = 0
           if xscroll
-            xs = yscroll ? w + @ocw : w
+            xs = yscroll ? w + @oclw : w
             @xslide.set_size xs, oh
             @xslide.set_xy 0, h - oh
             @xslide.arrange @lw
@@ -122,8 +122,8 @@ module Kredki
           pad_y = 0
           if yscroll
             ys = xscroll ? h + @och : h
-            @yslide.set_size ow, ys
-            @yslide.set_xy w - ow, 0
+            @yslide.set_size out_w, ys
+            @yslide.set_xy w - out_w, 0
             @yslide.arrange @lh
             pad_y += ((ys - @lh) * @yslide.value).round - my
           end
@@ -134,7 +134,7 @@ module Kredki
             p1.set_xy px, py
           end
           if @corner.show = xscroll && yscroll
-            @corner.set_xy w - ow, h - oh
+            @corner.set_xy w - out_w, h - oh
           end
         else
           @xslide.hide!

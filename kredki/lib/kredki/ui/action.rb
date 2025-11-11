@@ -41,15 +41,15 @@ module Kredki
         wh
       end
 
-      def cw
+      def clw
         w
       end
 
-      def ch
+      def clh
         h
       end
 
-      def cwh
+      def clwh
         wh
       end
 

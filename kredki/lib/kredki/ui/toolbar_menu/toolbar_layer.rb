@@ -24,7 +24,7 @@ module Kredki
       def initialize
         super
 
-        @items = new ContextPad, stroke: {size: 1, color: :dark_gray}
+        @items = new ContextPad, out: {w: 1, fill: :dark_gray}
         @item_group = @items.new ContextItemGroup
       end
 

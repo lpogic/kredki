@@ -87,7 +87,7 @@ module Kredki
         super
 
         keyboardy!
-        color! false
+        fill! false
       end
 
       def sketch_behavior

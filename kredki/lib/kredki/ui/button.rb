@@ -3,7 +3,6 @@ require_relative 'text_pad'
 module Kredki
   module UI
     class Button < ShapePad
-      extend Forwardable
       extend HasEventResolvers
 
       class ButtonClickEvent < Event
@@ -18,11 +17,11 @@ module Kredki
         model :origin, :<
       end
 
-      param def color! *color
-        return color! *Util.cover(yield self.color) if block_given?
-        color = Util.uncover color
-        return if @color == color
-        @color = color
+      param def fill! *fill
+        return fill! *Util.cover(yield self.fill) if block_given?
+        fill = Util.uncover fill
+        return if @fill == fill
+        @fill = fill
         repaint
         true
       end
@@ -62,10 +61,10 @@ module Kredki
         end
 
         keyboardy!
-        stroke_size! 1
+        out_w! 1
         layout! :acc
         wh! :fit
-        color! :gray
+        fill! :gray
         m! 3
       end
 
@@ -84,9 +83,9 @@ module Kredki
       end
 
       def repaint event = nil
-        color = Kredki.color @color
-        area.fill_color = down? ? color.darken : mouse_in? ? color.lighten : color
-        area.stroke_color = keyboard_in? ? :stroke_focus : color.darken
+        color = Kredki.color @fill
+        area.fill = down? ? color.darken : mouse_in? ? color.lighten : color
+        area.out_fill = keyboard_in? ? :outline_focus : color.darken
       end
 
       def sketch_behavior

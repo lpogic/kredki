@@ -8,7 +8,7 @@ module Kredki
       def content! content = @content, reset_cursor = false, &b
         if super(content, &b) && @selection.size != @verses.size
           @selection.clear!
-          @verses.each{ @selection.rectangle! fill_color: :text_selection, w: 0 }
+          @verses.each{ @selection.rectangle! fill: :text_selection, w: 0 }
         end
         self.reset_cursor if reset_cursor
       end
@@ -115,7 +115,7 @@ module Kredki
 
         @cursor_position = @selection_min = @selection_max = 0
         @selection = @scene.scene!
-        @cursor = @scene.rectangle! fill_color: :text, w: 2, show: false
+        @cursor = @scene.rectangle! fill: :text, w: 2, show: false
       end
 
       def mouse_down e
@@ -130,7 +130,7 @@ module Kredki
         update_cursor if @cursor.show?
       end
 
-      def get_x pcw, sw, ax
+      def get_x pclw, sw, ax
         if @cursor.show?
           cx = @cursor.x + @cursor.w
           if sx + cx > sw

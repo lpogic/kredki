@@ -7,12 +7,12 @@ module Kredki
 
       @content = "TEXT"
       @font = Kredki.font
-      @color = Kredki.color
+      @fill = Kredki.color
       @h = 16
       set_content @content
       set_font @font.name
       set_size @h
-      set_fill_color *@color.to_rgb_array
+      set_fill *@fill.to_a(:rgb)
       update_size
     end
 
@@ -42,7 +42,7 @@ module Kredki
       @w
     end
 
-    param def h! h = nil
+    param def h! h = @h
       return h! yield @h if block_given?
       return if @h == h
       set_size h
@@ -62,12 +62,12 @@ module Kredki
       update_size
     end
 
-    param def color! *color
-      return color! *Util.cover(yield self.color) if block_given?
-      color = Util.uncover color
-      return if @color == color && color != :rand
-      set_fill_color *Kredki.color(color).to_rgb_array
-      @color = color
+    param def fill! *fill
+      return fill! *Util.cover(yield self.fill) if block_given?
+      fill = Util.uncover fill
+      return if @fill == fill && fill != :rand
+      set_fill *Kredki.color(fill).to_a(:rgb)
+      @fill = fill
       update
     end
 
@@ -108,7 +108,7 @@ module Kredki
       Abi.text_set_size @pointer, size
     end
 
-    def set_fill_color r, g, b
+    def set_fill r, g, b
       Abi.text_set_fill_color @pointer, r, g, b
     end
   end

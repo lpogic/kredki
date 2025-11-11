@@ -5,3 +5,5 @@ pastele/CMakeLists.txt
 pastele/cmaked
 sketch
 rake-config.rb
+.yardoc
+doc
