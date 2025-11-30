@@ -52,7 +52,7 @@ module Kredki
           # index = items.index{ it.keyboard_in? } || -1
           # update_select_item items[index + 1] if index < items.length - 1
         else
-          item&.focus!
+          item&.keyboard_request
           item
         end
       end

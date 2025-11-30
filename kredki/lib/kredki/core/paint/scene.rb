@@ -3,27 +3,8 @@ require_relative 'paint'
 module Kredki
   class Scene < Paint
 
-    class PaintState
-      struct :paint, :before, :after, :shown
-
-      def inspect
-        "#{self.class}:#{self.object_id}"
-      end
-    end
-    
-    def initialize
-      super Abi.scene_new
-      ObjectSpace.define_finalizer(self, self.class.proc.finalize(@pointer))
-
-      @px = @py = 0
-      clear!
-    end
-
-    def new_paint klass, *a, show: true, at: nil, **na, &b
-      put_paint(klass.new, show, at).paint.alter(*a, **na, &b)
-    end
-
-    param def px! px = @px
+    # Set pivot point position along the X axis.
+    def px! px = @px
       return px! yield @px if block_given?
       return if @px == px
       @px = px
@@ -31,7 +12,18 @@ module Kredki
       update
     end
 
-    param def py! py = @py
+    # See #px!.
+    def px= param
+      Array === param ? (px! *param) : (px! param)
+    end
+
+    # Get pivot point position along the X axis.
+    def px
+      @px
+    end
+
+    # Set pivot point position along the Y axis.
+    def py! py = @py
       return py! yield @py if block_given?
       return if @py == py
       @py = py
@@ -39,8 +31,19 @@ module Kredki
       update
     end
 
-    param def pxy! x = nil, y = nil
-      return pxy! *Util.cover(yield self.pxy) if block_given?
+    # See #py!.
+    def py= param
+      Array === param ? (py! *param) : (py! param)
+    end
+
+    # Get pivot point position along the Y axis.
+    def py
+      @py
+    end
+
+    # Set pivot point position along X and Y axes.
+    def pxy! x = nil, y = nil
+      return pxy! *Util.cover(yield(self.pxy)) if block_given?
       if x
         y ||= x
       else
@@ -52,58 +55,95 @@ module Kredki
       @py = y
       update_transform
       update
-    end, def pxy
+    end
+
+    # See #pxy!.
+    def pxy= param
+      Array === param ? (pxy! *param) : (pxy! param)
+    end
+
+    # Get pivot point position along X and Y axes.
+    def pxy
       [@px, @py]
     end
 
+    # Create new attached Kredki::Shape.
     def shape! ...
       new_paint(Shape, ...)
     end
 
+    # Create new attached Kredki::Rectangle.
     def rectangle! ...
       new_paint(Rectangle, ...)
     end
 
+    # Create new attached Kredki::Ellipse.
     def ellipse! ...
       new_paint(Ellipse, ...)
     end
 
+    # Create new attached Kredki::Picture.
     def picture! ...
       new_paint(Picture, ...)
     end
 
+    # Create new attached Kredki::Text.
     def text! ...
       new_paint(Text, ...)
     end
 
+    # Create new attached Kredki::Scene.
     def scene! ...
       new_paint(Scene, ...)
     end
 
+    # Create new attached Kredki::Animation.
     def animation! ...
       new_animation(...)
     end
 
-    def new_animation *a, show: true, at: nil, **na, &b
-      Animation.new.attach!(self, show, at).alter(*a, **na, &b)
-    end
-
+    # Detach all paints.
     def clear!
-      Abi.scene_remove @pointer, nil
+      Pastele.scene_remove @pointer, nil
       nil_paint = PaintState.new
       nil_paint.before = nil_paint.after = nil_paint
       @paints = {nil => nil_paint}
       update
     end
 
+    # Total attached paints.
     def size
       @paints.size - 1
     end
 
-    #intenal api
+    # :section: LEVEL 2
+
+    class PaintState
+      model :paint, :before, :after, :shown
+
+      def inspect
+        "#{self.class}:#{self.object_id}"
+      end
+    end
+    
+    def initialize
+      super Pastele.scene_new
+      ObjectSpace.define_finalizer(self, self.class.proc.finalize(@pointer))
+
+      @px = @py = 0
+      clear!
+    end
 
     def self.finalize pointer
-      Abi.scene_delete pointer
+      Pastele.scene_delete pointer
+    end
+
+    def new_paint klass, *a, show: true, at: nil, **na, &b
+      put_paint(klass.new, show, at).paint.alter(*a, **na, &b)
+    end
+
+    def new_animation *a, show: true, at: nil, **na, &b
+      Animation.new.attach!(self, show, at).alter(*a, **na, &b)
     end
 
     def each_paint &b
@@ -124,7 +164,7 @@ module Kredki
       paint.detach! if paint.scene
       paint.scene = self
       if show
-        Abi.scene_push @pointer, paint.pointer, next_shown(at)&.pointer
+        Pastele.scene_push @pointer, paint.pointer, next_shown(at)&.pointer
         update
       end
       ats = @paints[at] || @paints[nil]
@@ -141,7 +181,7 @@ module Kredki
       if (state = @paints.delete paint)
         paint.scene = nil
         if state.shown
-          Abi.scene_remove @pointer, paint.pointer
+          Pastele.scene_remove @pointer, paint.pointer
           update
         end
         state.before.after = state.after
@@ -152,7 +192,7 @@ module Kredki
 
     def hide_paint paint
       if (state = @paints[paint])&.shown
-        Abi.scene_remove @pointer, paint.pointer
+        Pastele.scene_remove @pointer, paint.pointer
         update
         state.shown = false
       end
@@ -168,7 +208,7 @@ module Kredki
             n = n.after
           end
         end.find{ _1.shown }
-        Abi.scene_push @pointer, paint.pointer, at&.paint&.pointer
+        Pastele.scene_push @pointer, paint.pointer, at&.paint&.pointer
         update
         state.shown = true
       end

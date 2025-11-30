@@ -4,83 +4,42 @@ module Kredki
   module UI
     class Layer < ShapePad
 
-      class PinPad
-        model :pad, :xy, :button, :drag
-      end
-
-      def window
-        action.window
-      end
-
-      def mouse_pad
-        @pin_pad&.pad || @mouse_pads.last
-      end
-
-      attr :mouse_pads
-
-      def keyboard_pad
-        @keyboard_pads.last
-      end
-
-      def check_key_down key
-        !!@down_keys[key]
-      end
-
-      def pin_pad
-        @pin_pad
-      end
-
-      def pin_xy
-        @pin_pad&.xy
-      end
-
-      def pin_button
-        @pin_pad&.button
-      end
-
-      def check_pin pad, button, top_only
-        return if button != @pin_pad&.button
-        return @pin_pad&.pad == pad if top_only
-        @pin_pad&.pad&.in_pad? pad
-      end
-
-      def pin_pad_drag? xy
-        bxy = @pin_pad&.xy and @pin_pad.pad.drag_check bxy, xy
-      end
-
-      def pin_pad_drag
-        @pin_pad&.drag
-      end
-
-      def define ...
-        action.define(...)
+      def mouse_clicks
+        @mouse_click_data&.combo || 0
       end
 
       def detach! transfer = false
         unless transfer
           update_keyboard_pad nil
-          @pin_pad = nil
+          @pin_data = nil
+          @mouse_click_data = nil
         end
         super
       end
 
-      def layer! ...
-        action.layer!(...)
+      def_delegators :action,
+        :window,
+        :window!,
+        :layer!,
+        :define
+
+      # :section: LEVEL 2
+
+      class PinData
+        model :pad, :xy, :button, :drag
       end
 
-      def window! ...
-        action.window!(...)
+      class MouseClickData
+        model :pad, :xy, :timestamp, :combo
       end
-
-      #internal api
 
       def initialize
         super
         
-        @pin_pad = nil
+        @pin_data = nil
         @keyboard_pads = []
         @mouse_pads = []
-        @mouse_click_pad = nil
+        @mouse_click_data = nil
       end
 
       def sketch
@@ -94,12 +53,12 @@ module Kredki
         super
 
         on_key_down! aim: true do |e|
-          @down_keys[~e || e.keycode] = true
+          @down_keys[e.param || e.input_id] = true
         end
 
         on_key_up! aim: true do |e|
-          if @down_keys[~e || e.keycode]
-            @down_keys[~e || e.keycode] = false
+          if @down_keys[e.param || e.input_id]
+            @down_keys[e.param || e.input_id] = false
             keyboard_event KeyClickEvent.new e.origin
           end
         end
@@ -107,26 +66,8 @@ module Kredki
         on! MouseClickEvent, aim: true, do: method(:mouse_click)
       end
 
-
-      class MouseClickPad
-        model :pad, :xy, :timestamp, :combo
-      end
-
-      def mouse_click event
-        if @mouse_click_pad && 
-          @mouse_click_pad.pad == event.target && 
-          !event.target.drag_check(@mouse_click_pad.xy, event.xy) && 
-          event.origin.timestamp - @mouse_click_pad.timestamp < 200000000
-        then
-          combo = @mouse_click_pad.combo + 1
-        else
-          combo = 1
-        end
-        @mouse_click_pad = MouseClickPad.new event.target, event.xy, event.origin.timestamp, combo
-      end
-
-      def mouse_clicks
-        @mouse_click_pad&.combo || 0
+      def break_layout
+        @layout_broken = true
       end
 
       def arrange
@@ -148,8 +89,8 @@ module Kredki
         [0, 0]
       end
 
-      def break_layout
-        @layout_broken = true
+      def keyboard_pad
+        @keyboard_pads.last
       end
 
       def keyboard_event event
@@ -157,63 +98,6 @@ module Kredki
           event.target = kp
           kp.report event
         end
-      end
-      
-      def update_pin_pad pad, xy = nil, button = nil, drag = false
-        if pad
-          if !@pin_pad || !@pin_pad.button || @pin_pad.button == button
-            @pin_pad = PinPad.new pad, xy, button, drag
-          else 
-            return false
-          end
-        else
-          @pin_pad = nil
-          layer.update_mouse_location PositionEvent.new *mouse.xy
-        end
-        true
-      end
-
-      def mouse_down e
-        keyboard_request if keyboardy?
-        pin_request e.xy, e.button_id
-      end
-
-      def mouse_up e
-        pin_dispose e.button_id
-        if !e.drag && include_point?(e.x, e.y)
-          report MouseClickEvent.new e.origin
-        end
-      end
-
-      def update_mouse_location event
-        xy = event.xy
-
-        if @pin_pad
-          @pin_pad.drag ||= pin_pad_drag? xy
-          @pin_pad.pad.report MouseMoveEvent.new(@pin_pad.drag, event, *xy)
-          return true
-        end
-        arrange
-        mouse_pads = []
-        included = point_pads *xy, mouse_pads
-        enter, stay, leave = *Util.polarize(mouse_pads, @mouse_pads)
-        @mouse_pads = mouse_pads
-
-        leave.reverse_each{ it.report MouseLeaveEvent.new(event, *xy), false }
-        enter.reverse_each{ it.report MouseEnterEvent.new(event, *xy), false }
-        mouse_top = @mouse_pads.last
-        mouse_top.report MouseMoveEvent.new(false, event, *xy) if mouse_top
-        return included
-      end
-
-      def clear_mouse_location xy
-        unless @mouse_pads.empty?
-          mouse_pads = @mouse_pads
-          @mouse_pads = []
-          mouse_pads.reverse_each{ it.report MouseLeaveEvent.new(nil, *xy), false }
-        end
-        @pin_pad&.pad&.pin_dispose
-
       end
 
       def update_keyboard_pad keyboard_pad = self
@@ -231,6 +115,40 @@ module Kredki
         true
       end
 
+      def check_key_down key
+        !!@down_keys[key]
+      end
+
+      def mouse_pad
+        @pin_data&.pad || @mouse_pads.last
+      end
+
+      def mouse_event e
+        e.drag = @pin_data&.drag if e.is_a? MouseButtonUpEvent
+        mouse_pad&.report e
+      end
+
+      def update_mouse_location event
+        xy = event.xy
+
+        if @pin_data
+          @pin_data.drag ||= layer_drag_check xy
+          @pin_data.pad.report MouseMoveEvent.new(@pin_data.drag, event, *xy)
+          return true
+        end
+        arrange
+        mouse_pads = []
+        included = point_pads *xy, mouse_pads
+        enter, stay, leave = *Util.polarize(mouse_pads, @mouse_pads)
+        @mouse_pads = mouse_pads
+
+        leave.reverse_each{ it.report MouseLeaveEvent.new(event, *xy), false }
+        enter.reverse_each{ it.report MouseEnterEvent.new(event, *xy), false }
+        mouse_top = @mouse_pads.last
+        mouse_top.report MouseMoveEvent.new(false, event, *xy) if mouse_top
+        return included
+      end
+
       def point_pads x, y, pads, force = false
         if force || (mousy? && show? && include_point?(x, y))
           pads << self
@@ -239,6 +157,76 @@ module Kredki
           return true if @pads.reverse_each.find{ it.point_pads x - it.sx, y - it.sy, pads }
         end
         return false
+      end
+
+      def clear_mouse_location xy
+        unless @mouse_pads.empty?
+          mouse_pads = @mouse_pads
+          @mouse_pads = []
+          mouse_pads.reverse_each{ it.report MouseLeaveEvent.new(nil, *xy), false }
+        end
+        @pin_data&.pad&.pin_dispose
+      end
+
+      def mouse_down e
+        keyboard_request if keyboardy?
+        pin_request e.xy, e.button.id
+      end
+
+      def mouse_up e
+        pin_dispose e.button.id
+        if !e.drag && include_point?(e.x, e.y)
+          report MouseClickEvent.new e.origin
+        end
+      end
+
+      def mouse_click event
+        if @mouse_click_data && 
+          @mouse_click_data.pad == event.target && 
+          !event.target.drag_check(@mouse_click_data.xy, event.xy) && 
+          event.origin.timestamp - @mouse_click_data.timestamp < 200000000
+        then
+          combo = @mouse_click_data.combo + 1
+        else
+          combo = 1
+        end
+        @mouse_click_data = MouseClickData.new event.target, event.xy, event.origin.timestamp, combo
+      end
+
+      def pin_pad
+        @pin_data&.pad
+      end
+
+      def pin_xy
+        @pin_data&.xy
+      end
+
+      def pin_button
+        @pin_data&.button
+      end
+
+      def pin_check pad, button, top_only
+        return if button != @pin_data&.button
+        return @pin_data&.pad == pad if top_only
+        @pin_data&.pad&.in_pad? pad
+      end
+      
+      def update_pin_pad pad, xy = nil, button = nil, drag = false
+        if pad
+          if !@pin_data || !@pin_data.button || @pin_data.button == button
+            @pin_data = PinData.new pad, xy, button, drag
+          else 
+            return false
+          end
+        else
+          @pin_data = nil
+          layer.update_mouse_location PositionEvent.new *mouse.xy
+        end
+        true
+      end      
+
+      def layer_drag_check xy
+        bxy = @pin_data&.xy and @pin_data.pad.drag_check bxy, xy
       end
 
       def set_parent parent, at = nil

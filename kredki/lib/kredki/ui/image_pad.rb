@@ -2,8 +2,8 @@ module Kredki
   module UI
     class ImagePad < Pad
 
-      param def content! content = nil
-        return content! (yield self.content) if block_given?
+      feature def content! content = nil
+        return content! (yield(self.content)) if block_given?
         @area.content! content, false
       end, def content
         @area.content
@@ -18,7 +18,7 @@ module Kredki
         end
       end
 
-      #internal api
+      # :section: LEVEL 2
 
       def initialize_area
         @area = @scene.picture! wh: [@w, @h]

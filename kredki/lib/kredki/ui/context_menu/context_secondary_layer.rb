@@ -17,7 +17,7 @@ module Kredki
         load_common x, y
       end
 
-      #internal api
+      # :section: LEVEL 2
 
       def sketch_behavior
         super

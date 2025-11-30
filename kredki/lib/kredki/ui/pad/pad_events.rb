@@ -5,13 +5,12 @@ require_relative '../../core/event/joystick_event'
 require_relative '../../core/event/drop_event'
 require_relative '../../core/event/quit_event'
 require_relative '../../core/event/window_event'
-require_relative '../../core/event/step_event'
 
 module Kredki
   module UI
 
     class Event
-      extend HasParams
+      extend HasFeatures
     
       model :target do
         @resolved = false
@@ -20,11 +19,7 @@ module Kredki
       def inspect
         "#{self.class}:#{object_id}"
       end
-      
-      def [](key)
-        send key
-      end
-  
+        
       def resolved?
         @resolved
       end
@@ -33,9 +28,16 @@ module Kredki
         @resolved = true
       end
 
-      param def resolver! resolver
-        @resolver = resolver
-        true
+      def resolver
+        Array === @resolver ? @resolver.last : @resolver
+      end
+
+      def push_resolver resolver
+        if Array === @resolver
+          @resolver << resolver
+        else
+          @resolver = resolver
+        end
       end
   
       def self.each *event_managers, do: nil, &block
@@ -75,7 +77,7 @@ module Kredki
       end
 
       def_delegators :@origin,
-        :button_id, :button, :repeat?
+        :input_id, :button, :repeat?
     end
 
     class MouseMoveEvent < MouseEvent
@@ -102,19 +104,19 @@ module Kredki
 
     class MouseButtonDownEvent < MouseEvent
       def_delegators :@origin,
-        :button_code
+        :input_id
     end
 
     class MouseButtonUpEvent < MouseEvent
       def_delegators :@origin,
-        :button_code
+        :input_id
 
         model :<, :drag
     end
 
     class MouseClickEvent < MouseEvent
-      def button_code
-        @origin&.button_code
+      def input_id
+        @origin&.input_id
       end
     end
 
@@ -187,7 +189,7 @@ module Kredki
     end
 
     module PadEvents
-      extend HasParams
+      extend HasFeatures
       extend HasEventResolvers
 
       def on! event_type, aim: false, always: false, do: nil, &block

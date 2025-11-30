@@ -1,5 +1,5 @@
 module Kredki
-  class KeyEvent < AbiEvent
+  class KeyEvent < PasteleEvent
     
     model :keyboard, :<
 
@@ -7,11 +7,11 @@ module Kredki
       @keyboard.key(@abi.sym)
     end
 
-    def symbol
-      @keyboard.key(@abi.sym)&.to_sym
+    def param
+      key&.id
     end
 
-    def keycode
+    def input_id
       @abi.sym
     end
 
@@ -69,10 +69,6 @@ module Kredki
 
     def scroll_lock?
       @abi.mod & 0b1000_0000_0000_0000 != 0
-    end
-
-    def ~()
-      symbol
     end
   end
 

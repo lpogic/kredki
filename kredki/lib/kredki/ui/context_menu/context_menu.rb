@@ -26,7 +26,7 @@ module Kredki
 
       event_resolver :on_pick!, Item::PickEvent
 
-      param_delegate "@context_layer.items",
+      feature_delegate "@context_layer.items",
         :w, :h, :wh
 
       def initialize
@@ -42,13 +42,13 @@ module Kredki
 
           @parent_events[] = parent.on_mouse_click! :secondary do |e|
             @context_layer.load! *e.xy
-            @context_layer[Item]&.focus!
+            @context_layer[Item]&.keyboard_request
             e.resolve
           end
     
           @parent_events[] = parent.on_key! :context do |e|
             @context_layer.load! *parent.translate(parent.sx / 2, parent.sy / 2)
-            @context_layer[Item]&.focus!
+            @context_layer[Item]&.keyboard_request
             e.resolve
           end
         )

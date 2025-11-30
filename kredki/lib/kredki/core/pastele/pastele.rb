@@ -1,7 +1,7 @@
 require 'fiddle/import'
 
 module Kredki
-  module Abi
+  module Pastele
     extend Fiddle::Importer
     
     current_lib = nil
@@ -160,4 +160,4 @@ module Kredki
 end
 
 
-require_relative 'tvg.gen'
+require_relative 'pastele-extern'

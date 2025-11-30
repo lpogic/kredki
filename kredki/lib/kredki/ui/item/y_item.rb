@@ -3,7 +3,7 @@ require_relative 'item'
 module Kredki
   module UI
     class YItem < Item
-      #internal api
+      # :section: LEVEL 2
 
       def sketch_behavior
         super

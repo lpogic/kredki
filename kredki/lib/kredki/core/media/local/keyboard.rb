@@ -1,36 +1,40 @@
 module Kredki
   module LocalMedia
     class Keyboard
-      extend HasParams
+      extend HasFeatures
+      extend HasEventResolvers
 
-      model :resource, :keyboard
+      model :host, :keyboard
 
       def keycodes input
         input.flatten.map{ _1.is_a?(String) ? _1.downcase.codepoints : _1 }.flatten.map{ @keyboard.key(_1).to_i }.uniq
       end
 
-      def on_down! ...
-        @resource.on_key_down!(...)
+      event_resolver def on_down! ...
+        @host.on_key_down!(...)
       end
 
-      def on_key_down! ...
-        @resource.on_key_down!(...)
+      event_resolver def on_key_down! ...
+        @host.on_key_down!(...)
       end
 
-      def on_up! ...
-        @resource.on_key_up!(...)
+      event_resolver def on_up! ...
+        @host.on_key_up!(...)
       end
 
-      def on_key_up! ...
-        @resource.on_key_up!(...)
+      event_resolver def on_key_up! ...
+        @host.on_key_up!(...)
       end
 
-      def on_text! ...
-        @resource.on_text!(...)
+      event_resolver def on_text! ...
+        @host.on_text!(...)
+      end
+
+      def down? key
+        @host&.layer&.check_key_down key
       end
 
       def_delegators :@keyboard,
-        :down?,
         :shift?,
         :ctrl?,
         :alt?,

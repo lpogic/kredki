@@ -1,5 +1,5 @@
 module Kredki
-  class JoystickEvent < AbiEvent
+  class JoystickEvent < PasteleEvent
     model :joystick
   end
 
@@ -10,20 +10,17 @@ module Kredki
   end
 
   class JoystickButtonEvent < JoystickEvent
-    def symbol
-      @joystick.button(@abi.button).to_sym
-    end
 
     def button
-      @abi.button
+      @joystick.button @abi.button
+    end
+
+    def param
+      button&.id
     end
 
     def input_id
       @abi.button
-    end
-
-    def ~()
-      symbol
     end
   end
 
@@ -34,12 +31,13 @@ module Kredki
   end
 
   class JoystickAxisEvent < JoystickEvent
-    def symbol
-      @joystick.axis(@abi.axis).to_sym
-    end
 
     def axis
-      @abi.axis
+      @joystick.axis @abi.axis
+    end
+
+    def param
+      axis&.id
     end
 
     def input_id
@@ -48,10 +46,6 @@ module Kredki
 
     def value
       @abi.value
-    end
-
-    def ~()
-      value
     end
   end
 end

@@ -8,7 +8,7 @@ module Kredki
       end
 
       def mouse_enter pad
-        pad.focus! if parent.keyboard_in? && self[Item...].find{ it.keyboard_in? } != pad
+        pad.keyboard_request if parent.keyboard_in? && self[Item...].find{ it.keyboard_in? } != pad
       end
     end
   end

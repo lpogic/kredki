@@ -5,14 +5,30 @@ module Kredki
     class Note < ShapePad
       include TextEdition
 
-      param def fill! *fill
-        return fill! *Util.cover(yield self.fill) if block_given?
+      feature def content! string = "", cursor = false
+        return content! (yield(self.content)) if block_given?
+        @verse.content! string, cursor
+      end, def content
+        @verse.content
+      end
+
+      feature def fill! *fill
+        return fill! *Util.cover(yield(self.fill)) if block_given?
         fill = Util.uncover fill
         return if @fill == fill
         @fill = fill
         repaint
         true
       end
+
+      feature_service def cursor
+        @verse.cursor
+      end
+
+      feature_delegate :@verse,
+        :verse,
+        :verse_size,
+        :verse_layout
 
       def << arg
         case arg
@@ -23,23 +39,7 @@ module Kredki
         end
       end
 
-      param_service def cursor
-        @verse.cursor
-      end
-
-      param def content! string = "", cursor = false
-        return content! (yield self.content) if block_given?
-        @verse.content! string, cursor
-      end, def content
-        @verse.content
-      end
-
-      param_delegate :@verse,
-        :verse,
-        :verse_size,
-        :verse_layout
-
-      #internal api
+      # :section: LEVEL 2
 
       class NoteLayout < Layout::XWay
         def arrange_layoutic pad, clw, clh, cx
@@ -54,13 +54,13 @@ module Kredki
         end
       end
 
-      attr :verse
-
       def initialize
         super
       
         initialize_verse
       end
+
+      attr :verse
 
       def initialize_verse
         @verse = new EditableTextVerse, "", wh: 1r, mousy: false, verse_size: 1r
@@ -72,7 +72,7 @@ module Kredki
         layout! NoteLayout.new(:b, :c)
         mousy!
         keyboardy!
-        out_w! 1
+        outline_w! 1
         m! 2
         fill! :gray
         h! 24
@@ -100,7 +100,7 @@ module Kredki
         color = Kredki.color @fill
         kb_top = keyboard_top?
         area.fill = kb_top ? color.darken : mouse_in? ? color.lighten : color
-        area.out_fill = kb_top ? :outline_focus : color
+        area.outline_fill = kb_top ? :outline_focus : color
         verse.selection.each_paint{ it.fill! kb_top ? :text_selection : :text_selection_inactive }
       end
     end

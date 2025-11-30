@@ -1,7 +1,7 @@
-## Generated file - manual changes not recommended
+## File generated from pastele/cabi.h
 
 module Kredki
-  module Abi
+  module Pastele
     extern 'int thorvg_engine_init(int engine_method, int threads)'
     extern 'int thorvg_engine_term(int engine_method)'
     extern 'void sdl_init(int joystick_enabled)'
@@ -41,9 +41,11 @@ module Kredki
     extern 'void window_restore(pas::Window* self)'
     extern 'void window_set_bordered(pas::Window* self, int bordered)'
     extern 'void window_set_fullscreen(pas::Window* self, int fullscreen)'
-    extern 'void window_set_grab(pas::Window* self, int grab)'
+    extern 'void window_set_mouse_grab(pas::Window* self, int grab)'
+    extern 'int window_get_mouse_grab(pas::Window* self)'
     extern 'void window_set_maximum_size(pas::Window* self, int w, int h)'
     extern 'void window_set_minimum_size(pas::Window* self, int w, int h)'
+    extern 'void window_get_minimum_size(pas::Window* self, IntPoint* point)'
     extern 'void window_set_opacity(pas::Window* self, float opacity)'
     extern 'void window_set_position(pas::Window* self, int x, int y)'
     extern 'void window_set_resizable(pas::Window* self, int resizable)'
@@ -71,7 +73,7 @@ module Kredki
     extern 'void shape_close(Shape* self)'
     extern 'void shape_append_rect(Shape* self, float x, float y, float w, float h)'
     extern 'void shape_append_circle(Shape* self, float cx, float cy, float rx, float ry)'
-    extern 'void shape_append_round_rect(Shape* self, float x, float y, float w, float h, float crbb, float crbe, float creb, float cree)'
+    extern 'void shape_append_round_rect(Shape* self, float x, float y, float w, float h, float crtt, float crth, float crht, float crhh)'
     extern 'void shape_set_stroke_width(Shape* self, float width)'
     extern 'void shape_set_stroke_color(Shape* self, uint8_t r, uint8_t g, uint8_t b, uint8_t a)'
     extern 'void shape_set_stroke_dash(Shape* self, const float* dashPattern, uint32_t cnt, float offset)'

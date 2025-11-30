@@ -17,18 +17,18 @@ module Kredki
         end.alter(...)
       end
 
-      #internal api
+      # :section: LEVEL 2
 
       def key event, radio
         case event.symbol
         when :up
           r = previous_radio radio
-          r.focus!
+          r.keyboard_request
           r.roi!
           event.resolve
         when :down
           r = next_radio radio
-          r.focus!
+          r.keyboard_request
           r.roi!
           event.resolve
         end

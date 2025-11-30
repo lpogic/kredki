@@ -1,11 +1,15 @@
 module Kredki
+  # Immutable font model
   class Font
-    model :name, :path
+
+    # :section: LEVEL 2
 
     def initialize path
       @path = path
       @name = Font.load path
     end
+
+    attr :name, :path
 
     class << self
       attr_accessor :loaded_fonts
@@ -15,7 +19,7 @@ module Kredki
         loaded = loaded_fonts[name]
         return name if loaded == path
         unload name if loaded
-        Abi.font_load path
+        Pastele.font_load path
         loaded_fonts[name] = path
         name
       end
@@ -23,7 +27,7 @@ module Kredki
       def unload font
         name = String === font ? font : font.name
         font = loaded_fonts.delete name
-        Abi.font_unload name if font
+        Pastele.font_unload name if font
       end
 
       def path_to_name path

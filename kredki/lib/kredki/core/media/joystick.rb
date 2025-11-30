@@ -8,10 +8,6 @@ module Kredki
         @code
       end
   
-      def to_sym
-        @symbol
-      end
-  
       def ==(other)
         Button === other &&
         @code == other.code &&
@@ -25,11 +21,7 @@ module Kredki
       def to_i
         @code
       end
-  
-      def to_sym
-        @id
-      end
-  
+    
       def ==(other)
         Axis === other &&
         @code == other.code &&
@@ -92,7 +84,7 @@ module Kredki
       !!@device_id
     end
 
-    #internal api
+    # :section: LEVEL 2
 
     def match device_index
       0
@@ -101,11 +93,11 @@ module Kredki
     attr_accessor :device_id
 
     def is_button_down index
-      Abi.joystick_get_button_state(@device_id, index) != 0
+      Pastele.joystick_get_button_state(@device_id, index) != 0
     end
 
     def get_axis_value index
-      Abi.joystick_get_axis_value(@device_id, index)
+      Pastele.joystick_get_axis_value(@device_id, index)
     end
 
     private

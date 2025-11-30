@@ -2,8 +2,8 @@ module Kredki
   module UI
     class Check < ShapePad
 
-      param def fill! *fill
-        return fill! *Util.cover(yield self.fill) if block_given?
+      feature def fill! *fill
+        return fill! *Util.cover(yield(self.fill)) if block_given?
         fill = Util.uncover fill
         return if @fill == fill
         @fill = fill
@@ -18,15 +18,15 @@ module Kredki
         true
       end
 
-      #internal api
+      # :section: LEVEL 2
 
       def initialize
         super
         
         @check = new ShapePad, mousy: false, keyboardy: false, fill: 0, wh: 1r do
           out! fill: :text, w: 3
-          out_fill! :text
-          out_w! 3
+          outline_fill! :text
+          outline_w! 3
           area! do |w, h|
             xy! 2, h * 0.5
             line! w * 0.5, h - 1
@@ -40,7 +40,7 @@ module Kredki
         super
 
         keyboardy!
-        out_w! 1
+        outline_w! 1
         layout! :acc
         wh! 20
         fill! :gray
@@ -64,7 +64,7 @@ module Kredki
       def repaint event = nil
         color = Kredki.color @fill
         area.fill = pin_top? ? color.darken : mouse_in? ? color.lighten : color
-        area.out_fill = keyboard_in? ? :outline_focus : color.darken
+        area.outline_fill = keyboard_in? ? :outline_focus : color.darken
       end
 
       def sketch_behavior

@@ -1,3 +1,17 @@
+# This is config loaded by default. Contains all the necessary definitions used by the core and ui modules.
+# You can overwrite and add your own values ​​dynamically:
+#   require 'kredki'
+#   module Kredki
+#     color! :primary, 20, 50, 70, 255
+#     keyboard! do
+#       key! :escape, 58
+#     end
+#   end
+#
+# If you don't want to load the default configuration, you can set the path to your own in the global variable $kredki_config before require 'kredki':
+#   $kredki_config = './cutom_config.rb'
+#   require 'kredki'
+# This way 'custom config.rb' will be loaded instead of the current file.
 
 module Kredki
   color! nil, 211, 211, 211, 255
@@ -136,7 +150,7 @@ module Kredki
     key! :volume_up, 1073741952
     key! :house, 1073742093
     key! :mail, 1073742089
-    key! :calulator, 1073742108
+    key! :calculator, 1073742108
   end
 
   mouse! do

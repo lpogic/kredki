@@ -9,10 +9,10 @@ module Kredki
         new(YItem, ...)
       end
       
-      #internal api
+      # :section: LEVEL 2
 
       def mouse_enter pad
-        pad.focus! if self[Item...].find{ it.keyboard_in? } != pad
+        pad.keyboard_request if self[Item...].find{ it.keyboard_in? } != pad
       end
 
       def update_select_item item
@@ -26,7 +26,7 @@ module Kredki
           index = items.index{ it.keyboard_in? } || -1
           update_select_item items[index + 1] if index < items.length - 1
         else
-          item&.focus!
+          item&.keyboard_request
           item
         end
       end

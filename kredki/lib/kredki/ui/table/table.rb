@@ -6,8 +6,8 @@ module Kredki
         @column_layout.column!(...) and layer&.break_layout
       end
 
-      param def gap! x = 0, y = x
-        return gap! *Util.cover(yield self.gap) if block_given?
+      feature def gap! x = 0, y = x
+        return gap! *Util.cover(yield(self.gap)) if block_given?
         x_changed = @column_layout.space! x
         y_changed = mi! y
         layer&.break_layout if x_changed && !y_changed
@@ -32,7 +32,7 @@ module Kredki
         new(ScrollRows, layout: :ybb, mi: mi).alter(...)
       end
 
-      #internal api
+      # :section: LEVEL 2
 
       def initialize
         super

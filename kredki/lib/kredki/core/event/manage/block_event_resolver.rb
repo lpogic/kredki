@@ -4,7 +4,7 @@ module Kredki
 
     def resolve event = nil
       return if !@always && event&.resolved?
-      event&.resolver! self
+      event&.push_resolver self
       @block.call event
     end
 

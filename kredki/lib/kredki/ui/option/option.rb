@@ -19,7 +19,7 @@ module Kredki
         dropdown!.item!(w: 1r).alter(...)
       end
 
-      #internal api
+      # :section: LEVEL 2
 
       def initialize
         super
@@ -27,7 +27,7 @@ module Kredki
         @picked = nil
         @note = new Note
         @arrow = @note.new Button, w: 20, h: 1r do
-          out_w! 0
+          outline_w! 0
           keyboardy! false
           text.detach!
           new ShapePad, mousy: false, keyboardy: false, fill: 0, wh: 1r do
@@ -72,7 +72,7 @@ module Kredki
 
         @dropdown.on! Item::PickEvent do |e|
           @dropdown.unload!
-          @note.content! ~e, :end
+          @note.content! e.param, :end
         end
 
         @dropdown.on_key! :escape do

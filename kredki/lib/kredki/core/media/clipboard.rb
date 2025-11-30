@@ -1,8 +1,8 @@
 module Kredki
   class Clipboard
-    extend HasParams
+    extend HasFeatures
 
-    param def content! content = nil
+    feature def content! content = nil
       return content! yield self.content if block_given?
       set_text content.to_s
       true
@@ -10,16 +10,14 @@ module Kredki
       get_text
     end
 
-    #internal api
-
-    private
+    # :section: LEVEL 2
 
     def set_text text
-      Abi.clipboard_set_text text
+      Pastele.clipboard_set_text text
     end
 
     def get_text
-      ptr = Abi.clipboard_get_text
+      ptr = Pastele.clipboard_get_text
       str = ptr.to_s.force_encoding("utf-8")
       ptr.free
       return str

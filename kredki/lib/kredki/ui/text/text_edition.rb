@@ -23,7 +23,7 @@ module Kredki
         end
 
         on_text! do |e|
-          text.paste ~e
+          text.paste e.param
           e.resolve
         end
 

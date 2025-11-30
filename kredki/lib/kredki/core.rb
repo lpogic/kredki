@@ -7,6 +7,10 @@ require_relative 'kernel-path'
 module Kredki
   module Util
     class << self
+      def eqr a, b
+        a == b and (Rational === a) == (Rational === b)
+      end
+
       def polarize left, right
         both = []
         right_only = right.reject{ both << it if left.include? it }
@@ -44,6 +48,8 @@ if RUBY_PLATFORM =~ /cygwin|mswin|mingw|bccwin|wince|emx/
   $kredki_sdl ||= stuff "dll/SDL3.dll"
   $kredki_thorvg ||= stuff "dll/thorvg-1.dll"
   $kredki_pastele ||= stuff "dll/pastele.dll"
+elsif !$kredki_sdl || !$kredki_thorvg || !$kredki_pastele
+  raise "No default shared libraries for #{RUBY_PLATFORM} found. Provide paths to custom ones in $kredki_sdl, $kredki_thorvg and $kredki_pastele before require 'kredki'"
 end
 
 require_relative 'core/kredki'

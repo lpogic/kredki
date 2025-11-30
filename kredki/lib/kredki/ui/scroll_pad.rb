@@ -4,7 +4,7 @@ module Kredki
   module UI
     class ScrollPad < Pad
 
-      #internal api
+      # :section: LEVEL 2
 
       def sketch
         super
@@ -93,7 +93,7 @@ module Kredki
         @oclw = @och = 0 if prepare
         mx, my, @lw, @lh = super()
         oh = @xslide.get_h
-        out_w = @yslide.get_w
+        ow = @yslide.get_w
         ps = arrange_pads
         if !ps.empty?
           w = sw
@@ -101,10 +101,10 @@ module Kredki
           xscroll = w < @lw
           yscroll = h < @lh
           yscroll ||= xscroll && h - oh < @lh
-          xscroll ||= yscroll && w - out_w < @lw
+          xscroll ||= yscroll && w - ow < @lw
           if prepare && (xscroll || yscroll)
             @oclw -= oh if yscroll
-            @och -= out_w if xscroll
+            @och -= ow if xscroll
             return arrange false
           end
           
@@ -122,8 +122,8 @@ module Kredki
           pad_y = 0
           if yscroll
             ys = xscroll ? h + @och : h
-            @yslide.set_size out_w, ys
-            @yslide.set_xy w - out_w, 0
+            @yslide.set_size ow, ys
+            @yslide.set_xy w - ow, 0
             @yslide.arrange @lh
             pad_y += ((ys - @lh) * @yslide.value).round - my
           end
@@ -134,7 +134,7 @@ module Kredki
             p1.set_xy px, py
           end
           if @corner.show = xscroll && yscroll
-            @corner.set_xy w - out_w, h - oh
+            @corner.set_xy w - ow, h - oh
           end
         else
           @xslide.hide!

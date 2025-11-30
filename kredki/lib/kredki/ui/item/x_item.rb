@@ -1,7 +1,7 @@
 module Kredki
   module UI
     class XItem < Item
-      #internal api
+      # :section: LEVEL 2
 
       def sketch_behavior
         super

@@ -61,7 +61,7 @@ module Kredki
         layer
       end
 
-      #internal api
+      # :section: LEVEL 2
 
       def sketch
         super
@@ -96,7 +96,7 @@ module Kredki
           end
         end
 
-        layer!.focus!
+        layer!.keyboard_request
       end
 
       def step ms
@@ -112,7 +112,7 @@ module Kredki
         @services.map{ [it, it.pad_tree] }.to_h
       end
 
-      def main
+      def altered
         @services.last
       end
 
@@ -120,10 +120,8 @@ module Kredki
         arrange
         @services.reverse_each do |layer|
           event.target = nil
-          event.drag = layer.pin_pad_drag if event.is_a? MouseButtonUpEvent
-          layer.mouse_pad&.report event
+          layer.mouse_event event
           @event_director.resolve
-          event.resolved?
         end
       end
 

@@ -33,7 +33,7 @@ module Kredki
         end
 
         note.action.push_layer self
-        @pad[Item]&.focus!
+        @pad[Item]&.keyboard_request
       end
 
       def unload!
@@ -49,7 +49,7 @@ module Kredki
         @item_group.item!(...)
       end
 
-      #internal api
+      # :section: LEVEL 2
 
       def sketch
         super

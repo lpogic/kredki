@@ -2,8 +2,8 @@ module Kredki
   module UI
     class RadioItem < ShapePad
 
-      param def fill! *fill
-        return fill! *Util.cover(yield self.fill) if block_given?
+      feature def fill! *fill
+        return fill! *Util.cover(yield(self.fill)) if block_given?
         fill = Util.uncover fill
         return if @fill == fill
         @fill = fill
@@ -16,7 +16,7 @@ module Kredki
         update_checked value
       end
 
-      #internal api
+      # :section: LEVEL 2
 
       def initialize
         super
@@ -36,7 +36,7 @@ module Kredki
           ellipse! w - 1, h - 1
         end
         keyboardy!
-        out_w! 1
+        outline_w! 1
         layout! :acc
         wh! 16
         m! 4
@@ -60,7 +60,7 @@ module Kredki
       def repaint event = nil
         color = Kredki.color @fill
         area.fill = pin_top? ? color.darken : mouse_in? ? color.lighten : color
-        area.out_fill = keyboard_in? ? :outline_focus : color.darken
+        area.outline_fill = keyboard_in? ? :outline_focus : color.darken
       end
 
       def sketch_behavior

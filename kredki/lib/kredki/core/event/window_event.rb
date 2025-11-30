@@ -1,7 +1,7 @@
 require_relative 'event'
 
 module Kredki
-  class WindowEvent < AbiEvent
+  class WindowEvent < PasteleEvent
   end
 
   class WindowShowEvent < WindowEvent
@@ -17,6 +17,7 @@ module Kredki
   end
 
   class WindowResizeEvent < WindowEvent
+    
     def w
       @abi.data1
     end
@@ -29,7 +30,7 @@ module Kredki
       [@abi.data1, @abi.data2]
     end
 
-    def ~()
+    def param
       wh
     end
   end

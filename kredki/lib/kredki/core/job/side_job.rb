@@ -29,7 +29,7 @@ module Kredki
       @thread&.kill
     end
 
-    #internal api
+    # :section: LEVEL 2
 
     def step ms
       if !@thread&.alive?

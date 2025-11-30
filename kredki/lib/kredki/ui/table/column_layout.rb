@@ -2,7 +2,7 @@ module Kredki
   module UI
     class Table
       class ColumnLayout < Layout::XWay
-        extend HasParams
+        extend HasFeatures
         
         def initialize table, x, y
           super(x, y)
@@ -15,7 +15,7 @@ module Kredki
           @columns << Column.new(Util.uncover a).alter(**na, &b)
         end
 
-        param def space! space
+        feature def space! space
           return if @space == space
           @space = space
           true

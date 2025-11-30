@@ -5,9 +5,9 @@ module Kredki
       def << arg
         case arg
         in Numeric
-          m! arg / 2
+          m! arg * 0.5
         in [Numeric, Numeric]
-          m! arg[0] / 2, arg[1] / 2
+          m! arg[0] * 0.5, arg[1] * 0.5
         in [Numeric, Numeric, Numeric, Numeric]
           m! *arg
         else
@@ -15,7 +15,7 @@ module Kredki
         end
       end
 
-      #internal api
+      # :section: LEVEL 2
 
       def sketch
         super

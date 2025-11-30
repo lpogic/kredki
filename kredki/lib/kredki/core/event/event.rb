@@ -1,17 +1,17 @@
 module Kredki
   class Event
-    extend HasParams
+    extend HasFeatures
     
     model :target, :@resolved
 
-    def inspect
-      "#{self.class}:#{object_id}"
-    end
-    
-    def [](key)
-      send key
+    def ~
+      param
     end
 
+    def param
+      nil
+    end
+    
     def resolved?
       @resolved
     end
@@ -20,31 +20,38 @@ module Kredki
       @resolved = true
     end
 
-    def trace
-      Util.cover @resolver
+    def resolver
+      Array === @resolver ? @resolver.last : @resolver
     end
 
-    param def resolver! resolver
+    def trace
+      @resolver = Util.cover @resolver
+    end
+
+    # :section: LEVEL 2
+
+    def inspect
+      "#{self.class}:#{object_id}"
+    end
+
+    def push_resolver resolver
       if Array === @resolver
         @resolver << resolver
       else
         @resolver = resolver
       end
-      true
-    end, def resolver
-      Array === @resolver ? @resolver.last : @resolver
     end
   end
 
-  class AbiEvent < Event
+  class PasteleEvent < Event
     
-    model :abi, :<
-
     def timestamp
       @abi.timestamp
     end
 
-    #internal api
+    # :section: LEVEL 2
+
+    model :abi, :<
 
     def clear
       @abi = nil

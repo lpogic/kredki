@@ -5,11 +5,11 @@ module Kredki
 
         model :size
 
-        def << param
-          case param
+        def << feature
+          case feature
           when Numeric, Range, Array
-            @size = param
-          else raise_ia param
+            @size = feature
+          else raise_ia feature
           end
         end
       end

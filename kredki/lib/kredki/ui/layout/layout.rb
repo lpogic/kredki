@@ -36,6 +36,8 @@ module Kredki
         case w
         when :fit
           pad.fit_w
+        when :layout
+          pad.sw
         when Rational
           pclw * w
         when Proc
@@ -58,6 +60,8 @@ module Kredki
         case h
         when :fit
           pad.fit_h
+        when :layout
+          pad.sh
         when Rational
           pch * h
         when Proc

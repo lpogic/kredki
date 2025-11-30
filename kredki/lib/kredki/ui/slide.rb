@@ -3,7 +3,7 @@ module Kredki
     class Slide < ShapePad
       extend HasEventResolvers
 
-      param def value! v, report_change = true
+      feature def value! v, report_change = true
         f = v.to_f 
         value = f.nan? ? 0 : f.clamp(0..1)
         return if @value == value
@@ -14,11 +14,8 @@ module Kredki
         true
       end
 
-      event_resolver :on_change!, ChangeEvent
-      event_resolver :on_edit!, EditEvent
-
-      param def fill! *fill
-        return fill! *Util.cover(yield self.fill) if block_given?
+      feature def fill! *fill
+        return fill! *Util.cover(yield(self.fill)) if block_given?
         fill = Util.uncover fill
         return if @fill == fill
         @fill = fill
@@ -26,7 +23,10 @@ module Kredki
         true
       end
 
-      #internal api
+      event_resolver :on_change!, ChangeEvent
+      event_resolver :on_edit!, EditEvent
+
+      # :section: LEVEL 2
 
       def initialize
         super
@@ -76,7 +76,7 @@ module Kredki
           end
 
           on_mouse_down! do |e|
-            drag! e.xy, e.button_id
+            drag! e.xy, e.button.id
             e.resolve
           end
         end

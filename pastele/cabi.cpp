@@ -169,8 +169,12 @@ CABI void window_set_fullscreen(pas::Window* self, int fullscreen) {
     self->setFullscreen(fullscreen);
 }
 
-CABI void window_set_grab(pas::Window* self, int grab) {
+CABI void window_set_mouse_grab(pas::Window* self, int grab) {
     self->setGrab(grab);
+}
+
+CABI int window_get_mouse_grab(pas::Window* self) {
+    return (int) self->getGrab();
 }
 
 CABI void window_set_maximum_size(pas::Window* self, int w, int h) {
@@ -179,6 +183,10 @@ CABI void window_set_maximum_size(pas::Window* self, int w, int h) {
 
 CABI void window_set_minimum_size(pas::Window* self, int w, int h) {
     self->setMinimumSize(w, h);
+}
+
+CABI void window_get_minimum_size(pas::Window* self, IntPoint* point) {
+    self->getPosition(&point->x, &point->y);
 }
 
 CABI void window_set_opacity(pas::Window* self, float opacity) {
@@ -374,7 +382,7 @@ CABI void shape_append_circle(Shape* self, float cx, float cy, float rx, float r
     self->moveTo(cx, cy);
 }
 
-CABI void shape_append_round_rect(Shape* self, float x, float y, float w, float h, float crbb, float creb, float crbe, float cree)
+CABI void shape_append_round_rect(Shape* self, float x, float y, float w, float h, float crtt, float crht, float crth, float crhh)
 {
     #define PATH_KAPPA 0.552284f
     Point pts[18];
@@ -382,52 +390,52 @@ CABI void shape_append_round_rect(Shape* self, float x, float y, float w, float 
 
     auto s = Point{w * 0.5f, h * 0.5f};
     auto minr = s.x > s.y ? s.y : s.x;
-    crbb = (crbb > minr) ? minr : crbb;
-    crbe = (crbe > minr) ? minr : crbe;
-    creb = (creb > minr) ? minr : creb;
-    cree = (cree > minr) ? minr : cree;
+    crtt = (crtt > minr) ? minr : crtt;
+    crth = (crth > minr) ? minr : crth;
+    crht = (crht > minr) ? minr : crht;
+    crhh = (crhh > minr) ? minr : crhh;
     auto hr = 0.0f;
 
     cmds[0] = PathCommand::MoveTo;
-    pts[0] = {x + w, y + creb}; //move
+    pts[0] = {x + w, y + crht}; //move
     cmds[1] = PathCommand::LineTo;
-    pts[1] = {x + w, y + h - cree}; //line
+    pts[1] = {x + w, y + h - crhh}; //line
 
     auto pi = 2;
     auto ci = 2;
-    if(cree > 0.0f) {
+    if(crhh > 0.0f) {
         cmds[ci++] = PathCommand::CubicTo;
-        hr = cree * PATH_KAPPA;
-        pts[pi++] = {x + w, y + h - cree + hr}; 
-        pts[pi++] = {x + w - cree + hr, y + h}; 
-        pts[pi++] = {x + w - cree, y + h};  //cubic
+        hr = crhh * PATH_KAPPA;
+        pts[pi++] = {x + w, y + h - crhh + hr}; 
+        pts[pi++] = {x + w - crhh + hr, y + h}; 
+        pts[pi++] = {x + w - crhh, y + h};  //cubic
     }
     cmds[ci++] = PathCommand::LineTo;
-    pts[pi++] = {x + crbe, y + h}; //line
-    if(crbe > 0.0f) {
+    pts[pi++] = {x + crth, y + h}; //line
+    if(crth > 0.0f) {
         cmds[ci++] = PathCommand::CubicTo;
-        hr = crbe * PATH_KAPPA;
-        pts[pi++] = {x + crbe - hr, y + h}; 
-        pts[pi++] = {x, y + h - crbe + hr}; 
-        pts[pi++] = {x, y + h - crbe};  //cubic
+        hr = crth * PATH_KAPPA;
+        pts[pi++] = {x + crth - hr, y + h}; 
+        pts[pi++] = {x, y + h - crth + hr}; 
+        pts[pi++] = {x, y + h - crth};  //cubic
     }
     cmds[ci++] = PathCommand::LineTo;
-    pts[pi++] = {x, y + crbb}; //line
-    if(crbb > 0.0f) {
+    pts[pi++] = {x, y + crtt}; //line
+    if(crtt > 0.0f) {
         cmds[ci++] = PathCommand::CubicTo;
-        hr = crbb * PATH_KAPPA;
-        pts[pi++] = {x, y + crbb - hr}; 
-        pts[pi++] = {x + crbb - hr, y}; 
-        pts[pi++] = {x + crbb, y};  //cubic
+        hr = crtt * PATH_KAPPA;
+        pts[pi++] = {x, y + crtt - hr}; 
+        pts[pi++] = {x + crtt - hr, y}; 
+        pts[pi++] = {x + crtt, y};  //cubic
     }
     cmds[ci++] = PathCommand::LineTo;
-    pts[pi++] = {x + w - creb, y}; //line
-    if(creb > 0.0f) {
+    pts[pi++] = {x + w - crht, y}; //line
+    if(crht > 0.0f) {
         cmds[ci++] = PathCommand::CubicTo;
-        hr = creb * PATH_KAPPA;
-        pts[pi++] = {x + w - creb + hr, y}; 
-        pts[pi++] = {x + w, y + creb - hr}; 
-        pts[pi++] = {x + w, y + creb};  //cubic
+        hr = crht * PATH_KAPPA;
+        pts[pi++] = {x + w - crht + hr, y}; 
+        pts[pi++] = {x + w, y + crht - hr}; 
+        pts[pi++] = {x + w, y + crht};  //cubic
     }
     cmds[ci++] = PathCommand::Close;
     cmds[ci++] = PathCommand::MoveTo;

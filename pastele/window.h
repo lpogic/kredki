@@ -89,8 +89,10 @@ class Window
     void setBordered(bool bordered);
     void setFullscreen(bool fullscreen);
     void setGrab(bool grab);
+    bool getGrab(void);
     void setMaximumSize(int w, int h);
     void setMinimumSize(int w, int h);
+    void getMinimumSize(int* w, int* h);
     void setOpacity(float opacity);
     void setPosition(int x, int y);
     void setResizable(bool resizable);

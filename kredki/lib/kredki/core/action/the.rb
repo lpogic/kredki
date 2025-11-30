@@ -1,17 +1,8 @@
 module Kredki
   class The
-    
-    def initialize action
-      @action = action
-      @map = ObjectSpace::WeakMap.new
-    end
 
     def [](...)
       @action.[](...)
-    end
-
-    def respond_to? name
-      true
     end
 
     def method_missing name, *a, **na, &b
@@ -21,6 +12,17 @@ module Kredki
         @map[name]&.alter *a, **na, &b
       end
     end
+    
+    # :section: LEVEL 2
 
+    def initialize action
+      @action = action
+      @map = ObjectSpace::WeakMap.new
+    end
+
+    def respond_to? name
+      true
+    end
+    
   end#The
 end#Kredki

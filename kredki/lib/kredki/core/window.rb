@@ -1,9 +1,9 @@
 module Kredki
   class Window
-    extend HasParams
+    extend HasFeatures
 
     def initialize w = 400, h = 400
-      @pointer = Abi.window_new w, h
+      @pointer = Pastele.window_new w, h
       ObjectSpace.define_finalizer(self, Window.proc.finalize(@pointer))
     end
 
@@ -15,71 +15,104 @@ module Kredki
 
     attr_reader :arena
 
+    # Break event loop.
     def terminate! result = nil
       @arena&.terminate! result
     end
 
+    # Maximize window.
     def maximize!
-      Abi.window_maximize @pointer
+      Pastele.window_maximize @pointer
     end
 
+    # Minimize window.
     def minimize!
-      Abi.window_minimize @pointer
+      Pastele.window_minimize @pointer
     end
 
+    # Request that a window be raised above other windows and gain the input focus.
     def raise!
-      Abi.window_raise @pointer
+      Pastele.window_raise @pointer
     end
 
+    # Request that the size and position of a minimized or maximized window be restored.
     def restore!
-      Abi.window_restore @pointer
+      Pastele.window_restore @pointer
     end
 
-    flag def outline! value = true
-      return if (c = outline) == (value = block_given? ? (yield c) : value == :not ? !c : value)
-      set_bordered value
+    # Set whether the window has an outline.
+    def outline! value = true
+      return if (c = outline) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+      Pastele.window_set_bordered @pointer, value ? 1 : 0
       @outline = value
       true
-    end, def outline
+    end
+
+    # See #outline!.
+    def outline= value
+      outline! value
+    end
+    
+    # Get whether the window has an outline.
+    def outline
       @outline || @outline.nil?
     end
 
-    flag def grab! value = true
-      return if (c = grab) == (value = block_given? ? (yield c) : value == :not ? !c : value)
-      set_grab value
-      @grab = value
+    # See #outline.
+    def outline?
+      !!outline
+    end
+
+    # Set whether fullscreen mode is on.
+    def fullscreen! value = true
+      return if (c = fullscreen) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+      Pastele.window_set_fullscreen @pointer, value ? 1 : 0
       true
     end
 
-    flag def fullscreen! value = true
-      return if (c = fullscreen) == (value = block_given? ? (yield c) : value == :not ? !c : value)
-      set_fullscreen value
-      @fullscreen = value
-      true
-    end
-
-    flag def text_input! value = true
-      return if (c = text_input) == (value = block_given? ? (yield c) : value == :not ? !c : value)
-      set_text_input value
-      true
-    end, def text_input
-      get_text_input
+    # See #fullscreen!.
+    def fullscreen= value
+      fullscreen! value
     end
     
-    def min_wh! w, h = nil
-      set_minimum_size w, h || w
+    # Get whether fullscreen mode is on.
+    def fullscreen
+      Pastele.window_get_flags(@pointer) & 0x1000 != 0
     end
 
-    def max_wh! w, h = nil
-      set_maximum_size w, h || w
+    # See #fullscreen.
+    def fullscreen?
+      !!fullscreen
+    end
+
+    # Set whether text input mode is on.
+    def text_input! value = true
+      return if (c = text_input) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+      Pastele.window_set_text_input @pointer, value ? 1 : 0
+      true
+    end
+
+    # See #text_input!.
+    def text_input= value
+      text_input! value
     end
     
+    # Get whether text input mode is on.
+    def text_input
+      Pastele.window_get_text_input(@pointer) != 0
+    end
+
+    # See #text_input.
+    def text_input?
+      !!text_input
+    end
+        
     def opacity! opacity
       set_opacity opacity > 1 ? opacity / 255.0 : opacity
     end
 
-    param def xy! *xy
-      return xy! *Util.cover(yield self.xy) if block_given?
+    feature def xy! *xy
+      return xy! *Util.cover(yield(self.xy)) if block_given?
       case xy.size
       when 0 then return
       when 1
@@ -96,14 +129,14 @@ module Kredki
     end
 
     flag def resizable! value = true
-      return if (c = resizable) == (value = block_given? ? (yield c) : value == :not ? !c : value)
+      return if (c = resizable) == (value = block_given? ? yield(c) : value == :not ? !c : value)
       set_resizable value
       @resizable = value
       true
     end
 
-    param def wh! *wh
-      return wh! *Util.cover(yield self.wh) if block_given?
+    feature def wh! *wh
+      return wh! *Util.cover(yield(self.wh)) if block_given?
       case wh.size
       when 0 then return
       when 1
@@ -119,21 +152,42 @@ module Kredki
       get_size
     end
 
-    param def w! w = nil
+    feature def w! w = nil
       return w! yield self.w if block_given?
       set_size w, h
     end, def w
       get_size[0]
     end
 
-    param def h! h = nil
+    feature def h! h = nil
       return h! yield self.h if block_given?
       set_size w, h
     end, def h
       get_size[1]
     end
 
-    param def title! title = nil
+    def wh_min! w, h = nil
+      Pastele.window_set_minimum_size @pointer, w, h || w
+      true
+    end
+
+    def wh_min
+      point = Pastele::IntPoint.malloc(Fiddle::RUBY_FREE)
+      Pastele.window_get_minimum_size @pointer, point
+      [point.x, point.y]
+    end
+
+    def wh_max! w, h = nil
+      Pastele.window_set_maximum_size @pointer, w, h || w
+    end
+
+    def wh_max
+      point = Pastele::IntPoint.malloc(Fiddle::RUBY_FREE)
+      Pastele.window_get_maximum_size @pointer, point
+      [point.x, point.y]
+    end
+
+    feature def title! title = nil
       return title! yield self.title if block_given?
       return if @title == title
       set_title title.to_s
@@ -142,13 +196,13 @@ module Kredki
     end
 
     flag def top! value = true
-      return if (c = top) == (value = block_given? ? (yield c) : value == :not ? !c : value)
+      return if (c = top) == (value = block_given? ? yield(c) : value == :not ? !c : value)
       set_top value
       @top = value
       true
     end
 
-    param def action! action = nil, ...
+    feature def action! action = nil, ...
       action ||= Window.default_action
       if action.is_a? Class
         action = action.new
@@ -158,7 +212,7 @@ module Kredki
         set_action action
       end
       
-      action.main.alter(...)
+      action.altered.alter(...)
     end
 
     def window
@@ -172,10 +226,10 @@ module Kredki
     def_delegators :@arena,
       :window!
 
-    #internal api
+    # :section: LEVEL 2
 
     def self.finalize pointer
-      Abi.window_delete pointer
+      Pastele.window_delete pointer
     end
 
     attr_writer :arena
@@ -185,7 +239,7 @@ module Kredki
       :resolve
 
     def update_paint paint
-      Abi.window_paint_to_update @pointer, paint.pointer
+      Pastele.window_paint_to_update @pointer, paint.pointer
     end
 
     def inspect
@@ -194,8 +248,8 @@ module Kredki
 
     def set_action action, &block
       action.scene = self
-      Abi.window_set_scene @pointer, action.pointer
-      Abi.window_set_step_handler @pointer, action.step_callback
+      Pastele.window_set_scene @pointer, action.pointer
+      Pastele.window_set_step_handler @pointer, action.step_callback
       update_paint action
       @action = action
     end
@@ -204,77 +258,56 @@ module Kredki
       @action == action && !!@arena
     end
 
-    def set_bordered set
-      Abi.window_set_bordered @pointer, set ? 1 : 0
-      @bordered = set
+    def set_mouse_grab set
+      Pastele.window_set_mouse_grab @pointer, set ? 1 : 0
     end
 
-    def set_grab set
-      Abi.window_set_grab @pointer, set ? 1 : 0
-      @grab = set
+    def get_mouse_grab
+      Pastele.window_get_mouse_grab(@pointer) != 0
     end
 
-    def set_fullscreen set
-      Abi.window_set_fullscreen @pointer, set ? 1 : 0
-      @fullscreen = set
-    end
-
-    def set_minimum_size x, y
-      Abi.window_set_minimum_size @pointer, x, y
-      true
-    end
-
-    def set_maximum_size x, y
-      Abi.window_set_maximum_size @pointer, x, y
-      true
+    def get_capture
+      Pastele.window_get_flags(@pointer) & 0x4000 != 0
     end
 
     def set_opacity opacity
-      Abi.window_set_opacity @pointer, opacity
+      Pastele.window_set_opacity @pointer, opacity
       true
     end
 
     def set_position x, y
-      Abi.window_set_position @pointer, x, y
+      Pastele.window_set_position @pointer, x, y
       true
     end
 
     def get_position
-      point = Abi::IntPoint.malloc(Fiddle::RUBY_FREE)
-      Abi.window_get_position @pointer, point
+      point = Pastele::IntPoint.malloc(Fiddle::RUBY_FREE)
+      Pastele.window_get_position @pointer, point
       [point.x, point.y]
     end
 
     def set_resizable set
-      Abi.window_set_resizable @pointer, set ? 1 : 0
+      Pastele.window_set_resizable @pointer, set ? 1 : 0
     end
 
     def set_size x, y
-      Abi.window_set_size @pointer, x, y
+      Pastele.window_set_size @pointer, x, y
       true
     end
 
     def get_size
-      point = Abi::IntPoint.malloc(Fiddle::RUBY_FREE)
-      Abi.window_get_size @pointer, point
+      point = Pastele::IntPoint.malloc(Fiddle::RUBY_FREE)
+      Pastele.window_get_size @pointer, point
       [point.x, point.y]
     end
 
     def set_title title
-      Abi.window_set_title @pointer, title
+      Pastele.window_set_title @pointer, title
       true
     end
 
     def set_top set
-      Abi.window_set_always_on_top @pointer, set ? 1 : 0
-    end
-
-    def set_text_input set
-      Abi.window_set_text_input @pointer, set ? 1 : 0
-    end
-
-    def get_text_input
-      Abi.window_get_text_input(@pointer) != 0
+      Pastele.window_set_always_on_top @pointer, set ? 1 : 0
     end
   end
 end

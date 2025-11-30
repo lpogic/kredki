@@ -22,7 +22,7 @@ module Kredki
         end
       end
 
-      param def fill! *fill
+      feature def fill! *fill
         fill = Util.uncover fill
         return if @fill == fill
         @fill = fill
@@ -32,7 +32,7 @@ module Kredki
 
       event_resolver :on_pick!, PickEvent
 
-      param_delegate :@text,
+      feature_delegate :@text,
         :content
 
       def has_subitem?
@@ -43,13 +43,13 @@ module Kredki
         keyboard_in = keyboard_in? if keyboard_in.nil?
         pin_top? :primary or (
           keyboard_in and (
-            key_down? :space or
-            key_down? :enter
+            keyboard.down? :space or
+            keyboard.down? :enter
           )
         )
       end
 
-      #internal api
+      # :section: LEVEL 2
 
       def initialize
         super

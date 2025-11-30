@@ -10,8 +10,8 @@ module Kredki
       end
 
       class_eval <<~xx
-        def #{name.to_s[...-1]}= callable
-          #{name} do: callable
+        def #{name.to_s[...-1]}= resolver
+          #{name} do: resolver
         end
       xx
     end

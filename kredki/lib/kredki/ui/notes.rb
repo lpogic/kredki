@@ -4,7 +4,7 @@ module Kredki
   module UI
     class Notes < Note
 
-      #internal api
+      # :section: LEVEL 2
 
       def sketch
         super

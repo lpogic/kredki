@@ -1,6 +1,6 @@
 module Kredki
 
-  class MouseEvent < AbiEvent
+  class MouseEvent < PasteleEvent
     model :mouse, :<
   end
 
@@ -10,11 +10,11 @@ module Kredki
       @mouse.button @abi.button
     end
 
-    def button_id
-      button.id
+    def param
+      button&.id
     end
 
-    def button_code
+    def input_id
       @abi.button
     end
 
@@ -32,10 +32,6 @@ module Kredki
 
     def y
       @abi.y
-    end
-
-    def ~()
-      button.id
     end
   end
 

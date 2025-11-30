@@ -6,19 +6,15 @@ module Kredki
   module LocalMedia
 
     def mouse &block
-      m = Mouse.new self, Kredki.mouse
-      m.instance_exec &block if block
-      m
+      Mouse.new(self, Kredki.mouse).alter &block
     end
 
     def keyboard &block
-      k = Keyboard.new self, Kredki.keyboard
-      k.instance_exec &block if block
-      k
+      Keyboard.new(self, Kredki.keyboard).alter &block
     end
 
     def joystick param = nil, &block
-      joystick = case param
+      case param
       when Joystick
         param
       when Kredki::Joystick
@@ -27,9 +23,7 @@ module Kredki
         j = Kredki.joystick param
         raise "Joystick #{param} not found" if !j
         Joystick.new self, j
-      end
-      joystick.instance_exec &block if block
-      joystick
+      end.alter &block
     end
 
     def clipboard

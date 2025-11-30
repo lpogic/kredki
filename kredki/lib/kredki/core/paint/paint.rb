@@ -1,24 +1,29 @@
-# @public
 module Kredki
-  # @public
+  # Base class for all graphical objects.
   class Paint
-    extend HasParams
+    extend HasFeatures
 
-    # @group Params
-
-    # @public
-    # Position along the X axis.
-    param def x! x = @x
+    # Set position along the X axis.
+    def x! x = @x
       return x! yield @x if block_given?
       return if @x == x
       @x = x
       update_transform
       update
     end
+    
+    # See #x!.
+    def x= param
+      Array === param ? (x! *param) : (x! param)
+    end
 
-    # @public
-    # Position along the Y axis.
-    param def y! y = @y
+    # Get position along the X axis.
+    def x
+      @x
+    end
+
+    # Set position along the Y axis.
+    def y! y = @y
       return y! yield @y if block_given?
       return if @y == y
       @y = y
@@ -26,28 +31,38 @@ module Kredki
       update
     end
 
-    # @public
-    # Position along X and Y axes.
-    param def xy! x = nil, y = nil
-      return xy! *Util.cover(yield self.xy) if block_given?
-      if x
-        y ||= x
-      else
-        x ||= @x
-        y ||= @y
-      end
+    # See #y!.
+    def y= param
+      Array === param ? (y! *param) : (y! param)
+    end
+
+    # Get position along the X axis.
+    def y
+      @y
+    end
+
+    # Set position along X and Y axes.
+    def xy! x = @x, y = x
+      return xy! *Util.cover(yield(self.xy)) if block_given?
       return if @x == x && @y == y
       @x = x
       @y = y
       update_transform
       update
-    end, def xy
-      [@x, @y]
+    end
+    
+    # See #xy!.
+    def xy= param
+      Array === param ? (xy! *param) : (xy! param)
     end
 
-    # @public
-    # The angle of rotation around the pivot point.
-    param def rot! rot = @rot
+    # Get position along X and Y axes.
+    def xy
+      [@x, @y]
+    end
+ 
+    # Set rotation angle around the pivot point.
+    def rot! rot = @rot
       return rot! yield @rot if block_given?
       return if @rot == rot
       @rot = rot
@@ -55,9 +70,18 @@ module Kredki
       update
     end
 
-    # @public
-    # The factor of magnification along the X axis.
-    param def magx! magx = @magx
+    # See #rot!.
+    def rot= param
+      Array === param ? (rot! *param) : (rot! param)
+    end
+
+    # Get rotation angle around the pivot point.
+    def rot
+      @rot
+    end
+
+    # Set magnification factor along the X axis.
+    def magx! magx = @magx
       return magx! yield @magx if block_given?
       return if @magx == magx
       @magx = magx
@@ -65,9 +89,18 @@ module Kredki
       update
     end
 
-    # @public
-    # The factor of magnification along the Y axis.
-    param def magy! magy = @magy
+    # See #magx!.
+    def magx= param
+      Array === param ? (magx! *param) : (magx! param)
+    end
+
+    # Get magnification factor along the X axis.
+    def magx
+      @magx
+    end
+
+    # Set magnification factor along the Y axis.
+    def magy! magy = @magy
       return magy! yield @magy if block_given?
       return if @magy == magy
       @magy = magy
@@ -75,12 +108,19 @@ module Kredki
       update
     end
 
-    # @public
-    # The factor of magnification along X and Y axes.
-    # @param magx [Numeric] The factor of magnification along the X axis.
-    # @param magy [Numeric, nil] The factor of magnification along the Y axis. Default is _magx_.
-    param def mag! magx = nil, magy = nil
-      return mag! *Util.cover(yield self.mag) if block_given?
+    # See #magy!.
+    def magy= param
+      Array === param ? (magy! *param) : (magy! param)
+    end
+
+    # Get magnification factor along the Y axis.
+    def magy
+      @magy
+    end
+
+    # Set magnification factor along X and Y axes.
+    def mag! magx = nil, magy = nil
+      return mag! *Util.cover(yield(self.mag)) if block_given?
       if magx
         magy ||= magx
       else
@@ -92,13 +132,20 @@ module Kredki
       @magy = magy
       update_transform
       update
-    end, def mag
+    end
+
+    # See #mag!.
+    def mag= param
+      Array === param ? (mag! *param) : (mag! param)
+    end
+
+    # Get magnification factor along X and Y axes.
+    def mag
       [@magx, @magy]
     end
 
-    # @public
-    # The degree of opacity.
-    param def opacity! opacity = @opacity
+    # Set opacity degree.
+    def opacity! opacity = @opacity
       return opacity! yield @opacity if block_given?
       return if @opacity == opacity
       set_opacity opacity.to_i
@@ -106,56 +153,119 @@ module Kredki
       update
     end
 
-    # @public
-    class BlendMethod
-      enum :normal, :add, :screen, :multiply, :overlay, :difference,
-        :exclusion, :srcover, :darken, :lighten, :colordodge, :colorburn,
-        :hardlight, :softlight
+    # See #opacity!.
+    def opacity= param
+      Array === param ? (opacity! *param) : (opacity! param)
     end
 
-    # @public
-    # The blending method of colors.
-    param def blend! blend = @blend
+    # Get opacity degree.
+    def opacity
+      @opacity
+    end
+
+    # Available blending methods.
+    class BlendMethod
+      # Blenging disabled (default).
+      def self.normal = 0
+      def self.add = 1
+      def self.screen = 2
+      def self.multiply = 3
+      def self.overlay = 4
+      def self.difference = 5
+      def self.exclusion = 6
+      def self.srcover = 7
+      def self.darken = 9
+      def self.lighten = 10
+      def self.color_dodge = 11
+      def self.color_burn = 12
+      def self.hard_light = 13
+      def self.soft_light = 14
+    end
+
+    # Set color blending method.
+    def blend! blend = @blend
       return blend! yield @blend if block_given?
       return if @blend == blend
-      set_blend BlendMethod[blend || :normal].to_i
+      set_blend BlendMethod.send(blend || :normal)
       @blend = blend
       update
     end
 
-    # @public
-    class MaskMethod
-      enum :none, :alpha, :inv_alpha, :luma, :inv_luma
-      # :add, :substract, :intersect, :difference, :lighten, :darken
+    # See #blend!.
+    def blend= param
+      Array === param ? (blend! *param) : (blend! param)
     end
 
-    # @public
-    # The masking method of colors.
-    param def mask! mask = @mask, target = nil
+    # Get color blending method.
+    def blend
+      @blend
+    end
+
+    # Available masking methods.
+    class MaskMethod
+      # Masking disabled (default).
+      def self.none = 0
+      def self.alpha = 1
+      def self.inv_alpha = 2
+      def self.luma = 3
+      def self.inv_luma = 4
+
+      # ADD = 5
+      # SUBSTRACT = 6
+      # INTERSECT = 7
+      # DIFFERENCE = 8
+      # LIGHTEN = 9
+      # DARKEN = 10
+    end
+
+    # Set color masking method with +target+.
+    def mask! mask = @mask, target = nil
       return mask! *Util.cover(yield @mask, @mask_target) if block_given?
       return if @mask == mask && @mask_target == target
       @mask_target&.unset_masking
       target&.set_masking self
-      set_mask MaskMethod[mask || :none].to_i, target
+      set_mask MaskMethod.send(mask || :none), target
       @mask = mask
       @mask_target = target
       update
     end
 
-    # @public
-    # Whether it should be drawn on the Scene.
-    # @note Containging Scene and all lower level Scenes must be shown for the paint to be displayed on the screen.
-    flag def show! value = true
-      return if (c = show) == (value = block_given? ? (yield c) : value == :not ? !c : value)
+    # See #mask!.
+    def mask= param
+      Array === param ? (mask! *param) : (mask! param)
+    end
+
+    # Get color masking method.
+    def mask
+      @mask
+    end
+
+    # Set whether Paint is drawn on the scene.
+    #
+    # Containing Kredki::Scene and all lower level Scenes must be shown for the Paint to be displayed on the screen.
+    def show! value = true
+      return if (c = show) == (value = block_given? ? yield(c) : value == :not ? !c : value)
       set_show value
       true
-    end, def show
+    end
+
+    # See #show!.
+    def show= value
+      show! value
+    end
+    
+    # Get whether Paint is drawn on the screen.
+    def show
       get_show
     end
 
-    # @public
-    # A clipping that will be presented.
-    param def clip! clip = @clip
+    # See #show.
+    def show?
+      !!show
+    end
+
+    # Set the Kredki::Shape to use as the Paint clipping path.
+    def clip! clip = @clip
       return yield @clip if block_given?
       clip = nil unless clip
       return if @clip == clip
@@ -166,57 +276,59 @@ module Kredki
       update
     end
 
-    # @endgroup
+    # See #clip!.
+    def clip= param
+      Array === param ? (clip! *param) : (clip! param)
+    end
 
-    # @public
+    # Get the Kredki::Shape used as the Paint clipping path.
+    def clip
+      @clip
+    end
+
+    # Get the extreme coordinates occupied by the Paint.
     def bounds
-      bounds = Abi::Bounds.malloc(Fiddle::RUBY_FREE)
-      Abi.paint_get_bounds @pointer, bounds
+      bounds = Pastele::Bounds.malloc(Fiddle::RUBY_FREE)
+      Pastele.paint_get_bounds @pointer, bounds
       bounds
     end
 
-    # @public
-    # Detaches the Paint from the Scene.
+    # Detach the Paint from the containing Kredki::Scene.
     def detach!
       @scene&.remove_paint self
       @scene = nil
     end
 
-    # @public
-    # Attaches the Paint to the Scene.
+    # Attach the Paint to the Kredki::Scene.
     def attach! scene, show = true, at = nil
       @scene&.remove_paint self
       scene.put_paint self, show, at
       @scene = scene
     end
 
-    # @public
-    # Stops showing the Paint.
+    # Stop showing the Paint.
     def hide!
       set_show false
     end
 
-    # @public
-    # Returns the associated Window.
+    # Get the associated Kredki::Window.
     def window
       @scene&.window
     end
 
-    # @public
-    # Returns the associated Action.
+    # Get the associated Kredki::Action.
     def action
       @scene&.action
     end
 
-    # @public
-    # Attribute pushing method.
-    # @note This definition is for error detection purposes only and should be overridden in a derived class.
-    def << param
-      raise_ia param
+    # Push the feature.
+    #
+    # This definition is for error detection purposes only and should be overridden in a derived class.
+    def << feature
+      raise_ia feature
     end
 
-    # @public 
-    # Returns the Paint attributes as the Hash.
+    # Get features.
     def to_hash
       {
         x: @x,
@@ -229,7 +341,7 @@ module Kredki
       }
     end
 
-    #internal api
+    # :section: LEVEL 2
 
     def initialize pointer
       @pointer = pointer
@@ -279,15 +391,15 @@ module Kredki
     end
 
     def set_clip target
-      Abi.paint_set_clip @pointer, target&.pointer
+      Pastele.paint_set_clip @pointer, target&.pointer
     end
 
     def set_mask mask, target
-      Abi.paint_set_mask @pointer, target&.pointer, mask
+      Pastele.paint_set_mask @pointer, target&.pointer, mask
     end
 
     def set_opacity opacity
-      Abi.paint_set_opacity @pointer, opacity
+      Pastele.paint_set_opacity @pointer, opacity
     end
 
     def pxy
@@ -295,11 +407,11 @@ module Kredki
     end
 
     def update_transform
-      Abi.paint_set_transform @pointer, *pxy, @x, @y, @rot, @magx, @magy
+      Pastele.paint_set_transform @pointer, *pxy, @x, @y, @rot, @magx, @magy
     end
 
     def set_blend blend
-      Abi.paint_set_blend_method @pointer, blend
+      Pastele.paint_set_blend_method @pointer, blend
     end
   end
 end

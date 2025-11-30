@@ -19,7 +19,7 @@ module Kredki
         end
       end
 
-      #internal api
+      # :section: LEVEL 2
 
       def initialize
         super

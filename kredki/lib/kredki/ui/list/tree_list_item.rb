@@ -23,7 +23,7 @@ module Kredki
         dir!
       end
 
-      param def level! level
+      feature def level! level
         return if @level == level
         @level = level
         update_level
@@ -32,7 +32,7 @@ module Kredki
         @level || 0
       end
 
-      #internal api
+      # :section: LEVEL 2
 
       def set_open open
         parent.update_show

@@ -1,6 +1,4 @@
 require_relative 'rake-config' if File.exist? "rake-config.rb"
-require 'yard'
-require_relative 'yard-extension'
 
 task default: :run
 
@@ -43,14 +41,12 @@ task :samples do
   end
 end
 
-YARD::Rake::YardocTask.new do |t|
-  t.files = ['kredki/lib/**/*.rb', '-', './parameters.md']
-  # t.files = ['sketch/sketch.rb']
-  t.options = [
-    '--tag', 'public', 
-    '--hide-tag', 'public', 
-    '--query', '@public',
-  ]
+require 'rdoc/task'
+
+RDoc::Task.new do |rdoc|
+  rdoc.main = "readme.md"
+  rdoc.rdoc_files.include("readme.md", "kredki/lib/**/*.rb")
+  rdoc.template = "rorvswild"
 end
 
 def check_vars *vars, file: true
@@ -206,12 +202,12 @@ when /cygwin|mswin|mingw|bccwin|wince|emx/
     end
   
     task :bind do
-      File.open "kredki/lib/kredki/core/abi/tvg.gen.rb", "w" do |file|
+      File.open "kredki/lib/kredki/core/pastele/pastele-extern.rb", "w" do |file|
         file.write <<~xx
-        ## Generated file - manual changes not recommended
+        ## File generated from pastele/cabi.h
   
         module Kredki
-          module Abi
+          module Pastele
         xx
         File.new("pastele/cabi.h").each_line do |line|
           if lm = /^\s*CABI\s+(.+)\s+(\w+)\((.*)\);/.match(line)

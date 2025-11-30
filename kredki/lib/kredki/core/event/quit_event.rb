@@ -1,6 +1,6 @@
 require_relative 'event'
 
 module Kredki
-  class QuitEvent < AbiEvent
+  class QuitEvent < PasteleEvent
   end
 end

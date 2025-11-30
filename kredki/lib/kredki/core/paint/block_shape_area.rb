@@ -3,6 +3,8 @@ require_relative 'shape_area'
 module Kredki
   class BlockShapeArea < ShapeArea
 
+    # :section: LEVEL 2
+
     def initialize block
       @block = block
       super()

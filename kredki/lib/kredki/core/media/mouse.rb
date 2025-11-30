@@ -1,6 +1,6 @@
 module Kredki
   class Mouse
-    extend HasParams
+    extend HasFeatures
 
     class Button
       model :id, :buttoncode
@@ -28,13 +28,13 @@ module Kredki
       alter &block
     end
 
-    param def scrollbar_speed! speed = @scrollbar_speed
+    feature def scrollbar_speed! speed = @scrollbar_speed
       return scrollbar_speed! yield @scrollbar_speed if block_given?
       @scrollbar_speed = speed
       true
     end
 
-    param def scrollbar_alt_speed! speed = @scrollbar_alt_speed
+    feature def scrollbar_alt_speed! speed = @scrollbar_alt_speed
       return scrollbar_alt_speed! yield @scrollbar_alt_speed if block_given?
       @scrollbar_alt_speed = speed
       true
@@ -71,7 +71,7 @@ module Kredki
     end
     
     flag def relative! value = true
-      return if (c = relative) == (value = block_given? ? (yield c) : value == :not ? !c : value)
+      return if (c = relative) == (value = block_given? ? yield(c) : value == :not ? !c : value)
       set_relative value
       @relative = value
       true
@@ -82,30 +82,30 @@ module Kredki
     end
 
     flag def in_window! value = true
-      return if (c = in_window) == (value = block_given? ? (yield c) : value == :not ? !c : value)
+      return if (c = in_window) == (value = block_given? ? yield(c) : value == :not ? !c : value)
       @in_window = value
       true
     end, def in_window
       get_in_window
     end
 
-    #internal api
+    # :section: LEVEL 2
 
     private
 
     def is_button_down index
-      Abi.mouse_get_button_state(index) != 0
+      Pastele.mouse_get_button_state(index) != 0
     end
 
     def get_cursor_position
-      point = Abi::Point.malloc(Fiddle::RUBY_FREE)
-      Abi.mouse_get_cursor_position point
+      point = Pastele::Point.malloc(Fiddle::RUBY_FREE)
+      Pastele.mouse_get_cursor_position point
       [point.x, point.y]
     end
 
     def set_relative relative
       @relative = relative
-      Abi.mouse_set_relative_mode relative ? 1 : 0
+      Pastele.mouse_set_relative_mode relative ? 1 : 0
     end
 
     def get_in_window

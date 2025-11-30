@@ -13,14 +13,14 @@ module Kredki
         self.reset_cursor if reset_cursor
       end
 
-      param def font! font = nil
-        return font! (yield self.font) if block_given?
+      feature def font! font = nil
+        return font! (yield(self.font)) if block_given?
         @lines.each{ _1.text.font! font }
       end, def font
         @lines.first.text.font
       end
 
-      param_service def cursor
+      feature_service def cursor
         @cursor
       end
 
@@ -106,7 +106,7 @@ module Kredki
         layer&.break_layout
       end
 
-      #internal api
+      # :section: LEVEL 2
 
       attr :selection
 

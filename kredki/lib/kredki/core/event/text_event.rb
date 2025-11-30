@@ -1,7 +1,7 @@
 require_relative 'event'
 
 module Kredki
-  class TextEvent < AbiEvent
+  class TextEvent < PasteleEvent
     
     def initialize ptr, abi
       super abi
@@ -11,7 +11,7 @@ module Kredki
 
     attr :text
 
-    def ~()
+    def param
       text
     end
   end

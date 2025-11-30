@@ -1,56 +1,71 @@
 module Kredki
   module LocalMedia
     class Mouse
-      extend HasParams
+      extend HasFeatures
+      extend HasEventResolvers
 
-      model :reference, :mouse
+      model :host, :mouse
 
       def indexes input
         input.flatten.map{ @mouse.button(_1).to_i }.uniq
       end
 
-      def on_move! ...
-        @reference.on_mouse_move!(...)
+      event_resolver def on_move! ...
+        @host.on_mouse_move!(...)
       end
       
-      def on_scroll! ...
-        @reference.on_mouse_scroll!(...)
+      event_resolver def on_scroll! ...
+        @host.on_mouse_scroll!(...)
       end
 
-      def on_down! ...
-        @reference.on_mouse_down!(...)
+      event_resolver def on_down! ...
+        @host.on_mouse_down!(...)
       end
 
-      def on_up! ...
-        @reference.on_mouse_up!(...)
+      event_resolver def on_up! ...
+        @host.on_mouse_up!(...)
       end
 
-      def on_drop! ...
-        @reference.on_drop!(...)
+      event_resolver def on_drop! ...
+        @host.on_drop!(...)
       end
 
-      def on_enter! ...
-        @reference.on_enter!(...)
+      event_resolver def on_enter! ...
+        @host.on_enter!(...)
       end
 
-      def on_leave! ...
-        @reference.on_leave!(...)
+      event_resolver def on_leave! ...
+        @host.on_leave!(...)
       end
 
       flag def capture! value = true
-        return if (c = capture) == (value = block_given? ? (yield c) : value == :not ? !c : value)
+        return if (c = capture) == (value = block_given? ? yield(c) : value == :not ? !c : value)
         set_capture value
         true
       end, def capture
         get_capture
       end
 
-      flag def grab! value = true
-        return if (c = grab) == (value = block_given? ? (yield c) : value == :not ? !c : value)
-        set_grab value
+      # Set whether the cursor is confined to the window.
+      def grab! value = true
+        return if (c = grab) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+        @host.window&.set_mouse_grab value
         true
-      end, def grab
-        get_grab
+      end
+
+      # See #grab!.
+      def grab= value
+        grab! value
+      end
+      
+      # Get whether the cursor is confined to the window.
+      def grab
+        @host.window&.get_mouse_grab
+      end
+
+      # See #grab.
+      def grab?
+        !!grab
       end
 
       def x
@@ -62,31 +77,23 @@ module Kredki
       end
 
       def xy
-        @reference.action.screen_translate *@mouse.xy, @reference
+        @host.action.screen_translate *@mouse.xy, @host
       end
 
       def_delegators :@mouse,
         :down?, :in_window?
 
-      param_delegate :@mouse, :relative
+      feature_delegate :@mouse, :relative
 
-      #internal api
+      # :section: LEVEL 2
 
       def set_capture capture
-        Abi.mouse_set_capture capture ? 1 : 0
+        Pastele.mouse_set_capture capture ? 1 : 0
       end
 
       def get_capture
-        w = @reference.window
-        Abi.window_get_flags(w.pointer) & 0x4000 != 0 if w
-      end
-
-      def set_grab grab
-        @reference.window&.grab! grab
-      end
-
-      def get_grab
-        @reference.window&.grab?
+        w = @host.window
+        Pastele.window_get_flags(w.pointer) & 0x4000 != 0 if w
       end
     end
   end

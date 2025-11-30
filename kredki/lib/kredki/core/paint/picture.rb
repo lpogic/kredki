@@ -5,28 +5,8 @@ module Kredki
   class Picture < Paint
     include Area
 
-    def initialize pointer = nil
-      @w = @h = 100
-      @redraw_flag = true
-      return super if pointer
-      super Abi.picture_new
-      ObjectSpace.define_finalizer(self, self.class.proc.finalize(@pointer))
-    end
-
-    def << param
-      case param
-      in [w, h]
-        wh! w, h
-      in Numeric
-        wh! param
-      in String
-        content! param
-      else
-        super
-      end
-    end
-
-    param def content! content, pull_size = false
+    # Set content.
+    def content! content, pull_size = false
       return content! yield @content if block_given?
       return if @content == content
       set_content content.to_s
@@ -40,24 +20,56 @@ module Kredki
       update
     end
 
-    #internal api
+    # See #content!.
+    def content= param
+      Array === param ? (content! *param) : (content! param)
+    end
+
+    # Get content.
+    def content
+      @content
+    end
+
+    # Push the feature.
+    def << feature
+      case feature
+      in [w, h]
+        wh! w, h
+      in Numeric
+        wh! feature
+      in String
+        content! feature
+      else
+        super
+      end
+    end
+
+    # :section: LEVEL 2
+
+    def initialize pointer = nil
+      @w = @h = 100
+      @redraw_flag = true
+      return super if pointer
+      super Pastele.picture_new
+      ObjectSpace.define_finalizer(self, self.class.proc.finalize(@pointer))
+    end
 
     def self.finalize pointer
-      Abi.paint_delete pointer
+      Pastele.paint_delete pointer
     end
 
     def set_size x, y
-      Abi.picture_set_size @pointer, x, y
+      Pastele.picture_set_size @pointer, x, y
     end
 
     def get_size
-      size = Abi::Point.malloc(Fiddle::RUBY_FREE)
-      Abi.picture_get_size @pointer, size
+      size = Pastele::Point.malloc(Fiddle::RUBY_FREE)
+      Pastele.picture_get_size @pointer, size
       [size.x, size.y]
     end
 
     def set_content content
-      Abi.picture_load @pointer, content
+      Pastele.picture_load @pointer, content
     end
 
     def pxy

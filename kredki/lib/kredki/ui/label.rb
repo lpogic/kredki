@@ -5,7 +5,7 @@ module Kredki
     class Label < SortPad
       include TextNavigation
       
-      #internal api
+      # :section: LEVEL 2
 
       def initialize
         super
@@ -15,15 +15,15 @@ module Kredki
         end
       end
 
-      param def for! new_for = nil
-        return for! (yield self.for) if block_given?
+      feature def for! new_for = nil
+        return for! (yield(self.for)) if block_given?
         return if @for == new_for
         @for = new_for
         true
       end
 
-      param def text! text = ""
-        return text! (yield self.text) if block_given?
+      feature def text! text = ""
+        return text! (yield(self.text)) if block_given?
         @text.content! text
       end, def text
         @text.content
@@ -49,7 +49,7 @@ module Kredki
 
         on_mouse_click! do |e|
           find_pad @for, proc{ it.keyboardy? } do
-            focus!
+            keyboard_request
             report e
           end
         end

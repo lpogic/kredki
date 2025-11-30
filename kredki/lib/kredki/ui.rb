@@ -5,10 +5,6 @@ module Kredki
     class << self
       attr_accessor :layout_map
 
-      def eqr a, b
-        a == b and (Rational === a) == (Rational === b)
-      end
-
       def layout! id, type, *a
         @layout_map[id] = type.new *a
       end

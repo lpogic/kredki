@@ -9,7 +9,7 @@ module Kredki
         dropdown!.item_group.item!(...)
       end
 
-      param def dropdown! ...
+      feature def dropdown! ...
         if !@dropdown
           @dropdown = new ToolbarPrimaryLayer
           @dropdown.pad_detach
@@ -21,7 +21,7 @@ module Kredki
         @dropdown&.[](Item)
       end
 
-      #internal api
+      # :section: LEVEL 2
 
       def initialize
         super
@@ -41,7 +41,7 @@ module Kredki
         on_key_down! :down, :up, :enter, :space do |e|
           if @dropdown
             @dropdown.load! self unless @dropdown.loaded?
-            @dropdown[Item]&.focus! and e.resolve
+            @dropdown[Item]&.keyboard_request and e.resolve
           end
         end
 

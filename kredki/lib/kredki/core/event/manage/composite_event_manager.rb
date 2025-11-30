@@ -6,9 +6,13 @@ module Kredki
       resolver = case attached
       when BlockEventResolver
         BlockEventResolver.new attached.block, self, always
+      when MethodEventResolver
+        MethodEventResolver.new attached.method, self, always
+      when JobEventResolver
+        JobEventResolver.new attached.job, self, always
       when Proc
         BlockEventResolver.new attached, self, always
-      else raise "Unsupported attached type (#{attached.class})"
+      else raise_ia attached
       end
       @managers.each{ _1.resolvers << resolver }
       resolver

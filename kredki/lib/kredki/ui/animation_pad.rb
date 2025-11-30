@@ -2,7 +2,7 @@ module Kredki
   module UI
     class AnimationPad < Pad
 
-      param_delegate :@area,
+      feature_delegate :@area,
         :content, :play
 
       def << arg
@@ -14,7 +14,7 @@ module Kredki
         end
       end
 
-      #internal api
+      # :section: LEVEL 2
 
       def initialize_area
         @area = @scene.animation!

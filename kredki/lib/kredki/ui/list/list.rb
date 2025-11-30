@@ -12,7 +12,7 @@ module Kredki
         @item_group.item! *a, w: 1r, **na, &b
       end
 
-      #internal api
+      # :section: LEVEL 2
 
       def sketch
         super

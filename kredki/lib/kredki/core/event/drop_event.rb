@@ -12,8 +12,8 @@ module Kredki
 
     attr :file
 
-    def [](key = :file)
-      send key
+    def param
+      file
     end
   end
   

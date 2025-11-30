@@ -68,7 +68,7 @@ module Kredki
       is_scroll_locked
     end
 
-    #internal api
+    # :section: LEVEL 2
 
     def inspect
       "#{self.class}:#{object_id}"
@@ -77,31 +77,31 @@ module Kredki
     private
 
     def is_key_down keycode
-      Abi.keyboard_get_key_state(keycode) != 0
+      Pastele.keyboard_get_key_state(keycode) != 0
     end
 
     def is_ctrl_down
-      Abi.keyboard_get_ctrl_state != 0
+      Pastele.keyboard_get_ctrl_state != 0
     end
 
     def is_alt_down
-      Abi.keyboard_get_alt_state != 0
+      Pastele.keyboard_get_alt_state != 0
     end
 
     def is_shift_down
-      Abi.keyboard_get_shift_state != 0
+      Pastele.keyboard_get_shift_state != 0
     end
 
     def is_scroll_locked
-      Abi.keyboard_get_scroll_state != 0
+      Pastele.keyboard_get_scroll_state != 0
     end
 
     def is_caps_locked
-      Abi.keyboard_get_caps_state != 0
+      Pastele.keyboard_get_caps_state != 0
     end
 
     def is_num_locked
-      Abi.keyboard_get_num_state != 0
+      Pastele.keyboard_get_num_state != 0
     end
   end
 end

@@ -17,8 +17,8 @@ module Kredki
         model :origin, :<
       end
 
-      param def fill! *fill
-        return fill! *Util.cover(yield self.fill) if block_given?
+      feature def fill! *fill
+        return fill! *Util.cover(yield(self.fill)) if block_given?
         fill = Util.uncover fill
         return if @fill == fill
         @fill = fill
@@ -42,13 +42,13 @@ module Kredki
       event_resolver :on_click!, ButtonClickEvent
 
       flag def down! value = true, event = nil
-        return if (c = down) == (value = block_given? ? (yield c) : value == :not ? !c : value)
+        return if (c = down) == (value = block_given? ? yield(c) : value == :not ? !c : value)
         @down = value
         report (@down ? ButtonDownEvent.new(event) : ButtonUpEvent.new(event)) if event
         true
       end
 
-      #internal api
+      # :section: LEVEL 2
 
       def sketch
         super
@@ -61,7 +61,7 @@ module Kredki
         end
 
         keyboardy!
-        out_w! 1
+        outline_w! 1
         layout! :acc
         wh! :fit
         fill! :gray
@@ -85,7 +85,7 @@ module Kredki
       def repaint event = nil
         color = Kredki.color @fill
         area.fill = down? ? color.darken : mouse_in? ? color.lighten : color
-        area.out_fill = keyboard_in? ? :outline_focus : color.darken
+        area.outline_fill = keyboard_in? ? :outline_focus : color.darken
       end
 
       def sketch_behavior
@@ -100,17 +100,17 @@ module Kredki
         end
 
         on_mouse_up! :primary do |e|
-          down = keyboard_in? && ( key_down?(:space) || key_down?(:enter) )
+          down = keyboard_in? && ( keyboard.down?(:space) || keyboard.down?(:enter) )
           report ButtonClickEvent.new e if !down && down!(false, e) && !e.drag && include_point?(*layer.translate(*e.xy, self))
         end
 
         on_key_up! :enter do |e|
-          down = pin_top?(:primary) || ( keyboard_in? && key_down?(:space) )
+          down = pin_top?(:primary) || ( keyboard_in? && keyboard.down?(:space) )
           report ButtonClickEvent.new e if !down && down!(false, e)
         end
 
         on_key_up! :space do |e|
-          down = pin_top?(:primary) || ( keyboard_in? && key_down?(:enter) )
+          down = pin_top?(:primary) || ( keyboard_in? && keyboard.down?(:enter) )
           report ButtonClickEvent.new e if !down && down!(false, e)
         end
       end

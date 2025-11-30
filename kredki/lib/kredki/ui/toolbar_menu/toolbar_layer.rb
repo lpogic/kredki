@@ -19,7 +19,7 @@ module Kredki
 
       attr :items, :item_group
 
-      #internal api
+      # :section: LEVEL 2
 
       def initialize
         super

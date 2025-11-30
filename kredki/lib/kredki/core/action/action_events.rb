@@ -5,7 +5,6 @@ require_relative '../event/joystick_event'
 require_relative '../event/drop_event'
 require_relative '../event/quit_event'
 require_relative '../event/window_event'
-require_relative '../event/step_event'
 
 module Kredki
   module ActionEvents
@@ -15,25 +14,25 @@ module Kredki
       @event_manager.manager event_type, block || binding.local_variable_get(:do)
     end
 
-    event_resolver def on_key_down! *filtered_keys, do: nil, &block
-      keycodes = keyboard.keycodes filtered_keys
+    event_resolver def on_key_down! *selected_keys, do: nil, &block
+      keycodes = keyboard.keycodes selected_keys
       @event_manager.keyboard_manager KeyDownEvent, keycodes, block || binding.local_variable_get(:do)
     end
 
-    event_resolver def on_key_up! *filtered_keys, do: nil, &block
-      keycodes = keyboard.keycodes filtered_keys
+    event_resolver def on_key_up! *selected_keys, do: nil, &block
+      keycodes = keyboard.keycodes selected_keys
       @event_manager.keyboard_manager KeyUpEvent, keycodes, block || binding.local_variable_get(:do)
     end
 
     event_resolver :on_text!, TextEvent
 
-    event_resolver def on_mouse_down! *filtered_buttons, do: nil, &block
-      indexes = mouse.indexes filtered_buttons
+    event_resolver def on_mouse_down! *selected_buttons, do: nil, &block
+      indexes = mouse.indexes selected_buttons
       @event_manager.mouse_manager MouseButtonDownEvent, indexes, block || binding.local_variable_get(:do)
     end
 
-    event_resolver def on_mouse_up! *filtered_buttons, do: nil, &block
-      indexes = mouse.indexes filtered_buttons
+    event_resolver def on_mouse_up! *selected_buttons, do: nil, &block
+      indexes = mouse.indexes selected_buttons
       @event_manager.mouse_manager MouseButtonUpEvent, indexes, block || binding.local_variable_get(:do)
     end
 
@@ -42,21 +41,21 @@ module Kredki
     event_resolver :on_mouse_move!, MouseMoveEvent
     event_resolver :on_mouse_scroll!, MouseScrollEvent
 
-    event_resolver def on_joystick_down! joystick, *filtered_buttons, do: nil, &block
+    event_resolver def on_joystick_down! joystick, *selected_buttons, do: nil, &block
       action_joystick = self.joystick joystick
-      indexes = action_joystick.buttons filtered_buttons
+      indexes = action_joystick.buttons selected_buttons
       @event_manager.joystick_manager JoystickButtonDownEvent, action_joystick.joystick, indexes, block || binding.local_variable_get(:do)
     end
 
-    event_resolver def on_joystick_up! joystick, *filtered_buttons, do: nil, &block
+    event_resolver def on_joystick_up! joystick, *selected_buttons, do: nil, &block
       action_joystick = self.joystick joystick
-      indexes = action_joystick.buttons filtered_buttons
+      indexes = action_joystick.buttons selected_buttons
       @event_manager.joystick_manager JoystickButtonUpEvent, action_joystick.joystick, indexes, block || binding.local_variable_get(:do)
     end
 
-    event_resolver def on_joystick_move! joystick, *filtered_axes, do: nil, &block
+    event_resolver def on_joystick_move! joystick, *selected_axes, do: nil, &block
       action_joystick = self.joystick joystick
-      indexes = action_joystick.axes filtered_axes
+      indexes = action_joystick.axes selected_axes
       @event_manager.joystick_manager JoystickAxisEvent, action_joystick.joystick, indexes, block || binding.local_variable_get(:do)
     end
 
@@ -81,7 +80,5 @@ module Kredki
     event_resolver :on_hit_test!, WindowHitTestEvent
     event_resolver :on_iccprof_change!, WindowIccprofChangeEvent
     event_resolver :on_display_change!, WindowDisplayChangeEvent
-
-    event_resolver :on_step!, StepEvent
   end
 end

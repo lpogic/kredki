@@ -1,6 +1,6 @@
 require 'kredki'
 
-# Shows different ways of parametrization. Every point gives the same result.
+# Pad customization overview. Every point gives the same result.
 
 layout! :ybb
 mi! 4

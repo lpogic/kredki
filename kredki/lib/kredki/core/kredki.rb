@@ -1,96 +1,99 @@
-require_relative 'alterable'
-require_relative 'has_params'
+require_relative 'has_features'
 require_relative 'event/manage/has_event_resolvers'
 
+# Root gem module.
 module Kredki
   class << self
-    extend Forwardable
-
-    def arena!
-      if !@arena
-        Abi.thorvg_engine_init 2, 4
-        Abi.sdl_init ($kredki_joystick || joystick ? 1 : 0)
-        @arena = Arena.new
-      end
-      @arena
-    end
  
+    # Start application loop.
     def run! action = nil, *a, **na, &block
       if !@arena
         arena!.window! action, *a, **na, &block
       else
         @arena.window.action! action, *a, **na, &block
       end
+      @run_ms = Pastele.sdl_get_ticks
       @arena.run!
     end
 
-    def_delegators :@arena,
-      :terminate!
+    # Break application loop.
+    def terminate! ...
+      @arena.terminate!(...)
+    end
 
-    attr_accessor :clipboard, :keyboard, :mouse, :joysticks, :plugins
-    attr :arena
-
+    # Milliseconds since application loop was started.
+    def ms
+      Pastele.sdl_get_ticks - @run_ms
+    end
+    
+    # Set clipboard model.
     def clipboard! clipboard = nil
       @clipboard = clipboard || Clipboard.new
     end
 
+    # Set keyboard model.
     def keyboard! keyboard = nil, **na, &b
       @keyboard = keyboard || Keyboard.new
       @keyboard.alter **na, &b
     end
 
+    # Set mouse model.
     def mouse! mouse = nil, **na, &b
       @mouse = mouse || Mouse.new
       @mouse.alter **na, &b
     end
 
+    # Set joystick model.
     def joystick! id = nil, joystick = nil, **na, &b
       (@joysticks[id] = joystick || Joystick.new).alter **na, &b
     end
 
+    # Get joystick model.
     def joystick id = nil
       @joysticks[id] or raise "Joystick #{id.inspect} not registered"
     end
 
+    # Set plugin.
     def plugin! id, &b
       @plugins[id] = b
     end
 
+    # Get plugin.
     def plugin id
       @plugins[id]
     end
-
-    attr_accessor :font_map
     
+    # Set font.
     def font! id, path
-      @font_map[id] = Font.new path
+      @fonts[id] = Font.new path
     end
 
+    # Get font.
     def font param = nil
       case param
       when nil
-        @font_map.each_value&.first or raise "No fonts loaded"
+        @fonts.each_value&.first or raise "No fonts loaded"
       when Font
         param
       when :rand
-        @font_map.values.sample or raise "No fonts loaded"
+        @fonts.values.sample or raise "No fonts loaded"
       when String
-        @font_map.each_value.find{ it.name == param || it.path == param } or raise "Unknown font #{param.inspect}"
+        @fonts.each_value.find{ it.name == param || it.path == param } or raise "Unknown font #{param.inspect}"
       else
-        @font_map.itself[param] or raise "Unknown font #{param.inspect}"
+        @fonts.itself[param] or raise "Unknown font #{param.inspect}"
       end
     end
 
-    attr_accessor :color_map
-
+    # Set color.
     def color! id, *a
-      @color_map[id] = Color.parse *a
+      @colors[id] = Color.parse *a
     end
 
+    # Get color.
     def color param = nil
       case param
       when nil
-        @color_map.each_value.first || Color.new(255, 255, 255)
+        @colors.each_value.first || Color.new(255, 255, 255)
       when Color
         param
       when :rand
@@ -102,24 +105,37 @@ module Kredki
           Color.new *param
         end
       else
-        @color_map[param] or raise "Unknown color #{param}"
+        @colors[param] or raise "Unknown color #{param}"
       end
     end
 
-    #internal api
+    # :section: LEVEL 2
 
+    attr_accessor :clipboard, :keyboard, :mouse, :joysticks, :plugins
+    attr :arena
     attr_accessor :opened_joysticks
+    attr_accessor :fonts
+    attr_accessor :colors
+
+    def arena!
+      if !@arena
+        Pastele.thorvg_engine_init 2, 4
+        Pastele.sdl_init ($kredki_joystick || joystick ? 1 : 0)
+        @arena = Arena.new
+      end
+      @arena
+    end
 
   end
 
-  self.color_map = {}
-  self.font_map = {}
+  self.colors = {}
+  self.fonts = {}
   self.joysticks = {}
   self.opened_joysticks = {}
   self.plugins = {}
 end
 
-require_relative 'abi/abi'
+require_relative 'pastele/pastele'
 
 require_relative 'arena'
 require_relative 'media/clipboard'
