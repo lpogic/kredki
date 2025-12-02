@@ -6,7 +6,9 @@ require_relative '../event/manage/joystick_event_manager'
 module Kredki
   class ActionEventManager
 
-    model do
+    # :section: LEVEL 2
+
+    def initialize
       @managers = {}
     end
 

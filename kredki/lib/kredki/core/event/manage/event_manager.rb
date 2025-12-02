@@ -3,7 +3,10 @@ require_relative 'method_event_resolver'
 require_relative 'job_event_resolver'
 
 module Kredki
+  # Manage generic event resolving.
   class EventManager
+
+    # :section: LEVEL 2
 
     def initialize
       @resolvers = []

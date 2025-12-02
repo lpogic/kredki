@@ -121,16 +121,20 @@ bool Window::getGrab(void) {
     return SDL_GetWindowMouseGrab(sdl_window);
 }
 
-void Window::setMaximumSize(int w, int h) {
-    SDL_SetWindowMaximumSize(sdl_window, w, h);
-}
-
 void Window::setMinimumSize(int w, int h) {
     SDL_SetWindowMinimumSize(sdl_window, w, h);
 }
 
+void Window::setMaximumSize(int w, int h) {
+    SDL_SetWindowMaximumSize(sdl_window, w, h);
+}
+
 void Window::getMinimumSize(int*w, int* h) {
     SDL_GetWindowMinimumSize(sdl_window, w, h);
+}
+
+void Window::getMaximumSize(int*w, int* h) {
+    SDL_GetWindowMaximumSize(sdl_window, w, h);
 }
 
 void Window::setOpacity(float opacity) {

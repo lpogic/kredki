@@ -1,6 +1,12 @@
 module Kredki
+  # Collection of event managers used as a single entity.
   class CompositeEventManager
-    model :@managers
+
+    # :section: LEVEL 2
+
+    def initialize managers
+      @managers = managers
+    end
 
     def attach! attached, always: false
       resolver = case attached

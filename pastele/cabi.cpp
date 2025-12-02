@@ -177,16 +177,20 @@ CABI int window_get_mouse_grab(pas::Window* self) {
     return (int) self->getGrab();
 }
 
-CABI void window_set_maximum_size(pas::Window* self, int w, int h) {
-    self->setMaximumSize(w, h);
-}
-
 CABI void window_set_minimum_size(pas::Window* self, int w, int h) {
     self->setMinimumSize(w, h);
 }
 
+CABI void window_set_maximum_size(pas::Window* self, int w, int h) {
+    self->setMaximumSize(w, h);
+}
+
 CABI void window_get_minimum_size(pas::Window* self, IntPoint* point) {
-    self->getPosition(&point->x, &point->y);
+    self->getMinimumSize(&point->x, &point->y);
+}
+
+CABI void window_get_maximum_size(pas::Window* self, IntPoint* point) {
+    self->getMaximumSize(&point->x, &point->y);
 }
 
 CABI void window_set_opacity(pas::Window* self, float opacity) {

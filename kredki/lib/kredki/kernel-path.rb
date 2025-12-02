@@ -32,5 +32,18 @@ class Object
     end
     instance_exec self, &block if block
     self
-  end 
+  end
+
+  def send_ahp method, param
+    if Array === param
+      if Hash === param.last
+        *a, h = param
+        send method, *a, **h
+      else
+        send method, *param
+      end
+    else
+      send method, param
+    end
+  end
 end

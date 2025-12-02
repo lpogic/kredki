@@ -5,32 +5,67 @@ require_relative 'action_event_manager'
 require_relative '../media/local_media'
 
 module Kredki
+  # Root element of Paint tree. Stores event resolvers and jobs.
   class Action < Scene
-    extend HasFeatures
     include ActionEvents
     include LocalMedia
     
+    # Call plugin Proc in Action context.
     def use! id, *a, **na
       plugin = Kredki.plugin id
       raise_ia id unless plugin
       instance_exec *a, **na, &plugin
     end
 
-    def window ...
-      @scene&.alter(...)
+    # Get Kredki::Window ancestor.
+    def window
+      @scene
     end
 
+    # Get Kredki::Action ancestor. 
     def action
       self
     end
 
-    attr :the
+    # Get static Kredki::Paint container.
+    def the
+      @the
+    end
 
-    feature_delegate :@fill,
-      :fill
+    # Set background fill.
+    def fill! ...
+      @fill.fill!(...)
+    end
 
-    def_delegators :window,
-      :w, :h, :wh, :window!
+    # See #fill!.
+    def fill= fill
+      Array === fill ? fill!(*fill) : fill!(fill)
+    end
+
+    # Get background fill.
+    def fill
+      @fill.fill
+    end
+
+    # Get width.
+    def w
+      @scene&.w
+    end
+
+    # Get height.
+    def h
+      @scene&.h
+    end
+
+    # Get width and height.
+    def wh
+      @scene&.wh
+    end
+
+    # Create new Kredki::Window.
+    def window! ...
+      @scene&.window!(...)
+    end
 
     # :section: LEVEL 2
 
@@ -52,7 +87,6 @@ module Kredki
     end
 
     def sketch
-      
       on_window_resize!{ @fill.wh = it.wh }
       @fill.wh = *wh
       fill! 20, 70, 20
@@ -92,7 +126,7 @@ module Kredki
       @jobs.filter!{ it.step ms }
     end
 
-    def altered
+    def build_context
       self
     end
   end

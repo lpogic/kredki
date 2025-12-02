@@ -112,23 +112,45 @@ module Kredki
       end
 
       # Set width and height.
-      def wh! w = @w, h = w
-        return wh! *Util.cover(yield(self.wh)) if block_given?
-        return if (Util.eqr @w, w) && (Util.eqr @h, h)
-        @w = w
-        @h = h
-        layer&.break_layout
-        true
+      def wh! w = @w, h = w, **na
+        return send_ahp :wh!, yield(self.wh) if block_given?
+        if @w != w || @h != h
+          @w = w
+          @h = h
+          layer&.break_layout
+          true
+        end | na.count{ send_ahp "wh_#{_1}!", _2 }.nonzero?
       end
 
       # See #wh!.
       def wh= param
-        Array === param ? (wh! *param) : (wh! param)
+        send_ahp :wh!, param
       end
       
       # Get width and height.
       def wh
         [@w, @h]
+      end
+
+      # Set width and height limit.
+      def wh_limit! w = @w_limit, h = w
+        return send_ahp :wh_limit!, yield(self.wh_limit) if block_given?
+        if @w_limit != w || @h_limit != h
+          @w_limit = w
+          @h_limit = h
+          layer&.break_layout
+          true
+        end
+      end
+
+      # See #wh_limit!.
+      def wh_limit= param
+        send_ahp :wh_limit!, param
+      end
+
+      # Get width and height limit.
+      def wh_limit
+        [@w_limit, @h_limit]
       end
 
       # Set X tail margin.
@@ -633,6 +655,7 @@ module Kredki
         super
         @x = @y = :layout
         @w = @h = :layout
+        @w_limit = @h_limit = nil
         @rot = 0
         @mxt = @mxh = @myt = @myh = 0
         @pad_parent = nil
@@ -898,38 +921,31 @@ module Kredki
 
       def min_w
         m = @mxt + @mxh
-        case @w
+        w = case @w
         when Rational, Proc
           m
         when :fit
           fit_w
         when :layout
           @area.w
-        when Range
-          b = case @w.begin
-          when Rational
-            m
-          when Numeric
-            @w.begin < 0 ? m : @w.begin
-          when nil
-            m
-          else raise @w.begin
-          end
-          e = case @w.end
-          when Rational
-            m
-          when Numeric
-            @w.end < 0 ? m : @w.end
-          when nil
-            Float::INFINITY
-          else raise @w.end
-          end
-          [b, e].min
         when Numeric
           @w < 0 ? m : @w
         else
-          raise @w
+          raise_is @w
         end
+        w_min = case @w_limit
+        when Rational, Proc
+          m
+        when :fit
+          fit_w
+        when :layout
+          @area.w
+        when Numeric
+          @w_limit < 0 ? m : @w_limit
+        else
+          w
+        end
+        [w, w_min].max
       end
 
       def min_h
@@ -973,46 +989,77 @@ module Kredki
       end
 
       def get_w
-        case @w
+        cw = get_wv @w
+        case @w_limit
+        when nil
+          cw
+        when Range
+          cw = [cw, get_wv(@w_limit.begin)].max if @w_limit.begin
+          cw = [cw, get_wv(@w_limit.end)].min if @w_limit.end
+          cw
+        else
+          [cw, get_wv(@w_limit)].min
+        end
+      end
+
+      def get_wv w
+        case w
         when Rational
-          @pad_parent.get_w * @w
+          @pad_parent.get_w * w
         when Proc
-          @w[@pad_parent.get_w]
+          w[@pad_parent.get_w]
         when :fit
           fit_w
         when :layout
           @area.w
-        when Range
-          pclw = nil
-          b = case @w.begin
-          when Rational
-            (pclw ||= @pad_parent.get_w) * @w.begin
-          when Numeric
-            @w.begin < 0 ? (pclw ||= @pad_parent.get_w) + @w.begin : @w.begin
-          when nil
-            0
-          else raise @w.begin
-          end
-          e = case @w.end
-          when Rational
-            (pclw ||= @pad_parent.get_w) * @w.end
-          when Numeric
-            @w.end < 0 ? (pclw ||= @pad_parent.get_w) + @w.end : @w.end
-          when nil
-            Float::INFINITY
-          else raise @w.end
-          end
-          if @w.exclude_end?
-            [b, e].min
-          else
-            [b, e].min
-          end
         when Numeric
-          @w < 0 ? @pad_parent.get_w + @w : @w
+          w < 0 ? @pad_parent.get_w + w : w
         else
-          raise @w
+          raise_ia w
         end
       end
+
+      # def get_w
+      #   case @w
+      #   when Rational
+      #     @pad_parent.get_w * @w
+      #   when Proc
+      #     @w[@pad_parent.get_w]
+      #   when :fit
+      #     fit_w
+      #   when :layout
+      #     @area.w
+      #   when Range
+      #     pclw = nil
+      #     b = case @w.begin
+      #     when Rational
+      #       (pclw ||= @pad_parent.get_w) * @w.begin
+      #     when Numeric
+      #       @w.begin < 0 ? (pclw ||= @pad_parent.get_w) + @w.begin : @w.begin
+      #     when nil
+      #       0
+      #     else raise @w.begin
+      #     end
+      #     e = case @w.end
+      #     when Rational
+      #       (pclw ||= @pad_parent.get_w) * @w.end
+      #     when Numeric
+      #       @w.end < 0 ? (pclw ||= @pad_parent.get_w) + @w.end : @w.end
+      #     when nil
+      #       Float::INFINITY
+      #     else raise @w.end
+      #     end
+      #     if @w.exclude_end?
+      #       [b, e].min
+      #     else
+      #       [b, e].min
+      #     end
+      #   when Numeric
+      #     @w < 0 ? @pad_parent.get_w + @w : @w
+      #   else
+      #     raise @w
+      #   end
+      # end
 
       def get_h
         case @h

@@ -135,21 +135,48 @@ module Kredki
       true
     end
 
-    feature def wh! *wh
-      return wh! *Util.cover(yield(self.wh)) if block_given?
-      case wh.size
-      when 0 then return
-      when 1
-        w = h = wh[0]
-      when 2
-        w = wh[0]
-        h = wh[1]
-      else
-        raise_ia wh
-      end
-      set_size w, h
-    end, def wh
+    def wh! w = @w, h = w, **na
+      return send_ahp :wh!, yield(self.wh) if block_given?
+      if @w != w || @h != h
+        set_size w, h
+      end | na.count{ send_ahp "wh_#{_1}!", _2 }.nonzero?
+    end
+
+    def wh= param
+      send_ahp :wh!, param
+    end
+
+    def wh
       get_size
+    end
+
+    def wh_limit! w, h = w
+      return send_ahp :wh_limit!, yield(self.wh_limit) if block_given?
+      w_min, w_max = parse_limit w
+      h_min, h_max = parse_limit h
+      Pastele.window_set_minimum_size @pointer, w_min, h_min
+      Pastele.window_set_maximum_size @pointer, w_max, h_max
+    end
+
+    def wh_limit= param
+      send_ahp :wh_limit!, param
+    end
+
+    def parse_limit limit
+      case limit
+      when Range
+        [limit.begin || 0, limit.end || 0]
+      else
+        [0, limit || 0]
+      end
+    end
+
+    def wh_limit
+      point = Pastele::IntPoint.malloc(Fiddle::RUBY_FREE)
+      Pastele.window_get_minimum_size @pointer, point
+      w_min, h_min = [point.x, point.y]
+      Pastele.window_get_maximum_size @pointer, point
+      [w_min..point.x, h_min..point.y]
     end
 
     feature def w! w = nil
@@ -164,27 +191,6 @@ module Kredki
       set_size w, h
     end, def h
       get_size[1]
-    end
-
-    def wh_min! w, h = nil
-      Pastele.window_set_minimum_size @pointer, w, h || w
-      true
-    end
-
-    def wh_min
-      point = Pastele::IntPoint.malloc(Fiddle::RUBY_FREE)
-      Pastele.window_get_minimum_size @pointer, point
-      [point.x, point.y]
-    end
-
-    def wh_max! w, h = nil
-      Pastele.window_set_maximum_size @pointer, w, h || w
-    end
-
-    def wh_max
-      point = Pastele::IntPoint.malloc(Fiddle::RUBY_FREE)
-      Pastele.window_get_maximum_size @pointer, point
-      [point.x, point.y]
     end
 
     feature def title! title = nil
@@ -212,7 +218,7 @@ module Kredki
         set_action action
       end
       
-      action.altered.alter(...)
+      action.build_context.alter(...)
     end
 
     def window

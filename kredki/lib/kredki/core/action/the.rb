@@ -1,10 +1,13 @@
 module Kredki
+  # Weak container with DSL.
   class The
 
+    # Find object in parent.
     def [](...)
-      @action.[](...)
+      @parent.[](...)
     end
 
+    # Find in weak map and update object.
     def method_missing name, *a, **na, &b
       if name.end_with? "="
         @map["#{name[...-1]}".to_sym] = a.first
@@ -15,8 +18,8 @@ module Kredki
     
     # :section: LEVEL 2
 
-    def initialize action
-      @action = action
+    def initialize parent
+      @parent = parent
       @map = ObjectSpace::WeakMap.new
     end
 

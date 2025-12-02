@@ -112,7 +112,7 @@ module Kredki
         @services.map{ [it, it.pad_tree] }.to_h
       end
 
-      def altered
+      def build_context
         @services.last
       end
 
