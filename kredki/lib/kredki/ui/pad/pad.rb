@@ -72,18 +72,18 @@ module Kredki
       end
 
       # Set width.
-      def w! w = @w
-        return w! *Util.cover(yield @w) if block_given?
-        w = Util.uncover w
-        return if Util.eqr @w, w
-        @w = w
-        layer&.break_layout
-        true
+      def w! w = @w, **na
+        return w! yield self.w if block_given?
+        unless Util.eqr @w, w
+          @w = w
+          layer&.break_layout
+          true
+        end | na.count{ send_ahp "w_#{_1}!", _2 }.nonzero?
       end
 
       # See #w!.
       def w= param
-        Array === param ? (w! *param) : (w! param)
+        send_ahp :w!, param
       end
 
       # Get width.
@@ -92,18 +92,18 @@ module Kredki
       end
       
       # Set height.
-      def h! h = @h
-        return h! *Util.cover(yield @h) if block_given?
-        h = Util.uncover h
-        return if Util.eqr @h, h
-        @h = h
-        layer&.break_layout
-        true
+      def h! h = @h, **na
+        return h! yield self.h if block_given?
+        unless Util.eqr @h, h
+          @h = h
+          layer&.break_layout
+          true
+        end | na.count{ send_ahp "h_#{_1}!", _2 }.nonzero?
       end
 
       # See #h!.
       def h= param
-        Array === param ? (h! *param) : (h! param)
+        send_ahp :h!, param
       end
 
       # Get height.
@@ -130,6 +130,44 @@ module Kredki
       # Get width and height.
       def wh
         [@w, @h]
+      end
+
+      # Set width limit.
+      def w_limit! w_limit = @w_limit
+        return w_limit! yield self.w_limit if block_given?
+        return if @w_limit = w_limit
+        @w_limit = w_limit
+        layer&.break_layout
+        true
+      end
+
+      # See #w_limit!.
+      def w_limit= param
+        w_limit! param
+      end
+
+      # Get width limit.
+      def w_limit
+        @w_limit
+      end
+      
+      # Set height limit.
+      def h_limit! h_limit = @h_limit
+        return h_limit! yield self.h_limit if block_given?
+        return if @h_limit = h_limit
+        @h_limit = h_limit
+        layer&.break_layout
+        true
+      end
+
+      # See #h_limit!.
+      def h_limit= param
+        h_limit! param
+      end
+
+      # Get height limit.
+      def h_limit
+        @h_limit
       end
 
       # Set width and height limit.
@@ -915,10 +953,6 @@ module Kredki
         @mxt + @mxh + @ui_layout.fit_w(self)
       end
 
-      def fit_h
-        @myt + @myh + @ui_layout.fit_h(self)
-      end
-
       def min_w
         m = @mxt + @mxh
         w = case @w
@@ -948,159 +982,106 @@ module Kredki
         [w, w_min].max
       end
 
+      def get_w tw = nil
+        get_wl @w, @w_limit, tw
+      end
+
+      def get_wl w, l, tw
+        cw = get_wv w, tw
+        case l
+        when nil
+          cw
+        when Range
+          cw = [cw, get_wv(l.begin, tw)].max if l.begin
+          cw = [cw, get_wv(l.end, tw)].min if l.end
+          cw
+        else
+          [cw, get_wv(l, tw)].min
+        end
+      end
+
+      def get_wv w, tw
+        case w
+        when Rational
+          (tw || @pad_parent.get_w) * w
+        when Proc
+          w[tw || @pad_parent.get_w]
+        when :fit
+          fit_w
+        when :layout
+          @area.w
+        when Numeric
+          w < 0 ? (tw || @pad_parent.get_w) + w : w
+        else
+          raise_ia w
+        end
+      end
+
+      def fit_h
+        @myt + @myh + @ui_layout.fit_h(self)
+      end
+
       def min_h
         m = @myt + @myh
-        case @h
+        h = case @h
         when Rational, Proc
           m
         when :fit
           fit_h
         when :layout
           @area.h
-        when Range
-          b = case @h.begin
-          when Rational
-            m
-          when Numeric
-            @h.begin < 0 ? m : @h.begin
-          when nil
-            m
-          when :fit
-            fit_h
-          else raise_is @h.begin
-          end
-          e = case @h.end
-          when Rational
-            m
-          when Numeric
-            @h.end < 0 ? m : @h.end
-          when nil
-            Float::INFINITY
-          when :fit
-            fit_h
-          else raise_is @h.end
-          end
-          [b, e].min
         when Numeric
           @h < 0 ? m : @h
         else
-          raise @h
+          raise_is @h
         end
-      end
-
-      def get_w
-        cw = get_wv @w
-        case @w_limit
-        when nil
-          cw
-        when Range
-          cw = [cw, get_wv(@w_limit.begin)].max if @w_limit.begin
-          cw = [cw, get_wv(@w_limit.end)].min if @w_limit.end
-          cw
-        else
-          [cw, get_wv(@w_limit)].min
-        end
-      end
-
-      def get_wv w
-        case w
-        when Rational
-          @pad_parent.get_w * w
-        when Proc
-          w[@pad_parent.get_w]
-        when :fit
-          fit_w
-        when :layout
-          @area.w
-        when Numeric
-          w < 0 ? @pad_parent.get_w + w : w
-        else
-          raise_ia w
-        end
-      end
-
-      # def get_w
-      #   case @w
-      #   when Rational
-      #     @pad_parent.get_w * @w
-      #   when Proc
-      #     @w[@pad_parent.get_w]
-      #   when :fit
-      #     fit_w
-      #   when :layout
-      #     @area.w
-      #   when Range
-      #     pclw = nil
-      #     b = case @w.begin
-      #     when Rational
-      #       (pclw ||= @pad_parent.get_w) * @w.begin
-      #     when Numeric
-      #       @w.begin < 0 ? (pclw ||= @pad_parent.get_w) + @w.begin : @w.begin
-      #     when nil
-      #       0
-      #     else raise @w.begin
-      #     end
-      #     e = case @w.end
-      #     when Rational
-      #       (pclw ||= @pad_parent.get_w) * @w.end
-      #     when Numeric
-      #       @w.end < 0 ? (pclw ||= @pad_parent.get_w) + @w.end : @w.end
-      #     when nil
-      #       Float::INFINITY
-      #     else raise @w.end
-      #     end
-      #     if @w.exclude_end?
-      #       [b, e].min
-      #     else
-      #       [b, e].min
-      #     end
-      #   when Numeric
-      #     @w < 0 ? @pad_parent.get_w + @w : @w
-      #   else
-      #     raise @w
-      #   end
-      # end
-
-      def get_h
-        case @h
-        when Rational
-          @pad_parent.get_h * @h
-        when Proc
-          @h[@pad_parent.get_h]
+        h_min = case @h_limit
+        when Rational, Proc
+          m
         when :fit
           fit_h
         when :layout
           @area.h
-        when Range
-          pch = nil
-          b = case @h.begin
-          when Rational
-            (pch ||= @pad_parent.get_h) * @h.begin
-            @h.begin.denominator == 1 ? r / 100 : r
-          when Numeric
-            @h.begin < 0 ? (pch ||= @pad_parent.get_h) + @h.begin : @h.begin
-          when nil
-            0
-          else raise @h.begin
-          end
-          e = case @h.end
-          when Rational
-            (pch ||= @pad_parent.get_h) * @h.end
-          when Numeric
-            @h.end < 0 ? (pch ||= @pad_parent.get_h) + @h.end : @h.end
-          when nil
-            Float::INFINITY
-          else raise @h.end
-          end
-          if @h.exclude_end?
-            [b, e].min
-          else
-            [b, e].min
-          end
         when Numeric
-          @h < 0 ? @pad_parent.get_h + @h : @h
+          @h_limit < 0 ? m : @h_limit
         else
-          raise @h
+          h
+        end
+        [h, h_min].max
+      end
+
+      def get_h th = nil
+        get_hl @h, @h_limit, th
+      end
+
+      def get_hl h, l, th
+        ch = get_hv h, th
+        case l
+        when nil
+          ch
+        when Range
+          ch = [ch, get_hv(l.begin, th)].max if l.begin
+          ch = [ch, get_hv(l.end, th)].min if l.end
+          ch
+        else
+          [ch, get_hv(l, th)].min
+        end
+      end
+
+      def get_hv h, th
+        case h
+        when Rational
+          (th || @pad_parent.get_h) * h
+        when Proc
+          h[th || @pad_parent.get_h]
+        when :fit
+          fit_h
+        when :layout
+          @area.h
+        when Numeric
+          h < 0 ? (th || @pad_parent.get_h) + h : h
+        else
+          raise_ia h
         end
       end
 

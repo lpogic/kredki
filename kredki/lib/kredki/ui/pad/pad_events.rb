@@ -3,7 +3,6 @@ require_relative '../../core/event/text_event'
 require_relative '../../core/event/mouse_event'
 require_relative '../../core/event/joystick_event'
 require_relative '../../core/event/drop_event'
-require_relative '../../core/event/quit_event'
 require_relative '../../core/event/window_event'
 
 module Kredki

@@ -13,6 +13,10 @@ else
           def_delegator :A, it
       end
 
+      def window! ...
+        A.arena.window!(...)
+      end
+
       def define ...
         def_delegator :A, PadBase.define(...)
       end
@@ -29,7 +33,7 @@ else
 
   use! :terminate_on_esc
   use! :carry_focus_on_tab
-  window.alter{ resizable!; text_input! }
+  window.alter{ wh_drag!; text_input! }
   fill! 110, 301, 101
 
   if $kredki_run != false

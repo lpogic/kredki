@@ -19,7 +19,6 @@ module Kredki
 
       def_delegators :action,
         :window,
-        :window!,
         :layer!,
         :define
 

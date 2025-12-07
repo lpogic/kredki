@@ -137,10 +137,6 @@ CABI void window_set_scene(pas::Window* self, tvg::Scene* scene) {
     self->setScene(scene);
 }
 
-CABI void window_set_step_handler(pas::Window* self, void(*stepHandler)(int)) {
-    self->setStepHandler(stepHandler);
-}
-
 CABI void window_paint_to_update(pas::Window* self, tvg::Paint* paint) {
     self->paintToUpdate(paint);
 }
@@ -197,6 +193,10 @@ CABI void window_set_opacity(pas::Window* self, float opacity) {
     self->setOpacity(opacity);
 }
 
+CABI float window_get_opacity(pas::Window* self) {
+    return self->getOpacity();
+}
+
 CABI void window_set_position(pas::Window* self, int x, int y) {
     self->setPosition(x, y);
 }
@@ -211,6 +211,10 @@ CABI void window_set_size(pas::Window* self, int w, int h) {
 
 CABI void window_set_title(pas::Window* self, char* title) {
     self->setTitle(title);
+}
+
+CABI const char* window_get_title(pas::Window* self) {
+    return self->getTitle();
 }
 
 CABI void window_set_always_on_top(pas::Window* self, int on_top) {
@@ -234,7 +238,7 @@ CABI int window_get_text_input(pas::Window* self) {
 }
 
 CABI int window_get_flags(pas::Window* self) {
-    return (int) SDL_GetWindowFlags(self->sdl_window);
+    return (int) self->getFlags();
 }
 
 /************************************************************************/

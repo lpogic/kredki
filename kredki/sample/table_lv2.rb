@@ -3,7 +3,7 @@ require 'kredki'
 table! w: 3/4r do
   fill! :black
   m! 2
-  column! :fit.., 1r
+  column! 1r, limit: :fit..;
   column! 2r
   column! 100
   gap! 2

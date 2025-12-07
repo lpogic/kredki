@@ -2,14 +2,22 @@ module Kredki
   # Immutable font model
   class Font
 
+    # Get name.
+    def name
+      @name
+    end
+
+    # Get path.
+    def path
+      @path
+    end
+
     # :section: LEVEL 2
 
     def initialize path
       @path = path
       @name = Font.load path
     end
-
-    attr :name, :path
 
     class << self
       attr_accessor :loaded_fonts

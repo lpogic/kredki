@@ -47,3 +47,11 @@ class Object
     end
   end
 end
+
+class Symbol
+  alias_method :old_cmp, :<=>
+
+  def <=> that
+    Numeric === that ? 0 : old_cmp(that)
+  end
+end

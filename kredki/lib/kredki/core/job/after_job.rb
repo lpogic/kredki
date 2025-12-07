@@ -25,7 +25,7 @@ module Kredki
     def play param = nil
       stop
       @param = param
-      @start_ms = @action.ms + @delay
+      @start_ms = Kredki.ms + @delay
       @action.put_job self
     end
 

@@ -2,16 +2,17 @@ require 'kredki'
 
 # Bounced rotation with loop job.
 
-button! do
+button! do |b|
   text << "Click me!" 
-  s.on_click = job.tap do
+  b.on_click = job.tap do
     it.loop do
-      s.rot += it.ms * 0.008
-      it.break if s.rot >= Math::PI
+      p it.ms
+      b.rot += it.ms * 0.008
+      it.break if b.rot >= Math::PI
     end.loop do
-      s.rot -= it.ms * 0.005
-      if s.rot <= 0
-        s.rot = 0
+      b.rot -= it.ms * 0.005
+      if b.rot <= 0
+        b.rot = 0
         it.break
       end
     end

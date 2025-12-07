@@ -2,6 +2,26 @@ module Kredki
   # Immutable color model
   class Color
 
+    # Get red channel value.
+    def r
+      @r
+    end
+
+    # Get green channel value.
+    def g
+      @g
+    end
+
+    # Get blue channel value.
+    def b
+      @b
+    end
+
+    # Get alpha channel value.
+    def a
+      @a
+    end
+
     # Get color copy with RGB channels saturation increased by a +level+.
     def lighten level = 10
       Color.new *to_a(:rgb).map{ (_1 + level).clamp(0, 255) }, @a
@@ -32,13 +52,11 @@ module Kredki
       @a = a
     end
 
-    attr :r, :g, :b, :a
-
     def self.parse *a
       case a = Util.uncover(a)
       when String
         a = a[1..] if a.start_with? "#"
-        alpha = a.length > 6 ? a[6...8].to_i(16) : nil
+        alpha = a.length > 6 ? a[6...8].to_i(16) : 255
         Color.new a[0...2].to_i(16), a[2...4].to_i(16), a[4...6].to_i(16), alpha
       when Array
         Color.new *a

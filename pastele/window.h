@@ -36,7 +36,6 @@ class Window
 {
     protected:
 
-    void(*stepHandler)(int) = nullptr;
     set<tvg::Paint*> toUpdate;
     bool needResize = false;
     bool needDraw = true;
@@ -73,7 +72,6 @@ class Window
     }
 
     void setScene(tvg::Scene* scene);
-    void setStepHandler(void(*stepHandler)(int));
     void step(Uint64 ms);
     void sync(void);
     bool update(tvg::Canvas* canvas);
@@ -95,15 +93,18 @@ class Window
     void getMinimumSize(int* w, int* h);
     void getMaximumSize(int* w, int* h);
     void setOpacity(float opacity);
+    float getOpacity();
     void setPosition(int x, int y);
     void setResizable(bool resizable);
     void setSize(int w, int h);
     void setTitle(char* title);
+    const char* getTitle();
     void setAlwaysOnTop(bool on_top);
     void getSize(int* x, int* y);
     void getPosition(int* x, int* y);
     void setTextInput(bool text_input);
     bool getTextInput();
+    int getFlags();
 
     virtual tvg::Canvas* getCanvas() { return nullptr; }
     virtual void resize() {}

@@ -5,35 +5,39 @@ module Kredki
     module Layout
       class XWay < Way
 
-        def get_span pad, w, pclw
+        def get_span pad, w, limit, pclw
           case w
           when Rational
-            [w, 0, Float::INFINITY, 0]
-          when Array
-            case w[0]
+            case limit
+            when nil
+              [w, 0, Float::INFINITY, 0]
             when Range
-              min = w[0].begin || 0
-              max = w[0].end || Float::INFINITY
-              [w[1], a = get_w(pad, min, pclw), get_w(pad, max, pclw), a]
-            else raise_ia w
+              [w, wv = limit.begin&.then{ pad.get_wv(it, pclw) } || 0, limit.end&.then{ pad.get_wv(it, pclw) } || Float::INFINITY, wv]
+            else
+              [w, 0, pad.get_wv(limit, pclw), 0]
             end
-          when Range
-            min = w.begin || 0
-            max = w.end || Float::INFINITY
-            [1r, a = get_w(pad, min, pclw), get_w(pad, max, pclw), a]
+          when :layout
+            case limit
+            when nil
+              [1r, 0, Float::INFINITY, 0]
+            when Range
+              [1r, wv = limit.begin&.then{ pad.get_wv(it, pclw) } || 0, limit.end&.then{ pad.get_wv(it, pclw) } || Float::INFINITY, wv]
+            else
+              [1r, 0, pad.get_wv(limit, pclw), 0]
+            end
           else
-            [0, a = get_w(pad, w, pclw), a, a]
+              [0, wv = pad.get_wl(w, limit, pclw), wv, wv]
           end
         end
 
         def arrange pad
           clw = pad.clw
           clh = pad.clh
-          sp = pad.layout_pads.map{ get_span it, it.w, clw }
+          sp = pad.layout_pads.map{ get_span it, it.w, it.w_limit, clw }
           measurement, sw = spans sp, clw, pad.mi || 0
  
           pad.layout_pads.zip measurement do |p1, m|
-            ph = get_h p1, p1.h, clh
+            ph = p1.get_h clh
             p1.set_size m, ph
           end
 

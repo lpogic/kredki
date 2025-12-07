@@ -17,6 +17,7 @@ void Window::planUpdate(void) {
     event.type = USEREVENT_UPDATEWINDOW;
     SDL_UserEvent userEvent;
     userEvent.type = USEREVENT_UPDATEWINDOW;
+    userEvent.windowID = SDL_GetWindowID(sdl_window);
     userEvent.data1 = this;
     event.user = userEvent;
     SDL_PushEvent(&event);
@@ -29,20 +30,12 @@ void Window::setScene(tvg::Scene* scene) {
     toUpdate.insert(nullptr);
 }
 
-void Window::setStepHandler(void(*stepHandler)(int)) {
-    this->stepHandler = stepHandler;
-}
-
 void Window::step(Uint64 ms) {
     auto canvas = getCanvas();
 
     if (needResize) {
         resize();
         needResize = false;
-    }
-
-    if(stepHandler) {
-        stepHandler((int)ms);
     }
 
     if(update(canvas)) {
@@ -141,6 +134,10 @@ void Window::setOpacity(float opacity) {
     SDL_SetWindowOpacity(sdl_window, opacity);
 }
 
+float Window::getOpacity() {
+    return SDL_GetWindowOpacity(sdl_window);
+}
+
 void Window::setPosition(int x, int y) {
     SDL_SetWindowPosition(sdl_window, x, y);
 }
@@ -155,6 +152,10 @@ void Window::setSize(int w, int h) {
 
 void Window::setTitle(char* title) {
     SDL_SetWindowTitle(sdl_window, title);
+}
+
+const char* Window::getTitle() {
+    return SDL_GetWindowTitle(sdl_window);
 }
 
 void Window::setAlwaysOnTop(bool on_top) {
@@ -179,6 +180,10 @@ void Window::setTextInput(bool text_input) {
 
 bool Window::getTextInput() {
     return SDL_TextInputActive(sdl_window);
+}
+
+int Window::getFlags() {
+    return (int) SDL_GetWindowFlags(sdl_window);
 }
 
 }

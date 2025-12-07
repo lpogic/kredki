@@ -11,8 +11,8 @@ module Kredki
           @measurement = nil
         end
         
-        def column! *a, **na, &b
-          @columns << Column.new(Util.uncover a).alter(**na, &b)
+        def column! ...
+          @columns << Column.new.alter(...)
         end
 
         feature def space! space
@@ -29,7 +29,7 @@ module Kredki
           clw = @table.clw
 
           @spans = pad.layout_pads.zip(@columns, @spans).map do |p1, c, s|
-            n = get_span p1, c.size, clw
+            n = get_span p1, c.w, c.limit, clw
             s ? [n[0], a = [n[1], s[1]].max, [n[2], s[2]].min, a] : n
           end
         end
@@ -46,7 +46,7 @@ module Kredki
               w = clw - sw
               sw = clw
             end
-            ph = get_h p1, p1.h, clh
+            ph = p1.get_h clh
             p1.set_size w, ph
           end
 

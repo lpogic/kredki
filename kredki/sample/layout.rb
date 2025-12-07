@@ -6,7 +6,7 @@ layouts = Kredki::UI.layout_map.keys
 
 pad! fill: :rand, wh: 140
 pad! fill: :rand, wh: 120
-pad! fill: :rand
+pad! fill: :rand, wh: 100
 l = layer
 
 def button_text layout

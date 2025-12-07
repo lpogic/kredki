@@ -1,6 +1,7 @@
 require_relative 'event/drop_event'
 require_relative 'event/key_event'
 require_relative 'event/mouse_event'
+require_relative 'event/step_event'
 require_relative 'event/quit_event'
 require_relative 'event/text_event'
 require_relative 'event/window_event'
@@ -10,7 +11,7 @@ module Kredki
   class Arena
     
     # Create new attached Kredki::Window.
-    def window! action = nil, *a, **na, &b
+    def window! action = Window.default_action, *a, **na, &b
       put_window(Window.new).action!(action, *a, **na, &b)
     end
 
@@ -21,8 +22,7 @@ module Kredki
 
     # Start event loop.
     def run!
-      # generate initial resize event for layouts update
-      @windows.values.each{|w| w.set_size *w.get_size }
+      Kredki.run_ms = Pastele.sdl_get_ticks
       Pastele.arena_run @pointer
       @result
     end
@@ -193,6 +193,9 @@ module Kredki
             event.resolve
           end
         end
+      when 32769
+        abi = Pastele::UserEvent.new event_ptr
+        window_event abi.window_id, StepEvent.new(abi)
       else # unsupported event
         # puts event_type
         nil

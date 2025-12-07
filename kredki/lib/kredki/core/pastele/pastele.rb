@@ -15,6 +15,13 @@ module Kredki
       raise Fiddle::DLError, current_lib
     end
 
+    UserEvent = struct [
+      'uint32_t type',
+      'uint32_t reserved',
+      'uint64_t timestamp',
+      'uint32_t window_id',
+    ]
+
     KeyboardEvent = struct [
       'uint32_t type',
       'uint32_t reserved',

@@ -62,25 +62,21 @@ module Kredki
       @scene&.wh
     end
 
-    # Create new Kredki::Window.
-    def window! ...
-      @scene&.window!(...)
-    end
-
     # :section: LEVEL 2
 
     def initialize
       super
 
-      @step_callback = Fiddle::Closure::BlockCaller.new(Fiddle::TYPE_VOID, [Fiddle::TYPE_INT], &proc.step)
       @jobs = []
       @event_manager = ActionEventManager.new
       @event_director = EventDirector.new
       @fill = rectangle! xy: 0
       @the = The.new self
+
+      on_step! do: method(:step)
     end
 
-    attr :step_callback, :event_director
+    attr :event_director
 
     def update_paint paint
       @scene&.update_paint paint
@@ -122,7 +118,8 @@ module Kredki
       @event_manager.resolve event
     end
 
-    def step ms
+    def step event
+      ms = event.timestamp / 1_000_000 - Kredki.run_ms
       @jobs.filter!{ it.step ms }
     end
 

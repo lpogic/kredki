@@ -12,7 +12,6 @@ module Kredki
       else
         @arena.window.action! action, *a, **na, &block
       end
-      @run_ms = Pastele.sdl_get_ticks
       @arena.run!
     end
 
@@ -21,9 +20,11 @@ module Kredki
       @arena.terminate!(...)
     end
 
+    attr_accessor :run_ms
+
     # Milliseconds since application loop was started.
     def ms
-      Pastele.sdl_get_ticks - @run_ms
+      Pastele.sdl_get_ticks - run_ms
     end
     
     # Set clipboard model.

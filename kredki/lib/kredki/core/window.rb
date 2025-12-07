@@ -1,31 +1,17 @@
 module Kredki
   class Window
-    extend HasFeatures
-
-    def initialize w = 400, h = 400
-      @pointer = Pastele.window_new w, h
-      ObjectSpace.define_finalizer(self, Window.proc.finalize(@pointer))
-    end
-
-    class << self
-      attr_accessor :default_action
-    end
-
-    self.default_action = Action
-
-    attr_reader :arena
 
     # Break event loop.
     def terminate! result = nil
       @arena&.terminate! result
     end
 
-    # Maximize window.
+    # Maximize a window.
     def maximize!
       Pastele.window_maximize @pointer
     end
 
-    # Minimize window.
+    # Minimize a window.
     def minimize!
       Pastele.window_minimize @pointer
     end
@@ -44,7 +30,6 @@ module Kredki
     def outline! value = true
       return if (c = outline) == (value = block_given? ? yield(c) : value == :not ? !c : value)
       Pastele.window_set_bordered @pointer, value ? 1 : 0
-      @outline = value
       true
     end
 
@@ -55,7 +40,7 @@ module Kredki
     
     # Get whether the window has an outline.
     def outline
-      @outline || @outline.nil?
+      Pastele.window_get_flags(@pointer) & 0x10 == 0
     end
 
     # See #outline.
@@ -107,70 +92,80 @@ module Kredki
       !!text_input
     end
         
-    def opacity! opacity
-      set_opacity opacity > 1 ? opacity / 255.0 : opacity
-    end
-
-    feature def xy! *xy
-      return xy! *Util.cover(yield(self.xy)) if block_given?
-      case xy.size
-      when 0 then return
-      when 1
-        x = y = xy[0]
-      when 2
-        x = xy[0]
-        y = xy[1]
-      else
-        raise_ia xy
-      end
-      set_position x, y
-    end, def xy
-      get_position
-    end
-
-    flag def resizable! value = true
-      return if (c = resizable) == (value = block_given? ? yield(c) : value == :not ? !c : value)
-      set_resizable value
-      @resizable = value
+    # Set opacity.
+    def opacity! opacity = @opacity
+      return opacity! yield self.opacity if block_given?
+      return if @opacity == opacity
+      Pastele.window_set_opacity @pointer, opacity > 1 ? opacity / 255.0 : opacity
+      @opacity = opacity
       true
     end
 
+    # See #opacity!.
+    def opacity= param
+      opacity! param
+    end
+
+    # Get opacity.
+    def opacity
+      @opacity
+    end
+
+    # Set position along X and Y axes.
+    def xy! x = @x, y = x
+      return send_ahp :xy!, yield(self.xy) if block_given?
+      Pastele.window_set_position @pointer, x, y
+      true
+    end
+
+    # See #xy!.
+    def xy= param
+      send_ahp :wh!, param
+    end
+    
+    # Get position along X and Y axes.
+    def xy
+      point = Pastele::IntPoint.malloc(Fiddle::RUBY_FREE)
+      Pastele.window_get_position @pointer, point
+      [point.x, point.y]
+    end
+
+    # Set width and height. 
     def wh! w = @w, h = w, **na
       return send_ahp :wh!, yield(self.wh) if block_given?
       if @w != w || @h != h
-        set_size w, h
+        Pastele.window_set_size @pointer, w, h
       end | na.count{ send_ahp "wh_#{_1}!", _2 }.nonzero?
     end
 
+    # See #wh!.
     def wh= param
       send_ahp :wh!, param
     end
 
+    # Get width and height.
     def wh
-      get_size
+      point = Pastele::IntPoint.malloc(Fiddle::RUBY_FREE)
+      Pastele.window_get_size @pointer, point
+      [point.x, point.y]
     end
 
+    # Set width and height limit. 
     def wh_limit! w, h = w
       return send_ahp :wh_limit!, yield(self.wh_limit) if block_given?
       w_min, w_max = parse_limit w
       h_min, h_max = parse_limit h
       Pastele.window_set_minimum_size @pointer, w_min, h_min
       Pastele.window_set_maximum_size @pointer, w_max, h_max
+      true
     end
 
+    # See #wh_limit!.
     def wh_limit= param
       send_ahp :wh_limit!, param
     end
 
-    def parse_limit limit
-      case limit
-      when Range
-        [limit.begin || 0, limit.end || 0]
-      else
-        [0, limit || 0]
-      end
-    end
-
+    # Get width and height limit.
     def wh_limit
       point = Pastele::IntPoint.malloc(Fiddle::RUBY_FREE)
       Pastele.window_get_minimum_size @pointer, point
@@ -179,37 +174,70 @@ module Kredki
       [w_min..point.x, h_min..point.y]
     end
 
-    feature def w! w = nil
-      return w! yield self.w if block_given?
-      set_size w, h
-    end, def w
-      get_size[0]
+    # Set whether a window width and height can be customized by dragging its border.
+    def wh_drag! value = true
+      return if (c = wh_drag) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+      Pastele.window_set_resizable @pointer, value ? 1 : 0
+      true
     end
 
-    feature def h! h = nil
-      return h! yield self.h if block_given?
-      set_size w, h
-    end, def h
-      get_size[1]
+    # See #wh_drag!.
+    def wh_drag= param
+      wh_drag! param
     end
 
-    feature def title! title = nil
+    # Get whether a window width and height can be customized by dragging its border.
+    def wh_drag
+      Pastele.window_get_flags(@pointer) & 0x20 != 0
+    end
+
+    # See #wh_drag.
+    def wh_drag?
+      !!wh_drag
+    end
+
+    # Set title.
+    def title! title = nil
       return title! yield self.title if block_given?
-      return if @title == title
-      set_title title.to_s
-      @title = title
+      Pastele.window_set_title @pointer, title.to_s
       true
     end
 
-    flag def top! value = true
+    # See #title!.
+    def title= param
+      title! param
+    end
+
+    # Get title.
+    def title
+      title = Pastele.window_get_title @pointer
+      title.to_s.force_encoding("utf-8");
+    end
+
+    # Set whether window is always in the foreground.
+    def top! value = true
       return if (c = top) == (value = block_given? ? yield(c) : value == :not ? !c : value)
-      set_top value
-      @top = value
+      Pastele.window_set_always_on_top @pointer, value ? 1 : 0
       true
     end
 
-    feature def action! action = nil, ...
-      action ||= Window.default_action
+    # See #top!.
+    def top= param
+      top! param
+    end
+
+    # Get whether window is always in the foreground.
+    def top
+      Pastele.window_get_flags(@pointer) & 0x10000 != 0
+    end
+
+    # See #top.
+    def top?
+      !!top
+    end
+
+    # Set and build current action.
+    def action! action = Window.default_action, ...
       if action.is_a? Class
         action = action.new
         set_action action
@@ -217,32 +245,52 @@ module Kredki
       else
         set_action action
       end
-      
       action.build_context.alter(...)
     end
 
+    # See #action!.
+    def action= param
+      send_ahp :action!, param
+    end
+
+    # Get current action.
+    def action
+      @action
+    end
+
+    # Get window (self).
     def window
       self
     end
 
+    # Hide window and free its memory.
     def destroy!
       @arena&.remove_window self
     end
 
-    def_delegators :@arena,
-      :window!
-
     # :section: LEVEL 2
+
+    def initialize w = 400, h = 400
+      @pointer = Pastele.window_new w, h
+      ObjectSpace.define_finalizer(self, Window.proc.finalize(@pointer))
+    end
+
+    class << self
+      attr_accessor :default_action
+    end
+
+    self.default_action = Action
 
     def self.finalize pointer
       Pastele.window_delete pointer
     end
 
-    attr_writer :arena
+    attr_accessor :arena
     attr :pointer
 
-    def_delegators :action,
-      :resolve
+    def resolve ...
+      @action.resolve(...)
+    end
 
     def update_paint paint
       Pastele.window_paint_to_update @pointer, paint.pointer
@@ -255,7 +303,6 @@ module Kredki
     def set_action action, &block
       action.scene = self
       Pastele.window_set_scene @pointer, action.pointer
-      Pastele.window_set_step_handler @pointer, action.step_callback
       update_paint action
       @action = action
     end
@@ -276,44 +323,13 @@ module Kredki
       Pastele.window_get_flags(@pointer) & 0x4000 != 0
     end
 
-    def set_opacity opacity
-      Pastele.window_set_opacity @pointer, opacity
-      true
-    end
-
-    def set_position x, y
-      Pastele.window_set_position @pointer, x, y
-      true
-    end
-
-    def get_position
-      point = Pastele::IntPoint.malloc(Fiddle::RUBY_FREE)
-      Pastele.window_get_position @pointer, point
-      [point.x, point.y]
-    end
-
-    def set_resizable set
-      Pastele.window_set_resizable @pointer, set ? 1 : 0
-    end
-
-    def set_size x, y
-      Pastele.window_set_size @pointer, x, y
-      true
-    end
-
-    def get_size
-      point = Pastele::IntPoint.malloc(Fiddle::RUBY_FREE)
-      Pastele.window_get_size @pointer, point
-      [point.x, point.y]
-    end
-
-    def set_title title
-      Pastele.window_set_title @pointer, title
-      true
-    end
-
-    def set_top set
-      Pastele.window_set_always_on_top @pointer, set ? 1 : 0
+    def parse_limit limit
+      case limit
+      when Range
+        [limit.begin || 0, limit.end || 0]
+      else
+        [0, limit || 0]
+      end
     end
   end
 end

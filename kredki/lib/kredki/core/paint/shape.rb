@@ -87,7 +87,7 @@ module Kredki
 
     # Set fill.
     def fill! *fill
-      return fill! *Util.cover(yield @fill) if block_given?
+      return send_ahp :fill!, yield(self.fill) if block_given?
       fill = Util.uncover fill
       return if @fill == fill && fill != :rand
       set_fill *Kredki.color(fill)
@@ -97,7 +97,7 @@ module Kredki
 
     # See #fill!.
     def fill= param
-      Array === param ? (fill! *param) : (fill! param)
+      send_ahp :fill!, param
     end
 
     # Get fill.

@@ -27,6 +27,8 @@ void Arena::run() {
             switch (event.type) {
                 case USEREVENT_UPDATEWINDOW: {
                     auto window = (Window*)event.user.data1;
+                    event.user.timestamp = SDL_GetTicksNS();
+                    eventHandler(event.type, &event);
                     window->step(SDL_GetTicks());
                     window->sync();
                     break;

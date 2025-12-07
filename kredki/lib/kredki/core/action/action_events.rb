@@ -4,6 +4,7 @@ require_relative '../event/mouse_event'
 require_relative '../event/joystick_event'
 require_relative '../event/drop_event'
 require_relative '../event/quit_event'
+require_relative '../event/step_event'
 require_relative '../event/window_event'
 
 module Kredki
@@ -174,6 +175,16 @@ module Kredki
     # See #on_drop_end!.
     def on_drop_end= resolver
       on_drop_end! do: resolver
+    end
+
+    # Create and attach step event resolver.
+    def on_step! ...
+      on!(StepEvent, ...)
+    end
+
+    # See #on_step!.
+    def on_step= resolver
+      on_step! do: resolver
     end
 
     # Create and attach quit event resolver.
