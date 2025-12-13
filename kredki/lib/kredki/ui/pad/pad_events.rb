@@ -8,29 +8,49 @@ require_relative '../../core/event/window_event'
 module Kredki
   module UI
 
+    # Base class for UI events.
     class Event
-      extend HasFeatures
     
-      model :target do
+      # Create new Event.
+      def initialize target = nil
+        @target = target
         @resolved = false
+      end
+
+      # Get target.
+      def target
+        @target
+      end
+
+      # Get main parameter. Overrided in inheriting classes.
+      def param
+      end
+
+      # See #param.
+      def ~()
+        param
       end
 
       def inspect
         "#{self.class}:#{object_id}"
       end
         
+      # Get whether event is resolved.
       def resolved?
         @resolved
       end
   
+      # Mark event as resolved.
       def resolve
         @resolved = true
       end
 
+      # Get current event resolver.
       def resolver
         Array === @resolver ? @resolver.last : @resolver
       end
 
+      # Push event resolver
       def push_resolver resolver
         if Array === @resolver
           @resolver << resolver
@@ -39,24 +59,43 @@ module Kredki
         end
       end
   
+      # Attach few events to identical resolvers.
       def self.each *event_managers, do: nil, &block
         attached = block || binding.local_variable_get(:do)
         event_managers.map{ it.attach! attached }
       end
     end
 
+    # Event with position
     class PositionEvent < Event
-      model :x, :y, :<
 
+      def initialize x, y, target = nil
+        super(target)
+        @x = x
+        @y = y
+      end
+
+      # Get X axis offset.
+      def x
+        @x
+      end
+
+      # Get Y axis offset.
+      def y
+        @y
+      end
+
+      # Get X and Y axes offset.
       def xy
         [@x, @y]
       end
 
-      def ~()
+      def param
         xy
       end
     end
 
+    # Event which resolved state is primary maintained by origin event.
     module OriginResolvingEvent
       def resolved?
         @origin ? @origin.resolved? : super
@@ -67,16 +106,25 @@ module Kredki
       end
     end
 
+    # Common mouse event class.
     class MouseEvent < PositionEvent
-      extend Forwardable
 
-      model :origin, :< do
-        @x ||= @origin&.x
-        @y ||= @origin&.y
+      def initialize origin, x = origin&.x, y = origin&.y, target = nil
+        super(target)
+        @origin = origin
+        @x = x
+        @y = y
       end
 
-      def_delegators :@origin,
-        :input_id, :button
+      # Get input id.
+      def input_id
+        @origin.input_id
+      end
+
+      # Get button.
+      def button
+        @origin.button
+      end
     end
 
     class MouseMoveEvent < MouseEvent
@@ -188,7 +236,6 @@ module Kredki
     end
 
     module PadEvents
-      extend HasFeatures
       extend HasEventResolvers
 
       def on! event_type, aim: false, always: false, do: nil, &block

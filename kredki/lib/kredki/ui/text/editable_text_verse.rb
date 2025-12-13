@@ -3,9 +3,18 @@ require_relative 'text_edition'
 module Kredki
   module UI
     class EditableTextVerse < NavigableText
-      extend HasEventResolvers
 
-      event_resolver :on_edit, EditEvent
+      # Create and attach edit event resolver.
+      def on_edit! ...
+        on!(EditEvent, ...)
+      end
+
+      # See #on_edit!.
+      def on_edit= param
+        on_edit! do: param
+      end
+
+      # :section: LEVEL 2
 
       def paste pasted
         report EditEvent.new @selection_min, @selection_max, pasted, :paste
@@ -48,12 +57,12 @@ module Kredki
         end
         content! s, false
         case @verse_layout
-        when :ybb, :ybc, :ybe
+        when :yss, :ysc, :yse
           nil
-        when :yeb, :yec, :yee
+        when :yes, :yec, :yee
           v = @verses.first
           @scene.x = sx >= 0 && v.w > sw ? @scene.x + v.w - w0 : 0
-        when :ycb, :ycc, :yce
+        when :ycs, :ycc, :yce
           @scene.x = 0
         else raise_is @verse_layout
         end

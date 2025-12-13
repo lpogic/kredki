@@ -1,21 +1,49 @@
 module Kredki
   module UI
+    # Control which state can be on or off.
     class Check < RectanglePad
 
-      feature def fill! *fill
-        return send_ahp :fill!, yield(self.fill) if block_given?
-        fill = Util.uncover fill
-        return if @fill == fill && fill != :rand
-        @fill = fill
-        repaint
-        true
-      end
-
-      flag def checked! value = true
+      # Set whether is checked.
+      def checked! value = true
         return if (c = checked) == (value = block_given? ? yield(c) : value == :not ? !c : value)
         set_checked value
         @checked = value
         true
+      end
+
+      # See #checked!.
+      def checked= param
+        send_ahp :checked!, param
+      end
+
+      # Get whether is checked.
+      def checked
+        @checked
+      end
+
+      # See #checked.
+      def checked?
+        !!checked
+      end
+
+      # Set suit.
+      def suit! *suit
+        return send_ahp :suit!, yield(self.suit) if block_given?
+        suit = Util.uncover suit
+        return if @suit == suit && suit != :rand
+        @suit = suit
+        repaint
+        true
+      end
+
+      # See #suit!.
+      def suit= param
+        send_ahp :suit!, param
+      end
+
+      # Get suit.
+      def suit
+        @suit
       end
 
       # :section: LEVEL 2
@@ -24,9 +52,7 @@ module Kredki
         super
         
         @check = new RectanglePad, mousy: false, keyboardy: false, fill: 0, wh: 1r do
-          out! fill: :text, w: 3
-          outline_fill! :text
-          outline_w! 3
+          outline! fill: :text, w: 3
           area! do |w, h|
             xy! 2, h * 0.5
             line! w * 0.5, h - 1
@@ -43,7 +69,7 @@ module Kredki
         outline_w! 1
         layout! :acc
         wh! 20
-        fill! :gray
+        suit! :gray
         margin! 3
       end
 
@@ -62,7 +88,7 @@ module Kredki
       end
 
       def repaint event = nil
-        color = Kredki.color @fill
+        color = Kredki.color @suit
         area.fill = pin_top? ? color.darken : mouse_in? ? color.lighten : color
         area.outline_fill = keyboard_in? ? :outline_focus : color.darken
       end

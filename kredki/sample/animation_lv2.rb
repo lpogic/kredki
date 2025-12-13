@@ -9,7 +9,7 @@ define :anim do |*a, play: nil, name: nil, **na, &b|
   end.alter *a, **na, &b
 end
 
-layout! :ybb
+layout! :yss
 
 space! wh: 1r, layout: :xbb do
   anim play: :once

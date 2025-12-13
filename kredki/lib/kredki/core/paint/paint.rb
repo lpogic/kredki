@@ -1,7 +1,6 @@
 module Kredki
   # Base class for all graphical objects.
   class Paint
-    extend HasFeatures
 
     # Set position along the X axis.
     def x! x = @x

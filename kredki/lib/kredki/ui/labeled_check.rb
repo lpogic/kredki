@@ -1,15 +1,19 @@
 module Kredki
   module UI
-    class CheckLabel < SpacePad
+    # Check with label.
+    class LabeledCheck < SpacePad
 
+      # Get check.
       def check
         self[Check]
       end
 
+      # Get label.
       def label
         self[Label]
       end
 
+      # Push the feature.
       def << arg
         case arg
         when String
@@ -31,8 +35,8 @@ module Kredki
       def sketch
         super
 
-        mi! 5
-        layout! :xbc
+        margin_i! 5
+        layout! :xsc
       end
 
     end

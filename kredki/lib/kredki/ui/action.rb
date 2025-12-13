@@ -3,56 +3,16 @@ require_relative 'layer'
 
 module Kredki
   module UI
+    # Action for UI module.
     class Action < Kredki::Action
       include PadBase
-      extend Forwardable
       
-      def initialize
-        super
-        
-        @services = []
-      end
-
-      def s
-        self
-      end
-
+      # Extend API at runtime.
       def define ...
         PadBase.define(...)
       end
 
-      def pad_parent
-        nil
-      end
-
-      def service_parent
-        nil
-      end
-
-      def sw
-        w
-      end
-
-      def sh
-        h
-      end
-
-      def swh
-        wh
-      end
-
-      def clw
-        w
-      end
-
-      def clh
-        h
-      end
-
-      def clwh
-        wh
-      end
-
+      # Add new layer.
       def layer! klass = Layer, *a, **na, &b
         layer = klass.new
         layer.sketch_pad
@@ -61,7 +21,18 @@ module Kredki
         layer
       end
 
+      # Get ancestors.
+      def lineage include_self = false
+        []
+      end
+
       # :section: LEVEL 2
+
+      def initialize
+        super
+        
+        @services = []
+      end
 
       def sketch
         super
@@ -94,6 +65,38 @@ module Kredki
         end
 
         layer!.keyboard_request
+      end
+
+      def pad_parent
+        nil
+      end
+
+      def service_parent
+        nil
+      end
+
+      def sw
+        w
+      end
+
+      def sh
+        h
+      end
+
+      def swh
+        wh
+      end
+
+      def clw
+        w
+      end
+
+      def clh
+        h
+      end
+
+      def clwh
+        wh
       end
 
       def step ms
@@ -167,10 +170,6 @@ module Kredki
       def remove_pad layer, transfer = false
         @services.delete layer
         @mouse_stale = true
-      end
-
-      def lineage include_self = false
-        []
       end
     end
   end

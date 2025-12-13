@@ -1,7 +1,15 @@
+# This is ui config loaded by default.
+#
+# If you don't want to load the default configuration, you can set the path to your own in the global variable $kredki_ui_config before require 'kredki':
+#   $kredki_ui_config = './cutom_ui_config.rb'
+#   require 'kredki'
+#   ...
+# This way 'custom_ui_config.rb' will be loaded instead of the current file.
+
 require_relative 'slide'
 require_relative 'scroll_pad'
 require_relative 'space_pad'
-require_relative 'image_pad'
+require_relative 'picture_pad'
 require_relative 'text_pad'
 require_relative 'animation_pad'
 require_relative 'text/navigable_text'
@@ -9,15 +17,15 @@ require_relative 'note'
 require_relative 'notes'
 require_relative 'button'
 require_relative 'check'
-require_relative 'check_label'
-require_relative 'radio/radio_group'
+require_relative 'labeled_check'
+require_relative 'radio/group'
 require_relative 'label'
 require_relative 'option/option'
-require_relative 'table/table'
-require_relative 'list/list'
-require_relative 'list/tree_list'
-require_relative 'context_menu/context_menu'
-require_relative 'toolbar_menu/toolbar_menu'
+require_relative 'table/pad'
+require_relative 'list/pad'
+require_relative 'list/tree/pad'
+require_relative 'context/menu'
+require_relative 'toolbar/pad'
 
 module Kredki
   module UI
@@ -25,7 +33,7 @@ module Kredki
       define :pad!, RectanglePad
       define :space!, SpacePad
       define :scroll!, ScrollPad
-      define :image!, ImagePad
+      define :picture!, PicturePad
       define :animation!, AnimationPad
       def text! *a, **na, &b
         new NavigableText, :text!, *a, keyboardy: true, **na, &b
@@ -34,18 +42,18 @@ module Kredki
       define :yslide!, VerticalSlide
       define :button!, Button
       define :check!, Check
-      define :check_label!, CheckLabel
+      define :labeled_check!, LabeledCheck
       define :note!, Note
       define :notes!, Notes
       define :label!, Label
       define :option!, Option
-      define :table!, Table
-      define :list!, List
-      define :tree!, TreeList
+      define :table!, Table::Pad
+      define :list!, List::Pad
+      define :tree!, Tree::Pad
 
-      define :radio!, RadioGroup
-      define :context!, ContextMenu
-      define :toolbar!, ToolbarMenu
+      define :radio!, Radio::Group
+      define :context!, Context::Menu
+      define :toolbar!, Toolbar::Pad
 
     end#PadBase
   end#UI

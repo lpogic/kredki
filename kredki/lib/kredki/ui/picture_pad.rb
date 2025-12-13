@@ -1,14 +1,25 @@
 module Kredki
   module UI
-    class ImagePad < Pad
+    # Pad with picture area.
+    class PicturePad < Pad
 
-      feature def content! content = nil
+      # Set picture content.
+      def content! content = @area.content
         return send_ahp :content!, yield(self.content) if block_given?
         @area.content! content, false
-      end, def content
+      end
+      
+      # See #content!.
+      def content= param
+        send_ahp :content!, param
+      end
+
+      # Get picture content.
+      def content
         @area.content
       end
 
+      # Push the feature.
       def << arg
         case arg
         when String

@@ -1,15 +1,15 @@
 module Kredki
   module UI
+    # Pad that occupy some space.
     class SpacePad < Pad
 
-      def << arg
-        case arg
+      # Push the feature.
+      def << feature
+        case feature
         in Numeric
-          margin! arg * 0.5
+          margin! feature * 0.5
         in [Numeric, Numeric]
-          margin! arg[0] * 0.5, arg[1] * 0.5
-        in [Numeric, Numeric, Numeric, Numeric]
-          margin! *arg
+          margin! feature[0] * 0.5, feature[1] * 0.5
         else
           super
         end

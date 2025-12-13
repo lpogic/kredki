@@ -1,5 +1,6 @@
 module Kredki
   module UI
+    # Common event resolvers for text navigation.
     module TextNavigation
 
       def text_navigation text

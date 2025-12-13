@@ -1,5 +1,6 @@
 module Kredki
   module UI
+    # Module extended in Kredki::UI::Pad and all inherited classes.
     module PadInherited
       def self.extended cl
         cl.define_singleton_method :inherited do |cl1|
@@ -7,6 +8,7 @@ module Kredki
         end
       end
 
+      # Define API method.
       def define name, klass = nil, &block
         case klass
         when Class

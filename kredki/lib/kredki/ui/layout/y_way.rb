@@ -3,7 +3,10 @@ require_relative 'way'
 module Kredki
   module UI
     module Layout
+      # A layout in which elements are positioned one next to another, along the Y axis.
       class YWay < Way
+
+        # :section: LEVEL 2
 
         def get_span pad, h, limit, pclh
           case h

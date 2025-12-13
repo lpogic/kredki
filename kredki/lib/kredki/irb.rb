@@ -48,8 +48,20 @@ KredkiProc = proc do
             def_delegator :A, it
         end
 
+        def window! ...
+          A.arena.window!(...)
+        end
+  
+        def layer! ...
+          A.action.layer!(...)
+        end
+  
         def define ...
           def_delegator :A, PadBase.define(...)
+        end
+  
+        def plugin! ...
+          Kredki.plugin!(...)
         end
       end
     end

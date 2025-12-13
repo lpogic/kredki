@@ -9,11 +9,10 @@ module Kredki
     class Service
       include PadBase
       include PadEvents
-      extend HasFeatures
       extend PadInherited
 
       # Set whether Pad is tagged with +tag+.
-      feature def tag! tag, set = true
+      def tag! tag, set = true
         return tag! tag, (yield(self.tag tag)) if block_given?
         @tags[tag] = set
         if plugin = Kredki.plugin(tag)

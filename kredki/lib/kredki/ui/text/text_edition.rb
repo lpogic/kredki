@@ -2,6 +2,7 @@ require_relative 'text_navigation'
 
 module Kredki
   module UI
+    # Common event resolvers for text edition.
     module TextEdition
       include TextNavigation
       

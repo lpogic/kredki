@@ -17,6 +17,10 @@ else
         A.arena.window!(...)
       end
 
+      def layer! ...
+        A.action.layer!(...)
+      end
+
       def define ...
         def_delegator :A, PadBase.define(...)
       end

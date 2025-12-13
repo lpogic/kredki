@@ -2,7 +2,6 @@ require_relative 'shape_area'
 
 module Kredki
   class Ellipse < ShapeArea
-    extend HasFeatures
     
     # :section: LEVEL 2
 

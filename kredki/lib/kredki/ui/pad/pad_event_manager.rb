@@ -1,7 +1,10 @@
 module Kredki
+  # Event manager for Pad.
   class PadEventManager
 
-    model do
+    # :section: LEVEL 2
+
+    def initialize
       @managers = {
         true => {},
         false => {},

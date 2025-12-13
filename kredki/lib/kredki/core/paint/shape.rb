@@ -132,7 +132,7 @@ module Kredki
 
     # Set outline features.
     def outline! *a, **na
-      amap = a.map do
+      a.map do
         case it
         when Hash
           outline! **it
@@ -141,9 +141,7 @@ module Kredki
         else
           send_ahp :outline_fill!, it
         end
-      end
-      namap = na.map{ send_ahp "outline_#{_1}!", _2 }
-      amap.any? || namap.any?
+      end.any? | send_branch(:outline, na)
     end
     
     # See #outline!.

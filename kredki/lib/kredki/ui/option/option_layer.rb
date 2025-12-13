@@ -2,7 +2,23 @@ require_relative '../item/item_group'
 
 module Kredki
   module UI
+    # Layer of option list
     class OptionLayer < Layer
+
+      # Add new item.
+      def item! ...
+        @item_group.item!(...)
+      end
+
+      # :section: LEVEL 2
+
+      def sketch
+        super
+
+        @scroll = new ScrollPad, layout: :yss
+        @pad = @scroll.new RectanglePad, fill: :gray, layout: :yss, h: :fit
+        @item_group = @pad.new ItemGroup
+      end
 
       def arrange
         @note&.layer&.arrange
@@ -43,20 +59,6 @@ module Kredki
 
       def loaded?
         !!@note
-      end
-
-      def item! ...
-        @item_group.item!(...)
-      end
-
-      # :section: LEVEL 2
-
-      def sketch
-        super
-
-        @scroll = new ScrollPad, layout: :ybb
-        @pad = @scroll.new RectanglePad, fill: :gray, layout: :ybb, h: :fit
-        @item_group = @pad.new ItemGroup
       end
 
       def mouse_down e

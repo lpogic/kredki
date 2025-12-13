@@ -1,7 +1,10 @@
 module Kredki
   module UI
-    class Table
+    module Table
+      # Table cell model.
       class Cell < RectanglePad
+
+        # :section: LEVEL 2
 
         def sketch
           super

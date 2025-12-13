@@ -2,43 +2,20 @@ require_relative '../text_pad'
 
 module Kredki
   module UI
+    # Text in rectangle. Part of group.
     class Item < RectanglePad
-      extend HasEventResolvers
 
-      def << arg
-        case arg
-        when String
-          content! arg
-        else
-          super
-        end
+      # Get text.
+      def text
+        self[TextPad]
       end
 
-      class PickEvent < Kredki::UI::Event
-        model :value, :origin
-
-        def ~()
-          @value
-        end
-      end
-
-      feature def fill! *fill
-        fill = Util.uncover fill
-        return if @fill == fill
-        @fill = fill
-        repaint
-        true
-      end
-
-      event_resolver :on_pick!, PickEvent
-
-      feature_delegate :@text,
-        :content
-
-      def has_subitem?
+      # Get whether has any item. Overrided in inheriting classes.
+      def has_items?
         false
       end
 
+      # Get whether is down.
       def down? keyboard_in = nil
         keyboard_in = keyboard_in? if keyboard_in.nil?
         pin_top? :primary or (
@@ -49,7 +26,59 @@ module Kredki
         )
       end
 
+      # Set suit.
+      def suit! *suit
+        return send_ahp :suit!, yield(self.suit) if block_given?
+        suit = Util.uncover suit
+        return if @suit == suit && suit != :rand
+        @suit = suit
+        repaint
+        true
+      end
+
+      # See #suit!.
+      def suit= param
+        send_ahp :suit!, param
+      end
+
+      # Get suit.
+      def suit
+        @suit
+      end
+
+      # Create and attach pick event resolver.
+      def on_pick! ...
+        on!(PickEvent, ...)
+      end
+
+      # See #on_pick!.
+      def on_pick= param
+        on_pick! do: param
+      end
+
+      # Push the feature.
+      def << feature
+        case feature
+        when String
+          text << feature
+        else
+          super
+        end
+      end
+      
       # :section: LEVEL 2
+
+      class PickEvent < Kredki::UI::Event
+
+        def initialize value, origin
+          @value = value
+          @origin = origin
+        end
+
+        def param
+          @value
+        end
+      end
 
       def initialize
         super
@@ -61,8 +90,8 @@ module Kredki
         super
 
         keyboardy!
-        layout! :xbc
-        fill! :gray
+        layout! :xsc
+        suit! :gray
         h! 24
         w! :fit
       end
@@ -82,7 +111,7 @@ module Kredki
       end
 
       def repaint event = nil
-        color = Kredki.color @fill
+        color = Kredki.color @suit
         area.fill = pin_in? ? color.darken : keyboard_in? ? color.lighten : color
       end
 

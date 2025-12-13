@@ -1,6 +1,10 @@
 module Kredki
   module UI
+    # Module to include in layout class.
     module Layout
+
+      # :section: LEVEL 2
+
       def initialize x, y
         @x = x
         @y = y

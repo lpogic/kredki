@@ -42,8 +42,8 @@ end
 # Now we can use car!
 
 space! wh: 2/3r do
-  layout! :ybb
-  mi! 60
+  layout! :yss
+  margin_i! 60
   car! wh: 1r, rim: :green, body: :orange
   car! wh: 1r, mag: -1, rim: :red, body: :gray
 end

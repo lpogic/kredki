@@ -1,5 +1,5 @@
 module Kredki
-  # Represents an image that may change over time.
+  # Represents an picture that may change over time.
   class Animation
 
     # Set content.

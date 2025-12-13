@@ -1,6 +1,5 @@
 module Kredki
   module Area
-    extend HasFeatures
 
     # Set width.
     def w! w = @w

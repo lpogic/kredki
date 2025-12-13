@@ -2,6 +2,7 @@ require_relative 'text/editable_text_verses'
 
 module Kredki
   module UI
+    # A multiline text control.
     class Notes < Note
 
       # :section: LEVEL 2
@@ -11,7 +12,7 @@ module Kredki
 
         h! 74
         verse_size! 24
-        verse_layout! :ybb
+        verse_layout! :yss
       end
 
       def initialize_verse

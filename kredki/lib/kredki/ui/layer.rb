@@ -2,12 +2,16 @@ require_relative 'pad/pad'
 
 module Kredki
   module UI
+    # Pad which is Kredki::UI::Action child. Layers form a layer stack. Pads from higher layers are processed before pads from lower ones.
     class Layer < RectanglePad
 
+      # Get repeated click counter value. The counter is reset when the next click occurs after a specified time interval, 
+      # or the click target is a different pad, or the click location is beyond a specified distance limit from the previous one.
       def mouse_clicks
         @mouse_click_data&.combo || 0
       end
 
+      # Detach from action.
       def detach! transfer = false
         unless transfer
           update_keyboard_pad nil
@@ -17,10 +21,15 @@ module Kredki
         super
       end
 
-      def_delegators :action,
-        :window,
-        :layer!,
-        :define
+      # Get containing window.
+      def window
+        action.window
+      end
+
+      # Extend API at runtime.
+      def define ...
+        action.define(...)
+      end
 
       # :section: LEVEL 2
 

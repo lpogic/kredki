@@ -2,14 +2,16 @@ require_relative 'item'
 
 module Kredki
   module UI
+    # Part of Y axis aligned item group.
     class YItem < Item
+      
       # :section: LEVEL 2
 
       def sketch_behavior
         super
 
         on_key! :up do |e|
-          item = parent.update_select_item :previous 
+          item = parent.update_selected_item :previous 
           if item && item != self
             item.roi!
             e.resolve
@@ -17,7 +19,7 @@ module Kredki
         end
 
         on_key! :down do |e|
-          item = parent.update_select_item :next
+          item = parent.update_selected_item :next
           if item && item != self
             item.roi!
             e.resolve

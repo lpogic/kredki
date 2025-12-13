@@ -2,6 +2,7 @@ require_relative 'slide'
 
 module Kredki
   module UI
+    # Pad with scrollable area.
     class ScrollPad < Pad
 
       # :section: LEVEL 2

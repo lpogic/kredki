@@ -4,6 +4,8 @@ module Kredki
   module UI
     class EditableTextVerses < NavigableText
 
+      # :section: LEVEL 2
+
       def paste pasted
         report EditEvent.new @selection_min, @selection_max, pasted, :paste
       end

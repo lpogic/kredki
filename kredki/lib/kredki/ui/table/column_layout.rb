@@ -1,24 +1,39 @@
 module Kredki
   module UI
-    class Table
+    module Table
+      # Column layout.
       class ColumnLayout < Layout::XWay
-        extend HasFeatures
+        
+        # Add new column.
+        def column! ...
+          @columns << Column.new.alter(...)
+        end
+        
+        # Set space between columns.
+        def space! space = @space
+          return if @space == space
+          @space = space
+          true
+        end
+
+        # See #space!.
+        def space= param
+          send_ahp :space!, param
+        end
+
+        # Get space between columns.
+        def space
+          @space
+        end
+
+        # :section: LEVEL 2
         
         def initialize table, x, y
           super(x, y)
           @table = table
           @columns = []
           @measurement = nil
-        end
-        
-        def column! ...
-          @columns << Column.new.alter(...)
-        end
-
-        feature def space! space
-          return if @space == space
-          @space = space
-          true
+          @spans = nil
         end
   
         def arrange pad

@@ -1,8 +1,11 @@
 module Kredki
   module UI
     module Layout
+      # A layout in which elements are positioned one next to another.
       class Way
         include Layout
+
+        # :section: LEVEL 2
 
         def spans sp, pd, space
           ad = 0

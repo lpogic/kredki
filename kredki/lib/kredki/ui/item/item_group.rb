@@ -3,8 +3,10 @@ require_relative 'y_item'
 
 module Kredki
   module UI
+    # Group of items.
     class ItemGroup < Service
 
+      # Add new item.
       def item!(...)
         new(YItem, ...)
       end
@@ -15,16 +17,16 @@ module Kredki
         pad.keyboard_request if self[Item...].find{ it.keyboard_in? } != pad
       end
 
-      def update_select_item item
+      def update_selected_item item
         case item
         when :previous
           items = self[Item...].to_a 
           index = items.index{ it.keyboard_in? } || 1
-          update_select_item items[index - 1] if index > 0
+          update_selected_item items[index - 1] if index > 0
         when :next
           items = self[Item...].to_a 
           index = items.index{ it.keyboard_in? } || -1
-          update_select_item items[index + 1] if index < items.length - 1
+          update_selected_item items[index + 1] if index < items.length - 1
         else
           item&.keyboard_request
           item

@@ -1,6 +1,6 @@
 module Kredki
   module UI
-    # Pad with text content.
+    # Pad with text area.
     class TextPad < Pad
 
       # Set content.
@@ -27,30 +27,27 @@ module Kredki
         @content
       end
 
-      feature def content! content = @content
-        return send_ahp :content!, yield(self.content) if block_given?
-        return if @content == content
-        @content = content
-        @verses&.each{ it.detach! }
-        @verses = "#{content}\n".each_line(chomp: true).map do |line|
-          @scene.text! line.chomp, fill: @area.fill
-        end
-        arrange_verses
-        layer&.break_layout
-        true
-      end
-
-      feature def fill! *fill
+      # Set fill.
+      def fill! *fill
         return send_ahp :fill!, yield(self.fill) if block_given?
         return unless @area.fill! *fill
         @verses.each{ it.fill! *fill }
         true
-      end, def fill
+      end
+      
+      # See #fill!.
+      def fill= param
+        send_ahp :fill!, param
+      end
+
+      # Get fill.
+      def fill
         @area.fill
       end
 
-      feature def verse! *a, **na
-        amap = a.map do
+      # Set verse features.
+      def verse! *a, **na
+        a.map do
           case it
           when Hash
             verse! **it
@@ -59,41 +56,74 @@ module Kredki
           else
             verse_layout! it
           end
-        end
-        namap = na.map{ send_ahp "verse_#{_1}!", _2 }
-        amap.any? || namap.any?
-      end, def verse
-        [verse_size, verse_layout]
+        end.any? | send_branch(:verse, na)
       end
 
-      feature def verse_layout! layout = nil
+      # See #verse!.
+      def verse= param
+        send_ahp :verse!, param
+      end
+
+      # Set verse layout.
+      def verse_layout! layout = nil
         return send_ahp :verse_layout!, yield(self.verse_layout) if block_given?
         return if @verse_layout == layout
         @verse_layout = layout
         arrange_verses
       end
 
-      feature def verse_space! verse_space = nil
+      # See #verse_layout!.
+      def verse_layout= param
+        send_ahp :verse_layout!, param
+      end
+
+      # Get verse layout.
+      def verse_layout
+        @verse_layout
+      end
+
+      # Set space between verses.
+      def verse_space! verse_space = @verse_space
         return send_ahp :verse_space!, yield(self.verse_space) if block_given?
         return if @verse_space == verse_space
         @verse_space = verse_space
         layer&.break_layout
         true
-      end, def verse_space
+      end
+      
+      # See #verse_space!.
+      def verse_space= param
+        send_ahp :verse_space!, param
+      end
+      
+      # Get spece between verses.
+      def verse_space
         @verse_space || 0
       end
 
-      feature def verse_size! size
+      # Set verse size.
+      def verse_size! verse_size = @verse_size
         return send_ahp :verse_size!, yield(self.verse_size) if block_given?
-        return if @verse_size == size
-        @verse_size = size
+        return if @verse_size == verse_size
+        @verse_size = verse_size
         arrange_verses
       end
 
-      def << arg
-        case arg
+      # See #verse_size!.
+      def verse_size= param
+        send_ahp :verse_size!, param
+      end
+
+      # Get verse size.
+      def verse_size
+        @verse_size
+      end
+
+      # Push the feature.
+      def << feature
+        case feature
         when String
-          content! arg
+          content! feature
         else
           super
         end
@@ -112,7 +142,7 @@ module Kredki
         super
 
         wh! :fit
-        verse_layout! :ybc
+        verse_layout! :ysc
         verse_size! 24
         content! "TEXT"
       end
@@ -208,11 +238,11 @@ module Kredki
 
       def align_x tw, w
         case @verse_layout
-        when :ybb, :ybc, :ybe
+        when :yss, :ysc, :yse
           0
-        when :yeb, :yec, :yee
+        when :yes, :yec, :yee
           w - tw
-        when :ycb, :ycc, :yce
+        when :ycs, :ycc, :yce
           (w - tw) * 0.5
         else raise_is @verse_layout
         end
@@ -220,11 +250,11 @@ module Kredki
 
       def align_y th, h
         case @verse_layout
-        when :ybb, :ycb, :yeb
+        when :yss, :ycs, :yes
           0
-        when :ybe, :yce, :yee
+        when :yse, :yce, :yee
           h - th
-        when :ybc, :ycc, :yec
+        when :ysc, :ycc, :yec
           (h - th) * 0.5
         else raise_is @verse_layout
         end

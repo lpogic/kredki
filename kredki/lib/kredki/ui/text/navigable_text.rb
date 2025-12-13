@@ -1,10 +1,8 @@
 module Kredki
   module UI
     class NavigableText < TextPad
-
-      attr :selection_min, :selection_max, :cursor
-      attr_accessor :cursor_position
       
+      # Set content.
       def content! content = @content, reset_cursor = false, &b
         if super(content, &b) && @selection.size != @verses.size
           @selection.clear!
@@ -13,20 +11,43 @@ module Kredki
         self.reset_cursor if reset_cursor
       end
 
-      feature def font! font = nil
+      # Set font.
+      def font! font = @lines.first.text.font
         return send_ahp :font!, yield(self.font) if block_given?
-        @lines.each{ _1.text.font! font }
-      end, def font
+        @lines.count{ _1.text.font! font }.nonzero?
+      end
+      
+      # See #font!.
+      def font= param
+        send_ahp :font!, param
+      end
+
+      # Get font
+      def font
         @lines.first.text.font
       end
 
+      # Get whether any text is selected.
       def selection?
         @selection_min != @selection_max
       end
 
+      # Get selected content.
       def selected_content
         content[@selection_min...@selection_max]
       end
+
+      # Set select range.
+      def select min, max
+        @selection_min = min
+        @selection_max = @cursor_position = max
+        layer&.break_layout
+      end
+
+      # :section: LEVEL 2
+
+      attr :selection_min, :selection_max, :cursor
+      attr_accessor :cursor_position
 
       def reset_cursor position = 0
         @cursor_position = @selection_min = @selection_max = position
@@ -95,15 +116,7 @@ module Kredki
         end
         layer&.break_layout
       end
-
-      def select min, max
-        @selection_min = min
-        @selection_max = @cursor_position = max
-        layer&.break_layout
-      end
-
-      # :section: LEVEL 2
-
+      
       attr :selection
 
       def initialize
@@ -158,11 +171,11 @@ module Kredki
 
       def align_x tw, w
         case @verse_layout
-        when :ybb, :ybc, :ybe
+        when :yss, :ysc, :yse
           @cursor.w
-        when :yeb, :yec, :yee
+        when :yes, :yec, :yee
           w - tw - @cursor.w
-        when :ycb, :ycc, :yce
+        when :ycs, :ycc, :yce
           (w - tw + @cursor.w) * 0.5
         else raise_is @verse_layout
         end

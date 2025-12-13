@@ -3,20 +3,28 @@ require_relative 'option_layer'
 
 module Kredki
   module UI
+    # Control to pick option from list.
     class Option < Pad
 
-      attr :picked
+      # Get picked option value.
+      def picked
+        @picked
+      end
 
+      # Add new item.
+      def item! ...
+        dropdown!.item!(w: 1r).alter(...)
+      end
+
+      # Create/Update dropdown.
       def dropdown! ...
-        @dropdown ||= new OptionLayer do
-          pad_detach
-        end
-
+        @dropdown ||= new OptionLayer, at: false
         @dropdown.alter(...)
       end
 
-      def item! ...
-        dropdown!.item!(w: 1r).alter(...)
+      # Get dropdown.
+      def dropdown
+        @dropdown
       end
 
       # :section: LEVEL 2
@@ -31,7 +39,7 @@ module Kredki
           keyboardy! false
           text.detach!
           new RectanglePad, mousy: false, keyboardy: false, fill: 0, wh: 1r do
-            out! fill: :text, w: 3, cap: :round, join: :miter
+            outline! fill: :text, w: 3, cap: :round, join: :miter
             area! do |w, h|
               xy! w * 0.2, h * 0.35
               line! w * 0.5, h * 0.65

@@ -1,17 +1,21 @@
 module Kredki
   module UI
-    class Table
+    module Table
+      # Table row model.
       class Row < RectanglePad
+
+        # Add new cell.
+        def cell! ...
+          new(Cell).alter(...)
+        end
+
+        # :section: LEVEL 2
 
         def sketch
           super
 
           wh! 1r, :fit
           fill! false
-        end
-
-        def cell! ...
-          new(Cell).alter(...)
         end
 
       end

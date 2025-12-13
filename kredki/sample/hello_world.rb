@@ -1,7 +1,7 @@
 require 'kredki'
 
 layout! :xbb # how pads are positioned by default
-mi! 10 # distance between pads
+margin_i! 10 # distance between pads
 
 button! do
   text << "Say hello"

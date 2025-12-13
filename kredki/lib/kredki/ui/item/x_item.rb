@@ -1,5 +1,6 @@
 module Kredki
   module UI
+    # Part of X axis aligned item group.
     class XItem < Item
       # :section: LEVEL 2
 
@@ -7,12 +8,12 @@ module Kredki
         super
 
         on_key! :left do |e|
-          parent.update_select_item(:previous)&.roi!
+          parent.update_selected_item(:previous)&.roi!
           e.resolve
         end
 
         on_key! :right do |e|
-          parent.update_select_item(:next)&.roi!
+          parent.update_selected_item(:next)&.roi!
           e.resolve
         end
       end

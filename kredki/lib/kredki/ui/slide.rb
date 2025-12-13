@@ -1,9 +1,10 @@
 module Kredki
   module UI
+    # A base class for controls that allows you to set a value by dragging a handle.
     class Slide < RectanglePad
-      extend HasEventResolvers
 
-      feature def value! v, report_change = true
+      # Set value.
+      def value! v, report_change = true
         f = v.to_f 
         value = f.nan? ? 0 : f.clamp(0..1)
         return if @value == value
@@ -14,17 +15,55 @@ module Kredki
         true
       end
 
-      feature def fill! *fill
-        return send_ahp :fill!, yield(self.fill) if block_given?
-        fill = Util.uncover fill
-        return if @fill == fill && fill != :rand
-        @fill = fill
+      # See #value!.
+      def value= param
+        send_ahp :value!, param
+      end
+
+      # Get value.
+      def value
+        @value
+      end
+
+      # Set suit.
+      def suit! *suit
+        return send_ahp :suit!, yield(self.suit) if block_given?
+        suit = Util.uncover suit
+        return if @suit == suit && suit != :rand
+        @suit = suit
         repaint
         true
       end
 
-      event_resolver :on_change!, ChangeEvent
-      event_resolver :on_edit!, EditEvent
+      # See #suit!.
+      def suit= param
+        send_ahp :suit!, param
+      end
+
+      # Get suit.
+      def suit
+        @suit
+      end
+
+      # Create and attach change event resolver.
+      def on_change! ...
+        on!(ChangeEvent, ...)
+      end
+
+      # See #on_change!.
+      def on_change= param
+        on_change! do: param
+      end
+
+      # Create and attach edit event resolver.
+      def on_edit! ...
+        on!(EditEvent, ...)
+      end
+
+      # See #on_edit!.
+      def on_edit= param
+        on_edit! do: param
+      end
 
       # :section: LEVEL 2
 
@@ -39,7 +78,7 @@ module Kredki
       def sketch
         super
 
-        fill! :gray
+        suit! :gray
       end
 
       def sketch_presence
@@ -55,8 +94,8 @@ module Kredki
       end
 
       def repaint event = nil
-        color = Kredki.color @fill
-        handle.area.fill = mouse_in? ? color.lighten : color.darken
+        color = Kredki.color @suit
+        handle.area.suit = mouse_in? ? color.lighten : color.darken
       end
 
       def sketch_behavior
@@ -83,7 +122,10 @@ module Kredki
       end
     end
 
+    # A control that allows you to set a value by dragging a handle horizontally.
     class HorizontalSlide < Slide
+
+      # :section: LEVEL 2
 
       def initialize
         super
@@ -130,7 +172,10 @@ module Kredki
       end
     end
 
+    # A control that allows you to set a value by dragging a handle vertically.
     class VerticalSlide < Slide
+
+      # :section: LEVEL 2
 
       def initialize
         super

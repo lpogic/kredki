@@ -1,5 +1,5 @@
-# This is config loaded by default. Contains all the necessary definitions used by the core and ui modules.
-# You can overwrite and add your own values ​​dynamically:
+# This is config loaded by default. You can overwrite or add your own definitions by reopening Kredki module.
+#
 #   require 'kredki'
 #
 #   module Kredki

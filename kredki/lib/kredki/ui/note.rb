@@ -2,34 +2,91 @@ require_relative 'text/editable_text_verse'
 
 module Kredki
   module UI
+    # Control with text entry.
     class Note < RectanglePad
       include TextEdition
 
-      feature def content! string = "", cursor = false
+      # Set text content.
+      def content! string = "", cursor = false
         return send_ahp :content!, yield(self.content) if block_given?
         @verse.content! string, cursor
-      end, def content
+      end
+
+      # See #content!.
+      def content= param
+        send_ahp :content!, param
+      end
+      
+      # Get text content.
+      def content
         @verse.content
       end
 
-      feature def fill! *fill
-        return send_ahp :fill!, yield(self.fill) if block_given?
-        fill = Util.uncover fill
-        return if @fill == fill && fill != :rand
-        @fill = fill
+      # Set suit.
+      def suit! *suit
+        return send_ahp :suit!, yield(self.suit) if block_given?
+        suit = Util.uncover suit
+        return if @suit == suit && suit != :rand
+        @suit = suit
         repaint
         true
       end
 
-      feature_delegate :@verse,
-        :verse,
-        :verse_size,
-        :verse_layout
+      # See #suit!.
+      def suit= param
+        send_ahp :suit!, param
+      end
 
-      def << arg
-        case arg
+      # Get suit.
+      def suit
+        @suit
+      end
+
+      # Set verse features.
+      def verse! ...
+        @verse.verse(...)
+      end
+
+      # See #verse!.
+      def verse= param
+        send_ahp :verse!, param
+      end
+      
+      # Set verse size.
+      def verse_size! ...
+        @verse.verse_size(...)
+      end
+
+      # See #verse_size!.
+      def verse_size= param
+        send_ahp :verse_size!, param
+      end
+
+      # Get verse size.
+      def verse_size
+        @verse.verse_size
+      end
+
+      # Set verse layout.
+      def verse_layout! ...
+        @verse.verse_layout(...)
+      end
+
+      # See #verse_layout!.
+      def verse_layout= param
+        send_ahp :verse_layout!, param
+      end
+
+      # Get verse layout.
+      def verse_layout
+        @verse.verse_layout
+      end
+
+      # Push the feature.
+      def << feature
+        case feature
         when String
-          content! arg
+          content! feature
         else
           super
         end
@@ -70,7 +127,7 @@ module Kredki
         keyboardy!
         outline_w! 1
         margin! 2
-        fill! :gray
+        suit! :gray
         h! 24
 
         sketch_verse
@@ -93,7 +150,7 @@ module Kredki
       end
 
       def repaint event = nil
-        color = Kredki.color @fill
+        color = Kredki.color @suit
         kb_top = keyboard_top?
         area.fill = kb_top ? color.darken : mouse_in? ? color.lighten : color
         area.outline_fill = kb_top ? :outline_focus : color

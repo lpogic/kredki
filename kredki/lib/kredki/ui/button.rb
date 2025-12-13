@@ -3,7 +3,75 @@ require_relative 'text_pad'
 module Kredki
   module UI
     class Button < RectanglePad
-      extend HasEventResolvers
+
+      # Create and attach button click event resolver.
+      def on_click! ...
+        on!(ButtonClickEvent, ...)
+      end
+
+      def on_click= param
+        on_click! do: param
+      end
+
+      # Set whether is down.
+      def down! value = true, event = nil
+        return if (c = down) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+        @down = value
+        report (@down ? ButtonDownEvent.new(event) : ButtonUpEvent.new(event)) if event
+        true
+      end
+
+      # See #down!.
+      def down= param
+        send_ahp :down!, param
+      end
+
+      # Get whether is down.
+      def down
+        @down
+      end
+
+      # See #down.
+      def down?
+        !!down
+      end
+
+      # Set suit.
+      def suit! *suit
+        return send_ahp :suit!, yield(self.suit) if block_given?
+        suit = Util.uncover suit
+        return if @suit == suit && suit != :rand
+        @suit = suit
+        repaint
+        true
+      end
+
+      # See #suit!.
+      def suit= param
+        send_ahp :suit!, param
+      end
+
+      # Get suit.
+      def suit
+        @suit
+      end
+
+      # Get text.
+      def text
+        self[TextPad]
+      end
+
+      # Push the feature.
+      def << arg
+        case arg
+        when String
+          text << arg
+        else
+          super
+        end
+      end
+
+      # :section: LEVEL 2
 
       class ButtonClickEvent < Event
         model :origin, :<
@@ -16,39 +84,6 @@ module Kredki
       class ButtonUpEvent < Event
         model :origin, :<
       end
-
-      feature def fill! *fill
-        return send_ahp :fill!, yield(self.fill) if block_given?
-        fill = Util.uncover fill
-        return if @fill == fill && fill != :rand
-        @fill = fill
-        repaint
-        true
-      end
-
-      def text
-        self[TextPad]
-      end
-
-      def << arg
-        case arg
-        when String
-          text << arg
-        else
-          super
-        end
-      end
-
-      event_resolver :on_click!, ButtonClickEvent
-
-      flag def down! value = true, event = nil
-        return if (c = down) == (value = block_given? ? yield(c) : value == :not ? !c : value)
-        @down = value
-        report (@down ? ButtonDownEvent.new(event) : ButtonUpEvent.new(event)) if event
-        true
-      end
-
-      # :section: LEVEL 2
 
       def sketch
         super
@@ -64,7 +99,7 @@ module Kredki
         outline_w! 1
         layout! :acc
         wh! :fit
-        fill! :gray
+        suit! :gray
         margin! 3
       end
 
@@ -83,7 +118,7 @@ module Kredki
       end
 
       def repaint event = nil
-        color = Kredki.color @fill
+        color = Kredki.color @suit
         area.fill = down? ? color.darken : mouse_in? ? color.lighten : color
         area.outline_fill = keyboard_in? ? :outline_focus : color.darken
       end

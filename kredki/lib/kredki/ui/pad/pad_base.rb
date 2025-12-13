@@ -2,9 +2,11 @@ require_relative 'pad_inherited'
 
 module Kredki
   module UI
+    # Module to include in pad parents.
     module PadBase
       extend PadInherited
 
+      # Search for services matching given criteria.
       def [](filter, *extra_filters, &block)
         case filter
         when Integer
@@ -117,11 +119,13 @@ module Kredki
         end
       end
 
+       # Push the feature to services matching given criteria.
       def []=(*filters, value)
         self[*filters]{ _1 << value }
         value
       end
 
+      # Iterate over subservices.
       def each_service enum = nil, reverse: false, deep: true
         if enum
           method = reverse ? :reverse_each : :each
@@ -143,6 +147,7 @@ module Kredki
         end
       end
 
+      # Iterate over subpads.
       def each_pad enum = nil, reverse: false, deep: true
         if enum
           method = reverse ? :reverse_each : :each
@@ -164,6 +169,7 @@ module Kredki
         end
       end
 
+      # Search for pads matching given criteria.
       def find_pad(filter, *extra_filters, &block)
         case filter
         when Integer
@@ -276,22 +282,26 @@ module Kredki
         end
       end
 
+      # Add new job tree.
       def job &block
         RootJob.new action, block
       end
 
+      # Add new Kredki::AfterJob.
       def after! delay = 0, &block
         job = AfterJob.new action, block, delay
         job.play
         job
       end
 
+      # Add new Kredki::LoopJob.
       def loop! period = 0, &block
         job = LoopJob.new action, block, period
         job.play
         job
       end
 
+      # Add new Kredki::SideJob.
       def side! &block
         job = SideJob.new action, block
         job.play

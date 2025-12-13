@@ -2,7 +2,9 @@ require_relative '../item/item_group'
 
 module Kredki
   module UI
-    class ContextItemGroup < ItemGroup
+    module Context
+      class ItemGroup < UI::ItemGroup
+      end
     end
   end
 end
