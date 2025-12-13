@@ -1,13 +1,8 @@
 module Kredki
+  # Job executed in separated thread.
   class SideJob < Job
 
-    def initialize action, block
-      super(action)
-      @block = block
-      @threat = nil
-      @result = nil
-    end
-
+    # Start job.
     def play param = nil
       stop
       @param = param
@@ -17,6 +12,7 @@ module Kredki
       @action.put_job self
     end
 
+    # Stop job and all subjobs.
     def stop
       @thread&.kill
       @thread = nil
@@ -24,12 +20,20 @@ module Kredki
       @event_manager.resolve StopEvent.new
     end
 
+    # Break thread.
     def break result = nil
       @result = result
       @thread&.kill
     end
 
     # :section: LEVEL 2
+
+    def initialize action, block
+      super(action)
+      @block = block
+      @threat = nil
+      @result = nil
+    end
 
     def step ms
       if !@thread&.alive?

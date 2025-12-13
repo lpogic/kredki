@@ -1,6 +1,10 @@
 module Kredki
+  # Manage mouse events resolving.
   class MouseEventManager
-    model do
+
+    # :section: LEVEL 2
+
+    def initialize
       @resolvers = {}
     end
 

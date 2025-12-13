@@ -1,13 +1,13 @@
 module Kredki
   module UI
-    class Table < ShapePad
+    class Table < RectanglePad
 
       def column! ...
         @column_layout.column!(...) and layer&.break_layout
       end
 
       feature def gap! x = 0, y = x
-        return gap! *Util.cover(yield(self.gap)) if block_given?
+        return send_ahp :gap!, yield(self.gap) if block_given?
         x_changed = @column_layout.space! x
         y_changed = mi! y
         layer&.break_layout if x_changed && !y_changed

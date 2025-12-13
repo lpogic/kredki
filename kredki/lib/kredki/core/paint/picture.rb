@@ -22,7 +22,7 @@ module Kredki
 
     # See #content!.
     def content= param
-      Array === param ? (content! *param) : (content! param)
+      send_ahp :content!, param
     end
 
     # Get content.
@@ -72,7 +72,7 @@ module Kredki
       Pastele.picture_load @pointer, content
     end
 
-    def pxy
+    def pivot_xy
       [@w * 0.5, @h * 0.5]
     end
 

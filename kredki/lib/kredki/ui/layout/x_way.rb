@@ -48,7 +48,7 @@ module Kredki
           cx = case @x
           when :c
             (clw - sw) * 0.5
-          when :b
+          when :s
             0
           when :e
             clw - sw

@@ -13,7 +13,7 @@ module Kredki
 
     # See #w!.
     def w= param
-      Array === param ? (w! *param) : (w! param)
+      send_ahp :w!, param
     end
 
     # Get width.
@@ -32,7 +32,7 @@ module Kredki
 
     # See #h!.
     def h= param
-      Array === param ? (h! *param) : (h! param)
+      send_ahp :h!, param
     end
 
     # Get height.
@@ -42,7 +42,7 @@ module Kredki
 
     # Set width and height.
     def wh! w = @w, h = w
-      return wh! *Util.cover(yield(self.wh)) if block_given?
+      return send_ahp :wh!, yield(self.wh) if block_given?
       return if @w == w && @h == h
       @w = w
       @h = h
@@ -52,7 +52,7 @@ module Kredki
 
     # See #wh!.
     def wh= param
-      Array === param ? (wh! *param) : (wh! param)
+      send_ahp :wh!, param
     end
     
     # Get width and height.

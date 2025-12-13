@@ -1,7 +1,11 @@
 require_relative 'composite_event_manager'
 
 module Kredki
+  # Manage keyboard events resolving.
   class KeyboardEventManager
+
+    # :section: LEVEL 2
+
     def initialize
       @resolvers = {}
     end

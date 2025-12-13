@@ -1,11 +1,11 @@
 module Kredki
   module UI
-    class Check < ShapePad
+    class Check < RectanglePad
 
       feature def fill! *fill
-        return fill! *Util.cover(yield(self.fill)) if block_given?
+        return send_ahp :fill!, yield(self.fill) if block_given?
         fill = Util.uncover fill
-        return if @fill == fill
+        return if @fill == fill && fill != :rand
         @fill = fill
         repaint
         true
@@ -23,7 +23,7 @@ module Kredki
       def initialize
         super
         
-        @check = new ShapePad, mousy: false, keyboardy: false, fill: 0, wh: 1r do
+        @check = new RectanglePad, mousy: false, keyboardy: false, fill: 0, wh: 1r do
           out! fill: :text, w: 3
           outline_fill! :text
           outline_w! 3
@@ -44,7 +44,7 @@ module Kredki
         layout! :acc
         wh! 20
         fill! :gray
-        m! 3
+        margin! 3
       end
 
       def sketch_presence

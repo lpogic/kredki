@@ -1,33 +1,36 @@
 module Kredki
+  # Base class for jobs.
   class Job
-    extend HasFeatures
-
+    
+    # Create and attach Kredki::AfterJob.
     def after delay = 0, &block
       job = AfterJob.new @action, block, delay
       @event_manager << job
       job
     end
 
+    # Create and attach Kredki::LoopJob.
     def loop period = 0, &block
       job = LoopJob.new @action, block, period
       @event_manager << job
       job
     end
 
+    # Create and attach Kredki::SideJob.
     def side &block
       job = SideJob.new @action, block
       @event_manager << job
       job
     end
 
-    def ~
-      param
+    # Get main parameter.
+    def param
+      @param
     end
 
-    attr :param
-
-    def -@
-      StopJob.new self
+    # See #param.
+    def ~
+      param
     end
 
     # :section: LEVEL 2

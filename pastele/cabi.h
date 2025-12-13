@@ -71,16 +71,10 @@ CABI void clipboard_set_text(char* text);
 CABI char* clipboard_get_text(void);
 
 CABI uint8_t keyboard_get_key_state(int keycode);
-CABI uint16_t keyboard_get_shift_state(void);
-CABI uint16_t keyboard_get_ctrl_state(void);
-CABI uint16_t keyboard_get_alt_state(void);
-CABI uint16_t keyboard_get_num_state(void);
-CABI uint16_t keyboard_get_caps_state(void);
-CABI uint16_t keyboard_get_scroll_state(void);
+CABI uint16_t keyboard_get_mod_state(void);
 
 CABI uint32_t mouse_get_button_state(int index);
 CABI void mouse_get_cursor_position(Point* point);
-CABI void mouse_set_relative_mode(int set);
 CABI void mouse_set_capture(int set);
 
 CABI uint32_t joystick_open(int index);
@@ -109,6 +103,8 @@ CABI void window_set_bordered(pas::Window* self, int bordered);
 CABI void window_set_fullscreen(pas::Window* self, int fullscreen);
 CABI void window_set_mouse_grab(pas::Window* self, int grab);
 CABI int window_get_mouse_grab(pas::Window* self);
+CABI void window_set_mouse_relative_mode(pas::Window* self, int relative);
+CABI int window_get_mouse_relative_mode(pas::Window* self);
 CABI void window_set_minimum_size(pas::Window* self, int w, int h);
 CABI void window_set_maximum_size(pas::Window* self, int w, int h);
 CABI void window_get_minimum_size(pas::Window* self, IntPoint* point);
@@ -128,7 +124,7 @@ CABI int window_get_text_input(pas::Window* self);
 CABI int window_get_flags(pas::Window* self);
 
 CABI void paint_delete(Paint* self);
-CABI void paint_set_transform(Paint* self, float pivot_x, float pivot_y, float x, float y, float a, float magx, float fy);
+CABI void paint_set_transform(Paint* self, float pivot_x, float pivot_y, float x, float y, float a, float mag_x, float fy);
 CABI void paint_set_opacity(Paint* self, uint8_t opacity);
 CABI void paint_get_bounds(Paint* self, Bounds* bounds);
 CABI void paint_set_clip(Paint* self, Shape* clipper);
@@ -144,7 +140,7 @@ CABI void shape_cubic_to(Shape* self, float cx1, float cy1, float cx2, float cy2
 CABI void shape_close(Shape* self);
 CABI void shape_append_rect(Shape* self, float x, float y, float w, float h);
 CABI void shape_append_circle(Shape* self, float cx, float cy, float rx, float ry);
-CABI void shape_append_round_rect(Shape* self, float x, float y, float w, float h, float crtt, float crth, float crht, float crhh);
+CABI void shape_append_round_rect(Shape* self, float x, float y, float w, float h, float corner_ss, float corner_se, float corner_es, float corner_ee);
 CABI void shape_set_stroke_width(Shape* self, float width);
 CABI void shape_set_stroke_color(Shape* self, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 // CABI int tvg_shape_set_stroke_linear_gradient(Shape* self, Tvg_Gradient* grad);

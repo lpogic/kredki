@@ -2,7 +2,7 @@ require_relative 'pad/pad'
 
 module Kredki
   module UI
-    class Layer < ShapePad
+    class Layer < RectanglePad
 
       def mouse_clicks
         @mouse_click_data&.combo || 0
@@ -219,7 +219,7 @@ module Kredki
           end
         else
           @pin_data = nil
-          layer.update_mouse_location PositionEvent.new *mouse.xy
+          layer.update_mouse_location PositionEvent.new *Kredki.mouse.xy
         end
         true
       end      

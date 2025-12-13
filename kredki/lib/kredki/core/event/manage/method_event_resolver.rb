@@ -1,6 +1,24 @@
 module Kredki
+  # Method based event resolver.
   class MethodEventResolver
-    model :method, :@manager, :always
+
+    # Stop resolving events.
+    def detach!
+      @manager&.detach! self
+      @manager = nil
+      @method = nil
+    end
+
+    # :section: LEVEL 2
+
+    def initialize method, manager, always
+      @method = method
+      @manager = manager
+      @always = always
+    end
+
+    attr_accessor :method
+    attr_accessor :always
 
     def resolve event = nil
       return if !@always && event&.resolved?
@@ -15,12 +33,6 @@ module Kredki
     def resolve! event = nil
       resolve event
       self
-    end
-
-    def detach!
-      @manager&.detach! self
-      @manager = nil
-      @method = nil
     end
 
     def attach! manager, always = false

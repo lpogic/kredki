@@ -2,7 +2,7 @@ require_relative 'text_pad'
 
 module Kredki
   module UI
-    class Button < ShapePad
+    class Button < RectanglePad
       extend HasEventResolvers
 
       class ButtonClickEvent < Event
@@ -18,9 +18,9 @@ module Kredki
       end
 
       feature def fill! *fill
-        return fill! *Util.cover(yield(self.fill)) if block_given?
+        return send_ahp :fill!, yield(self.fill) if block_given?
         fill = Util.uncover fill
-        return if @fill == fill
+        return if @fill == fill && fill != :rand
         @fill = fill
         repaint
         true
@@ -65,7 +65,7 @@ module Kredki
         layout! :acc
         wh! :fit
         fill! :gray
-        m! 3
+        margin! 3
       end
 
       def sketch_presence
@@ -100,17 +100,17 @@ module Kredki
         end
 
         on_mouse_up! :primary do |e|
-          down = keyboard_in? && ( keyboard.down?(:space) || keyboard.down?(:enter) )
+          down = keyboard_in? && ( Kredki.keyboard.down?(:space) || Kredki.keyboard.down?(:enter) )
           report ButtonClickEvent.new e if !down && down!(false, e) && !e.drag && include_point?(*layer.translate(*e.xy, self))
         end
 
         on_key_up! :enter do |e|
-          down = pin_top?(:primary) || ( keyboard_in? && keyboard.down?(:space) )
+          down = pin_top?(:primary) || ( keyboard_in? && Kredki.keyboard.down?(:space) )
           report ButtonClickEvent.new e if !down && down!(false, e)
         end
 
         on_key_up! :space do |e|
-          down = pin_top?(:primary) || ( keyboard_in? && keyboard.down?(:enter) )
+          down = pin_top?(:primary) || ( keyboard_in? && Kredki.keyboard.down?(:enter) )
           report ButtonClickEvent.new e if !down && down!(false, e)
         end
       end

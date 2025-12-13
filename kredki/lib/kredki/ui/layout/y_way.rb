@@ -48,7 +48,7 @@ module Kredki
           cy = case @y
           when :c
             (clh - sh) * 0.5
-          when :b
+          when :s
             0
           when :e
             clh - sh

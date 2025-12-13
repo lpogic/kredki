@@ -1,6 +1,6 @@
 module Kredki
   module UI
-    class ContextPad < ShapePad
+    class ContextPad < RectanglePad
 
       def mouse_enter e
         e.resolve

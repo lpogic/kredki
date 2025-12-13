@@ -114,6 +114,14 @@ bool Window::getGrab(void) {
     return SDL_GetWindowMouseGrab(sdl_window);
 }
 
+void Window::setMouseRelativeMode(bool relative) {
+    SDL_SetWindowRelativeMouseMode(sdl_window, relative);
+}
+
+bool Window::getMouseRelativeMode(void) {
+    return SDL_GetWindowRelativeMouseMode(sdl_window);
+}
+
 void Window::setMinimumSize(int w, int h) {
     SDL_SetWindowMinimumSize(sdl_window, w, h);
 }

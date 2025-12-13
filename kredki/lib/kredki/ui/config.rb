@@ -22,7 +22,7 @@ require_relative 'toolbar_menu/toolbar_menu'
 module Kredki
   module UI
     module PadBase
-      define :pad!, ShapePad
+      define :pad!, RectanglePad
       define :space!, SpacePad
       define :scroll!, ScrollPad
       define :image!, ImagePad

@@ -2,7 +2,7 @@ require_relative '../text_pad'
 
 module Kredki
   module UI
-    class Item < ShapePad
+    class Item < RectanglePad
       extend HasEventResolvers
 
       def << arg
@@ -43,8 +43,8 @@ module Kredki
         keyboard_in = keyboard_in? if keyboard_in.nil?
         pin_top? :primary or (
           keyboard_in and (
-            keyboard.down? :space or
-            keyboard.down? :enter
+            Kredki.keyboard.down? :space or
+            Kredki.keyboard.down? :enter
           )
         )
       end

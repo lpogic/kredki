@@ -10,7 +10,7 @@ module Kredki
         case cr
         when :c
           (pc - sc) * 0.5
-        when :b
+        when :s
           0
         when :e
           pc - sc

@@ -76,7 +76,7 @@ module Kredki
       end
 
       def_delegators :@origin,
-        :input_id, :button, :repeat?
+        :input_id, :button
     end
 
     class MouseMoveEvent < MouseEvent
@@ -196,34 +196,34 @@ module Kredki
       end
 
       def on_key_down! *filtered_keys, aim: false, always: false, do: nil, &block
-        keycodes = keyboard.keycodes filtered_keys
+        keycodes = Kredki.keyboard.keycodes filtered_keys
         @event_manager.keyboard_manager KeyDownEvent, keycodes, block || binding.local_variable_get(:do), aim, always
       end
 
       def on_key_up! *filtered_keys, aim: false, always: false, do: nil, &block
-        keycodes = keyboard.keycodes filtered_keys
+        keycodes = Kredki.keyboard.keycodes filtered_keys
         @event_manager.keyboard_manager KeyUpEvent, keycodes, block || binding.local_variable_get(:do), aim, always
       end
 
       def on_key! *filtered_keys, aim: false, always: false, do: nil, &block
-        keycodes = keyboard.keycodes filtered_keys
+        keycodes = Kredki.keyboard.keycodes filtered_keys
         @event_manager.keyboard_manager KeyClickEvent, keycodes, block || binding.local_variable_get(:do), aim, always
       end
 
       event_resolver :on_text!, TextEvent
   
       def on_mouse_down! *filtered_buttons, aim: false, always: false, do: nil, &block
-        indexes = mouse.indexes filtered_buttons
+        indexes = Kredki.mouse.indexes filtered_buttons
         @event_manager.mouse_manager MouseButtonDownEvent, indexes, block || binding.local_variable_get(:do), aim, always
       end
   
       event_resolver def on_mouse_up! *filtered_buttons, aim: false, always: false, do: nil, &block
-        indexes = mouse.indexes filtered_buttons
+        indexes = Kredki.mouse.indexes filtered_buttons
         @event_manager.mouse_manager MouseButtonUpEvent, indexes, block || binding.local_variable_get(:do), aim, always
       end
 
       def on_click! *filtered_buttons, aim: false, always: false, do: nil, &block
-        indexes = mouse.indexes filtered_buttons
+        indexes = Kredki.mouse.indexes filtered_buttons
         @event_manager.mouse_manager MouseClickEvent, indexes, block || binding.local_variable_get(:do), aim, always
       end
 
@@ -236,22 +236,22 @@ module Kredki
       
       event_resolver :on_file_drop!, FileDropEvent
 
-      def on_joystick_down! joystick, *filtered_buttons, aim: false, always: false, do: nil, &block
-        action_joystick = self.joystick joystick
-        indexes = action_joystick.buttons filtered_buttons
-        @event_manager.joystick_manager JoystickButtonDownEvent, action_joystick.joystick, indexes, block || binding.local_variable_get(:do), aim, always
+      def on_joystick_down! joystick_id, *filtered_buttons, aim: false, always: false, do: nil, &block
+        joystick = Kredki.joystick joystick_id
+        indexes = joystick.buttons filtered_buttons
+        @event_manager.joystick_manager JoystickButtonDownEvent, joystick, indexes, block || binding.local_variable_get(:do), aim, always
       end
 
-      def on_joystick_up! joystick, *filtered_buttons, aim: false, always: false, do: nil, &block
-        action_joystick = self.joystick joystick
-        indexes = action_joystick.buttons filtered_buttons
-        @event_manager.joystick_manager JoystickButtonUpEvent, action_joystick.joystick, indexes, block || binding.local_variable_get(:do), aim, always
+      def on_joystick_up! joystick_id, *filtered_buttons, aim: false, always: false, do: nil, &block
+        joystick = Kredki.joystick joystick_id
+        indexes = joystick.buttons filtered_buttons
+        @event_manager.joystick_manager JoystickButtonUpEvent, joystick, indexes, block || binding.local_variable_get(:do), aim, always
       end
 
-      def on_joystick_axis! joystick, *filtered_axes, aim: false, always: false, do: nil, &block
-        action_joystick = self.joystick joystick
-        indexes = action_joystick.axes filtered_axes
-        @event_manager.joystick_manager JoystickAxisEvent, action_joystick.joystick, indexes, block || binding.local_variable_get(:do), aim, always
+      def on_joystick_axis! joystick_id, *filtered_axes, aim: false, always: false, do: nil, &block
+        joystick = Kredki.joystick joystick_id
+        indexes = joystick.axes filtered_axes
+        @event_manager.joystick_manager JoystickAxisEvent, joystick, indexes, block || binding.local_variable_get(:do), aim, always
       end
 
       event_resolver :on_show!, ShowEvent

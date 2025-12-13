@@ -1,5 +1,38 @@
 module Kredki
+  # Job executed in a loop.
   class LoopJob < Job
+
+    # Get last iteration duration in milliseconds.
+    def ms
+      @ms
+    end
+
+    # Get total duration in milliseconds.
+    def total_ms
+      @total_ms
+    end
+
+    # Break job loop.
+    def break
+      @break = true
+    end
+
+    # Start job.
+    def play param = nil
+      stop
+      @param = param
+      @next_ms = Kredki.ms
+      @total_ms = 0
+      @action.put_job self
+    end
+
+    # Stop job and all subjobs.
+    def stop
+      @action.remove_job self
+      @event_manager.resolve StopEvent.new
+    end
+
+    # :section: LEVEL 2
 
     def initialize action, block, period
       super(action)
@@ -9,14 +42,6 @@ module Kredki
       @break = false
 
       @ms = nil
-    end
-
-    def ms
-      @ms
-    end
-
-    def total_ms
-      @total_ms
     end
 
     def step ms
@@ -38,31 +63,5 @@ module Kredki
       end
       true
     end
-
-    def break
-      @break = true
-    end
-
-    def play param = nil
-      stop
-      @param = param
-      @next_ms = Kredki.ms
-      @total_ms = 0
-      @action.put_job self
-    end
-
-    def stop
-      @action.remove_job self
-      @event_manager.resolve StopEvent.new
-    end
-
-    def pause
-      @action.remove_job self
-    end
-
-    def to_proc
-      proc{ call it }
-    end
-
   end
 end

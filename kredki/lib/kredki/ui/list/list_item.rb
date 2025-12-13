@@ -74,7 +74,7 @@ module Kredki
       end
 
       def mouse_down e
-        parent.select_up_to self if keyboard.then{ it.shift? && !it.ctrl? }
+        parent.select_up_to self if Kredki.keyboard.then{ it.shift? && !it.ctrl? }
         super
       end
 

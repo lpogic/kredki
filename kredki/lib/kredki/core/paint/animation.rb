@@ -13,7 +13,7 @@ module Kredki
 
     # See #content!.
     def content= param
-      Array === param ? (content! *param) : (content! param)
+      send_ahp :content!, param
     end
 
     # Get content.
@@ -97,33 +97,33 @@ module Kredki
     end
 
     # Set magnification factor along the X axis.
-    def magx! ...
-      @picture.magx!(...)
+    def mag_x! ...
+      @picture.mag_x!(...)
     end
 
-    # See: #magx!
-    def magx= param
-      @picture.magx = param
+    # See: #mag_x!
+    def mag_x= param
+      @picture.mag_x = param
     end
 
     # Get magnification factor along the X axis.
-    def magx
-      @picture.magx
+    def mag_x
+      @picture.mag_x
     end
 
     # Set magnification factor along the Y axis.
-    def magy! ...
-      @picture.magy!(...)
+    def mag_y! ...
+      @picture.mag_y!(...)
     end
 
-    # See: #magy!
-    def magy= param
-      @picture.magy = param
+    # See: #mag_y!
+    def mag_y= param
+      @picture.mag_y = param
     end
 
     # Get magnification factor along the Y axis.
-    def magy
-      @picture.magy
+    def mag_y
+      @picture.mag_y
     end
 
     # Check wheather [+x+, +y+] is inside.
@@ -158,7 +158,7 @@ module Kredki
 
     # See: #play!
     def play= param
-      Array === param ? (play! *param) : (play! param)
+      send_ahp :play!, param
     end
 
     # Get running play mode.

@@ -1,22 +1,21 @@
 module Kredki
+  # Clipboard interface.
   class Clipboard
-    extend HasFeatures
 
-    feature def content! content = nil
+    # Set content.
+    def content! content = nil
       return content! yield self.content if block_given?
-      set_text content.to_s
+      Pastele.clipboard_set_text content.to_s
       true
-    end, def content
-      get_text
     end
-
-    # :section: LEVEL 2
-
-    def set_text text
-      Pastele.clipboard_set_text text
+    
+    # See #content!.
+    def content= param
+      content! param
     end
-
-    def get_text
+    
+    # Get content.
+    def content
       ptr = Pastele.clipboard_get_text
       str = ptr.to_s.force_encoding("utf-8")
       ptr.free

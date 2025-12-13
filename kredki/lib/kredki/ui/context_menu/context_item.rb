@@ -27,12 +27,12 @@ module Kredki
         super
 
         @dropdown = nil
-        @begin_icon = new ShapePad, at: 0, mousy: false, keyboardy: false, fill: 0, h: 1r do
+        @begin_icon = new RectanglePad, at: 0, mousy: false, keyboardy: false, fill: 0, h: 1r do
           w! proc{ get_h }
           out! fill: :text, w: 3, cap: :round, join: :miter
           scenic! false
         end
-        @end_icon = new ShapePad, mousy: false, keyboardy: false, fill: 0, x: :e, h: 1r do
+        @end_icon = new RectanglePad, mousy: false, keyboardy: false, fill: 0, x: :e, h: 1r do
           w! proc{ get_h }
           out! fill: :text, w: 3, cap: :round, join: :miter
           area! do |w, h|

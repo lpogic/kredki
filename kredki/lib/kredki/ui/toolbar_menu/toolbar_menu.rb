@@ -6,7 +6,7 @@ require_relative 'toolbar_item_group'
 
 module Kredki
   module UI
-    class ToolbarMenu < ShapePad
+    class ToolbarMenu < RectanglePad
       extend HasEventResolvers
 
       def item!(...)

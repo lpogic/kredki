@@ -32,7 +32,7 @@ module Kredki
       def sketch
         super
 
-        mx! 2
+        margin_x! 2
       end
 
       def sketch_behavior

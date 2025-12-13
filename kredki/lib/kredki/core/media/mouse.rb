@@ -1,16 +1,24 @@
 module Kredki
+  # Mouse interface and configuration.
   class Mouse
-    extend HasFeatures
-
+    # Mouse button interface.
     class Button
-      model :id, :buttoncode
-  
-      def to_i
+      
+      # Get button id.
+      def id
+        @id
+      end
+
+      # Get button code.
+      def buttoncode
         @buttoncode
       end
-  
-      def to_sym
-        @id
+
+      # :section: LEVEL 2
+
+      def initialize id, buttoncode
+        @id = id
+        @buttoncode = buttoncode
       end
   
       def ==(other)
@@ -20,31 +28,52 @@ module Kredki
       end
     end
 
-    def initialize &block
-      @button_map = {}
-      @buttoncode_map = {}
-      @scrollbar_speed = 0.3
-      @scrollbar_alt_speed = 0.06
-      alter &block
+    # Get button indexes for input.
+    def indexes input
+      input.map{ button(_1).buttoncode }.uniq
     end
 
-    feature def scrollbar_speed! speed = @scrollbar_speed
+    # Set scrollbar speed.
+    def scrollbar_speed! speed = @scrollbar_speed
       return scrollbar_speed! yield @scrollbar_speed if block_given?
       @scrollbar_speed = speed
       true
     end
 
-    feature def scrollbar_alt_speed! speed = @scrollbar_alt_speed
+    # See #scrollbar_speed!.
+    def scrollbar_speed= param
+      scrollbar_speed! param
+    end
+
+    # Get scrollbar speed.
+    def scrollbar_speed
+      @scrollbar_speed
+    end
+
+    # Set alternative scrollbar speed.
+    def scrollbar_alt_speed! speed = @scrollbar_alt_speed
       return scrollbar_alt_speed! yield @scrollbar_alt_speed if block_given?
       @scrollbar_alt_speed = speed
       true
     end
 
+    # See #scrollbar_alt_speed!.
+    def scrollbar_alt_speed= param
+      scrollbar_alt_speed! param
+    end
+
+    # Get alternative scrollbar speed.
+    def scrollbar_alt_speed
+      @scrollbar_alt_speed
+    end
+
+    # Set button.
     def button! id, code
       button = @button_map[id] = Button.new id, code
       @buttoncode_map[code] ||= button
     end
 
+    # Get button.
     def button param
       case param
       when Button
@@ -54,62 +83,52 @@ module Kredki
       end
     end
 
+    # Get whether button is down.
     def down? button_id = :primary
-      is_button_down button(button_id).to_i
+      Pastele.mouse_get_button_state(button(button_id).buttoncode) != 0
     end
 
+    # Get cursor position along X axis.
     def x
       xy[0]
     end
 
+    # Get cursor position along Y axis.
     def y
       xy[1]
     end
 
+    # Get cursor position along X and Y axes.
     def xy
       get_cursor_position
     end
+
+    # Set whether capture mode is on.
+    def capture! value = true
+      return if (c = capture) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+      Pastele.mouse_set_capture capture ? 1 : 0
+      true
+    end
+
+    # See #capture!.
+    def capture= param
+      caupture! param
+    end
     
-    flag def relative! value = true
-      return if (c = relative) == (value = block_given? ? yield(c) : value == :not ? !c : value)
-      set_relative value
-      @relative = value
-      true
-    end
-
-    def scrollbar_speed alt = false
-      alt ? @scrollbar_alt_speed : @scrollbar_speed
-    end
-
-    flag def in_window! value = true
-      return if (c = in_window) == (value = block_given? ? yield(c) : value == :not ? !c : value)
-      @in_window = value
-      true
-    end, def in_window
-      get_in_window
-    end
-
     # :section: LEVEL 2
 
-    private
-
-    def is_button_down index
-      Pastele.mouse_get_button_state(index) != 0
+    def initialize &block
+      @button_map = {}
+      @buttoncode_map = {}
+      @scrollbar_speed = 0.3
+      @scrollbar_alt_speed = 0.06
+      alter &block
     end
 
     def get_cursor_position
       point = Pastele::Point.malloc(Fiddle::RUBY_FREE)
       Pastele.mouse_get_cursor_position point
       [point.x, point.y]
-    end
-
-    def set_relative relative
-      @relative = relative
-      Pastele.mouse_set_relative_mode relative ? 1 : 0
-    end
-
-    def get_in_window
-      @in_window.nil? ? get_cursor_position != [0, 0] : @in_window
-    end
+    end    
   end
 end

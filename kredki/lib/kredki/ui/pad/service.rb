@@ -8,7 +8,6 @@ module Kredki
     # Base class of UI tree nodes.
     class Service
       include PadBase
-      include LocalMedia
       include PadEvents
       extend HasFeatures
       extend PadInherited
@@ -28,7 +27,7 @@ module Kredki
 
       # See #tag!.
       def tag= param
-        Array === param ? (tag! *param) : (tag! param)
+        send_ahp :tag!, param
       end
 
       # Get whether Pad is tagged with +tag+ _or_ all tags if +tag+ is +nil+.

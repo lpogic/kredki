@@ -236,6 +236,70 @@ module Kredki
       !!top
     end
 
+    # Set whether the cursor is confined to the window.
+    def grab! value = true
+      return if (c = grab) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+      Pastele.window_set_mouse_grab @pointer, value ? 1 : 0
+      true
+    end
+
+    # See #grab!.
+    def grab= value
+      grab! value
+    end
+    
+    # Get whether the cursor is confined to the window.
+    def grab
+      Pastele.window_get_mouse_grab(@pointer) != 0
+    end
+
+    # See #grab.
+    def grab?
+      !!grab
+    end
+
+    # Set whether relative mouse mode is on.
+    def mouse_relative! value = true
+      return if (c = relative) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+      Pastele.window_set_mouse_relative_mode @pointer, value ? 1 : 0
+      true
+    end
+
+    # See #mouse_relative!.
+    def mouse_relative= value
+      mouse_relative! value
+    end
+    
+    # Get whether relative mouse mode is on.
+    def mouse_relative
+      Pastele.window_get_mouse_relative_mode(@pointer) != 0
+    end
+
+    # See #mouse_relative.
+    def mouse_relative?
+      !!mouse_relative
+    end
+
+    # Get whether mouse cursor is in window.
+    def mouse_in
+      @mouse_in.nil? ? Kredki.mouse.get_cursor_position != [0, 0] : @mouse_in
+    end
+
+    # See #mouse_in.
+    def mouse_in?
+      !!mouse_in
+    end
+
+    # Set whether capture mode is on.
+    def mouse_capture
+      Pastele.window_get_flags(@pointer) & 0x4000 != 0
+    end
+
+    # See #capture.
+    def mouse_capture?
+      !!mouse_capture
+    end
+
     # Set and build current action.
     def action! action = Window.default_action, ...
       if action.is_a? Class
@@ -272,6 +336,9 @@ module Kredki
 
     def initialize w = 400, h = 400
       @pointer = Pastele.window_new w, h
+      @arena = nil
+      @action = nil
+      @mouse_in = nil
       ObjectSpace.define_finalizer(self, Window.proc.finalize(@pointer))
     end
 
@@ -311,12 +378,8 @@ module Kredki
       @action == action && !!@arena
     end
 
-    def set_mouse_grab set
-      Pastele.window_set_mouse_grab @pointer, set ? 1 : 0
-    end
-
-    def get_mouse_grab
-      Pastele.window_get_mouse_grab(@pointer) != 0
+    def set_mouse_in set
+      @mouse_in = set
     end
 
     def get_capture

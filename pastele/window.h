@@ -88,6 +88,8 @@ class Window
     void setFullscreen(bool fullscreen);
     void setGrab(bool grab);
     bool getGrab(void);
+    void setMouseRelativeMode(bool relative);
+    bool getMouseRelativeMode(void);
     void setMinimumSize(int w, int h);
     void setMaximumSize(int w, int h);
     void getMinimumSize(int* w, int* h);

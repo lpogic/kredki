@@ -3,7 +3,7 @@ require_relative 'list_item'
 
 module Kredki
   module UI
-    class List < ShapePad
+    class List < RectanglePad
       extend HasEventResolvers
 
       event_resolver :on_pick!, Item::PickEvent

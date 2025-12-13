@@ -1,6 +1,10 @@
 module Kredki
+  # Manage joystick events resolving.
   class JoystickEventManager
-    model do
+
+    # :section: LEVEL 2
+
+    def initialize
       @managers = {}
     end
 

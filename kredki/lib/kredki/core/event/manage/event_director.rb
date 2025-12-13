@@ -2,10 +2,10 @@ module Kredki
   # Responsible for the order in which events are resolved.
   class EventDirector
 
+    # :section: LEVEL 2
+
     # The maximum number of attempts to resolve the event chain, before director switch to loop safe mode.
     EVENT_LOOP_SAFE_THRESHOLD = 500
-
-    # :section: LEVEL 2
 
     def initialize
       @stops = []

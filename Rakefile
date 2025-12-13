@@ -46,7 +46,7 @@ require 'rdoc/task'
 RDoc::Task.new do |rdoc|
   rdoc.main = "readme.md"
   rdoc.rdoc_files.include("readme.md", "kredki/lib/**/*.rb")
-  rdoc.template = "rorvswild"
+  rdoc.template = "aliki"
 end
 
 def check_vars *vars, file: true

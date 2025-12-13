@@ -3,7 +3,7 @@ module Kredki
     class ImagePad < Pad
 
       feature def content! content = nil
-        return content! (yield(self.content)) if block_given?
+        return send_ahp :content!, yield(self.content) if block_given?
         @area.content! content, false
       end, def content
         @area.content

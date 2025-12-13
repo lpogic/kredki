@@ -25,12 +25,12 @@ module Kredki
   require_relative "ui/layout/layout"
   require_relative 'ui/pad/pad'
   require_relative 'ui/pad/sort_pad'
-  require_relative 'ui/pad/shape_pad'
+  require_relative 'ui/pad/rectangle_pad'
   require_relative 'ui/action'
 
   module UI
     layout! nil, Layout::Align, :c, :c
-    [:b, :c, :e].repeated_permutation 2 do
+    [:s, :c, :e].repeated_permutation 2 do
       layout! "a#{it[0]}#{it[1]}".to_sym, Layout::Align, it[0], it[1]
       layout! "x#{it[0]}#{it[1]}".to_sym, Layout::XWay, it[0], it[1]
       layout! "y#{it[0]}#{it[1]}".to_sym, Layout::YWay, it[0], it[1]

@@ -26,28 +26,8 @@ CABI uint8_t keyboard_get_key_state(int keycode) {
     return state[scancode];
 }
 
-CABI uint16_t keyboard_get_shift_state(void) {
-    return SDL_GetModState() & SDL_KMOD_SHIFT;
-}
-
-CABI uint16_t keyboard_get_ctrl_state(void) {
-    return SDL_GetModState() & SDL_KMOD_CTRL;
-}
-
-CABI uint16_t keyboard_get_alt_state(void) {
-    return SDL_GetModState() & SDL_KMOD_ALT;
-}
-
-CABI uint16_t keyboard_get_num_state(void) {
-    return SDL_GetModState() & SDL_KMOD_NUM;
-}
-
-CABI uint16_t keyboard_get_caps_state(void) {
-    return SDL_GetModState() & SDL_KMOD_CAPS;
-}
-
-CABI uint16_t keyboard_get_scroll_state(void) {
-    return SDL_GetModState() & SDL_KMOD_SCROLL;
+CABI uint16_t keyboard_get_mod_state(void) {
+    return SDL_GetModState();
 }
 
 CABI uint32_t mouse_get_button_state(int index) {
@@ -57,10 +37,6 @@ CABI uint32_t mouse_get_button_state(int index) {
 
 CABI void mouse_get_cursor_position(Point* point) {
     SDL_GetGlobalMouseState(&point->x, &point->y);
-}
-
-CABI void mouse_set_relative_mode(int set) {
-    // SDL_SetWindowRelativeMouseMode(set); TODO
 }
 
 CABI void mouse_set_capture(int set) {
@@ -171,6 +147,14 @@ CABI void window_set_mouse_grab(pas::Window* self, int grab) {
 
 CABI int window_get_mouse_grab(pas::Window* self) {
     return (int) self->getGrab();
+}
+
+CABI void window_set_mouse_relative_mode(pas::Window* self, int set) {
+    self->setMouseRelativeMode(set);
+}
+
+CABI int window_get_mouse_relative_mode(pas::Window* self) {
+    return (int) self->getMouseRelativeMode();
 }
 
 CABI void window_set_minimum_size(pas::Window* self, int w, int h) {
@@ -290,12 +274,12 @@ CABI void paint_delete(Paint* self)
     SDL_PushEvent(&event);
 }
 
-CABI void paint_set_transform(Paint* self, float pivot_x, float pivot_y, float x, float y, float a, float magx, float fy) {
+CABI void paint_set_transform(Paint* self, float pivot_x, float pivot_y, float x, float y, float a, float mag_x, float fy) {
     auto m = self->transform();
     auto s = sinf(a);
     auto c = cosf(a);
-    m.e11 = c * magx;
-    m.e12 = -s * magx;
+    m.e11 = c * mag_x;
+    m.e12 = -s * mag_x;
     m.e13 = x + pivot_x - m.e11 * pivot_x - m.e12 * pivot_y;
     m.e21 = s * fy;
     m.e22 = c * fy;
@@ -390,7 +374,7 @@ CABI void shape_append_circle(Shape* self, float cx, float cy, float rx, float r
     self->moveTo(cx, cy);
 }
 
-CABI void shape_append_round_rect(Shape* self, float x, float y, float w, float h, float crtt, float crht, float crth, float crhh)
+CABI void shape_append_round_rect(Shape* self, float x, float y, float w, float h, float corner_ss, float corner_es, float corner_se, float corner_ee)
 {
     #define PATH_KAPPA 0.552284f
     Point pts[18];
@@ -398,52 +382,52 @@ CABI void shape_append_round_rect(Shape* self, float x, float y, float w, float 
 
     auto s = Point{w * 0.5f, h * 0.5f};
     auto minr = s.x > s.y ? s.y : s.x;
-    crtt = (crtt > minr) ? minr : crtt;
-    crth = (crth > minr) ? minr : crth;
-    crht = (crht > minr) ? minr : crht;
-    crhh = (crhh > minr) ? minr : crhh;
+    corner_ss = (corner_ss > minr) ? minr : corner_ss;
+    corner_se = (corner_se > minr) ? minr : corner_se;
+    corner_es = (corner_es > minr) ? minr : corner_es;
+    corner_ee = (corner_ee > minr) ? minr : corner_ee;
     auto hr = 0.0f;
 
     cmds[0] = PathCommand::MoveTo;
-    pts[0] = {x + w, y + crht}; //move
+    pts[0] = {x + w, y + corner_es}; //move
     cmds[1] = PathCommand::LineTo;
-    pts[1] = {x + w, y + h - crhh}; //line
+    pts[1] = {x + w, y + h - corner_ee}; //line
 
     auto pi = 2;
     auto ci = 2;
-    if(crhh > 0.0f) {
+    if(corner_ee > 0.0f) {
         cmds[ci++] = PathCommand::CubicTo;
-        hr = crhh * PATH_KAPPA;
-        pts[pi++] = {x + w, y + h - crhh + hr}; 
-        pts[pi++] = {x + w - crhh + hr, y + h}; 
-        pts[pi++] = {x + w - crhh, y + h};  //cubic
+        hr = corner_ee * PATH_KAPPA;
+        pts[pi++] = {x + w, y + h - corner_ee + hr}; 
+        pts[pi++] = {x + w - corner_ee + hr, y + h}; 
+        pts[pi++] = {x + w - corner_ee, y + h};  //cubic
     }
     cmds[ci++] = PathCommand::LineTo;
-    pts[pi++] = {x + crth, y + h}; //line
-    if(crth > 0.0f) {
+    pts[pi++] = {x + corner_se, y + h}; //line
+    if(corner_se > 0.0f) {
         cmds[ci++] = PathCommand::CubicTo;
-        hr = crth * PATH_KAPPA;
-        pts[pi++] = {x + crth - hr, y + h}; 
-        pts[pi++] = {x, y + h - crth + hr}; 
-        pts[pi++] = {x, y + h - crth};  //cubic
+        hr = corner_se * PATH_KAPPA;
+        pts[pi++] = {x + corner_se - hr, y + h}; 
+        pts[pi++] = {x, y + h - corner_se + hr}; 
+        pts[pi++] = {x, y + h - corner_se};  //cubic
     }
     cmds[ci++] = PathCommand::LineTo;
-    pts[pi++] = {x, y + crtt}; //line
-    if(crtt > 0.0f) {
+    pts[pi++] = {x, y + corner_ss}; //line
+    if(corner_ss > 0.0f) {
         cmds[ci++] = PathCommand::CubicTo;
-        hr = crtt * PATH_KAPPA;
-        pts[pi++] = {x, y + crtt - hr}; 
-        pts[pi++] = {x + crtt - hr, y}; 
-        pts[pi++] = {x + crtt, y};  //cubic
+        hr = corner_ss * PATH_KAPPA;
+        pts[pi++] = {x, y + corner_ss - hr}; 
+        pts[pi++] = {x + corner_ss - hr, y}; 
+        pts[pi++] = {x + corner_ss, y};  //cubic
     }
     cmds[ci++] = PathCommand::LineTo;
-    pts[pi++] = {x + w - crht, y}; //line
-    if(crht > 0.0f) {
+    pts[pi++] = {x + w - corner_es, y}; //line
+    if(corner_es > 0.0f) {
         cmds[ci++] = PathCommand::CubicTo;
-        hr = crht * PATH_KAPPA;
-        pts[pi++] = {x + w - crht + hr, y}; 
-        pts[pi++] = {x + w, y + crht - hr}; 
-        pts[pi++] = {x + w, y + crht};  //cubic
+        hr = corner_es * PATH_KAPPA;
+        pts[pi++] = {x + w - corner_es + hr, y}; 
+        pts[pi++] = {x + w, y + corner_es - hr}; 
+        pts[pi++] = {x + w, y + corner_es};  //cubic
     }
     cmds[ci++] = PathCommand::Close;
     cmds[ci++] = PathCommand::MoveTo;

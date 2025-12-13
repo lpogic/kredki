@@ -35,7 +35,7 @@ module Kredki
       super
     end
 
-    def pxy
+    def pivot_xy
       [@w * 0.5, @h * 0.5]
     end
 

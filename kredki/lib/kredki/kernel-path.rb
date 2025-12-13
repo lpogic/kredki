@@ -22,7 +22,7 @@ class Object
     self
   end
 
-  def keyword_safe_alter *arg, **narg, &block
+  def alter_kwr *arg, **narg, &block
     arg.each do |a|
       send :<<, a
     end
@@ -45,6 +45,10 @@ class Object
     else
       send method, param
     end
+  end
+
+  def send_branch root, branches
+    branches.count{ send_ahp "#{root}_#{_1}!", _2 }.nonzero?
   end
 end
 

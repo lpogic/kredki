@@ -4,6 +4,7 @@ require_relative '../event/manage/mouse_event_manager'
 require_relative '../event/manage/joystick_event_manager'
 
 module Kredki
+  # Manage action events resolving.
   class ActionEventManager
 
     # :section: LEVEL 2

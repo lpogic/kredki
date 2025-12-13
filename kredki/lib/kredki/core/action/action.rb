@@ -2,13 +2,11 @@ require_relative '../event/manage/event_director'
 require_relative 'the'
 require_relative 'action_events'
 require_relative 'action_event_manager'
-require_relative '../media/local_media'
 
 module Kredki
   # Root element of Paint tree. Stores event resolvers and jobs.
   class Action < Scene
     include ActionEvents
-    include LocalMedia
     
     # Call plugin Proc in Action context.
     def use! id, *a, **na
@@ -38,8 +36,8 @@ module Kredki
     end
 
     # See #fill!.
-    def fill= fill
-      Array === fill ? fill!(*fill) : fill!(fill)
+    def fill= param
+      send_ahp :fill!, param
     end
 
     # Get background fill.

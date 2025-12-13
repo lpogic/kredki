@@ -1,6 +1,6 @@
 module Kredki
   module UI
-    class Slide < ShapePad
+    class Slide < RectanglePad
       extend HasEventResolvers
 
       feature def value! v, report_change = true
@@ -15,9 +15,9 @@ module Kredki
       end
 
       feature def fill! *fill
-        return fill! *Util.cover(yield(self.fill)) if block_given?
+        return send_ahp :fill!, yield(self.fill) if block_given?
         fill = Util.uncover fill
-        return if @fill == fill
+        return if @fill == fill && fill != :rand
         @fill = fill
         repaint
         true
@@ -63,7 +63,7 @@ module Kredki
         super 
 
         on_mouse_scroll! do |e|
-          jump = keyboard.alt? ? Kredki.mouse.scrollbar_alt_speed : Kredki.mouse.scrollbar_speed
+          jump = Kredki.keyboard.alt? ? Kredki.mouse.scrollbar_alt_speed : Kredki.mouse.scrollbar_speed
           self.value -= jump * e.xory
           e.resolve
         end
@@ -89,7 +89,7 @@ module Kredki
         super
 
         p0 = self
-        @handle = new ShapePad, fill: :gray do
+        @handle = new RectanglePad, fill: :gray do
           x0 = 0
           on_mouse_move! do |e|
             if e.drag
@@ -136,7 +136,7 @@ module Kredki
         super
 
         p0 = self
-        @handle = new ShapePad, fill: :gray do
+        @handle = new RectanglePad, fill: :gray do
           y0 = 0
           on_mouse_move! do |e|
             if e.drag

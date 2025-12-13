@@ -1,9 +1,34 @@
 module Kredki
   module UI
+    # Pad with text content.
     class TextPad < Pad
 
+      # Set content.
+      def content! content = @content
+        return send_ahp :content!, yield(self.content) if block_given?
+        return if @content == content
+        @content = content
+        @verses&.each{ it.detach! }
+        @verses = "#{content}\n".each_line(chomp: true).map do |line|
+          @scene.text! line.chomp, fill: @area.fill
+        end
+        arrange_verses
+        layer&.break_layout
+        true
+      end
+
+      # See #content!.
+      def content= param
+        send_ahp :content!, param
+      end
+
+      # Get content.
+      def content
+        @content
+      end
+
       feature def content! content = @content
-        return content! (yield(self.content)) if block_given?
+        return send_ahp :content!, yield(self.content) if block_given?
         return if @content == content
         @content = content
         @verses&.each{ it.detach! }
@@ -16,7 +41,7 @@ module Kredki
       end
 
       feature def fill! *fill
-        return fill! *Util.cover(yield(self.fill)) if block_given?
+        return send_ahp :fill!, yield(self.fill) if block_given?
         return unless @area.fill! *fill
         @verses.each{ it.fill! *fill }
         true
@@ -35,23 +60,21 @@ module Kredki
             verse_layout! it
           end
         end
-        namap = na.map do
-          send "verse_#{_1}!", *Util.cover(_2)
-        end
+        namap = na.map{ send_ahp "verse_#{_1}!", _2 }
         amap.any? || namap.any?
       end, def verse
         [verse_size, verse_layout]
       end
 
       feature def verse_layout! layout = nil
-        return verse_layout! (yield(self.verse_layout)) if block_given?
+        return send_ahp :verse_layout!, yield(self.verse_layout) if block_given?
         return if @verse_layout == layout
         @verse_layout = layout
         arrange_verses
       end
 
       feature def verse_space! verse_space = nil
-        return verse_space! (yield(self.verse_space)) if block_given?
+        return send_ahp :verse_space!, yield(self.verse_space) if block_given?
         return if @verse_space == verse_space
         @verse_space = verse_space
         layer&.break_layout
@@ -61,7 +84,7 @@ module Kredki
       end
 
       feature def verse_size! size
-        return verse_size! (yield(self.verse_size)) if block_given?
+        return send_ahp :verse_size!, yield(self.verse_size) if block_given?
         return if @verse_size == size
         @verse_size = size
         arrange_verses
@@ -160,7 +183,7 @@ module Kredki
 
       def fit_h
         size, space = verse_metrics 0
-        @myt + @myh + (size + space) * @verses.size - space
+        @margin_ys + @margin_ye + (size + space) * @verses.size - space
       end
 
       def set_size w, h

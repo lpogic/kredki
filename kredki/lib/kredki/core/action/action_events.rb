@@ -10,7 +10,6 @@ require_relative '../event/window_event'
 module Kredki
   # Set of methods for event resolving.
   module ActionEvents
-    extend HasEventResolvers
 
     # Create and attach generic event resolver.
     def on! event_type, do: nil, &block
@@ -19,7 +18,7 @@ module Kredki
 
     # Create and attach key down event resolver.
     def on_key_down! *selected_keys, do: nil, &block
-      keycodes = keyboard.keycodes selected_keys
+      keycodes = Kredki.keyboard.keycodes selected_keys
       @event_manager.keyboard_manager KeyDownEvent, keycodes, block || binding.local_variable_get(:do)
     end
 
@@ -30,7 +29,7 @@ module Kredki
 
     # Create and attach key up event resolver.
     def on_key_up! *selected_keys, do: nil, &block
-      keycodes = keyboard.keycodes selected_keys
+      keycodes = Kredki.keyboard.keycodes selected_keys
       @event_manager.keyboard_manager KeyUpEvent, keycodes, block || binding.local_variable_get(:do)
     end
 
@@ -51,7 +50,7 @@ module Kredki
 
     # Create and attach mouse down event resolver.
     def on_mouse_down! *selected_buttons, do: nil, &block
-      indexes = mouse.indexes selected_buttons
+      indexes = Kredki.mouse.indexes selected_buttons
       @event_manager.mouse_manager MouseButtonDownEvent, indexes, block || binding.local_variable_get(:do)
     end
 
@@ -62,7 +61,7 @@ module Kredki
 
     # Create and attach mouse up event resolver.
     def on_mouse_up! *selected_buttons, do: nil, &block
-      indexes = mouse.indexes selected_buttons
+      indexes = Kredki.mouse.indexes selected_buttons
       @event_manager.mouse_manager MouseButtonUpEvent, indexes, block || binding.local_variable_get(:do)
     end
 
@@ -112,10 +111,10 @@ module Kredki
     end
 
     # Create and attach joystick down event resolver.
-    def on_joystick_down! joystick, *selected_buttons, do: nil, &block
-      action_joystick = self.joystick joystick
-      indexes = action_joystick.buttons selected_buttons
-      @event_manager.joystick_manager JoystickButtonDownEvent, action_joystick.joystick, indexes, block || binding.local_variable_get(:do)
+    def on_joystick_down! joystick_id, *selected_buttons, do: nil, &block
+      joystick = Kredki.joystick joystick_id
+      indexes = joystick.buttons selected_buttons
+      @event_manager.joystick_manager JoystickButtonDownEvent, joystick, indexes, block || binding.local_variable_get(:do)
     end
 
     # See #on_joystick_down!.
@@ -124,10 +123,10 @@ module Kredki
     end
 
     # Create and attach joystick up event resolver.
-    def on_joystick_up! joystick, *selected_buttons, do: nil, &block
-      action_joystick = self.joystick joystick
-      indexes = action_joystick.buttons selected_buttons
-      @event_manager.joystick_manager JoystickButtonUpEvent, action_joystick.joystick, indexes, block || binding.local_variable_get(:do)
+    def on_joystick_up! joystick_id, *selected_buttons, do: nil, &block
+      joystick = Kredki.joystick joystick_id
+      indexes = joystick.buttons selected_buttons
+      @event_manager.joystick_manager JoystickButtonUpEvent, joystick, indexes, block || binding.local_variable_get(:do)
     end
 
     # See #on_joystick_up!.
@@ -136,10 +135,10 @@ module Kredki
     end
 
     # Create and attach joystick move event resolver.
-    def on_joystick_move! joystick, *selected_axes, do: nil, &block
-      action_joystick = self.joystick joystick
-      indexes = action_joystick.axes selected_axes
-      @event_manager.joystick_manager JoystickAxisEvent, action_joystick.joystick, indexes, block || binding.local_variable_get(:do)
+    def on_joystick_move! joystick_id, *selected_axes, do: nil, &block
+      joystick = Kredki.joystick joystick_id
+      indexes = joystick.axes selected_axes
+      @event_manager.joystick_manager JoystickAxisEvent, joystick, indexes, block || binding.local_variable_get(:do)
     end
 
     # See #on_joystick_move!.

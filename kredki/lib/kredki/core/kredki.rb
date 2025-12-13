@@ -20,8 +20,6 @@ module Kredki
       @arena.terminate!(...)
     end
 
-    attr_accessor :run_ms
-
     # Milliseconds since application loop was started.
     def ms
       Pastele.sdl_get_ticks - run_ms
@@ -112,8 +110,13 @@ module Kredki
 
     # :section: LEVEL 2
 
-    attr_accessor :clipboard, :keyboard, :mouse, :joysticks, :plugins
     attr :arena
+    attr_accessor :run_ms
+    attr_accessor :clipboard
+    attr_accessor :keyboard
+    attr_accessor :mouse
+    attr_accessor :joysticks
+    attr_accessor :plugins
     attr_accessor :opened_joysticks
     attr_accessor :fonts
     attr_accessor :colors
@@ -138,6 +141,17 @@ end
 
 require_relative 'pastele/pastele'
 
+require_relative 'event/event'
+require_relative 'event/pastele_event'
+require_relative 'event/drop_event'
+require_relative 'event/key_event'
+require_relative 'event/mouse_event'
+require_relative 'event/step_event'
+require_relative 'event/quit_event'
+require_relative 'event/text_event'
+require_relative 'event/window_event'
+require_relative 'event/joystick_event'
+
 require_relative 'arena'
 require_relative 'media/clipboard'
 require_relative 'media/keyboard'
@@ -158,8 +172,8 @@ require_relative 'paint/rectangle'
 require_relative 'paint/text'
 require_relative 'paint/picture'
 require_relative 'paint/animation'
+
 require_relative 'job/job'
-require_relative 'job/stop_job'
 require_relative 'job/root_job'
 require_relative 'job/after_job'
 require_relative 'job/loop_job'

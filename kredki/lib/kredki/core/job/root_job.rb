@@ -1,11 +1,8 @@
 module Kredki
+  # Job executed instantly.
   class RootJob < Job
 
-    def initialize action, block
-      super(action)
-      @block = block
-    end
-
+    # Start job.
     def play param = nil
       stop
       @param = param
@@ -13,8 +10,16 @@ module Kredki
       @event_manager.resolve PlayEvent.new result
     end
 
+    # Stop all subjobs.
     def stop
       @event_manager.resolve StopEvent.new
+    end
+
+    # :section: LEVEL 2
+
+    def initialize action, block
+      super(action)
+      @block = block
     end
   end
 end

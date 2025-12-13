@@ -1,12 +1,3 @@
-require_relative 'event/drop_event'
-require_relative 'event/key_event'
-require_relative 'event/mouse_event'
-require_relative 'event/step_event'
-require_relative 'event/quit_event'
-require_relative 'event/text_event'
-require_relative 'event/window_event'
-require_relative 'event/joystick_event'
-
 module Kredki
   class Arena
     
@@ -126,7 +117,7 @@ module Kredki
         abi = Pastele::WindowEvent.new event_ptr
         event = WindowMouseEnterEvent.new abi
         if window = @windows[abi.window_id]
-          Kredki.mouse.in_window = true
+          window.set_mouse_in true
           window.resolve event
         end
         event
@@ -134,7 +125,7 @@ module Kredki
         abi = Pastele::WindowEvent.new event_ptr
         event = WindowMouseLeaveEvent.new abi
         if window = @windows[abi.window_id]
-          Kredki.mouse.in_window = false
+          window.set_mouse_in false
           window.resolve event
         end
         event

@@ -30,7 +30,7 @@ module Kredki
           outline_w! 0
           keyboardy! false
           text.detach!
-          new ShapePad, mousy: false, keyboardy: false, fill: 0, wh: 1r do
+          new RectanglePad, mousy: false, keyboardy: false, fill: 0, wh: 1r do
             out! fill: :text, w: 3, cap: :round, join: :miter
             area! do |w, h|
               xy! w * 0.2, h * 0.35

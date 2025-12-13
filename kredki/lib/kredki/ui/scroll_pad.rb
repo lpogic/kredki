@@ -10,7 +10,7 @@ module Kredki
         super
         
         # this component creation order is intentional; @corner existence is checked in put_pad
-        corner = new ShapePad, layoutic: false, fill: :gray, wh: 10, xy: :e
+        corner = new RectanglePad, layoutic: false, fill: :gray, wh: 10, xy: :e
         @xslide = new HorizontalSlide, layoutic: false, h: 10
         @yslide = new VerticalSlide, layoutic: false, w: 10
         @corner = corner
@@ -34,15 +34,15 @@ module Kredki
         on_mouse_scroll! do |e|
           ps = layout_pads
           if !ps.empty?
-            jump = keyboard.alt? ? Kredki.mouse.scrollbar_alt_speed : Kredki.mouse.scrollbar_speed
+            jump = Kredki.keyboard.alt? ? Kredki.mouse.scrollbar_alt_speed : Kredki.mouse.scrollbar_speed
             xjump = 1.0 * p0.sw / @lw * jump
             yjump = 1.0 * p0.sh / @lh * jump
             xo, yo = if p0.sw < @lw && p0.sh < @lh
-              keyboard.shift? ? [e.y, e.x] : e.xy
+              Kredki.keyboard.shift? ? [e.y, e.x] : e.xy
             elsif p0.sw < @lw
-              keyboard.shift? ? [e.yorx, 0] : [e.xory, 0]
+              Kredki.keyboard.shift? ? [e.yorx, 0] : [e.xory, 0]
             elsif p0.sh < @lh
-              keyboard.shift? ? [0, e.xory] : [0, e.yorx]
+              Kredki.keyboard.shift? ? [0, e.xory] : [0, e.yorx]
             else
               [0, 0]
             end
@@ -91,7 +91,7 @@ module Kredki
 
       def arrange prepare = true
         @oclw = @och = 0 if prepare
-        mx, my, @lw, @lh = super()
+        margin_x, margin_y, @lw, @lh = super()
         oh = @xslide.get_h
         ow = @yslide.get_w
         ps = arrange_pads
@@ -115,7 +115,7 @@ module Kredki
             @xslide.set_size xs, oh
             @xslide.set_xy 0, h - oh
             @xslide.arrange @lw
-            pad_x += ((xs - @lw) * @xslide.value).round - mx
+            pad_x += ((xs - @lw) * @xslide.value).round - margin_x
           end
           
           @yslide.show = yscroll
@@ -125,7 +125,7 @@ module Kredki
             @yslide.set_size ow, ys
             @yslide.set_xy w - ow, 0
             @yslide.arrange @lh
-            pad_y += ((ys - @lh) * @yslide.value).round - my
+            pad_y += ((ys - @lh) * @yslide.value).round - margin_y
           end
           
           ps.each do |p1|

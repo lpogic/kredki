@@ -12,7 +12,7 @@ module Kredki
 
     # See #content!.
     def content= param
-      Array === param ? (content! *param) : (content! param)
+      send_ahp :content!, param
     end
 
     # Get content.
@@ -36,7 +36,7 @@ module Kredki
 
     # See #h!.
     def h= param
-      Array === param ? (h! *param) : (h! param)
+      send_ahp :h!, param
     end
 
     # Get height.
@@ -60,7 +60,7 @@ module Kredki
 
     # See #font!.
     def font= param
-      Array === param ? (font! *param) : (font! param)
+      send_ahp :font!, param
     end
 
     # Get font.
@@ -70,7 +70,7 @@ module Kredki
 
     # Set fill color.
     def fill! *fill
-      return fill! *Util.cover(yield(self.fill)) if block_given?
+      return send_ahp :fill!, yield(self.fill) if block_given?
       fill = Util.uncover fill
       return if @fill == fill && fill != :rand
       set_fill *Kredki.color(fill).to_a(:rgb)
@@ -80,7 +80,7 @@ module Kredki
 
     # See #fill!.
     def fill= param
-      Array === param ? (fill! *param) : (fill! param)
+      send_ahp :fill!, param
     end
 
     # Get fill color.
@@ -135,7 +135,7 @@ module Kredki
       Pastele.text_delete pointer
     end
 
-    def pxy
+    def pivot_xy
       [@w * 0.5, @h * 0.5]
     end
 

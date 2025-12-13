@@ -1,7 +1,7 @@
 module Kredki
   module UI
     class Table
-      class Row < ShapePad
+      class Row < RectanglePad
 
         def sketch
           super

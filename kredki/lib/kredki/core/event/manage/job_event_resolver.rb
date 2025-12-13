@@ -1,6 +1,24 @@
 module Kredki
+  # Job based event resolver.
   class JobEventResolver
-    model :job, :@manager, :always
+
+    # Stop resolving events.
+    def detach!
+      @manager&.detach! self
+      @manager = nil
+      @job = nil
+    end
+
+    # :section: LEVEL 2
+
+    def initialize job, manager, always
+      @job = job
+      @manager = manager
+      @always = always
+    end
+
+    attr_accessor :job
+    attr_accessor :always
 
     def resolve event = nil
       return if !@always && event&.resolved?
@@ -15,12 +33,6 @@ module Kredki
     def resolve! event = nil
       resolve event
       self
-    end
-
-    def detach!
-      @manager&.detach! self
-      @manager = nil
-      @job = nil
     end
 
     def attach! manager, always = false

@@ -16,14 +16,14 @@ module Kredki
       end
 
       feature def for! new_for = nil
-        return for! (yield(self.for)) if block_given?
+        return send_ahp :for!, yield(self.for) if block_given?
         return if @for == new_for
         @for = new_for
         true
       end
 
       feature def text! text = ""
-        return text! (yield(self.text)) if block_given?
+        return send_ahp :text!, yield(self.text) if block_given?
         @text.content! text
       end, def text
         @text.content

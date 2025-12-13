@@ -7,20 +7,6 @@ module Kredki
         end
       end
 
-      def feature_service name
-        class_eval <<~xx
-          def #{name}! ...
-            #{name}.alter(...)
-          end
-        xx
-
-        class_eval <<~xx
-          def #{name}= value
-            #{name}! *Util.cover(value)
-          end
-        xx
-      end
-
       def define name, klass = nil, &block
         case klass
         when Class

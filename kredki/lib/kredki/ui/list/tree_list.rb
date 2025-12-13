@@ -3,7 +3,7 @@ require_relative 'tree_list_item'
 
 module Kredki
   module UI
-    class TreeList < ShapePad
+    class TreeList < RectanglePad
       extend HasEventResolvers
 
       event_resolver :on_pick!, Item::PickEvent

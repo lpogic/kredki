@@ -4,67 +4,61 @@ module Kredki
   class Scene < Paint
 
     # Set pivot point position along the X axis.
-    def px! px = @px
-      return px! yield @px if block_given?
-      return if @px == px
-      @px = px
+    def pivot_x! pivot_x = @pivot_x
+      return pivot_x! yield @pivot_x if block_given?
+      return if @pivot_x == pivot_x
+      @pivot_x = pivot_x
       update_transform
       update
     end
 
-    # See #px!.
-    def px= param
-      Array === param ? (px! *param) : (px! param)
+    # See #pivot_x!.
+    def pivot_x= param
+      send_ahp :pivot_x!, param
     end
 
     # Get pivot point position along the X axis.
-    def px
-      @px
+    def pivot_x
+      @pivot_x
     end
 
     # Set pivot point position along the Y axis.
-    def py! py = @py
-      return py! yield @py if block_given?
-      return if @py == py
-      @py = py
+    def pivot_y! pivot_y = @pivot_y
+      return pivot_y! yield @pivot_y if block_given?
+      return if @pivot_y == pivot_y
+      @pivot_y = pivot_y
       update_transform
       update
     end
 
-    # See #py!.
-    def py= param
-      Array === param ? (py! *param) : (py! param)
+    # See #pivot_y!.
+    def pivot_y= param
+      send_ahp :pivot_y!, param
     end
 
     # Get pivot point position along the Y axis.
-    def py
-      @py
+    def pivot_y
+      @pivot_y
     end
 
     # Set pivot point position along X and Y axes.
-    def pxy! x = nil, y = nil
-      return pxy! *Util.cover(yield(self.pxy)) if block_given?
-      if x
-        y ||= x
-      else
-        x ||= @px
-        y ||= @py
-      end
-      return if @px == x && @py == y
-      @px = x
-      @py = y
+    def pivot_xy! pivot_x = @pivot_x, pivot_y = pivot_x
+      return send_ahp :pivot_xy!, yield(self.pivot_xy) if block_given?
+      return if @pivot_x == pivot_x && @pivot_y == pivot_y
+      @pivot_x = pivot_x
+      @pivot_y = pivot_y
       update_transform
       update
     end
 
-    # See #pxy!.
-    def pxy= param
-      Array === param ? (pxy! *param) : (pxy! param)
+    # See #pivot_xy!.
+    def pivot_xy= param
+      send_ahp :pivot_xy!, param
     end
 
     # Get pivot point position along X and Y axes.
-    def pxy
-      [@px, @py]
+    def pivot_xy
+      [@pivot_x, @pivot_y]
     end
 
     # Create new attached Kredki::Shape.
@@ -130,7 +124,7 @@ module Kredki
       super Pastele.scene_new
       ObjectSpace.define_finalizer(self, self.class.proc.finalize(@pointer))
 
-      @px = @py = 0
+      @pivot_x = @pivot_y = 0
       clear!
     end
 

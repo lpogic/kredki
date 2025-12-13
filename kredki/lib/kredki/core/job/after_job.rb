@@ -1,5 +1,22 @@
 module Kredki
+  # Job executed after given delay.
   class AfterJob < Job
+
+    # Start job.
+    def play param = nil
+      stop
+      @param = param
+      @start_ms = Kredki.ms + @delay
+      @action.put_job self
+    end
+
+    # Stop job and all subjobs.
+    def stop
+      @action.remove_job self
+      @event_manager.resolve StopEvent.new
+    end
+
+    # :section: LEVEL 2
 
     def initialize action, block, delay
       super(action)
@@ -21,22 +38,5 @@ module Kredki
       end
       true
     end
-
-    def play param = nil
-      stop
-      @param = param
-      @start_ms = Kredki.ms + @delay
-      @action.put_job self
-    end
-
-    def stop
-      @action.remove_job self
-      @event_manager.resolve StopEvent.new
-    end
-
-    def to_proc
-      proc{ call it }
-    end
-
   end
 end

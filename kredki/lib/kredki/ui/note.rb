@@ -2,27 +2,23 @@ require_relative 'text/editable_text_verse'
 
 module Kredki
   module UI
-    class Note < ShapePad
+    class Note < RectanglePad
       include TextEdition
 
       feature def content! string = "", cursor = false
-        return content! (yield(self.content)) if block_given?
+        return send_ahp :content!, yield(self.content) if block_given?
         @verse.content! string, cursor
       end, def content
         @verse.content
       end
 
       feature def fill! *fill
-        return fill! *Util.cover(yield(self.fill)) if block_given?
+        return send_ahp :fill!, yield(self.fill) if block_given?
         fill = Util.uncover fill
-        return if @fill == fill
+        return if @fill == fill && fill != :rand
         @fill = fill
         repaint
         true
-      end
-
-      feature_service def cursor
-        @verse.cursor
       end
 
       feature_delegate :@verse,
@@ -69,11 +65,11 @@ module Kredki
       def sketch
         super
 
-        layout! NoteLayout.new(:b, :c)
+        layout! NoteLayout.new(:s, :c)
         mousy!
         keyboardy!
         outline_w! 1
-        m! 2
+        margin! 2
         fill! :gray
         h! 24
 

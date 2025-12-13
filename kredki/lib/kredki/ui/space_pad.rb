@@ -5,11 +5,11 @@ module Kredki
       def << arg
         case arg
         in Numeric
-          m! arg * 0.5
+          margin! arg * 0.5
         in [Numeric, Numeric]
-          m! arg[0] * 0.5, arg[1] * 0.5
+          margin! arg[0] * 0.5, arg[1] * 0.5
         in [Numeric, Numeric, Numeric, Numeric]
-          m! *arg
+          margin! *arg
         else
           super
         end

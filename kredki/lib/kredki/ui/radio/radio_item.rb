@@ -1,11 +1,11 @@
 module Kredki
   module UI
-    class RadioItem < ShapePad
+    class RadioItem < RectanglePad
 
       feature def fill! *fill
-        return fill! *Util.cover(yield(self.fill)) if block_given?
+        return send_ahp :fill!, yield(self.fill) if block_given?
         fill = Util.uncover fill
-        return if @fill == fill
+        return if @fill == fill && fill != :rand
         @fill = fill
         repaint
         true
@@ -21,7 +21,7 @@ module Kredki
       def initialize
         super
         
-        @check = new ShapePad, mousy: false, keyboardy: false, fill: :text, wh: 1r do
+        @check = new RectanglePad, mousy: false, keyboardy: false, fill: :text, wh: 1r do
           area! do |w, h|
             ellipse! w, h
           end
@@ -39,7 +39,7 @@ module Kredki
         outline_w! 1
         layout! :acc
         wh! 16
-        m! 4
+        margin! 4
         fill! :gray
       end
 

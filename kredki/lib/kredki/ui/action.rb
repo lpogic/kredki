@@ -74,17 +74,14 @@ module Kredki
         @event_manager.mouse_manager Kredki::MouseButtonUpEvent, [], proc{|e| mouse_event MouseButtonUpEvent.new e }
         @event_manager.manager Kredki::MouseScrollEvent, proc{|e| mouse_event e }
 
-        p0 = self
-        keyboard do
-          on_down! do |e|
-            p0.keyboard_event KeyDownEvent.new e
-          end
-          on_up! do |e|
-            p0.keyboard_event KeyUpEvent.new e
-          end
-          on_text! do |e|
-            p0.keyboard_event e
-          end
+        on_key_down! do |e|
+          keyboard_event KeyDownEvent.new e
+        end
+        on_key_down! do |e|
+          keyboard_event KeyUpEvent.new e
+        end
+        on_text! do |e|
+          keyboard_event e
         end
 
         on_window_resize! do
@@ -126,7 +123,7 @@ module Kredki
       end
 
       def update_mouse_location event = nil
-        event ||= PositionEvent.new *mouse.xy
+        event ||= PositionEvent.new *Kredki.mouse.xy
         xy = event.xy
         @services.reverse_each do |layer|
           if event.resolved?

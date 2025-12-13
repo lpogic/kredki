@@ -3,235 +3,195 @@ require_relative 'shape_area'
 module Kredki
   class Rectangle < ShapeArea
 
-    # Set X tail Y tail corner radius.
-    def crtt! crtt = @crtt
-      return crtt! yield @crtt if block_given?
-      return if @crtt == crtt
-      @crtt = crtt
+    # Set X start Y start corner.
+    def corner_ss! corner_ss = @corner_ss
+      return corner_ss! yield @corner_ss if block_given?
+      return if @corner_ss == corner_ss
+      @corner_ss = corner_ss
       @redraw_flag = true
       update
     end
 
-    # See #crtt!.
-    def crtt= param
-      Array === param ? (crtt! *param) : (crtt! param)
+    # See #corner_ss!.
+    def corner_ss= param
+      send_ahp :corner_ss!, param
     end
 
-    # Get X tail Y tail corner radius.
-    def crtt
-      @crtt
+    # Get X start Y start corner.
+    def corner_ss
+      @corner_ss
     end
 
-    # Set X tail Y head corner radius.
-    def crth! crth = @crth
-      return crth! yield @crth if block_given?
-      return if @crth == crth
-      @crth = crth
+    # Set X start Y end corner.
+    def corner_se! corner_se = @corner_se
+      return corner_se! yield @corner_se if block_given?
+      return if @corner_se == corner_se
+      @corner_se = corner_se
       @redraw_flag = true
       update
     end
 
-    # See #crth!.
-    def crth= param
-      Array === param ? (crth! *param) : (crth! param)
+    # See #corner_se!.
+    def corner_se= param
+      send_ahp :corner_se!, param
     end
 
-    # Get X tail Y head corner radius.
-    def crth
-      @crth
+    # Get X start Y end corner.
+    def corner_se
+      @corner_se
     end
 
-    # Set X head Y tail corner radius.
-    def crht! crht = @crht
-      return crht! yield @crht if block_given?
-      return if @crht == crht
-      @crht = crht
+    # Set X end Y start corner.
+    def corner_es! corner_es = @corner_es
+      return corner_es! yield @corner_es if block_given?
+      return if @corner_es == corner_es
+      @corner_es = corner_es
       @redraw_flag = true
       update
     end
 
-    # See #crht!.
-    def crht= param
-      Array === param ? (crht! *param) : (crht! param)
+    # See #corner_es!.
+    def corner_es= param
+      send_ahp :corner_es!, param
     end
 
-    # Get X head Y tail corner radius.
-    def crht
-      @crht
+    # Get X end Y start corner.
+    def corner_es
+      @corner_es
     end
 
-    # Set X head Y head corner radius.
-    def crhh! crhh = @crhh
-      return crhh! yield @crhh if block_given?
-      return if @crhh == crhh
-      @crhh = crhh
+    # Set X end Y end corner.
+    def corner_ee! corner_ee = @corner_ee
+      return corner_ee! yield @corner_ee if block_given?
+      return if @corner_ee == corner_ee
+      @corner_ee = corner_ee
       @redraw_flag = true
       update
     end
 
-    # See #crhh!.
-    def crhh= param
-      Array === param ? (crhh! *param) : (crhh! param)
+    # See #corner_ee!.
+    def corner_ee= param
+      send_ahp :corner_ee!, param
     end
 
-    # Get X head Y head corner radius.
-    def crhh
-      @crhh
+    # Get X end Y end corner.
+    def corner_ee
+      @corner_ee
     end
 
-    # Set X tail corners radius.
-    def crxt! crtt = nil, crth = nil
-      return crxt! *Util.cover(yield(self.crxt)) if block_given?
-      if crtt
-        crth ||= crtt
-      else
-        crtt ||= @crtt
-        crth ||= @crth
-      end
-      return if @crtt == crtt && @crth == crth
-      @crtt = crtt
-      @crth = crth
+    # Set X start corners.
+    def corner_xs! corner_ss = @corner_ss, corner_se = corner_ss
+      return send_ahp :corner_xs!, yield(self.corner_xs) if block_given?
+      return if @corner_ss == corner_ss && @corner_se == corner_se
+      @corner_ss = corner_ss
+      @corner_se = corner_se
       @redraw_flag = true
       update
     end
 
-    # See #crxt!.
-    def crxt= param
-      Array === param ? (crxt! *param) : (crxt! param)
+    # See #corner_xs!.
+    def corner_xs= param
+      send_ahp :corner_xs!, param
     end
 
-    # Get X tail corners radius.
-    def crxt
-      [@crtt, @crth]
+    # Get X start corners.
+    def corner_xs
+      [@corner_ss, @corner_se]
     end
 
-    # Set X head corners radius.
-    def crxh! crht = nil, crhh = nil
-      return crxh! *Util.cover(yield(self.crxh)) if block_given?
-      if crht
-        crhh ||= crht
-      else
-        crht ||= @crht
-        crhh ||= @crhh
-      end
-      return if @crht == crht && @crhh == crhh
-      @crht = crht
-      @crhh = crhh
+    # Set X end corners.
+    def corner_xe! corner_es = @corner_es, corner_ee = corner_es
+      return send_ahp :corner_xe!, yield(self.corner_xe) if block_given?
+      return if @corner_es == corner_es && @corner_ee == corner_ee
+      @corner_es = corner_es
+      @corner_ee = corner_ee
       @redraw_flag = true
       update
     end
 
-    # See #crxh!.
-    def crxh= param
-      Array === param ? (crxh! *param) : (crxh! param)
+    # See #corner_xe!.
+    def corner_xe= param
+      send_ahp :corner_xe!, param
     end
 
-    # Get X head corners radius.
-    def crxh
-      [@crht, @crhh]
+    # Get X end corners.
+    def corner_xe
+      [@corner_es, @corner_ee]
     end
 
 
-    # Set Y tail corners radius.
-    def cryt! crtt = nil, crht = nil
-      return cryt! *Util.cover(yield(self.cryt)) if block_given?
-      if crtt
-        crht ||= crtt
-      else
-        crtt ||= @crtt
-        crht ||= @crht
-      end
-      return if @crtt == crtt && @crht == crht
-      @crtt = crtt
-      @crht = crht
+    # Set Y start corners.
+    def corner_ys! corner_ss = @corner_ss, corner_es = corner_ss
+      return send_ahp :corner_ys!, yield(self.corner_ys) if block_given?
+      return if @corner_ss == corner_ss && @corner_es == corner_es
+      @corner_ss = corner_ss
+      @corner_es = corner_es
       @redraw_flag = true
       update
     end
     
-    # See #cryt!.
-    def cryt= param
-      Array === param ? (cryt! *param) : (cryt! param)
+    # See #corner_ys!.
+    def corner_ys= param
+      send_ahp :corner_ys!, param
     end
 
-    # Get Y tail corners radius.
-    def cryt
-      [@crtt, @crht]
+    # Get Y start corners.
+    def corner_ys
+      [@corner_ss, @corner_es]
     end
 
-    # Set Y head corners radius.
-    def cryh! crth = nil, crhh = nil
-      return cryh! *Util.cover(yield(self.cryh)) if block_given?
-      if crth
-        crhh ||= crth
-      else
-        crth ||= @crth
-        crhh ||= @crhh
-      end
-      return if @crth == crth && @crhh == crhh
-      @crth = crth
-      @crhh = crhh
+    # Set Y end corners.
+    def corner_ye! corner_se = @corner_se, corner_ee = corner_se
+      return send_ahp :corner_ye!, yield(self.corner_ye) if block_given?
+      return if @corner_se == corner_se && @corner_ee == corner_ee
+      @corner_se = corner_se
+      @corner_ee = corner_ee
       @redraw_flag = true
       update
     end
     
-    # See #cryh!.
-    def cryh= param
-      Array === param ? (cryh! *param) : (cryh! param)
+    # See #corner_ye!.
+    def corner_ye= param
+      send_ahp :corner_ye!, param
     end
 
-    # Get Y head corners radius.
-    def cryh
-      [@crth, @crhh]
+    # Get Y end corners.
+    def corner_ye
+      [@corner_se, @corner_ee]
     end
     
-    # Set corners radius.
-    def cr! *cr
-      return cr! *Util.cover(yield(self.cr)) if block_given?
-      case cr.size
-      when 0 then return
-      when 1
-        crtt = crth = crht = crhh = cr[0]
-      when 2
-        crtt = crth = cr[0]
-        crht = crhh = cr[1]
-      when 3
-        crtt = cr[0]
-        crth = cr[1]
-        crht = crhh = cr[2]
-      when 4
-        crtt, crth, crht, crhh = *cr
-      else
-        raise_ia cr
-      end
-      return if @crtt == crtt && @crht == crht && @crth == crth && @crhh == crhh
-      @crtt = crtt
-      @crht = crht
-      @crth = crth
-      @crhh = crhh
+    # Set corners.
+    def corner! corner_ss = @corner_ss, corner_es = corner_ss, corner_se = corner_ss, corner_ee = corner_es
+      return send_ahp :corner!, yield(self.corner) if block_given?
+      return if @corner_ss == corner_ss && @corner_es == corner_es && @corner_se == corner_se && @corner_ee == corner_ee
+      @corner_ss = corner_ss
+      @corner_es = corner_es
+      @corner_se = corner_se
+      @corner_ee = corner_ee
       @redraw_flag = true
       update
     end
 
-    # See #cr!.
+    # See #corner!.
     def cr= param
-      Array === param ? (cr! *param) : (cr! param)
+      send_ahp :corner!, param
     end
     
-    # Get corners radius.
+    # Get corners.
     def cr
-      [@crtt, @crht, @crth, @crhh]
+      [@corner_ss, @corner_es, @corner_se, @corner_ee]
     end
 
     # :section: LEVEL 2
 
     def initialize
-      @crtt = @crth = @crht = @crhh = 0
+      @corner_ss = @corner_se = @corner_es = @corner_ee = 0
       super
       update
     end
 
     def redraw
-      draw!(true, @w * 0.5 , @h * 0.5).rectangle! @w - @outline_w, @h - @outline_w, @crtt, @crht, @crth, @crhh
+      draw!(true, @w * 0.5 , @h * 0.5).rectangle! @w - @outline_w, @h - @outline_w, @corner_ss, @corner_es, @corner_se, @corner_ee
     end
 
     def set_outline_w ...

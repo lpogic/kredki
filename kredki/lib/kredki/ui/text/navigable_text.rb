@@ -14,14 +14,10 @@ module Kredki
       end
 
       feature def font! font = nil
-        return font! (yield(self.font)) if block_given?
+        return send_ahp :font!, yield(self.font) if block_given?
         @lines.each{ _1.text.font! font }
       end, def font
         @lines.first.text.font
-      end
-
-      feature_service def cursor
-        @cursor
       end
 
       def selection?

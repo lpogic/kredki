@@ -38,10 +38,10 @@ module Kredki
         self
       end
 
-      # Make rectangle of +w+ width and +h+ height with +crtt+, +crht+, +crth+ and +crhh+ corner radiuses. 
+      # Make rectangle of +w+ width and +h+ height with +corner_ss+, +corner_es+, +corner_se+ and +corner_ee+ corneres. 
       # The rectangle is placed at the current coortinates.
-      def rectangle! w, h = w, crtt = 0, crht = crtt, crth = crtt, crhh = crtt
-        Pastele.shape_append_round_rect @shape.pointer, @x - w * 0.5, @y - h * 0.5, w, h, crtt, crht, crth, crhh
+      def rectangle! w, h = w, corner_ss = 0, corner_es = corner_ss, corner_se = corner_ss, corner_ee = corner_ss
+        Pastele.shape_append_round_rect @shape.pointer, @x - w * 0.5, @y - h * 0.5, w, h, corner_ss, corner_es, corner_se, corner_ee
         @shape.update if @autoupdate
         self
       end
@@ -122,7 +122,7 @@ module Kredki
 
     # See #fill_rule!.
     def fill_rule= param
-      Array === param ? (fill_rule! *param) : (fill_rule! param)
+      send_ahp :fill_rule!, param
     end
 
     # Get fill rule.
@@ -139,23 +139,21 @@ module Kredki
         when Numeric
           outline_w! it
         else
-          outline_fill! *Util.cover(it)
+          send_ahp :outline_fill!, it
         end
       end
-      namap = na.map do
-        send "outline_#{_1}!", *Util.cover(_2)
-      end
+      namap = na.map{ send_ahp "outline_#{_1}!", _2 }
       amap.any? || namap.any?
     end
     
     # See #outline!.
     def outline= param
-      Array === param ? (outline! *param) : (outline! param)
+      send_ahp :outline!, param
     end
 
     # Set outline fill.
     def outline_fill! *outline_fill
-      return outline_fill! *Util.cover(yield @outline_fill) if block_given?
+      return send_ahp :outline_fill!, yield(self.outline_fill) if block_given?
       outline_fill = Util.uncover outline_fill
       return if @outline_fill == outline_fill && outline_fill != :rand
       set_outline_fill *Kredki.color(outline_fill)
@@ -165,7 +163,7 @@ module Kredki
 
     # See #outline_fill!.
     def outline_fill= param
-      Array === param ? (outline_fill! *param) : (outline_fill! param)
+      send_ahp :outline_fill!, param
     end
 
     # Get outline fill.
@@ -184,7 +182,7 @@ module Kredki
 
     # See #outline_w!.
     def outline_w= param
-      Array === param ? (outline_w! *param) : (outline_w! param)
+      send_ahp :outline_w!, param
     end
 
     # Get outline width.
@@ -210,7 +208,7 @@ module Kredki
 
     # See #outline_cap!.
     def outline_cap= param
-      Array === param ? (outline_cap! *param) : (outline_cap! param)
+      send_ahp :outline_cap!, param
     end
 
     # Get outline path ending method.
@@ -242,7 +240,7 @@ module Kredki
 
     # See #outline_join!.
     def outline_join= param
-      Array === param ? (outline_join! *param) : (outline_join! param)
+      send_ahp :outline_join!, param
     end
 
     # Get outline path connection method.
@@ -252,7 +250,7 @@ module Kredki
 
     # Set outline dash pattern.
     def outline_pattern! *outline_pattern
-      return outline_pattern! *Util.cover(yield @outline_pattern) if block_given?
+      return send_ahp :outline_pattern!, yield(self.outline_pattern) if block_given?
       return if @outline_pattern == outline_pattern
       set_outline_pattern outline_pattern
       @outline_pattern = outline_pattern
@@ -261,7 +259,7 @@ module Kredki
 
     # See #outline_pattern!.
     def outline_pattern= param
-      Array === param ? (outline_pattern! *param) : (outline_pattern! param)
+      send_ahp :outline_pattern!, param
     end
 
     # Get outline dash pattern.
@@ -294,7 +292,7 @@ module Kredki
 
     # Set outline displayed part.
     def outline_trim! *outline_trim
-      return outline_trim! *Util.cover(yield @outline_trim) if block_given?
+      return send_ahp :outline_trim!, yield(self.outline_trim) if block_given?
       outline_trim = Util.uncover outline_trim
       return if @outline_trim == outline_trim
       set_outline_trim *OutlineTrim[outline_trim].to_a
@@ -304,7 +302,7 @@ module Kredki
 
     # See #outline_trim!.
     def outline_trim= param
-      Array === param ? (outline_trim! *param) : (outline_trim! param)
+      send_ahp :outline_trim!, param
     end
 
     # Get outline displayed part.
