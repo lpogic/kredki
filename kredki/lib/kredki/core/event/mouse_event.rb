@@ -16,7 +16,7 @@ module Kredki
     
     # Get event button.
     def button
-      @mouse.button @abi.button
+      @mouse.button @source.button
     end
 
     # Get main parameter.
@@ -26,17 +26,22 @@ module Kredki
 
     # Get binding button id.
     def input_id
-      @abi.button
+      @source.button
     end
 
     # Get position along X axis.
     def x
-      @abi.x
+      @source.x
     end
 
     # Get position along Y axis.
     def y
-      @abi.y
+      @source.y
+    end
+
+    # Get position along X and Y axes.
+    def xy
+      [@source.x, @source.y]
     end
   end
 
@@ -46,6 +51,21 @@ module Kredki
 
   # Event reported on mouse button up.
   class MouseButtonUpEvent < MouseButtonEvent
+    # Get whether it is drag move. +:start+ is returned if it is initial drag move.
+    def drag
+      @drag
+    end
+
+    # :section: LEVEL 2
+
+    def initialize ...
+      super
+      @drag = false
+    end
+
+    def drag= drag
+      @drag = drag
+    end
   end
 
   # Event reported on mouse move.
@@ -53,22 +73,50 @@ module Kredki
 
     # Get position along X axis.
     def x
-      @abi.x
+      @source.x
     end
 
     # Get position along Y axis.
     def y
-      @abi.y
+      @source.y
     end
 
     # Get position along X and Y axes.
     def xy
-      [@abi.x, @abi.y]
+      [@source.x, @source.y]
     end
 
     # Get main parameter.
     def param
       xy
+    end
+
+    # Get whether it is drag move. +:start+ is returned if it is initial drag move.
+    def drag
+      @drag
+    end
+
+    # :section: LEVEL 2
+
+    def initialize ...
+      super
+      @drag = false
+    end
+
+    def drag= drag
+      @drag = drag
+    end
+  end
+
+  class MouseEnterEvent < MouseEvent
+    def move?
+      @source&.is_a? MouseMoveEvent
+    end
+  end
+
+  class MouseLeaveEvent < MouseEvent
+    def move?
+      @source&.is_a? MouseMoveEvent
     end
   end
 
@@ -77,17 +125,17 @@ module Kredki
 
     # Get position along X axis.
     def x
-      @abi.x
+      @source.x
     end
 
     # Get position along Y axis.
     def y
-      @abi.y
+      @source.y
     end
 
     # Get position along X and Y axes.
     def xy
-      [@abi.x, @abi.y]
+      [@source.x, @source.y]
     end
 
     # Get move along X axis or Y if X is 0.

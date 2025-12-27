@@ -28,4 +28,4 @@ margin_i! 10
 
 button! :mouse_in_scale
 button! "Hello", :mouse_in_scale
-button! :mouse_in_scale, fill: :green
+button! :mouse_in_scale, suit: :green

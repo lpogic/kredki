@@ -6,7 +6,7 @@ module Kredki
       # Set whether is checked.
       def checked! value = true
         return if (c = checked) == (value = block_given? ? yield(c) : value == :not ? !c : value)
-        set_checked value
+        @check.show! value
         @checked = value
         true
       end
@@ -54,9 +54,9 @@ module Kredki
         @check = new RectanglePad, mousy: false, keyboardy: false, fill: 0, wh: 1r do
           outline! fill: :text, w: 3
           area! do |w, h|
-            xy! 2, h * 0.5
-            line! w * 0.5, h - 1
-            line! w - 2, 2
+            xy! w * 0.1, h * 0.5
+            line! w * 0.5, h * 0.9
+            line! w * 0.9, h * 0.1
           end
           hide!
         end
@@ -73,7 +73,7 @@ module Kredki
         margin! 3
       end
 
-      def sketch_presence
+      def presence
         super
 
         Event.each(
@@ -93,7 +93,7 @@ module Kredki
         area.outline_fill = keyboard_in? ? :outline_focus : color.darken
       end
 
-      def sketch_behavior
+      def behavior
         super 
 
         Event.each on_mouse_click!, on_key!(:space, :enter) do
@@ -101,9 +101,6 @@ module Kredki
         end
       end
 
-      def set_checked checked
-        @check.show! checked
-      end
     end
   end
 end

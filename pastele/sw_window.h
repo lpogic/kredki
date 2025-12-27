@@ -3,7 +3,7 @@
 
 #include "window.h"
 
-namespace pas {
+namespace pastele {
 
 class SwWindow : Window
 {

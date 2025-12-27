@@ -6,7 +6,6 @@ button! do |b|
   text << "Click me!" 
   b.on_click = job.tap do
     it.loop do
-      p it.ms
       b.rot += it.ms * 0.008
       it.break if b.rot >= Math::PI
     end.loop do

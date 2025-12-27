@@ -44,7 +44,7 @@ module Kredki
         lx = clw
         ly = clh
         
-        pad.arrange_pads.each do |p1|
+        pad.arranged_pads.each do |p1|
           pw = p1.get_w clw
           ph = p1.get_h clh
           p1.set_size pw, ph

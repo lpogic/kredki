@@ -6,7 +6,7 @@ module Kredki
 
         # :section: LEVEL 2
 
-        def unload!
+        def unload
           update_keyboard_pad nil
           pad_detach
         end
@@ -20,7 +20,7 @@ module Kredki
         def initialize
           super
 
-          @items = new Pad, out: {w: 1, fill: :dark_gray}
+          @items = new Pad, outline: [1, :dark_gray]
           @item_group = @items.new ItemGroup
         end
 
@@ -30,7 +30,7 @@ module Kredki
           break_layout
         end
 
-        def sketch_behavior
+        def behavior
           super
 
           on_key! :up, :down do |e|

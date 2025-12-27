@@ -2,7 +2,7 @@
 #include "arena.h"
 using namespace std;
 
-namespace pas {
+namespace pastele {
 
 void Arena::setEventHandler(int(*eventHandler)(int, SDL_Event*)) {
     this->eventHandler = eventHandler;
@@ -10,12 +10,10 @@ void Arena::setEventHandler(int(*eventHandler)(int, SDL_Event*)) {
 
 void Arena::insertWindow(Window* window) {
     windows.insert(window);
-    SDL_ShowWindow(window->sdl_window);
 }
 
 void Arena::eraseWindow(Window* window) {
     windows.erase(window);
-    SDL_HideWindow(window->sdl_window);
 }
 
 void Arena::run() {
@@ -29,7 +27,6 @@ void Arena::run() {
                     auto window = (Window*)event.user.data1;
                     event.user.timestamp = SDL_GetTicksNS();
                     eventHandler(event.type, &event);
-                    window->step(SDL_GetTicks());
                     window->sync();
                     break;
                 }

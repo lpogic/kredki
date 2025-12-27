@@ -1,8 +1,6 @@
-require_relative 'has_features'
-require_relative 'event/manage/has_event_resolvers'
-
 # Root gem module.
 module Kredki
+
   class << self
  
     # Start application loop.

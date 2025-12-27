@@ -18,7 +18,7 @@ module Kredki
         @och = @oclw = 0
       end
 
-      def sketch_behavior
+      def behavior
         super
         p0 = self
         
@@ -47,7 +47,7 @@ module Kredki
             else
               [0, 0]
             end
-            e.resolve if (@xslide.value! @xslide.value - xo * xjump) | (@yslide.value! @yslide.value - yo * yjump)
+            e.resolve if @xslide.value!{ (it - xo * xjump).clamp(0..1) } | @yslide.value!{ (it - yo * yjump).clamp(0..1) }
           end
         end
 
@@ -78,7 +78,7 @@ module Kredki
         super pad, at || @corner
       end
 
-      def arrange_pads
+      def arranged_pads
         pads.take_while{ it != @xslide }
       end
 
@@ -90,12 +90,20 @@ module Kredki
         super() + @och
       end
 
+      def fit_w
+        super + @yslide.get_w
+      end
+
+      def fit_h
+        super + @xslide.get_h
+      end
+
       def arrange prepare = true
         @oclw = @och = 0 if prepare
         margin_x, margin_y, @lw, @lh = super()
         oh = @xslide.get_h
         ow = @yslide.get_w
-        ps = arrange_pads
+        ps = arranged_pads
         if !ps.empty?
           w = sw
           h = sh

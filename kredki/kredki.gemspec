@@ -5,9 +5,9 @@ end
 Gem::Specification.new do |s|
   s.name        = "kredki"
   s.version     = Kredki::VERSION
-  s.summary     = "Ruby-Oriented graphical application toolkit"
+  s.summary     = "Simple graphical application toolkit"
   s.description = <<~EOT
-    A library for playing with vector graphics in Ruby. It allows you to create simple simulations, games and applications.
+    For playing with (vector) graphics in Ruby. Media connection included. Basic GUI framework built-in.
   EOT
   s.authors     = ["Łukasz Pomietło"]
   s.email       = "oficjalnyadreslukasza@gmail.com"

@@ -15,7 +15,7 @@ module Kredki
       # Add new layer.
       def layer! klass = Layer, *a, **na, &b
         layer = klass.new
-        layer.sketch_pad
+        layer.sketch_service
         put_pad layer
         layer.alter *a, **na, &b
         layer
@@ -38,18 +38,18 @@ module Kredki
         super
         @mouse_stale = false
 
-        @event_manager.manager Kredki::MouseMoveEvent, proc{|e| update_mouse_location e }
-        @event_manager.manager Kredki::WindowMouseEnterEvent, proc{|e| update_mouse_location }
-        @event_manager.manager Kredki::WindowMouseLeaveEvent, proc{|e| update_mouse_location }
-        @event_manager.mouse_manager Kredki::MouseButtonDownEvent, [], proc{|e| mouse_event MouseButtonDownEvent.new e }
-        @event_manager.mouse_manager Kredki::MouseButtonUpEvent, [], proc{|e| mouse_event MouseButtonUpEvent.new e }
-        @event_manager.manager Kredki::MouseScrollEvent, proc{|e| mouse_event e }
+        @event_manager.manager MouseMoveEvent, proc{|e| update_mouse_location e }
+        @event_manager.manager MouseEnterEvent, proc{|e| update_mouse_location }
+        @event_manager.manager MouseLeaveEvent, proc{|e| update_mouse_location }
+        @event_manager.mouse_manager MouseButtonDownEvent, [], proc{|e| mouse_event e }
+        @event_manager.mouse_manager MouseButtonUpEvent, [], proc{|e| mouse_event e }
+        @event_manager.manager MouseScrollEvent, proc{|e| mouse_event e }
 
         on_key_down! do |e|
-          keyboard_event KeyDownEvent.new e
+          keyboard_event e
         end
-        on_key_down! do |e|
-          keyboard_event KeyUpEvent.new e
+        on_key_up! do |e|
+          keyboard_event e
         end
         on_text! do |e|
           keyboard_event e
@@ -76,27 +76,27 @@ module Kredki
       end
 
       def sw
-        w
+        window.wh[0]
       end
 
       def sh
-        h
+        window.wh[1]
       end
 
       def swh
-        wh
+        window.wh
       end
 
       def clw
-        w
+        window.wh[0]
       end
 
       def clh
-        h
+        window.wh[1]
       end
 
       def clwh
-        wh
+        window.wh
       end
 
       def step ms
@@ -126,7 +126,7 @@ module Kredki
       end
 
       def update_mouse_location event = nil
-        event ||= PositionEvent.new *Kredki.mouse.xy
+        event ||= PositionEvent.new *window.mouse_xy
         xy = event.xy
         @services.reverse_each do |layer|
           if event.resolved?

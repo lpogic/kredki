@@ -30,7 +30,7 @@
 
 using namespace std;
 
-namespace pas {
+namespace pastele {
 
 class Window
 {
@@ -72,7 +72,6 @@ class Window
     }
 
     void setScene(tvg::Scene* scene);
-    void step(Uint64 ms);
     void sync(void);
     bool update(tvg::Canvas* canvas);
     bool paintDelete(tvg::Paint* paint);
@@ -107,6 +106,9 @@ class Window
     void setTextInput(bool text_input);
     bool getTextInput();
     int getFlags();
+    void surfaceToPng(const char* file);
+    void show(void);
+    void hide(void);
 
     virtual tvg::Canvas* getCanvas() { return nullptr; }
     virtual void resize() {}

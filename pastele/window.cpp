@@ -1,6 +1,6 @@
 #include "window.h"
 
-namespace pas {
+namespace pastele {
 
 void Window::planDelete(void) {
     union SDL_Event event;
@@ -30,7 +30,7 @@ void Window::setScene(tvg::Scene* scene) {
     toUpdate.insert(nullptr);
 }
 
-void Window::step(Uint64 ms) {
+void Window::sync(void) {
     auto canvas = getCanvas();
 
     if (needResize) {
@@ -47,9 +47,7 @@ void Window::step(Uint64 ms) {
         needDraw = false;
         needSync = true;
     }
-}
 
-void Window::sync(void) {
     if(needSync) {
         syncAndUpdateSurface();
         needSync = false;
@@ -192,6 +190,21 @@ bool Window::getTextInput() {
 
 int Window::getFlags() {
     return (int) SDL_GetWindowFlags(sdl_window);
+}
+
+void Window::surfaceToPng(const char* file) {
+    sync();
+    auto surface = SDL_GetWindowSurface(sdl_window);
+    if (!surface) return;
+    SDL_SavePNG(surface, file);
+}
+
+void Window::show(void) {
+    SDL_ShowWindow(sdl_window);
+}
+
+void Window::hide(void) {
+    SDL_HideWindow(sdl_window);
 }
 
 }

@@ -23,7 +23,7 @@ module Kredki
 
     # Get event button.
     def button
-      @joystick.button @abi.button
+      @joystick.button @source.button
     end
 
     # Get main parameter.
@@ -33,7 +33,7 @@ module Kredki
 
     # Get binding input id.
     def input_id
-      @abi.button
+      @source.button
     end
   end
 
@@ -50,7 +50,7 @@ module Kredki
 
     # Get event axis.
     def axis
-      @joystick.axis @abi.axis
+      @joystick.axis @source.axis
     end
 
     # Get main parameter.
@@ -60,12 +60,12 @@ module Kredki
 
     # Get binding input id.
     def input_id
-      @abi.axis
+      @source.axis
     end
 
     # Get axis value.
     def value
-      @abi.value
+      @source.value
     end
   end
 end

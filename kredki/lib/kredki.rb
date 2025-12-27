@@ -1,10 +1,11 @@
+require 'forwardable'
 require_relative 'kredki/ui'
 
 if defined? IRB
   require_relative 'kredki/irb'
 else
   arena = Kredki.arena!
-  A = arena.window!
+  A = arena.window!(show: false).action[Kredki::UI::Layer]
   module Kredki
     module Extend
       extend Forwardable
@@ -42,6 +43,7 @@ else
 
   if $kredki_run != false
     at_exit do
+      window.show!
       arena.run!
     end
   end

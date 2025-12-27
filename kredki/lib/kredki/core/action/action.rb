@@ -15,14 +15,19 @@ module Kredki
       instance_exec *a, **na, &plugin
     end
 
+    # Get Kredki::Action ancestor. 
+    def action
+      self
+    end
+
     # Get Kredki::Window ancestor.
     def window
       @scene
     end
 
-    # Get Kredki::Action ancestor. 
-    def action
-      self
+    # Get Kredki::Arena ancestor.
+    def arena
+      @scene&.arena
     end
 
     # Get static Kredki::Paint container.
@@ -47,12 +52,12 @@ module Kredki
 
     # Get width.
     def w
-      @scene&.w
+      @scene&.wh[0]
     end
 
     # Get height.
     def h
-      @scene&.h
+      @scene&.wh[1]
     end
 
     # Get width and height.

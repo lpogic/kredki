@@ -8,7 +8,7 @@ module Kredki
 
         # Add menu item.
         def item! *a, **na, &b
-          new ToolbarItem, *a, w: :fit, **na, &b
+          new Item, *a, w: :fit, **na, &b
         end
 
         # :section: LEVEL 2

@@ -5,6 +5,28 @@ module Kredki
     # Common event resolvers for text edition.
     module TextEdition
       include TextNavigation
+
+      class EditEvent < Event
+        def param
+          string
+        end
+
+        # :section: LEVEL 2
+
+        def initialize selection_min, selection_max, string, action
+          super()
+          @selection_min = selection_min
+          @selection_max = selection_max
+          @string = string
+          @action  = action
+        end
+
+        attr_accessor :selection_min
+        attr_accessor :selection_max
+        attr_accessor :string
+        attr_accessor :action
+        
+      end
       
       def on_edit! &block
         on! EditEvent, &block
@@ -30,7 +52,7 @@ module Kredki
 
         on_key_down! :v do |e|
           if e.ctrl?
-            text.paste clipboard.content
+            text.paste Kredki.clipboard.content
             e.resolve
           end
         end
@@ -45,7 +67,9 @@ module Kredki
         end
 
         on_edit! do |e|
-          text.edit e.action, e.string, e.selection_min, e.selection_max
+          content = content_after_edit e
+          cursor_position = e.string.length + e.selection_min
+          text.edit e.action, content, cursor_position
         end
 
         if multiline

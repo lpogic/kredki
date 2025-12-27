@@ -1,12 +1,8 @@
-require 'procify'
-require 'modeling'
-require 'koper'
-require 'forwardable'
 require_relative 'kernel-path'
 
 module Kredki
 
-  def / path
+  def self./ path
     File.expand_path "../../../#{path}", __FILE__
   end
 

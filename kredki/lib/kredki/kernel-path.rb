@@ -22,15 +22,11 @@ class Object
     self
   end
 
-  def alter_kwr *arg, **narg, &block
-    arg.each do |a|
-      send :<<, a
+  def alter_kw skip_unresponding = true, **kw
+    kw.each do |keyword, value|
+      keyword = "#{keyword}=" if keyword =~ /^\w+$/
+      send keyword, value if !skip_unresponding || respond_to?(keyword)
     end
-    narg.each do |k, v|
-      k = "#{k}=" if k =~ /^\w+$/
-      send k, v if respond_to? k
-    end
-    instance_exec self, &block if block
     self
   end
 
@@ -58,4 +54,8 @@ class Symbol
   def <=> that
     Numeric === that ? 0 : old_cmp(that)
   end
+end
+
+class Array
+  alias_method :push=, :push
 end

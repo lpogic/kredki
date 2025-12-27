@@ -10,8 +10,8 @@ module Kredki
       def sketch
         super
 
-        h! 74
-        verse_size! 24
+        h! 64
+        verse_size! 20
         verse_layout! :yss
       end
 

@@ -7,7 +7,7 @@ module Kredki
       
       # :section: LEVEL 2
 
-      def sketch_behavior
+      def behavior
         super
 
         on_key! :up do |e|

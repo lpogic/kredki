@@ -8,7 +8,7 @@ module Kredki
 
         # :section: LEVEL 2
 
-        def load! item
+        def load item
           item.layer&.arrange
           action = parent.action
           x, y = *item.translate(item.sw, 0)
@@ -21,7 +21,7 @@ module Kredki
           load_common x, y
         end
 
-        def sketch_behavior
+        def behavior
           super
           
           on! Item::PickEvent do |e|
@@ -35,31 +35,34 @@ module Kredki
         end
 
         def set_parent parent, at = nil
-          super and (
+          if super
             @parent_events&.each{ _1.detach! }
             @parent_events = []
 
-
-            @parent_events[] = parent.on_focus_enter! do |e|
-              load! parent
+            @parent_events.push = parent.on_focus_enter! do |e|
+              load parent
             end
 
-            @parent_events[] = parent.on_focus_leave! do |e|
-              unload! if loaded?
+            @parent_events.push = parent.on_focus_enter! do |e|
+              load parent
+            end
+
+            @parent_events.push = parent.on_focus_leave! do |e|
+              unload if loaded?
             end
             
-            @parent_events[] = on_key! :left do |e|
+            @parent_events.push = on_key! :left do |e|
               if loaded?
-                unload!
+                unload
                 e.resolve
               end
             end
-          )
+          end
         end
 
         def grand_pad_detach
           super
-          unload! if loaded?
+          unload if loaded?
         end
 
       end#SecondaryLayer

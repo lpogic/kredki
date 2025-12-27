@@ -49,6 +49,17 @@ RDoc::Task.new do |rdoc|
   rdoc.template = "aliki"
 end
 
+require "minitest/test_task"
+
+Minitest::TestTask.create(:test) do |t|
+  t.libs << "kredki/test"
+  t.libs << "kredki/lib"
+  t.warning = false
+  t.test_globs = ["kredki/test/**/*_test.rb"]
+  rm_rf "#{__dir__}/kredki/test/tmp"
+  mkdir "#{__dir__}/kredki/test/tmp"
+end
+
 def check_vars *vars, file: true
   vars.each do |v|
     value = eval "#{v}"

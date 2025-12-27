@@ -7,7 +7,7 @@ module Kredki
 
         # :section: LEVEL 2
 
-        def load! x, y
+        def load x, y
           arrange
           action = parent.action
           x_max = action.w - @items.sw 
@@ -17,7 +17,7 @@ module Kredki
           load_common x, y
         end
 
-        def sketch_behavior
+        def behavior
           super
 
           on! Item::PickEvent, aim: true do |e|

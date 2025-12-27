@@ -1,6 +1,6 @@
 #include "wg_window.h"
 
-namespace pas {
+namespace pastele {
 
 #ifdef THORVG_WG_RASTER_SUPPORT
 

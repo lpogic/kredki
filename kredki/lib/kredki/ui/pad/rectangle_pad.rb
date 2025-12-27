@@ -18,6 +18,16 @@ module Kredki
         @area.fill
       end
 
+      # Set outline.
+      def outline! ...
+        @area.outline!(...)
+      end
+
+      # See #outline!.
+      def outline= param
+        send_ahp :outline!, param
+      end
+
       # Set outline width.
       def outline_w! ...
         @area.outline_w!(...)
@@ -276,13 +286,14 @@ module Kredki
         [corner_se, corner_ee]
       end
 
-      # Set X start Y start corner.
-      def corner! corner_ss = @area.corner_ss, corner_es = corner_ss, corner_se = corner_ss, corner_ee = corner_es, clip_corner = :auto
+      # Set corner.
+      def corner! corner = @area.corner_ss, clip_corner = :auto, **na
         return send_ahp :corner!, yield(self.corner) if block_given?
-        corner_ss!(corner_ss, clip_corner) | 
-        corner_es!(corner_es, clip_corner) |
-        corner_se!(corner_se, clip_corner) |
-        corner_ee!(corner_ee, clip_corner)
+        corner_ss!(corner, clip_corner) | 
+        corner_es!(corner, clip_corner) |
+        corner_se!(corner, clip_corner) |
+        corner_ee!(corner, clip_corner) |
+        send_branch(:corner, na)
       end
       
       # See #corner!.

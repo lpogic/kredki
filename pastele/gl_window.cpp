@@ -1,6 +1,6 @@
 #include "gl_window.h"
 
-namespace pas {
+namespace pastele {
 
 GlWindow::GlWindow(uint32_t width, uint32_t height) : Window()
 {

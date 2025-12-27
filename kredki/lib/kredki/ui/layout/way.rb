@@ -16,7 +16,7 @@ module Kredki
             ad += span[1]
             total_span += span[0]
           end
-          return if sp.empty?
+          return [[], 0] if sp.empty?
           total_space = space * (sp.size - 1)
           sd += total_space
 

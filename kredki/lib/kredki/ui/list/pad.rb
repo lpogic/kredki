@@ -34,7 +34,7 @@ module Kredki
           @item_group = new ListItemGroup
         end
 
-        def sketch_behavior
+        def behavior
           super
 
           on! Item::PickEvent do

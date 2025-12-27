@@ -20,7 +20,7 @@ module Kredki
           @dropdown.alter(...)
         end
 
-        # Get dropdown layer
+        # Get dropdown layer.
         def dropdown
           @dropdown
         end
@@ -38,12 +38,12 @@ module Kredki
           @dropdown = nil
           @begin_icon = new RectanglePad, at: 0, mousy: false, keyboardy: false, fill: 0, h: 1r do
             w! proc{ get_h }
-            outline! fill: :text, w: 3, cap: :round, join: :miter
+            outline! fill: :text, w: 2, cap: :round
             scenic! false
           end
           @end_icon = new RectanglePad, mousy: false, keyboardy: false, fill: 0, x: :e, h: 1r do
             w! proc{ get_h }
-            outline! fill: :text, w: 3, cap: :round, join: :miter
+            outline! fill: :text, w: 2, cap: :round
             area! do |w, h|
               xy! w * 0.5, h * 0.35
               line! w * 0.65, h * 0.5
@@ -58,7 +58,7 @@ module Kredki
 
           on_key_down! :right do |e|
             if @dropdown
-              @dropdown.load! self unless @dropdown.loaded?
+              @dropdown.load self unless @dropdown.loaded?
               @dropdown[Item]&.keyboard_request and e.resolve
             end
           end

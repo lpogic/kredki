@@ -142,7 +142,7 @@ module Kredki
     def opacity! opacity = @opacity
       return opacity! yield @opacity if block_given?
       return if @opacity == opacity
-      set_opacity opacity.to_i
+      Pastele.paint_set_opacity @pointer, opacity.to_i
       @opacity = opacity
       update
     end
@@ -180,7 +180,7 @@ module Kredki
     def blend! blend = @blend
       return blend! yield @blend if block_given?
       return if @blend == blend
-      set_blend BlendMethod.send(blend || :normal)
+      Pastele.paint_set_blend_method @pointer, BlendMethod.send(blend || :normal)
       @blend = blend
       update
     end
@@ -218,7 +218,7 @@ module Kredki
       return if @mask == mask && @mask_target == target
       @mask_target&.unset_masking
       target&.set_masking self
-      set_mask MaskMethod.send(mask || :none), target
+      Pastele.paint_set_mask @pointer, target&.pointer, MaskMethod.send(mask || :none)
       @mask = mask
       @mask_target = target
       update
@@ -265,7 +265,7 @@ module Kredki
       return if @clip == clip
       @clip&.unset_masking
       clip&.set_masking self
-      set_clip clip
+      Pastele.paint_set_clip @pointer, clip&.pointer
       @clip = clip
       update
     end
@@ -305,12 +305,12 @@ module Kredki
       set_show false
     end
 
-    # Get the associated Kredki::Window.
+    # Get Kredki::Window ancestor.
     def window
       @scene&.window
     end
 
-    # Get the associated Kredki::Action.
+    # Get Kredki::Action ancestor.
     def action
       @scene&.action
     end
@@ -384,18 +384,6 @@ module Kredki
       @scene&.paint_shown self, direct
     end
 
-    def set_clip target
-      Pastele.paint_set_clip @pointer, target&.pointer
-    end
-
-    def set_mask mask, target
-      Pastele.paint_set_mask @pointer, target&.pointer, mask
-    end
-
-    def set_opacity opacity
-      Pastele.paint_set_opacity @pointer, opacity
-    end
-
     def pivot_xy
       [0, 0]
     end
@@ -403,9 +391,5 @@ module Kredki
     def update_transform
       Pastele.paint_set_transform @pointer, *pivot_xy, @x, @y, @rot, @mag_x, @mag_y
     end
-
-    def set_blend blend
-      Pastele.paint_set_blend_method @pointer, blend
-    end
-  end
-end
+  end#Paint
+end#Kredki

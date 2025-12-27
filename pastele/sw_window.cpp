@@ -1,6 +1,6 @@
 #include "sw_window.h"
 
-namespace pas {
+namespace pastele {
 
 SwWindow::SwWindow(uint32_t width, uint32_t height) : Window()
 {

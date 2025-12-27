@@ -1,0 +1,36 @@
+require_relative 'ui'
+require 'minitest/autorun'
+require 'forwardable'
+
+module Kredki
+  class Test < Minitest::Test
+    extend Forwardable
+
+    (UI::Layer.instance_methods - Object.instance_methods).each do
+      def_delegator :@layer, it
+    end
+
+    def define ...
+      def_delegator :@layer, PadBase.define(...)
+    end
+
+    def setup
+      @window = Kredki.arena!.window! show: false
+      @layer = @window.action[UI::Layer]
+    end
+
+    def assert_png
+      path = Kredki / "test/tmp/#{self.class}_#{name}.png"
+      @window.to_png path
+      expected = File.expand_path "#{dir}/#{name}.png"
+      of = File.new path, "rb"
+      ef = File.new expected, "rb"
+      loop do
+        oc = of.readpartial(1024) rescue nil
+        ec = ef.readpartial(1024) rescue nil
+        return assert false if oc != ec
+        return assert true if !oc
+      end
+    end
+  end
+end

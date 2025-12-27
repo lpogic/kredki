@@ -9,8 +9,8 @@ module Kredki
         def initialize
           super
 
-          @items = new Context::Pad, out: {w: 1, fill: :dark_gray}
-          @item_group = @items.new Context::Group
+          @items = new Context::Pad, outline: [1, :dark_gray]
+          @item_group = @items.new Context::ItemGroup
         end
 
         attr :items, :item_group
@@ -21,7 +21,7 @@ module Kredki
           break_layout
         end
         
-        def unload!
+        def unload
           update_keyboard_pad nil
           pad_detach
         end

@@ -35,7 +35,8 @@ module Kredki
       def sketch
         super
 
-        margin_i! 5
+        h! :fit
+        margin_i! 8
         layout! :xsc
       end
 

@@ -20,7 +20,7 @@ module Kredki
       def sketch
         super
         
-        wh! :fit
+        wh! 1r
       end
 
       def mouse_down e

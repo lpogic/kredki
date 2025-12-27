@@ -58,7 +58,7 @@ module Kredki
 
         on_key_down! :c do |e|
           if e.ctrl? && text.selection?
-            clipboard.content = text.selected_content
+            Kredki.clipboard.content = text.selected_content
             e.resolve
           end
         end
@@ -69,7 +69,7 @@ module Kredki
           else
             if layer.mouse_clicks < 2
               cursor_position = text.cursor_position_for_coordinates *text.layer.translate(*e.xy, text)
-              text.reset_cursor cursor_position
+              text.set_cursor cursor_position
             end
           end
         end

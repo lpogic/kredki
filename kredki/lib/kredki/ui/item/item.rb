@@ -5,6 +5,25 @@ module Kredki
     # Text in rectangle. Part of group.
     class Item < RectanglePad
 
+      # Set content.
+      def content! content = @content
+        return send_ahp :content!, yield(self.content) if block_given?
+        return if @content == content
+        @content = content
+        text&.content! content
+        true
+      end
+
+      # See #content!.
+      def content= param
+        send_ahp :content!, param
+      end
+
+      # Get content.
+      def content
+        @content
+      end
+
       # Get text.
       def text
         self[TextPad]
@@ -60,7 +79,7 @@ module Kredki
       def << feature
         case feature
         when String
-          text << feature
+          content! feature
         else
           super
         end
@@ -68,22 +87,13 @@ module Kredki
       
       # :section: LEVEL 2
 
-      class PickEvent < Kredki::UI::Event
-
-        def initialize value, origin
-          @value = value
-          @origin = origin
-        end
-
-        def param
-          @value
-        end
+      class PickEvent < Event
       end
 
       def initialize
         super
         
-        @text = new TextPad, "", mousy: false
+        @text = new TextPad, "", mousy: false, verse_size: 19
       end
 
       def sketch
@@ -96,7 +106,7 @@ module Kredki
         w! :fit
       end
 
-      def sketch_presence
+      def presence
         super
         
         Event.each(
@@ -115,15 +125,15 @@ module Kredki
         area.fill = pin_in? ? color.darken : keyboard_in? ? color.lighten : color
       end
 
-      def sketch_behavior
+      def behavior
         super
 
         on_mouse_click! :primary do |e|
-          report PickEvent.new(content, e)
+          report PickEvent.new e
         end
 
         on_key! :space, :enter do |e|
-          report PickEvent.new(content, e)
+          report PickEvent.new e
           e.resolve
         end
       end

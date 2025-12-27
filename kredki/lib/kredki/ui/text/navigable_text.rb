@@ -3,12 +3,12 @@ module Kredki
     class NavigableText < TextPad
       
       # Set content.
-      def content! content = @content, reset_cursor = false, &b
+      def content! content = @content, cursor_position = 0, &b
         if super(content, &b) && @selection.size != @verses.size
           @selection.clear!
           @verses.each{ @selection.rectangle! fill: :text_selection, w: 0 }
         end
-        self.reset_cursor if reset_cursor
+        set_cursor cursor_position
       end
 
       # Set font.
@@ -44,12 +44,25 @@ module Kredki
         layer&.break_layout
       end
 
+      # Get text after applying edit event.
+      def content_after_edit e
+        estr = e.string
+        s = content.to_s
+        s = if s == ""
+          estr
+        elsif e.selection_max < s.length
+          s[...e.selection_min] + estr + s[e.selection_max..]
+        else
+          s[...e.selection_min] + estr
+        end
+      end
+
       # :section: LEVEL 2
 
       attr :selection_min, :selection_max, :cursor
       attr_accessor :cursor_position
 
-      def reset_cursor position = 0
+      def set_cursor position = 0
         @cursor_position = @selection_min = @selection_max = position
         layer&.break_layout
       end
@@ -335,7 +348,7 @@ module Kredki
           @cursor_position = cursor_position
           layer&.break_layout
         else
-          reset_cursor cursor_position
+          set_cursor cursor_position
         end
       end
 
@@ -363,7 +376,7 @@ module Kredki
           @cursor_position = cursor_position
           layer&.break_layout
         else
-          reset_cursor cursor_position
+          set_cursor cursor_position
         end
       end
     end

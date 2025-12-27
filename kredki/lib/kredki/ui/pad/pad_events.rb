@@ -8,71 +8,14 @@ require_relative '../../core/event/window_event'
 module Kredki
   module UI
 
-    # Base class for UI events.
-    class Event
-    
-      # Create new Event.
-      def initialize target = nil
-        @target = target
-        @resolved = false
-      end
-
-      # Get target.
-      def target
-        @target
-      end
-
-      # Get main parameter. Overrided in inheriting classes.
-      def param
-      end
-
-      # See #param.
-      def ~()
-        param
-      end
-
-      def inspect
-        "#{self.class}:#{object_id}"
-      end
-        
-      # Get whether event is resolved.
-      def resolved?
-        @resolved
-      end
-  
-      # Mark event as resolved.
-      def resolve
-        @resolved = true
-      end
-
-      # Get current event resolver.
-      def resolver
-        Array === @resolver ? @resolver.last : @resolver
-      end
-
-      # Push event resolver
-      def push_resolver resolver
-        if Array === @resolver
-          @resolver << resolver
-        else
-          @resolver = resolver
-        end
-      end
-  
-      # Attach few events to identical resolvers.
-      def self.each *event_managers, do: nil, &block
-        attached = block || binding.local_variable_get(:do)
-        event_managers.map{ it.attach! attached }
-      end
-    end
-
     # Event with position
     class PositionEvent < Event
 
-      def initialize x, y, target = nil
-        super(target)
+      def initialize x, y, source = nil, target = nil, resolved = false
+        super(source, target, resolved)
         @x = x
         @y = y
+        @drag = false
       end
 
       # Get X axis offset.
@@ -90,223 +33,369 @@ module Kredki
         [@x, @y]
       end
 
+      # Get main parameter.
       def param
         xy
       end
+
+      # Get whether it is drag move. +:start+ is returned if it is initial drag move.
+      def drag
+        @drag
+      end
+
+      # :section: LEVEL 2
+
+      def drag= drag
+        @drag = drag
+      end
     end
 
-    # Event which resolved state is primary maintained by origin event.
-    module OriginResolvingEvent
-      def resolved?
-        @origin ? @origin.resolved? : super
-      end
+    class MouseClickEvent < Event
 
-      def resolve
-        @origin ? @origin.resolve : super
-      end
-    end
-
-    # Common mouse event class.
-    class MouseEvent < PositionEvent
-
-      def initialize origin, x = origin&.x, y = origin&.y, target = nil
-        super(target)
-        @origin = origin
-        @x = x
-        @y = y
-      end
-
-      # Get input id.
-      def input_id
-        @origin.input_id
-      end
-
-      # Get button.
+      # Get event button.
       def button
-        @origin.button
+        @source.button
       end
-    end
 
-    class MouseMoveEvent < MouseEvent
-      include OriginResolvingEvent
-
-      model :drag, :<
-    end
-
-    class MouseEnterEvent < MouseEvent
-      include OriginResolvingEvent
-
-      def move?
-        @origin&.is_a? MouseMoveEvent
+      # Get main parameter.
+      def param
+        @source.param
       end
-    end
 
-    class MouseLeaveEvent < MouseEvent
-      include OriginResolvingEvent
-
-      def move?
-        @origin&.is_a? MouseMoveEvent
-      end
-    end
-
-    class MouseButtonDownEvent < MouseEvent
-      def_delegators :@origin,
-        :input_id
-    end
-
-    class MouseButtonUpEvent < MouseEvent
-      def_delegators :@origin,
-        :input_id
-
-        model :<, :drag
-    end
-
-    class MouseClickEvent < MouseEvent
+      # Get binding button id.
       def input_id
-        @origin&.input_id
+        @source.input_id
+      end
+
+      # Get position along X axis.
+      def x
+        @source.x
+      end
+
+      # Get position along Y axis.
+      def y
+        @source.y
+      end
+
+      # Get position along X and Y axes.
+      def xy
+        [x, y]
+      end
+
+      def timestamp
+        @source.timestamp
       end
     end
 
-    class KeyboardEvent < Event
-      extend Forwardable
+    class KeyClickEvent < Event
+        
+      # Get event key.
+      def key
+        @source&.key
+      end
 
-      model :origin, :<
+      # Get main parameter.
+      def param
+        @source&.param
+      end
 
-      def_delegators :@origin, *Kredki::KeyEvent.instance_methods(false)
-    end
+      # Get binding key id.
+      def input_id
+        @source&.input_id
+      end
 
-    class KeyDownEvent < KeyboardEvent
-    end
+      # Get whether left shift is down.
+      def left_shift?
+        @source&.left_shift?
+      end
 
-    class KeyUpEvent < KeyboardEvent
-    end
+      # Get whether right shift is down.
+      def right_shift?
+        @source&.right_shift?
+      end
 
-    class KeyClickEvent < KeyboardEvent
-      include OriginResolvingEvent
-    end
+      # Get whether left alt is down.
+      def left_alt?
+        @source&.left_alt?
+      end
 
-    class ShowEvent < Event
-    end
+      # Get whether right alt is down.
+      def right_alt?
+        @source&.right_alt?
+      end
 
-    class HideEvent < Event
-    end
+      # Get whether left ctrl is down.
+      def left_ctrl?
+        @source&.left_ctrl?
+      end
 
-    class MoveEvent < Event
-    end
+      # Get whether right ctrl is down.
+      def right_ctrl?
+        @source&.right_ctrl?
+      end
 
-    class ResizeEvent < Event
-      model :w, :h, :<
-    end
+      # Get whether ctrl is down.
+      def ctrl?
+        @source&.ctrl?
+      end
 
-    class FocusEnterEvent < Event
-    end
+      # Get whether alt is down.
+      def alt?
+        @source&.alt?
+      end
 
-    class FocusLeaveEvent < Event
+      # Get whether shift is down.
+      def shift?
+        @source&.shift?
+      end
+
+      # Get whether windows key is down.
+      def windows?
+        @source&.windows?
+      end
+
+      # Get whether num lock is on.
+      def num_lock?
+        @source&.num_lock?
+      end
+
+      # Get whether caps lock is on.
+      def caps_lock?
+        @source&.caps_lock?
+      end
+
+      # Get whether scroll lock is on.
+      def scroll_lock?
+        @source&.scroll_lock?
+      end
     end
 
     class KeyboardOfferEvent < Event
     end
 
-    class EditEvent < Event
-      model :selection_min, :selection_max, :string, :action, :<
-
-      def [](key = :string)
-        send key
-      end
-    end
-
-    class ChangeEvent < Event
-      model :new_value, :old_value, :<
-
-      def [](key = :new_value)
-        send key
-      end
-
-      def ~()
-        @new_value
-      end
-    end
-
     class ROIEvent < PositionEvent
-      model :w, :h, :<
 
+      # Get width.
+      def w
+        @w
+      end
+
+      # Get height.
+      def h
+        @h
+      end
+
+      # Get width and height.
       def wh
         [@w, @h]
       end
+
+      # :section: LEVEL 2
+      
+      def initialize w, h, x, y, target = nil, resolved = false
+        super(target, resolved)
+        @w = w
+        @h = h
+      end
+      
     end
 
     module PadEvents
-      extend HasEventResolvers
 
       def on! event_type, aim: false, always: false, do: nil, &block
         @event_manager.manager event_type, block || binding.local_variable_get(:do), aim, always
       end
 
+      # Create and attach key down event resolver.
       def on_key_down! *filtered_keys, aim: false, always: false, do: nil, &block
         keycodes = Kredki.keyboard.keycodes filtered_keys
         @event_manager.keyboard_manager KeyDownEvent, keycodes, block || binding.local_variable_get(:do), aim, always
       end
 
+      # See #on_key_down!.
+      def on_key_down= param
+        on_key_down! do: param
+      end
+
+      # Create and attach key up event resolver.
       def on_key_up! *filtered_keys, aim: false, always: false, do: nil, &block
         keycodes = Kredki.keyboard.keycodes filtered_keys
         @event_manager.keyboard_manager KeyUpEvent, keycodes, block || binding.local_variable_get(:do), aim, always
       end
 
+      # See #on_key_up!.
+      def on_key_up= param
+        on_key_up! do: param
+      end
+
+      # Create and attach key event resolver.
       def on_key! *filtered_keys, aim: false, always: false, do: nil, &block
         keycodes = Kredki.keyboard.keycodes filtered_keys
         @event_manager.keyboard_manager KeyClickEvent, keycodes, block || binding.local_variable_get(:do), aim, always
       end
 
-      event_resolver :on_text!, TextEvent
+      # See #on_key!.
+      def on_key= param
+        on_key! do: param
+      end
+
+      def on_text! ...
+        on!(TextEvent, ...)
+      end
+
+      # See #on_text!.
+      def on_text= param
+        on_text! do: param
+      end
   
+      # Create and attach mouse down event resolver.
       def on_mouse_down! *filtered_buttons, aim: false, always: false, do: nil, &block
         indexes = Kredki.mouse.indexes filtered_buttons
         @event_manager.mouse_manager MouseButtonDownEvent, indexes, block || binding.local_variable_get(:do), aim, always
       end
+
+      # See #on_mouse_down!.
+      def on_mouse_down= param
+        on_mouse_down! do: param
+      end
   
-      event_resolver def on_mouse_up! *filtered_buttons, aim: false, always: false, do: nil, &block
+      # Create and attach mouse up event resolver.
+      def on_mouse_up! *filtered_buttons, aim: false, always: false, do: nil, &block
         indexes = Kredki.mouse.indexes filtered_buttons
         @event_manager.mouse_manager MouseButtonUpEvent, indexes, block || binding.local_variable_get(:do), aim, always
       end
 
-      def on_click! *filtered_buttons, aim: false, always: false, do: nil, &block
+      # See #on_mouse_up!.
+      def on_mouse_up= param
+        on_mouse_up! do: param
+      end
+
+      # Create and attach mouse click event resolver.
+      def on_mouse_click! *filtered_buttons, aim: false, always: false, do: nil, &block
         indexes = Kredki.mouse.indexes filtered_buttons
         @event_manager.mouse_manager MouseClickEvent, indexes, block || binding.local_variable_get(:do), aim, always
       end
 
-      alias_method :on_mouse_click!, :on_click!
-  
-      event_resolver :on_mouse_enter!, MouseEnterEvent
-      event_resolver :on_mouse_leave!, MouseLeaveEvent
-      event_resolver :on_mouse_move!, MouseMoveEvent
-      event_resolver :on_mouse_scroll!, MouseScrollEvent
-      
-      event_resolver :on_file_drop!, FileDropEvent
+      # See #on_mouse_click!.
+      def on_mouse_click= param
+        on_mouse_click! do: param
+      end
 
+      # Create and attach mouse enter event resolver.
+      def on_mouse_enter! ...
+        on!(MouseEnterEvent, ...)
+      end
+
+      # See #on_mouse_enter!.
+      def on_mouse_enter= param
+        on_mouse_enter! do: param
+      end
+
+      # Create and attach mouse leave event resolver.
+      def on_mouse_leave! ...
+        on!(MouseLeaveEvent, ...)
+      end
+
+      # See #on_mouse_leave!.
+      def on_mouse_leave= param
+        on_mouse_leave! do: param
+      end
+
+      # Create and attach mouse move event resolver.
+      def on_mouse_move! ...
+        on!(MouseMoveEvent, ...)
+      end
+
+      # See #on_mouse_move!.
+      def on_mouse_move= param
+        on_mouse_move! do: param
+      end
+
+      # Create and attach mouse scroll event resolver.
+      def on_mouse_scroll! ...
+        on!(MouseScrollEvent, ...)
+      end
+
+      # See #on_mouse_scroll!.
+      def on_mouse_scroll= param
+        on_mouse_scroll! do: param
+      end
+      
+      # Create and attach joystick down event resolver.
       def on_joystick_down! joystick_id, *filtered_buttons, aim: false, always: false, do: nil, &block
         joystick = Kredki.joystick joystick_id
         indexes = joystick.buttons filtered_buttons
         @event_manager.joystick_manager JoystickButtonDownEvent, joystick, indexes, block || binding.local_variable_get(:do), aim, always
       end
 
+      # See #on_joystick_down!.
+      def on_joystick_down= param
+        on_joystick_down! do: param
+      end
+
+      # Create and attach joystick up event resolver.
       def on_joystick_up! joystick_id, *filtered_buttons, aim: false, always: false, do: nil, &block
         joystick = Kredki.joystick joystick_id
         indexes = joystick.buttons filtered_buttons
         @event_manager.joystick_manager JoystickButtonUpEvent, joystick, indexes, block || binding.local_variable_get(:do), aim, always
       end
 
+      # See #on_joystick_up!.
+      def on_joystick_up= param
+        on_joystick_up! do: param
+      end
+
+      # Create and attach joystick axis event resolver.
       def on_joystick_axis! joystick_id, *filtered_axes, aim: false, always: false, do: nil, &block
         joystick = Kredki.joystick joystick_id
         indexes = joystick.axes filtered_axes
         @event_manager.joystick_manager JoystickAxisEvent, joystick, indexes, block || binding.local_variable_get(:do), aim, always
       end
 
-      event_resolver :on_show!, ShowEvent
-      event_resolver :on_hide!, HideEvent
-      event_resolver :on_move!, MoveEvent
-      event_resolver :on_resize!, ResizeEvent
-      event_resolver :on_focus_enter!, FocusEnterEvent
-      event_resolver :on_focus_leave!, FocusLeaveEvent
+      # See #on_joystick_axis!.
+      def on_joystick_axis= param
+        on_joystick_axis! do: param
+      end
+
+      # Create and attach show event resolver.
+      def on_show! ...
+        on!(ShowEvent, ...)
+      end
+
+      # See #on_show!.
+      def on_show= param
+        on_show! do: param
+      end
+
+      # Create and attach hide event resolver.
+      def on_hide! ...
+        on!(HideEvent, ...)
+      end
+
+      # See #on_hide!.
+      def on_hide= param
+        on_hide! do: param
+      end
+
+      # Create and attach focus enter event resolver.
+      def on_focus_enter! ...
+        on!(FocusEnterEvent, ...)
+      end
+
+      # See #on_focus_enter!.
+      def on_focus_enter= param
+        on_focus_enter! do: param
+      end
+
+      # Create and attach focus leave event resolver.
+      def on_focus_leave! ...
+        on!(FocusLeaveEvent, ...)
+      end
+
+      # See #on_focus_leave!.
+      def on_focus_leave= param
+        on_focus_leave! do: param
+      end
     end
   end
 end

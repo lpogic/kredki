@@ -3,35 +3,35 @@ module Kredki
   class WindowEvent < PasteleEvent
   end
 
-  # Event reported on window show.
-  class WindowShowEvent < WindowEvent
+  # Event reported on show.
+  class ShowEvent < PasteleEvent
   end
 
-  # Event reported on window hide.
-  class WindowHideEvent < WindowEvent
+  # Event reported on hide.
+  class HideEvent < PasteleEvent
   end
 
   # Event reported on window expose.
   class WindowExposeEvent < WindowEvent
   end
 
-  # Event reported on window move.
-  class WindowMoveEvent < WindowEvent
+  # Event reported on move.
+  class MoveEvent < PasteleEvent
   end
 
-  # Event reported on window resize.
-  class WindowResizeEvent < WindowEvent
+  # Event reported on resize.
+  class ResizeEvent < PasteleEvent
     
     def w
-      @abi.data1
+      @source.data1
     end
 
     def h
-      @abi.data2
+      @source.data2
     end
 
     def wh
-      [@abi.data1, @abi.data2]
+      [@source.data1, @source.data2]
     end
 
     def param
@@ -55,20 +55,12 @@ module Kredki
   class WindowRestoreEvent < WindowEvent
   end
 
-  # Event reported on mouse enter window.
-  class WindowMouseEnterEvent < WindowEvent
+  # Event reported on focus enter.
+  class FocusEnterEvent < WindowEvent
   end
 
-  # Event reported on mouse leave window.
-  class WindowMouseLeaveEvent < WindowEvent
-  end
-
-  # Event reported on window gain focus.
-  class WindowFocusGainEvent < WindowEvent
-  end
-
-  # Event reported on window lose focus.
-  class WindowFocusLoseEvent < WindowEvent
+  # Event reported on focus leave.
+  class FocusLeaveEvent < WindowEvent
   end
 
   # Event reported on window is about to close. Closing will continue if the event is not resolved.

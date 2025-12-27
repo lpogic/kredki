@@ -49,7 +49,7 @@ module Kredki
 
         # :section: LEVEL 2
 
-        def sketch_presence
+        def presence
           super
 
           Event.each(
@@ -75,7 +75,7 @@ module Kredki
             end
         end
 
-        def sketch_behavior
+        def behavior
           super
 
           on_key_down! :up do |e|

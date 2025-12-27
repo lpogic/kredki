@@ -20,10 +20,10 @@ module Kredki
 
     # Get features.
     def to_hash
-      super + {
+      super.merge({
         w: @w,
         h: @h
-      }
+      })
     end
 
     # :section: LEVEL 2

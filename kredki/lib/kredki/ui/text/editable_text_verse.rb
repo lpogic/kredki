@@ -4,58 +4,39 @@ module Kredki
   module UI
     class EditableTextVerse < NavigableText
 
-      # Create and attach edit event resolver.
-      def on_edit! ...
-        on!(EditEvent, ...)
-      end
-
-      # See #on_edit!.
-      def on_edit= param
-        on_edit! do: param
-      end
-
       # :section: LEVEL 2
 
       def paste pasted
-        report EditEvent.new @selection_min, @selection_max, pasted, :paste
+        report TextEdition::EditEvent.new @selection_min, @selection_max, pasted, :paste
       end
 
       def backspace
         if selection?
-          report EditEvent.new @selection_min, @selection_max, "", :backspace
+          report TextEdition::EditEvent.new @selection_min, @selection_max, "", :backspace
         elsif @cursor_position > 0
-          report EditEvent.new @cursor_position - 1, @cursor_position, "", :backspace
+          report TextEdition::EditEvent.new @cursor_position - 1, @cursor_position, "", :backspace
         end
       end
 
       def delete
         length = content.length
         if selection?
-          report EditEvent.new @selection_min, @selection_max, "", :delete
+          report TextEdition::EditEvent.new @selection_min, @selection_max, "", :delete
         elsif @cursor_position < length
-          report EditEvent.new @cursor_position, @cursor_position + 1, "", :delete
+          report TextEdition::EditEvent.new @cursor_position, @cursor_position + 1, "", :delete
         elsif length > 0
           backspace
         end
       end
 
-      def content! content = @content, reset_cursor = false, &b
-        super("#{content}\n".each_line(chomp: true).to_a.join, reset_cursor, &b)
+      def content! content = @content, cursor_position = 0, &b
+        super("#{content}\n".each_line(chomp: true).to_a.join, cursor_position, &b)
       end
 
-      def edit action, new_content, selection_min, selection_max
+      def edit action, new_content, new_cursor_position
         v = @verses.first
         w0 = v.w
-        c0 = v.content
-        s = content.to_s
-        s = if s == ""
-          new_content
-        elsif selection_max < s.length
-          s[...selection_min] + new_content + s[selection_max..]
-        else
-          s[...selection_min] + new_content
-        end
-        content! s, false
+        content! new_content, new_cursor_position
         case @verse_layout
         when :yss, :ysc, :yse
           nil
@@ -66,7 +47,6 @@ module Kredki
           @scene.x = 0
         else raise_is @verse_layout
         end
-        reset_cursor selection_min + new_content.length
       end
     end
   end

@@ -2,10 +2,37 @@ module Kredki
   # General event.
   class Event
 
+    # Attach few events to identical resolvers.
+    def self.each *event_managers, do: nil, &block
+      attached = block || binding.local_variable_get(:do)
+      event_managers.map{ it.attach! attached }
+    end
+
     # Make new event.
-    def initialize target = nil, resolved = false
+    def initialize source = nil, target = nil, resolved = false
+      @source = source
       @target = target
       @resolved = resolved
+    end
+
+    # Set target.
+    def target= target
+      @target = target
+    end
+
+    # Get target.
+    def target
+      @target
+    end
+
+    # Set source.
+    def source= source
+      @source = source
+    end
+
+    # Get source.
+    def source
+      @source
     end
 
     # See #param.
@@ -43,8 +70,6 @@ module Kredki
     end
 
     # :section: LEVEL 2
-
-    attr_accessor :target
 
     def inspect
       "#{self.class}:#{object_id}"

@@ -67,12 +67,12 @@ module Kredki
           keyboardy!
           outline_w! 1
           layout! :acc
-          wh! 16
+          wh! 20
           margin! 4
           suit! :gray
         end
 
-        def sketch_presence
+        def presence
           super
 
           Event.each(
@@ -92,7 +92,7 @@ module Kredki
           area.outline_fill = keyboard_in? ? :outline_focus : color.darken
         end
 
-        def sketch_behavior
+        def behavior
           super
 
           Event.each on_mouse_click!, on_key!(:space, :enter) do

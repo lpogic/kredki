@@ -4,7 +4,7 @@ module Kredki
     class XItem < Item
       # :section: LEVEL 2
 
-      def sketch_behavior
+      def behavior
         super
 
         on_key! :left do |e|

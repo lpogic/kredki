@@ -12,7 +12,7 @@ table! w: 3/4r do
 
   row! do
     cell!(layout: :aec).text! "Header 1", c
-    cell!(layout: :abc).text! "Header 2", c
+    cell!(layout: :asc).text! "Header 2", c
     cell!.text! "Header 3", c
   end
 

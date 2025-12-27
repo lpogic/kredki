@@ -1,6 +1,6 @@
 require 'kredki'
 
-layout! :xbb # how pads are positioned by default
+layout! :xss # how pads are positioned by default
 margin_i! 10 # distance between pads
 
 button! do

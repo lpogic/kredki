@@ -15,7 +15,7 @@
 #define USEREVENT_DELETEANIMATION (SDL_EVENT_USER + 6)
 #define USEREVENT_S_COUNT 7
 
-namespace pas {
+namespace pastele {
 
 class Arena
 {

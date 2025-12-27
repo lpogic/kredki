@@ -37,14 +37,14 @@ module Kredki
           clw = pad.clw
           clh = pad.clh
           sp = pad.layout_pads.map{ get_span it, it.w, it.w_limit, clw }
-          measurement, sw = spans sp, clw, pad.mi || 0
+          measurement, sw = spans sp, clw, pad.margin_i || 0
  
           pad.layout_pads.zip measurement do |p1, m|
-            ph = p1.get_h clh
+            ph = p1.get_h clh, m
             p1.set_size m, ph
           end
 
-          arrange_pads pad.arrange_pads, sw, clw, clh, pad.mi || 0
+          arrange_pads pad.arranged_pads, sw, clw, clh, pad.margin_i || 0
         end
 
         def arrange_pads pads, sw, clw, clh, space
@@ -93,7 +93,7 @@ module Kredki
         end
 
         def fit_w pad
-          space = pad.mi || 0
+          space = pad.margin_i || 0
           pad.layout_pads.map{|p1| p1.min_w }.reduce{ _1 + space + _2 } || 0
         end
       end#XWay

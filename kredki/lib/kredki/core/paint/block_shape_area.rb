@@ -5,7 +5,7 @@ module Kredki
 
     # :section: LEVEL 2
 
-    def initialize block
+    def initialize &block
       @block = block
       super()
     end

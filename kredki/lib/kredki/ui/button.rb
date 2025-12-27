@@ -74,15 +74,12 @@ module Kredki
       # :section: LEVEL 2
 
       class ButtonClickEvent < Event
-        model :origin, :<
       end
 
       class ButtonDownEvent < Event
-        model :origin, :<
       end
 
       class ButtonUpEvent < Event
-        model :origin, :<
       end
 
       def sketch
@@ -103,7 +100,7 @@ module Kredki
         margin! 3
       end
 
-      def sketch_presence
+      def presence
         super
 
         Event.each(
@@ -123,7 +120,7 @@ module Kredki
         area.outline_fill = keyboard_in? ? :outline_focus : color.darken
       end
 
-      def sketch_behavior
+      def behavior
         super
 
         Event.each on_mouse_down!(:primary), on_key_down!(:enter, :space) do |e|

@@ -3,7 +3,30 @@ require 'fiddle/import'
 module Kredki
   module Pastele
     extend Fiddle::Importer
-    
+    if $kredki_spec
+      class << self
+        alias_method :o_extern, :extern
+
+        def extern function
+          function = o_extern(function).name
+          class_eval <<~RUBY
+            class << self
+              alias_method :o_#{function}, :#{function}
+              def #{function} *a
+                calls << [:#{function}, *a]
+                o_#{function} *a
+              end
+            end
+          RUBY
+
+        end
+
+        attr_accessor :calls
+      end
+
+      self.calls = []
+    end
+
     current_lib = nil
     begin
       dlload (current_lib = $kredki_sdl || raise("$kredki_sdl not configured"))

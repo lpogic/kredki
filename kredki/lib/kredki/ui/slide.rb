@@ -3,16 +3,18 @@ module Kredki
     # A base class for controls that allows you to set a value by dragging a handle.
     class Slide < RectanglePad
 
+      class EditEvent < Event
+      end
+
+      class ChangeEvent < Event
+      end
+
       # Set value.
-      def value! v, report_change = true
-        f = v.to_f 
-        value = f.nan? ? 0 : f.clamp(0..1)
+      def value! value = @value
+        return send_ahp :value!, yield(self.value) if block_given?
         return if @value == value
         @value = value
         layer&.break_layout
-        report EditEvent.new
-        report ChangeEvent.new if report_change
-        true
       end
 
       # See #value!.
@@ -45,16 +47,6 @@ module Kredki
         @suit
       end
 
-      # Create and attach change event resolver.
-      def on_change! ...
-        on!(ChangeEvent, ...)
-      end
-
-      # See #on_change!.
-      def on_change= param
-        on_change! do: param
-      end
-
       # Create and attach edit event resolver.
       def on_edit! ...
         on!(EditEvent, ...)
@@ -63,6 +55,16 @@ module Kredki
       # See #on_edit!.
       def on_edit= param
         on_edit! do: param
+      end
+
+      # Create and attach change event resolver.
+      def on_change! ...
+        on!(ChangeEvent, ...)
+      end
+
+      # See #on_change!.
+      def on_change= param
+        on_change! do: param
       end
 
       # :section: LEVEL 2
@@ -81,7 +83,7 @@ module Kredki
         suit! :gray
       end
 
-      def sketch_presence
+      def presence
         super
 
         Event.each(
@@ -95,15 +97,15 @@ module Kredki
 
       def repaint event = nil
         color = Kredki.color @suit
-        handle.area.suit = mouse_in? ? color.lighten : color.darken
+        handle.area.fill = mouse_in? ? color.lighten : color.darken
       end
 
-      def sketch_behavior
+      def behavior
         super 
 
         on_mouse_scroll! do |e|
           jump = Kredki.keyboard.alt? ? Kredki.mouse.scrollbar_alt_speed : Kredki.mouse.scrollbar_speed
-          self.value -= jump * e.xory
+          value!{ (it - jump * e.xory).clamp(0..1) } and report EditEvent.new e
           e.resolve
         end
 
@@ -140,7 +142,7 @@ module Kredki
               x0 = sx if e.drag == :start
               start_x = layer.pin_xy[0]
               x = [[0, x0 + e.x - start_x].max, max_x].min
-              p0.value! 1.0 * x / max_x, false
+              p0.value! 1.0 * x / max_x and p0.report EditEvent.new e
               e.resolve
             end
           end
@@ -153,13 +155,12 @@ module Kredki
         h! 10
       end
 
-      def sketch_behavior
+      def behavior
         super
 
         on_mouse_down! :primary do |e|
           @handle.drag! @handle.translate(@handle.sw * 0.5, 0), :primary
           e.resolve
-          e.break
         end
       end
 
@@ -168,7 +169,7 @@ module Kredki
         lw ||= 3 * w
         hw = (w.to_f / lw * w).clamp 20, [w - 20, 20].max
         @handle.set_size hw, sh
-        @handle.set_xy (w - hw) * @value, 0
+        @handle.set_xy (w - hw) * @value.to_f.then{ it.nan? ? 0 : it.clamp(0..1) }, 0
       end
     end
 
@@ -190,7 +191,7 @@ module Kredki
               y0 = sy if e.drag == :start
               start_y = layer&.pin_xy[1]
               y = [[0, y0 + e.y - start_y].max, max_y].min
-              p0.value! 1.0 * y / max_y, false
+              p0.value! 1.0 * y / max_y and p0.report EditEvent.new e
               e.resolve
             end
           end
@@ -203,13 +204,12 @@ module Kredki
         w! 10
       end
 
-      def sketch_behavior
+      def behavior
         super
 
         on_mouse_down! :primary do |e|
           @handle.drag! @handle.translate(0, @handle.sh * 0.5), :primary
           e.resolve
-          e.break
         end
       end
 
@@ -218,7 +218,7 @@ module Kredki
         lh ||= 3 * h
         hh = (h.to_f / lh * h).clamp 20, [h - 20, 20].max
         @handle.set_size sw, hh
-        @handle.set_xy 0, (h - hh) * @value
+        @handle.set_xy 0, (h - hh) * @value.to_f.then{ it.nan? ? 0 : it.clamp(0..1) }
       end
     end
   end

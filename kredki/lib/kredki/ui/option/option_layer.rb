@@ -20,12 +20,18 @@ module Kredki
         @item_group = @pad.new ItemGroup
       end
 
+      def behavior
+        on! Item::PickEvent do |e|
+          parent.report e
+        end
+      end
+
       def arrange
         @note&.layer&.arrange
         super
       end
 
-      def load! note
+      def load note
         @note = note
         @scroll.x = proc do |pw, sw|
           x, y = *note.translate(0, note.sh)
@@ -52,7 +58,7 @@ module Kredki
         @pad[Item]&.keyboard_request
       end
 
-      def unload!
+      def unload
         pad_detach
         @note = nil
       end
@@ -62,7 +68,7 @@ module Kredki
       end
 
       def mouse_down e
-        unload!
+        unload
       end
 
       def mouse_up e

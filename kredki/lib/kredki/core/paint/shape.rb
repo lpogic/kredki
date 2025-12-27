@@ -90,7 +90,7 @@ module Kredki
       return send_ahp :fill!, yield(self.fill) if block_given?
       fill = Util.uncover fill
       return if @fill == fill && fill != :rand
-      set_fill *Kredki.color(fill)
+      Pastele.shape_set_fill_color @pointer, *Kredki.color(fill)
       @fill = fill
       update
     end
@@ -115,7 +115,7 @@ module Kredki
     def fill_rule! rule = @fill_rule
       return fill_rule! yield @fill_rule if block_given?
       return if @fill_rule == rule
-      set_fill_rule FillRule.send(rule || :winding)
+      Pastele.shape_set_fill_rule @pointer, FillRule.send(rule || :winding)
       @fill_rule = rule
       update
     end
@@ -154,7 +154,7 @@ module Kredki
       return send_ahp :outline_fill!, yield(self.outline_fill) if block_given?
       outline_fill = Util.uncover outline_fill
       return if @outline_fill == outline_fill && outline_fill != :rand
-      set_outline_fill *Kredki.color(outline_fill)
+      Pastele.shape_set_stroke_color @pointer, *Kredki.color(outline_fill)
       @outline_fill = outline_fill
       update
     end
@@ -173,7 +173,7 @@ module Kredki
     def outline_w! outline_w = @outline_w
       return outline_w! yield @outline_w if block_given?
       return if @outline_w == outline_w
-      set_outline_w outline_w.to_f
+      Pastele.shape_set_stroke_width @pointer, outline_w.to_f
       @outline_w = outline_w
       update
     end
@@ -199,7 +199,7 @@ module Kredki
     def outline_cap! outline_cap = @outline_cap
       return outline_cap! yield @outline_cap if block_given?
       return if @outline_cap == outline_cap
-      set_outline_cap OutlineCap.send(outline_cap || :square)
+      Pastele.shape_set_stroke_cap @pointer, OutlineCap.send(outline_cap || :square)
       @outline_cap = outline_cap
       update
     end
@@ -227,10 +227,10 @@ module Kredki
       return outline_join! yield @outline_join if block_given?
       return if @outline_join == outline_join
       if outline_join.is_a? Numeric
-        set_outline_join 2
-        set_outline_miter_limit outline_join
+        Pastele.shape_set_stroke_join @pointer, 2
+        Pastele.shape_set_stroke_miterlimit @pointer, outline_join
       else
-        set_outline_join OutlineJoin.send(outline_join || :bevel)
+        Pastele.shape_set_stroke_join @pointer, OutlineJoin.send(outline_join || :bevel)
       end
       @outline_join = outline_join
       update
@@ -250,7 +250,7 @@ module Kredki
     def outline_pattern! *outline_pattern
       return send_ahp :outline_pattern!, yield(self.outline_pattern) if block_given?
       return if @outline_pattern == outline_pattern
-      set_outline_pattern outline_pattern
+      Pastele.shape_set_stroke_dash @pointer, Fiddle::Pointer[outline_pattern.pack "f*"], outline_pattern.length, 0
       @outline_pattern = outline_pattern
       update
     end
@@ -268,7 +268,7 @@ module Kredki
     # Set whether outline is drawn behind the fill.
     def outline_behind! value = true
       return if (c = outline_behind) == (value = block_given? ? yield(c) : value == :not ? !c : value)
-      set_outline_behind value
+      Pastele.shape_set_paint_order @pointer, value ? 1 : 0
       @outline_behind = value
       true
     end
@@ -293,7 +293,8 @@ module Kredki
       return send_ahp :outline_trim!, yield(self.outline_trim) if block_given?
       outline_trim = Util.uncover outline_trim
       return if @outline_trim == outline_trim
-      set_outline_trim *OutlineTrim[outline_trim].to_a
+      start, finish, simultaneous = *OutlineTrim[outline_trim].to_a
+      Pastele.shape_set_stroke_trim @pointer, start, finish, simultaneous ? 1 : 0
       @outline_trim = outline_trim
       update
     end
@@ -310,22 +311,29 @@ module Kredki
 
     # Get features.
     def to_hash
-      super + {
+      super.merge({
         fill: @fill,
         outline_w: @outline_w,
         outline_fill: @outline_fill
-      }
+      })
     end
 
     # :section: LEVEL 2
 
     class OutlineTrim
-      model :start, :finish, :simultaneous
+
+      def initialize start, finish, simultaneous
+        @start = start
+        @finish = finish
+        @simultaneous = simultaneous
+      end
 
       def self.[](param)
         case param
         in self
           param
+        in [start, finish]
+          self.new start, finish, false
         in [start, finish, simultaneous]
           self.new start, finish, simultaneous
         else
@@ -340,60 +348,20 @@ module Kredki
 
     def initialize extended = false
       super Pastele.shape_new
-      ObjectSpace.define_finalizer(self, Shape.proc.finalize(@pointer))
+      ObjectSpace.define_finalizer(self, Shape.finalizer(@pointer))
 
       @outline_w = 0
       outline_join! :bevel
       @fill = Kredki.color
-      set_fill *@fill
+      Pastele.shape_set_fill_color @pointer, *@fill
       @outline_fill = Kredki.color
-      set_outline_fill *@outline_fill
+      Pastele.shape_set_stroke_color @pointer, *@outline_fill
       @is_mask = false
       update unless extended
     end
 
-    def self.finalize pointer
-      Pastele.shape_delete pointer
-    end
-
-    def set_fill r, g, b, a
-      Pastele.shape_set_fill_color @pointer, r, g, b, a
-    end
-
-    def set_fill_rule rule
-      Pastele.shape_set_fill_rule @pointer, rule
-    end
-
-    def set_outline_fill r, g, b, a
-      Pastele.shape_set_stroke_color @pointer, r, g, b, a
-    end
-
-    def set_outline_w width
-      Pastele.shape_set_stroke_width @pointer, width
-    end
-
-    def set_outline_join join
-      Pastele.shape_set_stroke_join @pointer, join
-    end
-
-    def set_outline_miter_limit limit
-      Pastele.shape_set_stroke_miterlimit @pointer, limit
-    end
-
-    def set_outline_cap cap
-      Pastele.shape_set_stroke_cap @pointer, cap
-    end
-
-    def set_outline_pattern pattern
-      Pastele.shape_set_stroke_dash @pointer, Fiddle::Pointer[pattern.pack "f*"], pattern.length, 0
-    end
-
-    def set_outline_behind behind
-      Pastele.shape_set_paint_order @pointer, behind ? 1 : 0
-    end
-
-    def set_outline_trim start, finish, simultaneous
-      Pastele.shape_set_stroke_trim @pointer, start, finish, simultaneous ? 1 : 0
+    def self.finalizer pointer
+      proc{ Pastele.shape_delete pointer }
     end
   end
 end 

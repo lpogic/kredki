@@ -6,7 +6,7 @@ module Kredki
 
         # :section: LEVEL 2
 
-        def load! item
+        def load item
           arrange
           action = parent.action
           x, y = *item.translate(0, item.sh)
@@ -19,7 +19,7 @@ module Kredki
           load_common x, y
         end
 
-        def sketch_behavior
+        def behavior
 
           on! Item::PickEvent do |e|
             if e.target.has_items?
@@ -41,35 +41,20 @@ module Kredki
         end
 
         def set_parent parent, at = nil
-          super and (
+          if super
             @parent_events&.each{ _1.detach! }
             @parent_events = []
 
 
-            @parent_events[] = parent.on_focus_enter! do |e|
-              load! parent
+            @parent_events.push = parent.on_focus_enter! do |e|
+              load parent
             end
 
-            @parent_events[] = parent.on_focus_leave! do |e|
-              unload! if loaded?
+            @parent_events.push = parent.on_focus_leave! do |e|
+              unload if loaded?
             end
-          )
+          end
         end
-
-        # def mouse_enter e
-        #   super
-        #   e.resolve
-        # end
-
-        # def mouse_leave e
-        #   super
-        #   e.resolve
-        # end
-
-        # def mouse_move e
-        #   super
-        #   e.resolve
-        # end
       end#PrimaryLayer
     end#Toolbar
   end#UI

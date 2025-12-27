@@ -65,7 +65,7 @@ module Kredki
             p1.set_size w, ph
           end
 
-          arrange_pads pad.arrange_pads, sw, clw, clh, @space || 0
+          arrange_pads pad.arranged_pads, sw, clw, clh, @space || 0
         end
   
         def prepare

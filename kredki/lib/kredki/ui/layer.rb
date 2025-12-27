@@ -21,11 +21,6 @@ module Kredki
         super
       end
 
-      # Get containing window.
-      def window
-        action.window
-      end
-
       # Extend API at runtime.
       def define ...
         action.define(...)
@@ -34,11 +29,35 @@ module Kredki
       # :section: LEVEL 2
 
       class PinData
-        model :pad, :xy, :button, :drag
+        
+        def initialize pad, xy, button, drag
+          @pad = pad
+          @xy = xy
+          @button = button
+          @drag = drag
+        end
+
+        attr_accessor :pad
+        attr_accessor :xy
+        attr_accessor :button
+        attr_accessor :drag
+
       end
 
       class MouseClickData
-        model :pad, :xy, :timestamp, :combo
+
+        def initialize pad, xy, timestamp, combo
+          @pad = pad
+          @xy = xy
+          @timestamp = timestamp
+          @combo = combo
+        end
+
+        attr_accessor :pad
+        attr_accessor :xy
+        attr_accessor :timestamp
+        attr_accessor :combo
+
       end
 
       def initialize
@@ -57,9 +76,9 @@ module Kredki
         fill! false
       end
 
-      def sketch_behavior
+      def behavior
         super
-
+        
         on_key_down! aim: true do |e|
           @down_keys[e.param || e.input_id] = true
         end
@@ -67,11 +86,11 @@ module Kredki
         on_key_up! aim: true do |e|
           if @down_keys[e.param || e.input_id]
             @down_keys[e.param || e.input_id] = false
-            keyboard_event KeyClickEvent.new e.origin
+            keyboard_event KeyClickEvent.new e
           end
         end
 
-        on! MouseClickEvent, aim: true, do: method(:mouse_click)
+        on_mouse_click! aim: true, do: method(:mouse_click)
       end
 
       def break_layout
@@ -141,7 +160,8 @@ module Kredki
 
         if @pin_data
           @pin_data.drag ||= layer_drag_check xy
-          @pin_data.pad.report MouseMoveEvent.new(@pin_data.drag, event, *xy)
+          event.drag = @pin_data.drag
+          @pin_data.pad.report event
           return true
         end
         arrange
@@ -149,11 +169,10 @@ module Kredki
         included = point_pads *xy, mouse_pads
         enter, stay, leave = *Util.polarize(mouse_pads, @mouse_pads)
         @mouse_pads = mouse_pads
-
-        leave.reverse_each{ it.report MouseLeaveEvent.new(event, *xy), false }
-        enter.reverse_each{ it.report MouseEnterEvent.new(event, *xy), false }
+        leave.reverse_each{ it.report MouseLeaveEvent.new(event), false }
+        enter.reverse_each{ it.report MouseEnterEvent.new(event), false }
         mouse_top = @mouse_pads.last
-        mouse_top.report MouseMoveEvent.new(false, event, *xy) if mouse_top
+        mouse_top.report event if mouse_top
         return included
       end
 
@@ -184,7 +203,7 @@ module Kredki
       def mouse_up e
         pin_dispose e.button.id
         if !e.drag && include_point?(e.x, e.y)
-          report MouseClickEvent.new e.origin
+          report MouseClickEvent.new e
         end
       end
 
@@ -192,13 +211,13 @@ module Kredki
         if @mouse_click_data && 
           @mouse_click_data.pad == event.target && 
           !event.target.drag_check(@mouse_click_data.xy, event.xy) && 
-          event.origin.timestamp - @mouse_click_data.timestamp < 200000000
+          event.timestamp - @mouse_click_data.timestamp < 200000000
         then
           combo = @mouse_click_data.combo + 1
         else
           combo = 1
         end
-        @mouse_click_data = MouseClickData.new event.target, event.xy, event.origin.timestamp, combo
+        @mouse_click_data = MouseClickData.new event.target, event.xy, event.timestamp, combo
       end
 
       def pin_pad
@@ -228,7 +247,8 @@ module Kredki
           end
         else
           @pin_data = nil
-          layer.update_mouse_location PositionEvent.new *Kredki.mouse.xy
+          xy ||= window.mouse_xy
+          layer.update_mouse_location PositionEvent.new *xy
         end
         true
       end      

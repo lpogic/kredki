@@ -72,7 +72,7 @@ module Kredki
 
     # Create and attach mouse enter event resolver.
     def on_mouse_enter! ...
-      on!(WindowMouseEnterEvent, ...)
+      on!(MouseEnterEvent, ...)
     end
 
     # See #on_mouse_enter!.
@@ -82,7 +82,7 @@ module Kredki
 
     # Create and attach mouse leave event resolver.
     def on_mouse_leave! ...
-      on!(WindowMouseLeaveEvent, ...)
+      on!(MouseLeaveEvent, ...)
     end
 
     # See #on_mouse_leave!.
@@ -92,7 +92,7 @@ module Kredki
 
     # Create and attach mouse move event resolver.
     def on_mouse_move! ...
-      on!(WindowMouseEnterEvent, ...)
+      on!(WindowMouseMoveEvent, ...)
     end
 
     # See #on_mouse_move!.
@@ -228,7 +228,7 @@ module Kredki
 
     # Create and attach window move event resolver.
     def on_window_move! ...
-      on!(WindowMoveEvent, ...)
+      on!(MoveEvent, ...)
     end
 
     # See #on_window_move!.
@@ -238,7 +238,7 @@ module Kredki
 
     # Create and attach window resize event resolver.
     def on_window_resize! ...
-      on!(WindowResizeEvent, ...)
+      on!(ResizeEvent, ...)
     end
 
     # See #on_window_resize!.
@@ -298,7 +298,7 @@ module Kredki
 
     # Create and attach focus enter event resolver.
     def on_focus_enter! ...
-      on!(WindowFocusGainEvent, ...)
+      on!(FocusEnterEvent, ...)
     end
 
     # See #on_focus_enter!.
@@ -308,7 +308,7 @@ module Kredki
 
     # Create and attach focus leave event resolver.
     def on_focus_leave! ...
-      on!(WindowFocusLoseEvent, ...)
+      on!(FocusLeaveEvent, ...)
     end
 
     # See #on_focus_leave!.

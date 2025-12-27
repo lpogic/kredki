@@ -14,7 +14,7 @@ module Kredki
 
         # See #w!.
         def w= param
-          send_ahp, :w!, param
+          send_ahp :w!, param
         end
 
         # Get width.

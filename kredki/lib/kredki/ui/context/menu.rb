@@ -43,7 +43,7 @@ module Kredki
         end
 
         # See #w!.
-        def w= param,
+        def w= param
           send_ahp :w!, param
         end
 
@@ -58,7 +58,7 @@ module Kredki
         end
 
         # See #h!.
-        def h= param,
+        def h= param
           send_ahp :h!, param
         end
 
@@ -73,7 +73,7 @@ module Kredki
         end
 
         # See #wh!.
-        def wh= param,
+        def wh= param
           send_ahp :wh!, param
         end
 
@@ -91,22 +91,22 @@ module Kredki
         end
 
         def set_parent parent, at = nil
-          super and (
+          if super
             @parent_events&.each{ _1.detach! }
             @parent_events = []
 
-            @parent_events[] = parent.on_mouse_click! :secondary do |e|
-              @context_layer.load! *e.xy
+            @parent_events.push = parent.on_mouse_click! :secondary do |e|
+              @context_layer.load *e.xy
               @context_layer[Item]&.keyboard_request
               e.resolve
             end
       
-            @parent_events[] = parent.on_key! :context do |e|
-              @context_layer.load! *parent.translate(parent.sx / 2, parent.sy / 2)
+            @parent_events.push = parent.on_key! :context do |e|
+              @context_layer.load *parent.translate(parent.sx / 2, parent.sy / 2)
               @context_layer[Item]&.keyboard_request
               e.resolve
             end
-          )
+          end
         end
 
       end#Menu

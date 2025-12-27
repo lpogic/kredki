@@ -39,7 +39,7 @@ KredkiProc = proc do
   convar = Thread::ConditionVariable.new
   Thread.new do
     arena = Kredki.arena!
-    A = arena.window!
+    A = arena.window!(show: false).action[Kredki::UI::Layer]
     module Kredki
       module Extend
         extend Forwardable
@@ -78,8 +78,10 @@ KredkiProc = proc do
     kredki_workspace = KredkiWorkSpace.new binding
     IRB.CurrentContext.replace_workspace kredki_workspace
     IRB.conf[:AT_EXIT] << proc{ kredki_workspace.evaluate :exit }
+    Kredki.run_ms = Pastele.sdl_get_ticks
     loop!{ kredki_workspace.release }
     mutex.synchronize{ convar.signal }
+    window.show!
     arena.run!
   end
 

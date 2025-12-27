@@ -1,6 +1,14 @@
 module Kredki
   class Window
 
+    def show!
+      Pastele.window_show @pointer
+    end
+
+    def hide!
+      Pastele.window_hide @pointer
+    end
+
     # Break event loop.
     def terminate! result = nil
       @arena&.terminate! result
@@ -236,26 +244,33 @@ module Kredki
       !!top
     end
 
-    # Set whether the cursor is confined to the window.
-    def grab! value = true
-      return if (c = grab) == (value = block_given? ? yield(c) : value == :not ? !c : value)
-      Pastele.window_set_mouse_grab @pointer, value ? 1 : 0
+    # Get mouse cursor position relative to the window [0, 0].
+    def mouse_xy
+      x, y = Kredki.mouse.xy
+      wx, wy = window.xy
+      [x - wx, y - wy]
+    end
+
+    # Set whether mouse cursor is confined to the window.
+    def mouse_grab! value = true
+      return if (c = mouse_grab) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+      Pastele.window_set_mouse_mouse_grab @pointer, value ? 1 : 0
       true
     end
 
-    # See #grab!.
-    def grab= value
-      grab! value
+    # See #mouse_grab!.
+    def mouse_grab= value
+      mouse_grab! value
     end
     
-    # Get whether the cursor is confined to the window.
-    def grab
+    # Get whether mouse cursor is confined to the window.
+    def mouse_grab
       Pastele.window_get_mouse_grab(@pointer) != 0
     end
 
-    # See #grab.
-    def grab?
-      !!grab
+    # See #mouse_grab.
+    def mouse_grab?
+      !!mouse_grab
     end
 
     # Set whether relative mouse mode is on.
@@ -301,7 +316,8 @@ module Kredki
     end
 
     # Set and build current action.
-    def action! action = Window.default_action, ...
+    def action! action = nil, ...
+      action ||= Window.default_action
       if action.is_a? Class
         action = action.new
         set_action action
@@ -332,6 +348,11 @@ module Kredki
       @arena&.remove_window self
     end
 
+    def to_png filepath
+      action&.arrange
+      Pastele.window_surface_to_png @pointer, File.expand_path(filepath)
+    end
+
     # :section: LEVEL 2
 
     def initialize w = 400, h = 400
@@ -339,7 +360,7 @@ module Kredki
       @arena = nil
       @action = nil
       @mouse_in = nil
-      ObjectSpace.define_finalizer(self, Window.proc.finalize(@pointer))
+      ObjectSpace.define_finalizer(self, Window.finalizer(@pointer))
     end
 
     class << self
@@ -348,8 +369,8 @@ module Kredki
 
     self.default_action = Action
 
-    def self.finalize pointer
-      Pastele.window_delete pointer
+    def self.finalizer pointer
+      proc{ Pastele.window_delete pointer }
     end
 
     attr_accessor :arena

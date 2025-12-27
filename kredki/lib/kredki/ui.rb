@@ -1,4 +1,4 @@
-require_relative 'core'
+require_relative 'module'
 
 module Kredki
   module UI

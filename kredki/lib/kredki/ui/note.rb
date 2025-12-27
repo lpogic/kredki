@@ -7,9 +7,9 @@ module Kredki
       include TextEdition
 
       # Set text content.
-      def content! string = "", cursor = false
+      def content! string = ""
         return send_ahp :content!, yield(self.content) if block_given?
-        @verse.content! string, cursor
+        @verse.content! string
       end
 
       # See #content!.
@@ -44,7 +44,7 @@ module Kredki
 
       # Set verse features.
       def verse! ...
-        @verse.verse(...)
+        @verse.verse!(...)
       end
 
       # See #verse!.
@@ -54,7 +54,7 @@ module Kredki
       
       # Set verse size.
       def verse_size! ...
-        @verse.verse_size(...)
+        @verse.verse_size!(...)
       end
 
       # See #verse_size!.
@@ -69,7 +69,7 @@ module Kredki
 
       # Set verse layout.
       def verse_layout! ...
-        @verse.verse_layout(...)
+        @verse.verse_layout!(...)
       end
 
       # See #verse_layout!.
@@ -80,6 +80,11 @@ module Kredki
       # Get verse layout.
       def verse_layout
         @verse.verse_layout
+      end
+
+      # Get content after applying edit event.
+      def content_after_edit e
+        @verse.content_after_edit e
       end
 
       # Push the feature.
@@ -137,7 +142,7 @@ module Kredki
         text_edition @verse, false
       end
 
-      def sketch_presence
+      def presence
         super
 
         Event.each(

@@ -5,7 +5,7 @@ module Kredki
     def content! content = @content
       return content! yield @content if block_given?
       return if @content == content
-      set_content content.to_s
+      Pastele.text_set_text @pointer, content.to_s
       @content = content
       update_size
     end
@@ -29,7 +29,7 @@ module Kredki
     def h! h = @h
       return h! yield @h if block_given?
       return if @h == h
-      set_size h
+      Pastele.text_set_size @pointer, h
       @h = h
       update_size
     end
@@ -53,7 +53,7 @@ module Kredki
     def font! font
       return font! yield @font if block_given?
       return if @font == font
-      set_font Kredki.font(font).name
+      Pastele.text_set_font @pointer, Kredki.font(font).name
       @font = font
       update_size
     end
@@ -73,7 +73,7 @@ module Kredki
       return send_ahp :fill!, yield(self.fill) if block_given?
       fill = Util.uncover fill
       return if @fill == fill && fill != :rand
-      set_fill *Kredki.color(fill).to_a(:rgb)
+      Pastele.text_set_fill_color @pointer, *Kredki.color(fill).to_a(:rgb)
       @fill = fill
       update
     end
@@ -102,9 +102,6 @@ module Kredki
     # Push the feature.
     def << feature
       case feature
-      in [content, h]
-        content! content
-        h! h
       in String
         content! feature
       in Numeric
@@ -118,21 +115,21 @@ module Kredki
 
     def initialize
       super Pastele.text_new
-      ObjectSpace.define_finalizer(self, Text.proc.finalize(@pointer))
+      ObjectSpace.define_finalizer(self, Text.finalizer(@pointer))
 
       @content = "TEXT"
       @font = Kredki.font
       @fill = Kredki.color
       @h = 16
-      set_content @content
-      set_font @font.name
-      set_size @h
-      set_fill *@fill.to_a(:rgb)
+      Pastele.text_set_text @pointer, @content
+      Pastele.text_set_font @pointer, @font.name
+      Pastele.text_set_size @pointer, @h
+      Pastele.text_set_fill_color @pointer, *@fill.to_a(:rgb)
       update_size
     end
 
-    def self.finalize pointer
-      Pastele.text_delete pointer
+    def self.finalizer pointer
+      proc{ Pastele.text_delete pointer }
     end
 
     def pivot_xy
@@ -145,20 +142,5 @@ module Kredki
       update
     end
 
-    def set_content content
-      Pastele.text_set_text @pointer, content
-    end
-
-    def set_font font_name
-      Pastele.text_set_font @pointer, font_name
-    end
-
-    def set_size size
-      Pastele.text_set_size @pointer, size
-    end
-
-    def set_fill r, g, b
-      Pastele.text_set_fill_color @pointer, r, g, b
-    end
   end
 end

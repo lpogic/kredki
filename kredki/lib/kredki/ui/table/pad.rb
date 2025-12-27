@@ -24,7 +24,7 @@ module Kredki
 
         # Add new scroll rows.
         def scroll_rows! ...
-          new(ScrollRows, layout: :yss, mi: mi).alter(...)
+          new(ScrollRows, layout: :yss, margin_i: margin_i).alter(...)
         end
 
         # Set gap between columns.

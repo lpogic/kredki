@@ -12,7 +12,7 @@ module Kredki
     def initialize ptr, abi
       super abi
 
-      @text = @abi.text.to_s.force_encoding("utf-8")
+      @text = @source.text.to_s.force_encoding("utf-8")
     end
 
     def param

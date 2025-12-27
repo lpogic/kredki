@@ -2,14 +2,22 @@ module Kredki
   # Represents an picture that may change over time.
   class Animation
 
-    # Set content.
-    def content! content = @content
-      return content! yield @content if block_given?
-      return if @content == content
-      set_content content
-      @content = content
-      @picture.update
+    def content! ...
+      if @picture.content!(...)
+        @total_frame = Pastele.animation_get_total_frame @pointer
+        true
+      end
     end
+
+    # # Set content.
+    # def content! content = @content
+    #   return content! yield @content if block_given?
+    #   return if @content == content
+    #   Pastele.picture_load @picture.pointer, content.to_s
+    #   @total_frame = Pastele.animation_get_total_frame @pointer
+    #   @content = content
+    #   @picture.update
+    # end
 
     # See #content!.
     def content= param
@@ -133,7 +141,7 @@ module Kredki
 
     # Set current animation frame.
     def frame! frame_index
-      set_frame frame_index
+      Pastele.animation_set_frame @pointer, frame_index
       @picture.update
     end
 
@@ -142,7 +150,7 @@ module Kredki
 
     # Get animation duration in milliseconds.
     def duration
-      (get_duration * 1000).to_i
+      (Pastele.animation_get_duration(@pointer) * 1000).to_i
     end
 
     # Run animation in given play mode.
@@ -250,7 +258,7 @@ module Kredki
 
     def initialize
       @pointer = Pastele.animation_new
-      ObjectSpace.define_finalizer(self, Animation.proc.finalize(@pointer))
+      ObjectSpace.define_finalizer(self, Animation.finalizer(@pointer))
 
       @picture = Picture.new Pastele.animation_get_picture @pointer
       @play = false
@@ -259,8 +267,8 @@ module Kredki
       @on_end = EventManager.new
     end
 
-    def self.finalize pointer
-      Pastele.animation_delete pointer
+    def self.finalizer pointer
+      proc{ Pastele.animation_delete pointer }
     end
 
     attr :pointer
@@ -332,25 +340,12 @@ module Kredki
       false
     end
 
-    def set_content content
-      Pastele.picture_load @picture.pointer, content
-      @total_frame = Pastele.animation_get_total_frame @pointer
-    end
-
-    def set_frame frame
-      Pastele.animation_set_frame @pointer, frame
-    end
-
     def set_show show
       @picture.set_show show
     end
   
     def get_show
       @picture.get_show
-    end
-
-    def get_duration
-      Pastele.animation_get_duration @pointer
     end
   end
 end

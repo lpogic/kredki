@@ -9,10 +9,13 @@ module Kredki
     def content! content, pull_size = false
       return content! yield @content if block_given?
       return if @content == content
-      set_content content.to_s
+      Pastele.picture_load @pointer, content.to_s
       @content = content
+      w, h = get_size
+      @aspect_ratio = w / h
       if pull_size
-        @w, @h = get_size
+        @w = w
+        @h = h
         update_transform
       else
         @redraw_flag = true
@@ -48,28 +51,25 @@ module Kredki
 
     def initialize pointer = nil
       @w = @h = 100
+      @aspect_ratio = 1.0
       @redraw_flag = true
       return super if pointer
       super Pastele.picture_new
-      ObjectSpace.define_finalizer(self, self.class.proc.finalize(@pointer))
+      ObjectSpace.define_finalizer(self, Picture.finalizer(@pointer))
     end
 
-    def self.finalize pointer
-      Pastele.paint_delete pointer
+    def self.finalizer pointer
+      proc{ Pastele.paint_delete pointer }
     end
 
-    def set_size x, y
-      Pastele.picture_set_size @pointer, x, y
+    def aspect_ratio
+      @aspect_ratio
     end
 
     def get_size
       size = Pastele::Point.malloc(Fiddle::RUBY_FREE)
       Pastele.picture_get_size @pointer, size
       [size.x, size.y]
-    end
-
-    def set_content content
-      Pastele.picture_load @pointer, content
     end
 
     def pivot_xy
@@ -79,7 +79,7 @@ module Kredki
     def update
       if @redraw_flag
         @redraw_flag = false
-        set_size @w, @h
+        Pastele.picture_set_size @pointer, @w, @h
         update_transform
       end
       super

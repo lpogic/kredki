@@ -18,13 +18,23 @@ module Kredki
 
       # Create/Update dropdown.
       def dropdown! ...
-        @dropdown ||= new OptionLayer, at: false
+        @dropdown ||= new OptionLayer
         @dropdown.alter(...)
       end
 
       # Get dropdown.
       def dropdown
         @dropdown
+      end
+
+      # Create and attach pick event resolver.
+      def on_pick! ...
+        on!(Item::PickEvent, ...)
+      end
+
+      # See #on_pick!.
+      def on_pick= param
+        on_pick! do: param
       end
 
       # :section: LEVEL 2
@@ -39,7 +49,7 @@ module Kredki
           keyboardy! false
           text.detach!
           new RectanglePad, mousy: false, keyboardy: false, fill: 0, wh: 1r do
-            outline! fill: :text, w: 3, cap: :round, join: :miter
+            outline! fill: :text, w: 3, cap: :round
             area! do |w, h|
               xy! w * 0.2, h * 0.35
               line! w * 0.5, h * 0.65
@@ -57,19 +67,28 @@ module Kredki
         dropdown!
       end
 
-      def sketch_behavior
+      def behavior
         super
 
         Event.each on_key!(:enter) do
-          @dropdown.load! self unless @dropdown.loaded?
+          @dropdown.load self unless @dropdown.loaded?
         end
 
-        Event.each on_move!, on_resize! do |e|
-          @dropdown.break_layout
+        # Event.each on_move!, on_resize! do |e|
+        #   @dropdown.break_layout
+        # end
+
+        on_mouse_click! :primary do
+          @dropdown.load self unless @dropdown.loaded?
         end
 
-        @arrow.on_mouse_click! :primary do
-          @dropdown.load! self unless @dropdown.loaded?
+        @arrow.on_mouse_click! :primary do |e|
+          if @dropdown.loaded?
+            @dropdown.unload
+          else
+            @dropdown.load self
+          end
+          e.resolve
         end
 
         @arrow.on_mouse_move! do
@@ -78,18 +97,20 @@ module Kredki
           end
         end
 
-        @dropdown.on! Item::PickEvent do |e|
-          @dropdown.unload!
-          @note.content! e.param, :end
+        on_pick! do |e|
+          @dropdown.unload
+          content = e.target.content
+          @note.content! content
+          @note.verse.set_cursor content.to_s.length
         end
 
         @dropdown.on_key! :escape do
-          @dropdown.unload!
+          @dropdown.unload
           it.resolve
         end
 
         on_focus_leave! do
-          @dropdown.unload!
+          @dropdown.unload
         end
       end
     end

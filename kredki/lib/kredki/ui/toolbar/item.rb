@@ -11,11 +11,10 @@ module Kredki
           dropdown!.item_group.item!(...)
         end
 
-        # Alter dropdown.
+        # Create/Update dropdown.
         def dropdown! ...
-          @dropdown ||= new PrimaryLayer, at: false
+          @dropdown ||= new PrimaryLayer
           @dropdown.alter(...)
-          true
         end
 
         # See #dropdown!.
@@ -30,7 +29,7 @@ module Kredki
 
         # Get whether has any item.
         def has_items?
-          @dropdown&.[](Item)
+          @dropdown&.[](Context::Item)
         end
 
         # :section: LEVEL 2
@@ -44,22 +43,22 @@ module Kredki
         def sketch
           super
 
-          margin_x! 2
+          margin_x! 5
         end
 
-        def sketch_behavior
+        def behavior
           super
 
           on_key_down! :down, :up, :enter, :space do |e|
             if @dropdown
-              @dropdown.load! self unless @dropdown.loaded?
+              @dropdown.load self unless @dropdown.loaded?
               @dropdown[Item]&.keyboard_request and e.resolve
             end
           end
 
-          on_click! do |e|
+          on_mouse_click! do |e|
             if @dropdown
-              @dropdown.load! self unless @dropdown.loaded?
+              @dropdown.load self unless @dropdown.loaded?
             end
           end
         end

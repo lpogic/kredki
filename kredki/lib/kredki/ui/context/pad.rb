@@ -18,7 +18,7 @@ module Kredki
           super
 
           wh! :fit
-          layout! Y
+          layout! :yss
         end
       end
     end

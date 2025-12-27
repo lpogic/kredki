@@ -66,7 +66,7 @@ module Kredki
 
         # See #level!.
         def level= param
-          send_ahp :level!, param,
+          send_ahp :level!, param
         end
         
         # Get level
@@ -84,7 +84,7 @@ module Kredki
           super
 
           @level_pad = new RectanglePad, at: 0, fill: 0, h: 1r, w: 16 do
-            outline! fill: :text, w: 2, cap: :round, join: :miter
+            outline! fill: :text, w: 2, cap: :round
           end
         end
 

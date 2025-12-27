@@ -1,16 +1,9 @@
 require_relative 'service'
-require_relative 'pad_event_manager'
-require_relative 'pad_events'
-require_relative 'pad_base'
-require_relative 'pad_inherited'
 
 module Kredki
   module UI
     # Base class of visible UI tree nodes.
     class Pad < Service
-      include PadBase
-      include PadEvents
-      extend PadInherited
 
       # Set position along the X axis.
       def x! x = @x
@@ -412,21 +405,24 @@ module Kredki
         @scene.mag
       end
 
-      # Set area. Creates new Kredki::BlockShapeArea if +area+ is nil.
-      def area! area = nil, &block
-        if block
-          if area
-            area.alter &block
-          else
-            area = BlockShapeArea.new block
-          end
+      # [Create] and attach area and optionally clip area.
+      def area! area = BlockShapeArea, clip: :auto, &block
+        a = Class === area ? area.new(&block) : area
+        unless @area == a
+          a.alter_kw **@area
+          a.attach! @scene, true, @area
+          @area.detach!
+          @area = a
+          true
+        end | 
+        case clip
+        when :auto
+          clip_area! area, &block if Class === area
+        when false, nil
+          false
+        else
+          clip_area! area, &block
         end
-        return if @area == area
-        area.alter_kwr **@area
-        area.attach! @scene, true, @area
-        @area.detach!
-        @area = area
-        true
       end
 
       # See #area!.
@@ -439,19 +435,13 @@ module Kredki
         @area
       end
 
-      # Set clip area. Creates new Kredki::BlockShapeArea if +area+ is nil.
+      # [Create] and attach clip area.
       def clip_area! area = nil, &block
-        if block
-          if area
-            area.alter &block
-          else
-            area = BlockShapeArea.new block
-          end
-        end
-        return if @clip_area == area
-        area.alter_kwr **@clip_area
-        @clip_scene.clip! area
-        @clip_area = area
+        a = Class === area ? area.new(&block) : area
+        return if @clip_area == a
+        a.alter_kw **@clip_area
+        @clip_scene.clip! a
+        @clip_area = a
         true
       end
 
@@ -644,9 +634,11 @@ module Kredki
       
       # Begin drag.
       def drag! start_xy = nil, button = nil
-        mouse_xy = Kredki.mouse.xy
+        mouse_xy = window.mouse_xy
         pin_request start_xy || mouse_xy, button, true
-        report MouseMoveEvent.new(:start, nil, *mouse_xy)
+        event = MouseMoveEvent.new Kredki.mouse, PositionEvent.new(*mouse_xy)
+        event.drag = :start
+        report event
       end
 
       # Detach all contained pads.
@@ -714,20 +706,20 @@ module Kredki
         @pads.map{ [it, it.pad_tree] }.to_h
       end
 
-      def sketch_pad
+      def sketch_service
         sketch
-        sketch_presence
-        sketch_behavior
+        presence
+        behavior
       end
 
       def sketch
       end
 
-      def sketch_presence
+      def presence
         @clip_scene.clip! @clip_area
       end
 
-      def sketch_behavior
+      def behavior
         on_mouse_down! do: method(:mouse_down)
         on_mouse_up! do: method(:mouse_up)
         on_mouse_enter! do: method(:mouse_enter)
@@ -760,7 +752,7 @@ module Kredki
       def mouse_up e
         pin_dispose e.button.id
         if !e.drag && include_point?(*layer.translate(*e.xy, self))
-          report MouseClickEvent.new e.origin
+          report MouseClickEvent.new e
         end
         e.resolve
       end
@@ -941,7 +933,7 @@ module Kredki
         pads.filter{ it.layoutic? }
       end
 
-      def arrange_pads
+      def arranged_pads
         pads
       end
 
@@ -955,6 +947,10 @@ module Kredki
 
       def min_w
         m = @margin_xs + @margin_xe
+        [min_wv(m), min_wl(m)].max
+      end
+
+      def min_wv m
         w = case @w
         when Rational, Proc
           m
@@ -967,7 +963,10 @@ module Kredki
         else
           raise_is @w
         end
-        w_min = case @w_limit
+      end
+
+      def min_wl m
+        case @w_limit
         when Rational, Proc
           m
         when :fit
@@ -979,28 +978,27 @@ module Kredki
         else
           w
         end
-        [w, w_min].max
       end
 
-      def get_w tw = nil
-        get_wl @w, @w_limit, tw
+      def get_w tw = nil, h = nil
+        get_wl @w, @w_limit, tw, h
       end
 
-      def get_wl w, l, tw
-        cw = get_wv w, tw
+      def get_wl w, l, tw, h = nil
+        cw = get_wv w, tw, h
         case l
         when nil
           cw
         when Range
-          cw = [cw, get_wv(l.begin, tw)].max if l.begin
-          cw = [cw, get_wv(l.end, tw)].min if l.end
+          cw = [cw, get_wv(l.begin, tw, h)].max if l.begin
+          cw = [cw, get_wv(l.end, tw, h)].min if l.end
           cw
         else
-          [cw, get_wv(l, tw)].min
+          [cw, get_wv(l, tw, h)].min
         end
       end
 
-      def get_wv w, tw
+      def get_wv w, tw, h = nil
         case w
         when Rational
           (tw || @pad_parent.get_w) * w
@@ -1023,7 +1021,11 @@ module Kredki
 
       def min_h
         m = @margin_ys + @margin_ye
-        h = case @h
+        [min_hv(m), min_hl(m)].max
+      end
+
+      def min_hv m
+        case @h
         when Rational, Proc
           m
         when :fit
@@ -1035,7 +1037,10 @@ module Kredki
         else
           raise_is @h
         end
-        h_min = case @h_limit
+      end
+
+      def min_hl m
+        case @h_limit
         when Rational, Proc
           m
         when :fit
@@ -1047,28 +1052,27 @@ module Kredki
         else
           h
         end
-        [h, h_min].max
       end
 
-      def get_h th = nil
-        get_hl @h, @h_limit, th
+      def get_h th = nil, w = nil
+        get_hl @h, @h_limit, th, w
       end
 
-      def get_hl h, l, th
-        ch = get_hv h, th
+      def get_hl h, l, th, w = nil
+        ch = get_hv h, th, w
         case l
         when nil
           ch
         when Range
-          ch = [ch, get_hv(l.begin, th)].max if l.begin
-          ch = [ch, get_hv(l.end, th)].min if l.end
+          ch = [ch, get_hv(l.begin, th, w)].max if l.begin
+          ch = [ch, get_hv(l.end, th, w)].min if l.end
           ch
         else
-          [ch, get_hv(l, th)].min
+          [ch, get_hv(l, th, w)].min
         end
       end
 
-      def get_hv h, th
+      def get_hv h, th, w = nil
         case h
         when Rational
           (th || @pad_parent.get_h) * h

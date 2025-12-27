@@ -57,32 +57,32 @@ CABI int16_t joystick_get_axis_value(int device_id, int axis_index) {
 }
 
 CABI void* arena_new(void) {
-    return new pas::Arena;
+    return new pastele::Arena;
 }
 
-CABI void arena_delete(pas::Arena* self) {
+CABI void arena_delete(pastele::Arena* self) {
     delete self;
 }
 
-CABI uint32_t arena_insert_window(pas::Arena* self, pas::Window* window) {
+CABI uint32_t arena_insert_window(pastele::Arena* self, pastele::Window* window) {
     self->insertWindow(window);
     return SDL_GetWindowID(window->sdl_window);
 }
 
-CABI uint32_t arena_erase_window(pas::Arena* self, pas::Window* window) {
+CABI uint32_t arena_erase_window(pastele::Arena* self, pastele::Window* window) {
     self->eraseWindow(window);
     return SDL_GetWindowID(window->sdl_window);
 }
 
-CABI void arena_set_event_handler(pas::Arena* self, int(*eventHandler)(int, SDL_Event*)) {
+CABI void arena_set_event_handler(pastele::Arena* self, int(*eventHandler)(int, SDL_Event*)) {
     self->setEventHandler(eventHandler);
 }
 
-CABI void arena_run(pas::Arena* self) {
+CABI void arena_run(pastele::Arena* self) {
     self->run();
 }
 
-CABI void arena_terminate(pas::Arena* self) {
+CABI void arena_terminate(pastele::Arena* self) {
     self->terminate();
 }
 
@@ -91,138 +91,150 @@ CABI void* window_new(int width, int height) {
     // tvg::CanvasEngine engine = tvg::CanvasEngine::Sw;
     // switch(engine) {
     //     case tvg::CanvasEngine::Gl:
-    //         return new pas::GlWindow(width, height);
+    //         return new pastele::GlWindow(width, height);
     //     case tvg::CanvasEngine::Wg:
-    //         return new pas::WgWindow(width, height);
+    //         return new pastele::WgWindow(width, height);
     //     case tvg::CanvasEngine::Sw:
     //     default:
-    //         return new pas::SwWindow(width, height);
+    //         return new pastele::SwWindow(width, height);
     // }
-    return new pas::SwWindow(width, height);
+    return new pastele::SwWindow(width, height);
 }
 
-CABI void window_delete(pas::Window* self) {
+CABI void window_delete(pastele::Window* self) {
     self->planDelete();
 }
 
-CABI void window_update(pas::Window* self) {
+CABI void window_update(pastele::Window* self) {
     self->planUpdate();
 }
 
-CABI void window_set_scene(pas::Window* self, tvg::Scene* scene) {
+CABI void window_show(pastele::Window* self) {
+    self->show();
+}
+
+CABI void window_hide(pastele::Window* self) {
+    self->hide();
+}
+
+CABI void window_set_scene(pastele::Window* self, tvg::Scene* scene) {
     self->setScene(scene);
 }
 
-CABI void window_paint_to_update(pas::Window* self, tvg::Paint* paint) {
+CABI void window_paint_to_update(pastele::Window* self, tvg::Paint* paint) {
     self->paintToUpdate(paint);
 }
 
-CABI void window_maximize(pas::Window* self) {
+CABI void window_maximize(pastele::Window* self) {
     self->maximize();
 }
 
-CABI void window_minimize(pas::Window* self) {
+CABI void window_minimize(pastele::Window* self) {
     self->minimize();
 }
 
-CABI void window_focus(pas::Window* self) {
+CABI void window_focus(pastele::Window* self) {
     self->focus();
 }
 
-CABI void window_restore(pas::Window* self) {
+CABI void window_restore(pastele::Window* self) {
     self->restore();
 }
 
-CABI void window_set_bordered(pas::Window* self, int bordered) {
+CABI void window_set_bordered(pastele::Window* self, int bordered) {
     self->setBordered(bordered);
 }
 
-CABI void window_set_fullscreen(pas::Window* self, int fullscreen) {
+CABI void window_set_fullscreen(pastele::Window* self, int fullscreen) {
     self->setFullscreen(fullscreen);
 }
 
-CABI void window_set_mouse_grab(pas::Window* self, int grab) {
+CABI void window_set_mouse_grab(pastele::Window* self, int grab) {
     self->setGrab(grab);
 }
 
-CABI int window_get_mouse_grab(pas::Window* self) {
+CABI int window_get_mouse_grab(pastele::Window* self) {
     return (int) self->getGrab();
 }
 
-CABI void window_set_mouse_relative_mode(pas::Window* self, int set) {
+CABI void window_set_mouse_relative_mode(pastele::Window* self, int set) {
     self->setMouseRelativeMode(set);
 }
 
-CABI int window_get_mouse_relative_mode(pas::Window* self) {
+CABI int window_get_mouse_relative_mode(pastele::Window* self) {
     return (int) self->getMouseRelativeMode();
 }
 
-CABI void window_set_minimum_size(pas::Window* self, int w, int h) {
+CABI void window_set_minimum_size(pastele::Window* self, int w, int h) {
     self->setMinimumSize(w, h);
 }
 
-CABI void window_set_maximum_size(pas::Window* self, int w, int h) {
+CABI void window_set_maximum_size(pastele::Window* self, int w, int h) {
     self->setMaximumSize(w, h);
 }
 
-CABI void window_get_minimum_size(pas::Window* self, IntPoint* point) {
+CABI void window_get_minimum_size(pastele::Window* self, IntPoint* point) {
     self->getMinimumSize(&point->x, &point->y);
 }
 
-CABI void window_get_maximum_size(pas::Window* self, IntPoint* point) {
+CABI void window_get_maximum_size(pastele::Window* self, IntPoint* point) {
     self->getMaximumSize(&point->x, &point->y);
 }
 
-CABI void window_set_opacity(pas::Window* self, float opacity) {
+CABI void window_set_opacity(pastele::Window* self, float opacity) {
     self->setOpacity(opacity);
 }
 
-CABI float window_get_opacity(pas::Window* self) {
+CABI float window_get_opacity(pastele::Window* self) {
     return self->getOpacity();
 }
 
-CABI void window_set_position(pas::Window* self, int x, int y) {
+CABI void window_set_position(pastele::Window* self, int x, int y) {
     self->setPosition(x, y);
 }
 
-CABI void window_set_resizable(pas::Window* self, int resizable) {
+CABI void window_set_resizable(pastele::Window* self, int resizable) {
     self->setResizable(resizable);
 }
 
-CABI void window_set_size(pas::Window* self, int w, int h) {
+CABI void window_set_size(pastele::Window* self, int w, int h) {
     self->setSize(w, h);
 }
 
-CABI void window_set_title(pas::Window* self, char* title) {
+CABI void window_set_title(pastele::Window* self, char* title) {
     self->setTitle(title);
 }
 
-CABI const char* window_get_title(pas::Window* self) {
+CABI const char* window_get_title(pastele::Window* self) {
     return self->getTitle();
 }
 
-CABI void window_set_always_on_top(pas::Window* self, int on_top) {
+CABI void window_set_always_on_top(pastele::Window* self, int on_top) {
     self->setAlwaysOnTop(on_top);
 }
 
-CABI void window_get_size(pas::Window* self, IntPoint* point) {
+CABI void window_get_size(pastele::Window* self, IntPoint* point) {
     self->getSize(&point->x, &point->y);
 }
 
-CABI void window_get_position(pas::Window* self, IntPoint* point) {
+CABI void window_get_position(pastele::Window* self, IntPoint* point) {
     self->getPosition(&point->x, &point->y);
 }
 
-CABI void window_set_text_input(pas::Window* self, int input) {
+CABI void window_set_text_input(pastele::Window* self, int input) {
     self->setTextInput(input);
 }
 
-CABI int window_get_text_input(pas::Window* self) {
+CABI int window_get_text_input(pastele::Window* self) {
     return (int) self->getTextInput();
 }
 
-CABI int window_get_flags(pas::Window* self) {
+CABI int window_get_flags(pastele::Window* self) {
     return (int) self->getFlags();
+}
+
+CABI void window_surface_to_png(pastele::Window* self, const char* file) {
+    self->surfaceToPng(file);
 }
 
 /************************************************************************/

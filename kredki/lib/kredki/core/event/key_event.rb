@@ -4,7 +4,7 @@ module Kredki
     
     # Get event key.
     def key
-      @keyboard.key(@abi.sym)
+      @keyboard.key(@source.sym)
     end
 
     # Get main parameter.
@@ -14,37 +14,37 @@ module Kredki
 
     # Get binding key id.
     def input_id
-      @abi.sym
+      @source.sym
     end
 
     # Get whether left shift is down.
     def left_shift?
-      @abi.mod & 0b0000_0000_0000_0001 != 0
+      @source.mod & 0b0000_0000_0000_0001 != 0
     end
 
     # Get whether right shift is down.
     def right_shift?
-      @abi.mod & 0b0000_0000_0000_0010 != 0
+      @source.mod & 0b0000_0000_0000_0010 != 0
     end
 
     # Get whether left alt is down.
     def left_alt?
-      @abi.mod & 0b0000_0001_0000_0000 != 0
+      @source.mod & 0b0000_0001_0000_0000 != 0
     end
 
     # Get whether right alt is down.
     def right_alt?
-      @abi.mod & 0b0000_0010_0000_0000 != 0
+      @source.mod & 0b0000_0010_0000_0000 != 0
     end
 
     # Get whether left ctrl is down.
     def left_ctrl?
-      @abi.mod & 0b0000_0010_0100_0000 == 0b0000_0000_0100_0000
+      @source.mod & 0b0000_0010_0100_0000 == 0b0000_0000_0100_0000
     end
 
     # Get whether right ctrl is down.
     def right_ctrl?
-      @abi.mod & 0b0000_0000_1000_0000 != 0
+      @source.mod & 0b0000_0000_1000_0000 != 0
     end
 
     # Get whether ctrl is down.
@@ -64,22 +64,22 @@ module Kredki
 
     # Get whether windows key is down.
     def windows?
-      @abi.mod & 0b0000_0100_0000_0000 != 0
+      @source.mod & 0b0000_0100_0000_0000 != 0
     end
 
     # Get whether num lock is on.
     def num_lock?
-      @abi.mod & 0b0001_0000_0000_0000 != 0
+      @source.mod & 0b0001_0000_0000_0000 != 0
     end
 
     # Get whether caps lock is on.
     def caps_lock?
-      @abi.mod & 0b0010_0000_0000_0000 != 0
+      @source.mod & 0b0010_0000_0000_0000 != 0
     end
 
     # Get whether scroll lock is on.
     def scroll_lock?
-      @abi.mod & 0b1000_0000_0000_0000 != 0
+      @source.mod & 0b1000_0000_0000_0000 != 0
     end
 
     # :section: LEVEL 2

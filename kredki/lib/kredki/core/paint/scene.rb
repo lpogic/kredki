@@ -99,7 +99,7 @@ module Kredki
     # Detach all paints.
     def clear!
       Pastele.scene_remove @pointer, nil
-      nil_paint = PaintState.new
+      nil_paint = PaintState.new nil, nil, nil, nil
       nil_paint.before = nil_paint.after = nil_paint
       @paints = {nil => nil_paint}
       update
@@ -113,7 +113,18 @@ module Kredki
     # :section: LEVEL 2
 
     class PaintState
-      model :paint, :before, :after, :shown
+
+      def initialize paint, before, after, shown
+        @paint = paint
+        @before = before
+        @after = after
+        @shown = shown
+      end
+      
+      attr_accessor :paint
+      attr_accessor :before
+      attr_accessor :after
+      attr_accessor :shown
 
       def inspect
         "#{self.class}:#{self.object_id}"
@@ -122,14 +133,14 @@ module Kredki
     
     def initialize
       super Pastele.scene_new
-      ObjectSpace.define_finalizer(self, self.class.proc.finalize(@pointer))
+      ObjectSpace.define_finalizer(self, Scene.finalizer(@pointer))
 
       @pivot_x = @pivot_y = 0
       clear!
     end
 
-    def self.finalize pointer
-      Pastele.scene_delete pointer
+    def self.finalizer pointer
+      proc{ Pastele.scene_delete pointer }
     end
 
     def new_paint klass, *a, show: true, at: nil, **na, &b

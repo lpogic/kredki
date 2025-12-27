@@ -32,11 +32,10 @@ module Kredki
 
           w! 1r
           h! :fit
-          xy! 0
-          layout! :xsc, 4
+          layout! :xsc
           fill! :gray
         
-          @item_group = new ToolbarItemGroup
+          @item_group = new ItemGroup
 
           on_pick! do |e|
             keyboard_dispose unless e.target.has_items?

@@ -55,19 +55,24 @@ module Kredki
         lineage.find{ _1 =~ filter }
       end
 
-      # Get containing layer.
+      # Get Kredki::UI::Layer ancestor.
       def layer
         grand Layer
       end
 
-      # Get containing action.
+      # Get Kredki::Action ancestor.
       def action
         layer&.pad_parent
       end
 
-      # Get containing window.
+      # Get Kredki::Window ancestor.
       def window
         action&.window
+      end
+
+      # Get Kredki::Arena ancestor.
+      def arena
+        window&.arena
       end
 
       # Get whether +grand+ contains self.
@@ -157,6 +162,10 @@ module Kredki
         @loops = {}
       end
 
+      def sketch_service
+        sketch
+      end
+
       def sketch
       end
 
@@ -172,7 +181,7 @@ module Kredki
 
       def new klass, *a, at: nil, **na, &b
         service = klass.new
-        service.sketch_pad
+        service.sketch_service
         push_service service, at if at != false
         service.alter *a, **na, &b
         service

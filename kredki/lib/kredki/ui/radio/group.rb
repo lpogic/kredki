@@ -24,7 +24,7 @@ module Kredki
         # :section: LEVEL 2
 
         def key event, radio
-          case event.symbol
+          case event.key.id
           when :up
             r = previous_radio radio
             r.keyboard_request

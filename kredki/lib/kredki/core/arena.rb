@@ -2,8 +2,11 @@ module Kredki
   class Arena
     
     # Create new attached Kredki::Window.
-    def window! action = Window.default_action, *a, **na, &b
-      put_window(Window.new).action!(action, *a, **na, &b)
+    def window! *a, show: true, **na, &b
+      w = Window.new
+      put_window(w).action!(*a, **na, &b)
+      w.show! if show
+      w
     end
 
     # Get attached Kredki::Window.
@@ -28,17 +31,17 @@ module Kredki
 
     def initialize
       @pointer = Pastele.arena_new
-      ObjectSpace.define_finalizer(self, Arena.proc.finalize(@pointer))
+      ObjectSpace.define_finalizer(self, Arena.finalizer(@pointer))
 
-      @event_callback = Fiddle::Closure::BlockCaller.new(Fiddle::TYPE_INT, [Fiddle::TYPE_INT, Fiddle::TYPE_VOIDP], &proc.event)
+      @event_callback = Fiddle::Closure::BlockCaller.new(Fiddle::TYPE_INT, [Fiddle::TYPE_INT, Fiddle::TYPE_VOIDP], &method(:event))
       Pastele.arena_set_event_handler @pointer, @event_callback
       @windows = {}
       @window_threads = {}
       @resolve_next_text_event = false
     end
 
-    def self.finalize pointer
-      Pastele.arena_delete pointer
+    def self.finalizer pointer
+      proc{ Pastele.arena_delete pointer }
     end
 
     def event event_type, event_ptr
@@ -46,7 +49,7 @@ module Kredki
       when 768
         abi = Pastele::KeyboardEvent.new event_ptr
         window_event abi.window_id, KeyDownEvent.new(Kredki.keyboard, abi) do |event|
-          @resolve_next_text_event = event.resolved? && (32..122).include?(event.keycode)
+          @resolve_next_text_event = event.resolved? && (32..122).include?(event.input_id)
         end
       when 769
         abi = Pastele::KeyboardEvent.new event_ptr
@@ -91,19 +94,19 @@ module Kredki
         window_event abi.window_id, DropEndEvent.new(abi)
       when 0x202
         abi = Pastele::WindowEvent.new event_ptr
-        window_event abi.window_id, WindowShowEvent.new(abi)
+        window_event abi.window_id, ShowEvent.new(abi)
       when 0x203
         abi = Pastele::WindowEvent.new event_ptr
-        window_event abi.window_id, WindowHideEvent.new(abi)
+        window_event abi.window_id, HideEvent.new(abi)
       when 0x204
         abi = Pastele::WindowEvent.new event_ptr
         window_event abi.window_id, WindowExposeEvent.new(abi)
       when 0x205
         abi = Pastele::WindowEvent.new event_ptr
-        window_event abi.window_id, WindowMoveEvent.new(abi)
+        window_event abi.window_id, MoveEvent.new(abi)
       when 0x206
         abi = Pastele::WindowEvent.new event_ptr
-        window_event abi.window_id, WindowResizeEvent.new(abi)
+        window_event abi.window_id, ResizeEvent.new(abi)
       when 0x209
         abi = Pastele::WindowEvent.new event_ptr
         window_event abi.window_id, WindowMinimizeEvent.new(abi)
@@ -115,7 +118,7 @@ module Kredki
         window_event abi.window_id, WindowRestoreEvent.new(abi)
       when 0x20C
         abi = Pastele::WindowEvent.new event_ptr
-        event = WindowMouseEnterEvent.new abi
+        event = MouseEnterEvent.new abi
         if window = @windows[abi.window_id]
           window.set_mouse_in true
           window.resolve event
@@ -123,7 +126,7 @@ module Kredki
         event
       when 0x20D
         abi = Pastele::WindowEvent.new event_ptr
-        event = WindowMouseLeaveEvent.new abi
+        event = MouseLeaveEvent.new abi
         if window = @windows[abi.window_id]
           window.set_mouse_in false
           window.resolve event
@@ -131,10 +134,10 @@ module Kredki
         event
       when 0x20E
         abi = Pastele::WindowEvent.new event_ptr
-        window_event abi.window_id, WindowFocusGainEvent.new(abi)
+        window_event abi.window_id, FocusEnterEvent.new(abi)
       when 0x20F
         abi = Pastele::WindowEvent.new event_ptr
-        window_event abi.window_id, WindowFocusLoseEvent.new(abi)
+        window_event abi.window_id, FocusLeaveEvent.new(abi)
       when 0x210
         abi = Pastele::WindowEvent.new event_ptr
         window_event abi.window_id, WindowCloseEvent.new(abi) do |event|
