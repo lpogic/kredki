@@ -43,25 +43,25 @@ module Kredki
         end
       end
 
-      def min_wl m
-        case @w_limit
+      def min_wl limit, m
+        case limit
         when :ratio
           get_h * @area.aspect_ratio
         else super
         end
       end
 
-      def get_wv w, tw, h = nil
+      def get_wv w, tw, h
         case w
         when :ratio
           if @ratio
-            @area.w
+            h ||= @area.wh_origin[1]
           else
             @ratio = true
             h ||= get_h
             @ratio = false
-            h * @area.aspect_ratio
           end
+          h * @area.aspect_ratio
         else super
         end
       end
@@ -74,25 +74,25 @@ module Kredki
         end
       end
 
-      def min_hl m
-        case @h_limit
+      def min_hl limit, m
+        case limit
         when :ratio
           get_w / @area.aspect_ratio
         else super
         end
       end
 
-      def get_hv h, th, w = nil
+      def get_hv h, th, w
         case h
         when :ratio
           if @ratio
-            @area.w
+            w ||= @area.wh_origin[0]
           else
             @ratio = true
             w ||= get_w
             @ratio = false
-            w / @area.aspect_ratio
           end
+          w / @area.aspect_ratio
         else super
         end
       end

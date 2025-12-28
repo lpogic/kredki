@@ -11,11 +11,10 @@ module Kredki
       return if @content == content
       Pastele.picture_load @pointer, content.to_s
       @content = content
-      w, h = get_size
-      @aspect_ratio = w / h
+      @ow, @oh = get_size
       if pull_size
-        @w = w
-        @h = h
+        @w = @ow
+        @h = @oh
         update_transform
       else
         @redraw_flag = true
@@ -31,6 +30,11 @@ module Kredki
     # Get content.
     def content
       @content
+    end
+
+    # Get origin width and height.
+    def wh_origin
+      [@ow, @oh]
     end
 
     # Push the feature.
@@ -51,7 +55,7 @@ module Kredki
 
     def initialize pointer = nil
       @w = @h = 100
-      @aspect_ratio = 1.0
+      @ow = @oh = 100.0
       @redraw_flag = true
       return super if pointer
       super Pastele.picture_new
@@ -63,7 +67,7 @@ module Kredki
     end
 
     def aspect_ratio
-      @aspect_ratio
+      @ow / @oh
     end
 
     def get_size

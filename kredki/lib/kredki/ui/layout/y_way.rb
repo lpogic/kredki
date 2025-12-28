@@ -15,18 +15,18 @@ module Kredki
             when nil
               [h, 0, Float::INFINITY, 0]
             when Range
-              [h, hv = limit.begin&.then{ pad.get_hv(it, pclh) } || 0, limit.end&.then{ pad.get_hv(it, pclh) } || Float::INFINITY, hv]
+              [h, hv = limit.begin&.then{ pad.get_hv(it, pclh, nil) } || 0, limit.end&.then{ pad.get_hv(it, pclh, nil) } || Float::INFINITY, hv]
             else
-              [h, 0, pad.get_hv(limit, pclh), 0]
+              [h, 0, pad.get_hv(limit, pclh, nil), 0]
             end
           when :layout
             case limit
             when nil
               [1r, 0, Float::INFINITY, 0]
             when Range
-              [1r, hv = limit.begin&.then{ pad.get_hv(it, pclh) } || 0, limit.end&.then{ pad.get_hv(it, pclh) } || Float::INFINITY, hv]
+              [1r, hv = limit.begin&.then{ pad.get_hv(it, pclh, nil) } || 0, limit.end&.then{ pad.get_hv(it, pclh, nil) } || Float::INFINITY, hv]
             else
-              [1r, 0, pad.get_hv(limit, pclh), 0]
+              [1r, 0, pad.get_hv(limit, pclh, nil), 0]
             end
           else
               [0, hv = pad.get_hl(h, limit, pclh), hv, hv]
@@ -97,6 +97,18 @@ module Kredki
           space = pad.margin_i || 0
           pad.layout_pads.map{|p1| p1.min_h }.reduce{ _1 + space + _2 } || 0
         end
+
+        def get_hr p0, p0h, p1, r
+          index = p0.layout_pads.find_index{ it == p1 }
+          if index
+            sp = p0.layout_pads.map{ get_span it, it.h, it.h_limit, p0h }
+            measurement, sh = spans sp, p0h, p0.margin_i || 0
+            measurement[index]
+          else
+            r * p0h
+          end
+        end
+
       end#YWay
     end#Layout
   end#UI

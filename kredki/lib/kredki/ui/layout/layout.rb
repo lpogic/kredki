@@ -45,8 +45,8 @@ module Kredki
         ly = clh
         
         pad.arranged_pads.each do |p1|
-          pw = p1.get_w clw
           ph = p1.get_h clh
+          pw = p1.get_w clw, ph
           p1.set_size pw, ph
           px = p1.get_x clw, pw, (get_x @x, clw, pw)
           py = p1.get_y clh, ph, (get_y @y, clh, ph)
@@ -70,6 +70,14 @@ module Kredki
 
       def fit_h pad
         pad.layout_pads.map{|p1| p1.min_h }.max || 0
+      end
+
+      def get_wr p0, p0w, p1, r
+        r * p0w
+      end
+
+      def get_hr p0, p0h, p1, r
+        r * p0h
       end
     end#Layout
   end#UI

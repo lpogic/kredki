@@ -1,6 +1,6 @@
 class Object
-  def raise_ia argument
-    raise "Invalid argument #{argument.inspect}."
+  def raise_ia argument, message = nil
+    raise "Invalid argument #{argument.inspect}. #{message}"
   end
 
   def raise_is state

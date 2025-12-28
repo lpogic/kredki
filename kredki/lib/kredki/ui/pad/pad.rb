@@ -127,6 +127,7 @@ module Kredki
       # Set width limit.
       def w_limit! w_limit = @w_limit
         return w_limit! yield self.w_limit if block_given?
+        raise_ia w_limit, "Rational limit disabled." if Rational === w_limit
         return if @w_limit = w_limit
         @w_limit = w_limit
         layer&.break_layout
@@ -146,6 +147,7 @@ module Kredki
       # Set height limit.
       def h_limit! h_limit = @h_limit
         return h_limit! yield self.h_limit if block_given?
+        raise_ia h_limit, "Rational limit disabled." if Rational === h_limit
         return if @h_limit = h_limit
         @h_limit = h_limit
         layer&.break_layout
@@ -165,12 +167,7 @@ module Kredki
       # Set width and height limit.
       def wh_limit! w = @w_limit, h = w
         return send_ahp :wh_limit!, yield(self.wh_limit) if block_given?
-        if @w_limit != w || @h_limit != h
-          @w_limit = w
-          @h_limit = h
-          layer&.break_layout
-          true
-        end
+        w_limit!(w) | h_limit!(h)
       end
 
       # See #wh_limit!.
@@ -947,7 +944,7 @@ module Kredki
 
       def min_w
         m = @margin_xs + @margin_xe
-        [min_wv(m), min_wl(m)].max
+        [min_wv(m), min_wl(@w_limit, m)].max
       end
 
       def min_wv m
@@ -965,18 +962,18 @@ module Kredki
         end
       end
 
-      def min_wl m
-        case @w_limit
-        when Rational, Proc
-          m
+      def min_wl limit, m
+        case limit
         when :fit
           fit_w
         when :layout
           @area.w
         when Numeric
-          @w_limit < 0 ? m : @w_limit
+          limit < 0 ? m : limit
+        when Range
+          min_wl limit.begin, m
         else
-          w
+          m
         end
       end
 
@@ -998,16 +995,22 @@ module Kredki
         end
       end
 
-      def get_wv w, tw, h = nil
+      def get_wr pad, r, tw
+        @ui_layout.get_wr self, tw, pad, r
+      end
+
+      def get_wv w, tw, h
         case w
         when Rational
-          (tw || @pad_parent.get_w) * w
+          @pad_parent.get_wr self, w, tw || @pad_parent.get_w
         when Proc
           w[tw || @pad_parent.get_w]
         when :fit
           fit_w
         when :layout
           @area.w
+        when :h
+          h || get_h
         when Numeric
           w < 0 ? (tw || @pad_parent.get_w) + w : w
         else
@@ -1021,7 +1024,7 @@ module Kredki
 
       def min_h
         m = @margin_ys + @margin_ye
-        [min_hv(m), min_hl(m)].max
+        [min_hv(m), min_hl(@h_limit, m)].max
       end
 
       def min_hv m
@@ -1039,18 +1042,18 @@ module Kredki
         end
       end
 
-      def min_hl m
-        case @h_limit
-        when Rational, Proc
-          m
+      def min_hl limit, m
+        case limit
         when :fit
           fit_h
         when :layout
           @area.h
         when Numeric
-          @h_limit < 0 ? m : @h_limit
+          limit < 0 ? m : limit
+        when Range
+          min_hl limit.begin, m
         else
-          h
+          m
         end
       end
 
@@ -1072,16 +1075,22 @@ module Kredki
         end
       end
 
-      def get_hv h, th, w = nil
+      def get_hr pad, r, th
+        @ui_layout.get_hr self, th, pad, r
+      end
+
+      def get_hv h, th, w
         case h
         when Rational
-          (th || @pad_parent.get_h) * h
+          @pad_parent.get_hr self, h, th || @pad_parent.get_h
         when Proc
           h[th || @pad_parent.get_h]
         when :fit
           fit_h
         when :layout
           @area.h
+        when :w
+          w || get_w
         when Numeric
           h < 0 ? (th || @pad_parent.get_h) + h : h
         else

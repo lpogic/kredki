@@ -15,18 +15,18 @@ module Kredki
             when nil
               [w, 0, Float::INFINITY, 0]
             when Range
-              [w, wv = limit.begin&.then{ pad.get_wv(it, pclw) } || 0, limit.end&.then{ pad.get_wv(it, pclw) } || Float::INFINITY, wv]
+              [w, wv = limit.begin&.then{ pad.get_wv(it, pclw, nil) } || 0, limit.end&.then{ pad.get_wv(it, pclw, nil) } || Float::INFINITY, wv]
             else
-              [w, 0, pad.get_wv(limit, pclw), 0]
+              [w, 0, pad.get_wv(limit, pclw, nil), 0]
             end
           when :layout
             case limit
             when nil
               [1r, 0, Float::INFINITY, 0]
             when Range
-              [1r, wv = limit.begin&.then{ pad.get_wv(it, pclw) } || 0, limit.end&.then{ pad.get_wv(it, pclw) } || Float::INFINITY, wv]
+              [1r, wv = limit.begin&.then{ pad.get_wv(it, pclw, nil) } || 0, limit.end&.then{ pad.get_wv(it, pclw, nil) } || Float::INFINITY, wv]
             else
-              [1r, 0, pad.get_wv(limit, pclw), 0]
+              [1r, 0, pad.get_wv(limit, pclw, nil), 0]
             end
           else
               [0, wv = pad.get_wl(w, limit, pclw), wv, wv]
@@ -96,6 +96,18 @@ module Kredki
           space = pad.margin_i || 0
           pad.layout_pads.map{|p1| p1.min_w }.reduce{ _1 + space + _2 } || 0
         end
+
+        def get_wr p0, p0w, p1, r
+          index = p0.layout_pads.find_index{ it == p1 }
+          if index
+            sp = p0.layout_pads.map{ get_span it, it.w, it.w_limit, p0w }
+            measurement, sw = spans sp, p0w, p0.margin_i || 0
+            measurement[index]
+          else
+            r * p0w
+          end
+        end
+
       end#XWay
     end#Layout
   end#UI
