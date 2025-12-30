@@ -13,10 +13,10 @@ module Kredki
 
         def selected_up_to pad
           bound = 0
-          s[Item...] do
+          find Item... do
             bound += 1 if self == pad
             bound += 1 if keyboard_in?
-            select! if bound > 0
+            selected! if bound > 0
             break if bound > 1
           end
         end

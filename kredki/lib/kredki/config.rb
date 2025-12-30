@@ -19,11 +19,6 @@ module Kredki
   color! false, 0, 0, 0, 0
   color! 0, 0, 0, 0, 0
 
-  color! :outline_focus, 182, 142, 0, 255
-  color! :text_selection, 70, 80, 122, 255
-  color! :text_selection_inactive, 70, 80, 112, 155
-  color! :text, 255, 255, 255, 255
-
   color! :white, 255, 255, 255, 255
   color! :black, 0, 0, 0, 255
   color! :red, 122, 0, 0, 255

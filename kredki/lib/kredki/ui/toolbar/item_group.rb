@@ -14,7 +14,7 @@ module Kredki
         # :section: LEVEL 2
 
         def mouse_enter pad
-          pad.keyboard_request if parent.keyboard_in? && self[Item...].find{ it.keyboard_in? } != pad
+          pad.keyboard_request if parent.keyboard_in? && self[Item]{ it.keyboard_in? } != pad
         end
       end
     end

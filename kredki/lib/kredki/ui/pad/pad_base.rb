@@ -7,122 +7,101 @@ module Kredki
       extend PadInherited
 
       # Search for services matching given criteria.
-      def [](filter, *extra_filters, &block)
-        case filter
+      def find primary_filter, *filters, reverse: false, &block
+        case primary_filter
         when Integer
-          each_service(deep: false).find{|pad| pad.pad_index == filter and extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
-            block ? pad.instance_exec(pad, &block) : pad
-          end
+          each_service(deep: false, reverse: reverse).find{ it =~ primary_filter and it =~ filters }&.alter &block
         when Range
-          if filter.begin.nil?
-            lineage(!filter.exclude_end?).find{|pad| pad =~ filter.end and extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
-              block ? pad.instance_exec(pad, &block) : pad
-            end
-          elsif filter.end.nil?
-            case filter.begin
+          if primary_filter.end.nil?
+            case primary_filter.begin
             when :>
-              each_service(deep: !filter.exclude_end?).filter{|pad| extra_filters.all?{|ef| pad =~ ef } }.then do |pads|
-                block ? pads.each{ _1.instance_exec _1, &block } : pads
+              if primary_filter.exclude_end?
+                each_service(deep: false, reverse: reverse).filter{ it =~ filters }.map{ it.alter &block }
+              else
+                ([self].each + each_service(deep: false, reverse: reverse)).filter{ it =~ filters }.map{ it.alter &block }
               end
             when :>>
-              if filter.exclude_end?
-                each_service.filter{|pad| extra_filters.all?{|ef| pad =~ ef } }.then do |pads|
-                  block ? pads.each{ _1.instance_exec _1, &block } : pads
-                end
+              if primary_filter.exclude_end?
+                each_service(deep: true, reverse: reverse).filter{ it =~ filters }.map{ it.alter &block }
               else
-                ([self].each + each_service).filter{|pad| extra_filters.all?{|ef| pad =~ ef } }.then do |pads|
-                  block ? pads.each{ _1.instance_exec _1, &block } : pads
-                end
+                ([self].each + each_service(deep: true, reverse: reverse)).filter{ it =~ filters }.map{ it.alter &block }
               end
-            when :<<
-              lineage(!filter.exclude_end?).filter{|pad| extra_filters.all?{|ef| pad =~ ef } }.then do |pads|
-                block ? pads.each{ _1.instance_exec _1, &block } : pads
-              end
-            when :not
-              if filter.exclude_end?
-                parent&.each_service(deep: false, reverse: true)&.drop_while{|a| a != self }&.drop(1)
-                &.filter{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
-                  block ? pad.instance_exec(pad, &block) : pad
-                end
+            when :<
+              if reverse
+                lineage(!primary_filter.exclude_end?).reverse_each.filter{ it =~ filters }.map{ it.alter &block }
               else
-                parent&.each_service(deep: false, reverse: true)&.drop_while{|a| a != self }
-                &.filter{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
-                  block ? pad.instance_exec(pad, &block) : pad
-                end
+                lineage(!primary_filter.exclude_end?).filter{ it =~ filters }.map{ it.alter &block }
+              end
+            when :*
+              if primary_filter.exclude_end?
+                parent&.each_service(deep: false, reverse: reverse)&.filter{ it != self and it =~ filters }&.map{ it.alter &block } || []
+              else
+                parent&.each_service(deep: false, reverse: reverse)&.filter{ it =~ filters }&.map{ it.alter &block } || []
               end
             when :+
-              if filter.exclude_end?
-                parent&.each_service(deep: false)&.drop_while{|a| a != self }&.drop(1)
-                &.filter{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
-                  block ? pad.instance_exec(pad, &block) : pad
+              if primary_filter.exclude_end?
+                if reverse
+                  parent&.then{ it.each_service(deep: false, reverse: true).drop_while{ it != self }.drop(1).filter{ it =~ filters }.map{ it.alter &block } } || []
+                else
+                  parent&.then{ it.each_service(deep: false, reverse: false).take_while{ it != self }.filter{ it =~ filters }.map{ it.alter &block } } || []
                 end
               else
-                parent&.each_service(deep: false)&.drop_while{|a| a != self }
-                &.filter{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
-                  block ? pad.instance_exec(pad, &block) : pad
+                if reverse
+                  parent&.then{ it.each_service(deep: false, reverse: true).drop_while{ it != self }.filter{ it =~ filters }.map{ it.alter &block } } || []
+                else
+                  parent&.then{ (it.each_service(deep: false, reverse: false).take_while{ it != self } + [self].each).filter{ it =~ filters }.map{ it.alter &block } } || []
                 end
               end
-            when :~
-              if filter.exclude_end?
-                parent&.each_service(deep: false)&.filter{|pad| pad != self && extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
-                  block ? pad.instance_exec(pad, &block) : pad
+            when :-
+              if primary_filter.exclude_end?
+                if reverse
+                  parent&.then{ it.each_service(deep: false, reverse: true).take_while{ it != self }.filter{ it =~ filters }.map{ it.alter &block } } || []
+                else
+                  parent&.then{ it.each_service(deep: false, reverse: false).drop_while{ it != self }.drop(1).filter{ it =~ filters }.map{ it.alter &block } } || []
                 end
               else
-                parent&.each_service(deep: false)&.filter{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
-                  block ? pad.instance_exec(pad, &block) : pad
+                if reverse
+                  parent&.then{ (it.each_service(deep: false, reverse: true).take_while{ it != self } + [self].each).filter{ it =~ filters }.map{ it.alter &block } } || []
+                else
+                  parent&.then{ it.each_service(deep: false, reverse: false).drop_while{ it != self }.filter{ it =~ filters }.map{ it.alter &block } } || []
                 end
               end
             else
-              each_service(deep: !filter.exclude_end?).filter{|pad| pad =~ filter.begin and extra_filters.all?{|ef| pad =~ ef } }.then do |pads|
-                block ? pads.each{ _1.instance_exec _1, &block } : pads
+              if primary_filter.exclude_end?
+                each_service(deep: true, reverse: reverse).filter{ it =~ primary_filter.begin and it =~ filters }.map{ it.alter &block }
+              else
+                ([self].each + each_service(deep: true, reverse: reverse)).filter{ it =~ primary_filter.begin and it =~ filters }.map{ it.alter &block }
               end
             end
           end
         when :>
-          each_service(deep: false).find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
-            block ? pad.instance_exec(pad, &block) : pad
-          end
+          each_service(deep: false, reverse: reverse).find{ it =~ filters }&.alter &block
         when :>>
-          each_service.find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
-            block ? pad.instance_exec(pad, &block) : pad
-          end
+          each_service(deep: true, reverse: reverse).find{ it =~ filters }&.alter &block
         when :<
-          parent&.then do |pad|
-            block ? pad.instance_exec(pad, &block) : pad
-          end
-        when :<<
-          lineage(false).find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
-            block ? pad.instance_exec(pad, &block) : pad
-          end
-        when :not
-          parent&.each_service(deep: false, reverse: true)&.drop_while{|a| a != self }&.drop(1)
-          &.find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
-              
-            block ? pad.instance_exec(pad, &block) : pad
-          end
+          lineage(false).find{ it =~ filters }&.alter &block
+        when :*
+          parent&.then{ it.each_service(deep: false, reverse: reverse).find{ it != self and it =~ filters }&.alter &block }
         when :+
-          parent&.each_service(deep: false)&.drop_while{|a| a != self }&.drop(1)
-          &.find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
-
-            block ? pad.instance_exec(pad, &block) : pad
+          if reverse
+            parent&.then{ it.each_service(deep: false, reverse: true).drop_while{ it != self }.drop(1).find{ it =~ filters }&.alter &block }
+          else
+            parent&.then{ it.each_service(deep: false, reverse: false).take_while{ it != self }.find{ it =~ filters }&.alter &block }
           end
-        when :~
-          parent&.each_service(deep: false)
-          &.find{|pad| extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
-
-            block ? pad.instance_exec(pad, &block) : pad
+        when :-
+          if reverse
+            parent&.then{ it.each_service(deep: false, reverse: true).take_while{ it != self }.find{ it =~ filters }&.alter &block }
+          else
+            parent&.then{ it.each_service(deep: false, reverse: false).drop_while{ it != self }.drop(1).find{ it =~ filters }&.alter &block }
           end
         else
-          each_service.find{|pad| pad =~ filter and extra_filters.all?{|ef| pad =~ ef } }&.then do |pad|
-            block ? pad.instance_exec(pad, &block) : pad
-          end
+          each_service(reverse: reverse).find{ it =~ primary_filter and it =~ filters }&.alter &block
         end
       end
-
-       # Push the feature to services matching given criteria.
-      def []=(*filters, value)
-        self[*filters]{ _1 << value }
-        value
+      
+      def [](*filters, reverse: false, &block)
+        filters << block if block
+        find *filters, reverse: reverse
       end
 
       # Iterate over subservices.

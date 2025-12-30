@@ -5,28 +5,28 @@ module Kredki
 
         # Add new item.
         def item!(...)
-          new(TreeListItem, ...)
+          new(Item, ...)
         end
 
         # :section: LEVEL 2
 
         def selected_up_to pad
           bound = 0
-          s[ListItem...] do
+          find Item... do
             bound += 1 if self == pad
             bound += 1 if keyboard_in?
-            select! if bound > 0
+            selected! if bound > 0
             break if bound > 1
           end
         end
 
         def subitems item
-          s[ListItem...].drop_while{ it != item }.drop(1).take_while{ it.level > item.level }
+          self[Item...].drop_while{ it != item }.drop(1).take_while{ it.level > item.level }
         end
 
         def update_show
           hide_level = 0
-          s[ListItem...] do
+          find Item... do
             if level <= hide_level
               show!
               hide_level = open? ? level + 1 : level
@@ -38,23 +38,17 @@ module Kredki
 
         def update_selected_item item
           case item
-          when :previous
-            items = self[Item...].to_a 
-            index = items.index{ it.keyboard_in? } || 1
-            update_selected_item items[index - 1] if index > 0
-          when :next
-            found = nil
-            self[Item...].any? do
-              if found
-                break update_selected_item it if it.show?
+          when :previous, :next
+            kb = nil
+            self[Item..., reverse: item == :previous].each do
+              if kb
+                return update_selected_item it if it.show?
               elsif it.keyboard_in?
-                found = it
+                kb = it
               end
-              false
-            end or found or self[Item]&.then{ update_selected_item it }
-            # items = self[Item...].to_a 
-            # index = items.index{ it.keyboard_in? } || -1
-            # update_selected_item items[index + 1] if index < items.length - 1
+            end
+            return update_selected_item kb if kb
+            self[Item]{ it.show? }&.then{ update_selected_item it }
           else
             item&.keyboard_request
             item

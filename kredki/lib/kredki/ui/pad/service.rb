@@ -129,6 +129,10 @@ module Kredki
           !!@tags[filter]
         when Module, Proc
           filter === self
+        when Integer
+          pad_index == filter
+        when Array
+          filter.all?{ self =~ it }
         else
           raise "Unsupported =~ (#{filter} : #{filter.class})"
         end

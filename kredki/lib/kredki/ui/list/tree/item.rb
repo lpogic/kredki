@@ -6,15 +6,15 @@ module Kredki
 
         # Add new item.
         def item! *a, **na, &b
-          parent.item! *a, w: 1r, at: pad_index + 1, level: level + 1, **na, &b
+          o = parent.item! *a, w: 1r, at: pad_index + 1, level: level + 1, **na, &b
           dir!
         end
 
         # Set whether is opened
         def open! value = true, &block
           return if (c = open) == (value = block ? block[c] : value == :not ? !c : value)
-          set_open value
           @open = value
+          parent.update_show
           true
         end
 
@@ -76,10 +76,6 @@ module Kredki
 
         # :section: LEVEL 2
 
-        def set_open open
-          parent.update_show
-        end
-
         def initialize
           super
 
@@ -102,9 +98,10 @@ module Kredki
             if dir
               area! do |w, h|
                 xy! w - h * 0.4, h * 0.25
-                line! w - h * 0.4, h * 0.75
-                xy! w - h * 0.4, h * 0.5
+                line! w - h * 0.4, h * 0.35
                 line! w - h * 0.2, h * 0.5
+                line! w - h * 0.4, h * 0.65
+                line! w - h * 0.4, h * 0.75
               end
             else
               area! do |w, h|

@@ -49,7 +49,7 @@ module Kredki
         end
 
         def set_checked radio, checked
-          self[Item...].select{ it.checked? }.each{ it.set_checked false } if checked
+          self[Item...]{ it.checked? }.each{ it.set_checked false } if checked
           radio.set_checked checked
         end
       end#Group

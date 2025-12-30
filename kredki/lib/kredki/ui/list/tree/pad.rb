@@ -31,7 +31,7 @@ module Kredki
           fill! :gray
           layout! :yss
 
-          @item_group = new TreeListItemGroup
+          @item_group = new ItemGroup
         end
 
         def behavior
@@ -39,37 +39,36 @@ module Kredki
 
           on! Item::PickEvent do
             item = it.target
-            ke = it.origin
-            if false #ke.is_a? KeyboardEvent
-              if ke.key.id == :enter
+            source = it.source
+            if source.is_a? KeyEvent
+              if source.key.id == :enter
                 item.open! :not
               else
-                kb = keyboard
-                if kb.shift?
+                if source.shift?
                   item.select! :not
                 else
-                  s[Item...]{ select! s == item }
+                  self[Item...].each_alter{ selected! it == item }
                 end
               end
             else
-              kb = keyboard
+              kb = Kredki.keyboard
               if kb.shift?
                 if kb.ctrl?
                   item.open! :not
                 else
-                  item.select!
+                  item.selected!
                 end
               elsif kb.ctrl?
-                item.select! :not
+                item.selected! :not
               else
-                s[Item..]{ select! s == item }
+                self[Item...].each_alter{ selected! it == item }
                 item.open! :not
               end
             end
           end
 
           on_focus_leave! do
-            s[Item..] = { select: false }
+            self[Item...].each_alter selected: false
           end
         end
 

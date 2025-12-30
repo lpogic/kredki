@@ -59,3 +59,9 @@ end
 class Array
   alias_method :push=, :push
 end
+
+module Enumerable
+  def each_alter ...
+    each{ it.alter(...) }
+  end
+end

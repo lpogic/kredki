@@ -45,12 +45,12 @@ module Kredki
             elsif kb.ctrl?
               item.select! :not
             else
-              s[Item..]{ select! s == item }
+              self[Item...].each_alter{ selected! it == item }
             end
           end
 
           on_focus_leave! do
-            s[Item..] = { select: false }
+            self[Item...].each_alter select: false
           end
         end
 
