@@ -6,123 +6,112 @@ module Kredki
     module PadBase
       extend PadInherited
 
-      # Search for services matching given criteria.
-      def find primary_filter, *filters, reverse: false, &block
-        case primary_filter
-        when Integer
-          each_service(deep: false, reverse: reverse).find{ it =~ primary_filter and it =~ filters }&.alter &block
-        when Range
-          if primary_filter.end.nil?
-            case primary_filter.begin
-            when :>
-              if primary_filter.exclude_end?
-                each_service(deep: false, reverse: reverse).filter{ it =~ filters }.map{ it.alter &block }
-              else
-                ([self].each + each_service(deep: false, reverse: reverse)).filter{ it =~ filters }.map{ it.alter &block }
-              end
-            when :>>
-              if primary_filter.exclude_end?
-                each_service(deep: true, reverse: reverse).filter{ it =~ filters }.map{ it.alter &block }
-              else
-                ([self].each + each_service(deep: true, reverse: reverse)).filter{ it =~ filters }.map{ it.alter &block }
-              end
-            when :<
-              if reverse
-                lineage(!primary_filter.exclude_end?).reverse_each.filter{ it =~ filters }.map{ it.alter &block }
-              else
-                lineage(!primary_filter.exclude_end?).filter{ it =~ filters }.map{ it.alter &block }
-              end
-            when :*
-              if primary_filter.exclude_end?
-                parent&.each_service(deep: false, reverse: reverse)&.filter{ it != self and it =~ filters }&.map{ it.alter &block } || []
-              else
-                parent&.each_service(deep: false, reverse: reverse)&.filter{ it =~ filters }&.map{ it.alter &block } || []
-              end
-            when :+
-              if primary_filter.exclude_end?
-                if reverse
-                  parent&.then{ it.each_service(deep: false, reverse: true).drop_while{ it != self }.drop(1).filter{ it =~ filters }.map{ it.alter &block } } || []
-                else
-                  parent&.then{ it.each_service(deep: false, reverse: false).take_while{ it != self }.filter{ it =~ filters }.map{ it.alter &block } } || []
-                end
-              else
-                if reverse
-                  parent&.then{ it.each_service(deep: false, reverse: true).drop_while{ it != self }.filter{ it =~ filters }.map{ it.alter &block } } || []
-                else
-                  parent&.then{ (it.each_service(deep: false, reverse: false).take_while{ it != self } + [self].each).filter{ it =~ filters }.map{ it.alter &block } } || []
-                end
-              end
-            when :-
-              if primary_filter.exclude_end?
-                if reverse
-                  parent&.then{ it.each_service(deep: false, reverse: true).take_while{ it != self }.filter{ it =~ filters }.map{ it.alter &block } } || []
-                else
-                  parent&.then{ it.each_service(deep: false, reverse: false).drop_while{ it != self }.drop(1).filter{ it =~ filters }.map{ it.alter &block } } || []
-                end
-              else
-                if reverse
-                  parent&.then{ (it.each_service(deep: false, reverse: true).take_while{ it != self } + [self].each).filter{ it =~ filters }.map{ it.alter &block } } || []
-                else
-                  parent&.then{ it.each_service(deep: false, reverse: false).drop_while{ it != self }.filter{ it =~ filters }.map{ it.alter &block } } || []
-                end
-              end
-            else
-              if primary_filter.exclude_end?
-                each_service(deep: true, reverse: reverse).filter{ it =~ primary_filter.begin and it =~ filters }.map{ it.alter &block }
-              else
-                ([self].each + each_service(deep: true, reverse: reverse)).filter{ it =~ primary_filter.begin and it =~ filters }.map{ it.alter &block }
-              end
-            end
-          end
-        when :>
-          each_service(deep: false, reverse: reverse).find{ it =~ filters }&.alter &block
-        when :>>
-          each_service(deep: true, reverse: reverse).find{ it =~ filters }&.alter &block
-        when :<
-          lineage(false).find{ it =~ filters }&.alter &block
-        when :*
-          parent&.then{ it.each_service(deep: false, reverse: reverse).find{ it != self and it =~ filters }&.alter &block }
-        when :+
-          if reverse
-            parent&.then{ it.each_service(deep: false, reverse: true).drop_while{ it != self }.drop(1).find{ it =~ filters }&.alter &block }
-          else
-            parent&.then{ it.each_service(deep: false, reverse: false).take_while{ it != self }.find{ it =~ filters }&.alter &block }
-          end
-        when :-
-          if reverse
-            parent&.then{ it.each_service(deep: false, reverse: true).take_while{ it != self }.find{ it =~ filters }&.alter &block }
-          else
-            parent&.then{ it.each_service(deep: false, reverse: false).drop_while{ it != self }.drop(1).find{ it =~ filters }&.alter &block }
-          end
-        else
-          each_service(reverse: reverse).find{ it =~ primary_filter and it =~ filters }&.alter &block
-        end
-      end
-      
-      def [](*filters, reverse: false, &block)
-        filters << block if block
-        find *filters, reverse: reverse
+      # Get filtered descedants.
+      def each_fd *filters, reverse: false, &block
+        each_service deep: true, reverse:, filter: [*filters, block]
       end
 
+      # Get filtered children.
+      def each_fc *filters, reverse: false, &block
+        each_service deep: false, reverse:, filter: [*filters, block]
+      end
+
+      # Get filtered ancestors.
+      def each_fa *filters, with_self: false, reverse: false, &block
+        lineage(with_self).then{ reverse ? it.reverse_each : it }.filter{ it =~ filters and it =~ block }
+      end
+
+      def each_sb *filters, reverse: false, &block
+        found = false
+        detect = proc do
+          if found
+            !reverse
+          else
+            found = it == self
+            reverse
+          end
+        end
+        parent&.each_service(deep: false, reverse: !reverse, filter: [detect, *filters, block]) || []
+      end
+
+      def each_sn *filters, reverse: false, &block
+        found = false
+        detect = proc do
+          if found
+            !reverse
+          else
+            found = it == self
+            reverse
+          end
+        end
+        parent&.each_service(deep: false, reverse: reverse, filter: [detect, *filters, block]) || []
+      end
+
+      # Find descedant.
+      def fd *filters, last: false, &block
+        each_fd(*filters, reverse: last, &block).first
+      end
+
+      # Find child.
+      def fc *filters, last: false, &block
+        each_fc(*filters, reverse: last, &block).first
+      end
+
+      # Find ancestor.
+      def fa *filters, with_self: false, last: false, &block
+        each_fa(*filters, with_self:, reverse: last, &block).first
+      end
+
+      def sb *filters, &block
+        found = false
+        detect = proc do
+          if found
+            !reverse
+          else
+            found = it == self
+            reverse
+          end
+        end
+        parent&.each_service(deep: false, filter: detect)&.first&.is *filters, &block
+      end
+
+      def sn *filters, &block
+        found = false
+        detect = proc do
+          if found
+            !reverse
+          else
+            found = it == self
+            reverse
+          end
+        end
+        parent&.each_service(deep: false, filter: detect)&.first&.is *filters, &block
+      end
+
+      # Get whether parent match filters.
+      def pa *filters, &block
+        parent&.is *filters, &block
+      end
+      
       # Iterate over subservices.
-      def each_service enum = nil, reverse: false, deep: true
+      def each_service enum = nil, reverse: false, deep: true, filter: nil
         if enum
           method = reverse ? :reverse_each : :each
           case deep
           when false
-            @services.send(method){ enum << _1 }
+            @services.send(method){ enum << it if it =~ filter }
           when :first
             @services.send method do
-              enum << _1
-              _1.each_service enum, reverse:, deep:;
+              enum << it if it =~ filter 
+              it.each_service enum, reverse:, deep:, filter: ;
             end
           else
-            @services.send(method){ enum << _1 }
-            @services.send(method){ _1.each_service enum, reverse:, deep: }
+            @services.send(method){ enum << it if it =~ filter }
+            @services.send(method){ it.each_service enum, reverse:, deep:, filter: }
           end
           enum
         else
-          Enumerator.new{|enum| each_service enum, reverse:, deep: }
+          Enumerator.new{|enum| each_service enum, reverse:, deep:, filter: }
         end
       end
 

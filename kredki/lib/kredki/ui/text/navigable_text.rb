@@ -140,7 +140,7 @@ module Kredki
         @cursor = @scene.rectangle! fill: :text, w: 2, show: false
       end
 
-      def mouse_down e
+      def mouse_push e
       end
 
       def fit_w

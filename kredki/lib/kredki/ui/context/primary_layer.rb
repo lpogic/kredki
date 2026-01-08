@@ -21,7 +21,7 @@ module Kredki
           super
 
           on! Item::PickEvent, aim: true do |e|
-            if e.target.has_items?
+            if e.target.fd Item
               e.resolve
             else
               pad_detach
@@ -33,7 +33,7 @@ module Kredki
             e.resolve
           end
 
-          on_mouse_down! do |e|
+          on_mouse_push! do |e|
             pad_detach
           end
         end

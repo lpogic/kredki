@@ -25,7 +25,7 @@ module Kredki
           super
           
           on! Item::PickEvent do |e|
-            if e.target.has_items?
+            if e.target.fd Item
               e.resolve
             else
               parent.report e
@@ -43,15 +43,11 @@ module Kredki
               load parent
             end
 
-            @parent_events.push = parent.on_focus_enter! do |e|
-              load parent
-            end
-
             @parent_events.push = parent.on_focus_leave! do |e|
               unload if loaded?
             end
             
-            @parent_events.push = on_key! :left do |e|
+            @parent_events.push = on_key_press! :left do |e|
               if loaded?
                 unload
                 e.resolve

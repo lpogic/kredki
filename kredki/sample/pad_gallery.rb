@@ -1,5 +1,9 @@
 require 'kredki'
 
+action.on_focus_leave! do
+  window.terminate!
+end
+
 layout! :yss
 
 toolbar! do
@@ -26,14 +30,27 @@ end
 space! layout: :xss, margin: 10, margin_i: 10 do
   space! layout: :yss, margin_i: 10 do
     note! w: 1r
+    list! w: 1r, h: :fit do
+      item! "First"
+      item! "Second", icon: pad!(h: 24, w: 16, area: proc{ellipse! _2 * 0.2})
+      item! "Third", icon: animation!("sketch/1643-exploding-star.json", wh: 16, play: :bounce_loop)
+    end
     space! layout: :xss, margin_i: 10 do
       yslide!
       space! layout: :yss, margin_i: 10 do
         text! "Some text"
         xslide!
       end
+      tree! do
+        item! "Branch", icon: pad!(h: 24, w: 16, area: proc{ellipse! _2 * 0.2})
+        item! "Branch", icon: pad!(h: 24, w: 16, area: proc{ellipse! _2 * 0.2}) do
+          item! "Branch", icon: pad!(h: 24, w: 16, area: proc{ellipse! _2 * 0.2}) do
+            item! "Branch", icon: pad!(h: 24, w: 16, area: proc{ellipse! _2 * 0.2})
+          end
+        end
+      end
     end
-    scroll! w: [1r, limit: :fit], h: 150 do
+    scroll! wh: [1r, limit: :fit] do
       picture! "sketch/test.png"
     end
   end

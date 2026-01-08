@@ -28,36 +28,36 @@ module Kredki
         
       end
       
-      def on_edit! &block
-        on! EditEvent, &block
+      def on_edit! ...
+        on!(EditEvent, ...)
       end
 
       def text_edition text, multiline
         text_navigation text
 
-        on_key_down! :backspace do |e|
+        on_key_press! :backspace do |e|
           text.backspace
           e.resolve
         end
 
-        on_key_down! :delete do |e|
+        on_key_press! :delete do |e|
           text.delete
           e.resolve
         end
 
-        on_text! do |e|
+        on_text_input! do |e|
           text.paste e.param
           e.resolve
         end
 
-        on_key_down! :v do |e|
+        on_key_press! :v do |e|
           if e.ctrl?
             text.paste Kredki.clipboard.content
             e.resolve
           end
         end
 
-        on_key_down! :x do |e|
+        on_key_press! :x do |e|
           if e.ctrl? && (text.selection? || e.shift?)
             s = e.shift? ? clipboard.content : ""
             clipboard.content = text.selected_content if text.selection?
@@ -66,14 +66,14 @@ module Kredki
           end
         end
 
-        on_edit! do |e|
+        on_edit! aim: true do |e|
           content = content_after_edit e
           cursor_position = e.string.length + e.selection_min
           text.edit e.action, content, cursor_position
         end
 
         if multiline
-          on_key_down! :enter do |e|
+          on_key_press! :enter do |e|
             text.paste "\n"
             e.resolve
           end

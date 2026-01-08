@@ -6,7 +6,7 @@ module Kredki
 
         # Add new item.
         def item! *a, **na, &b
-          o = parent.item! *a, w: 1r, at: pad_index + 1, level: level + 1, **na, &b
+          parent.item! *a, w: 1r, at: pad_index + 1, level: level + 1, **na, &b
           dir!
         end
 
@@ -34,10 +34,10 @@ module Kredki
         end
 
         # Set whether is directory.
-        def dir! value = true, &block
+        def dir! value = true, set_icon = true, &block
           return if (c = dir) == (value = block ? block[c] : value == :not ? !c : value)
           @dir = value
-          update_level
+          # icon! value ? default_dir_icon : default_icon if set_icon
           true
         end
 
@@ -79,37 +79,16 @@ module Kredki
         def initialize
           super
 
-          @level_pad = new RectanglePad, at: 0, fill: 0, h: 1r, w: 16 do
-            outline! fill: :text, w: 2, cap: :round
-          end
-        end
-
-        def sketch
-          super
-
-          update_level
+          @level_pad = new SpacePad, at: 0, w: 0
+          # icon! default_icon
         end
 
         def update_level
-          l = level
-          dir = @dir
-          @level_pad.alter do
-            w! (l + 1) * 16
-            if dir
-              area! do |w, h|
-                xy! w - h * 0.4, h * 0.25
-                line! w - h * 0.4, h * 0.35
-                line! w - h * 0.2, h * 0.5
-                line! w - h * 0.4, h * 0.65
-                line! w - h * 0.4, h * 0.75
-              end
-            else
-              area! do |w, h|
-                xy! w - h * 0.4, h * 0.25
-                line! w - h * 0.4, h * 0.75
-              end
-            end
-          end
+          @level_pad.w = level * 16
+        end
+
+        def default_icon
+          new RectanglePad, h: 24, w: 16, area: proc{ellipse! _2 * 0.2}
         end
 
       end#Item

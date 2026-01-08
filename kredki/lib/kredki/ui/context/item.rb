@@ -13,36 +13,20 @@ module Kredki
 
         # Create/Update dropdown layer.
         def dropdown! ...
-          if !@dropdown
-            @dropdown = new SecondaryLayer
-            @end_icon.scenic!
-          end
-          @dropdown.alter(...)
-        end
-
-        # Get dropdown layer.
-        def dropdown
-          @dropdown
-        end
-
-        # Get whether has any subitem.
-        def has_items?
-          @dropdown&.[](Item)
+          fc SecondaryLayer or begin
+            fc(:end_icon).scenic!
+            new SecondaryLayer
+          end.alter(...)
         end
 
         # :section: LEVEL 2
 
         def initialize
           super
-
-          @dropdown = nil
-          @begin_icon = new RectanglePad, at: 0, mousy: false, keyboardy: false, fill: 0, h: 1r do
-            w! proc{ get_h }
-            outline! fill: :text, w: 2, cap: :round
-            scenic! false
-          end
-          @end_icon = new RectanglePad, mousy: false, keyboardy: false, fill: 0, x: :e, h: 1r do
-            w! proc{ get_h }
+          
+          new SpacePad, h: 1r, w: :h
+          new TextPad, ""
+          new RectanglePad, :end_icon, mousy: false, keyboardy: false, fill: 0, x: :e, h: 1r, w: :h do
             outline! fill: :text, w: 2, cap: :round
             area! do |w, h|
               xy! w * 0.5, h * 0.35
@@ -53,25 +37,22 @@ module Kredki
           end
         end
 
-        def sketch
+        def behavior
           super
 
-          on_key_down! :right do |e|
-            if @dropdown
-              @dropdown.load self unless @dropdown.loaded?
-              @dropdown[Item]&.keyboard_request and e.resolve
+          on_key_press! :right do |e|
+            fc(SecondaryLayer)&.then do
+              it.load self unless it.loaded?
+              it.fd(Item)&.keyboard_request and e.resolve
             end
           end
         end
 
         def mouse_enter e
           super
-          @dropdown.update_keyboard_pad nil if @dropdown&.loaded?
+          fd(SecondaryLayer)&.then{ it.update_keyboard_pad nil if it.loaded? }
         end
-
-        def min_w
-          @text.fit_w + get_h * 2
-        end
+        
       end#Item
     end#Context
   end#UI

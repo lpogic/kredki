@@ -46,7 +46,7 @@ end
 
 if RUBY_PLATFORM =~ /cygwin|mswin|mingw|bccwin|wince|emx/
   $kredki_sdl ||= Kredki / "stuff/dll/SDL3.dll"
-  $kredki_thorvg ||= Kredki / "stuff/dll/thorvg-1.dll"
+  $kredki_thorvg ||= Kredki / "stuff/dll/thorvg-1-1.dll"
   $kredki_pastele ||= Kredki / "stuff/dll/pastele.dll"
 elsif !$kredki_sdl || !$kredki_thorvg || !$kredki_pastele
   raise "No default shared libraries for #{RUBY_PLATFORM} found. Provide paths to custom ones in $kredki_sdl, $kredki_thorvg and $kredki_pastele before require 'kredki'"

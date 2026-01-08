@@ -42,7 +42,7 @@ module Kredki
   end
 
   # Event reported on joystick button up.
-  class JoystickButtonUpEvent < JoystickButtonEvent
+  class JoystickMouseButtonFreeEvent < JoystickButtonEvent
   end
 
   # Event reported on joystick axis state change.

@@ -114,7 +114,6 @@ when /cygwin|mswin|mingw|bccwin|wince|emx/
         system $vcvars
         rm_rf "builddir"
         sh "#$meson setup builddir --backend vs " + {
-          examples: false,
           engines: "['sw']",
           loaders: "all",
           savers: "all",
@@ -131,8 +130,8 @@ when /cygwin|mswin|mingw|bccwin|wince|emx/
   
     task :import do
       check_vars :$thorvg
-      target = "kredki/stuff/dll/thorvg-1.dll"
-      source = "#$thorvg/builddir/src/thorvg-1.dll"
+      target = "kredki/stuff/dll/thorvg-1-1.dll"
+      source = "#$thorvg/builddir/src/thorvg-1-1.dll"
       cp source, target
     end
   end
@@ -184,7 +183,7 @@ when /cygwin|mswin|mingw|bccwin|wince|emx/
           "#$sdl/include/SDL3"
         )
         target_link_libraries(pastele PRIVATE
-          "#$thorvg/builddir/src/thorvg.lib"
+          "#$thorvg/builddir/src/thorvg-1.lib"
           "#$sdl/builddir/Release/SDL3.lib"
         )
       xx

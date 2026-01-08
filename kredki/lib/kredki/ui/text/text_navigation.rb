@@ -5,65 +5,65 @@ module Kredki
 
       def text_navigation text
 
-        on_key_down! :up do |e|
+        on_key_press! :up do |e|
           text.cursor_up e.shift?
           e.resolve
         end
 
-        on_key_down! :down do |e|
+        on_key_press! :down do |e|
           text.cursor_down e.shift?
           e.resolve
         end
     
-        on_key_down! :left do |e|
+        on_key_press! :left do |e|
           text.cursor_left e.shift?
           e.resolve
         end
     
-        on_key_down! :right do |e|
+        on_key_press! :right do |e|
           text.cursor_right e.shift?
           e.resolve
         end
 
-        on_key_down! :home do |e|
+        on_key_press! :home do |e|
           text.cursor_home e.shift?, e.ctrl?
           e.resolve
         end
 
-        on_key_down! :keypad_seven do |e|
+        on_key_press! :keypad_seven do |e|
           unless e.num_lock?
             text.cursor_home e.shift?, e.ctrl?
             e.resolve
           end
         end
 
-        on_key_down! :end do |e|
+        on_key_press! :end do |e|
           text.cursor_end e.shift?, e.ctrl?
           e.resolve
         end
 
-        on_key_down! :keypad_one do |e|
+        on_key_press! :keypad_one do |e|
           unless e.num_lock?
             text.cursor_end e.shift?, e.ctrl?
             e.resolve
           end
         end
 
-        on_key_down! :a do |e|
+        on_key_press! :a do |e|
           if e.ctrl?
             text.select 0, text.content.length
             e.resolve
           end
         end
 
-        on_key_down! :c do |e|
+        on_key_press! :c do |e|
           if e.ctrl? && text.selection?
             Kredki.clipboard.content = text.selected_content
             e.resolve
           end
         end
 
-        on_mouse_down! :primary do |e|
+        on_mouse_push! :primary do |e|
           if Kredki.keyboard.shift?
             text.drag *text.layer.translate(*e.xy, text)
           else
@@ -81,7 +81,7 @@ module Kredki
           end
         end
 
-        on_mouse_up! do |e|
+        on_mouse_free! do |e|
           if e.drag
             text.cursor_position = text.cursor_position_for_coordinates *text.layer.translate(*e.xy, text)
           end

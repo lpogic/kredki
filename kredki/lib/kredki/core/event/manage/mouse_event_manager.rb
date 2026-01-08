@@ -9,18 +9,18 @@ module Kredki
     end
 
     def resolve event
-      @resolvers[event.input_id]&.resolve event
+      id = event.input_id and @resolvers[id]&.resolve event
       @resolvers[nil]&.resolve event
     end
 
-    def [](*indexes)
-      case indexes.size
+    def [](*ids)
+      case ids.size
       when 0
         @resolvers[nil] ||= EventManager.new
       when 1
-        @resolvers[indexes.first] ||= EventManager.new
+        @resolvers[ids.first] ||= EventManager.new
       else
-        CompositeEventManager.new indexes.map{ @resolvers[_1] ||= EventManager.new }
+        CompositeEventManager.new ids.map{ @resolvers[it] ||= EventManager.new }
       end
     end
   end

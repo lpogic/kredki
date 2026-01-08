@@ -736,13 +736,13 @@ CABI void text_set_text(Text* self, const char* text) {
 
 CABI float text_get_text_width(Text* self, const char* text, int indexLimit) {
     float width;
-    self->textMetrics(text, 1, -1, indexLimit, &width, nullptr);
+    self->measure(text, 1, -1, indexLimit, &width, nullptr);
     return width;
 }
 
 CABI int text_nearest_character_index(Text* self, const char* text, float widthRequest) {
     int index;
-    self->textMetrics(text, 2, widthRequest, -1, nullptr, &index);
+    self->measure(text, 2, widthRequest, -1, nullptr, &index);
     return index;
 }
 

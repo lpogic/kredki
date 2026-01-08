@@ -4,10 +4,10 @@ module Kredki
 
     # :section: LEVEL 2
     
-    def initialize mouse, ...
+    def initialize device, ...
       super(...)
 
-      @mouse = mouse
+      @device = device
     end
   end
 
@@ -16,17 +16,17 @@ module Kredki
     
     # Get event button.
     def button
-      @mouse.button @source.button
+      @device.button @source.button
+    end
+
+    # Get input id.
+    def input_id
+      @source.button
     end
 
     # Get main parameter.
     def param
       button&.id
-    end
-
-    # Get binding button id.
-    def input_id
-      @source.button
     end
 
     # Get position along X axis.
@@ -46,11 +46,11 @@ module Kredki
   end
 
   # Event reported on mouse button down.
-  class MouseButtonDownEvent < MouseButtonEvent
+  class MouseButtonPushEvent < MouseButtonEvent
   end
 
   # Event reported on mouse button up.
-  class MouseButtonUpEvent < MouseButtonEvent
+  class MouseButtonFreeEvent < MouseButtonEvent
     # Get whether it is drag move. +:start+ is returned if it is initial drag move.
     def drag
       @drag
@@ -68,8 +68,8 @@ module Kredki
     end
   end
 
-  # Event reported on mouse move.
-  class MouseMoveEvent < MouseEvent
+  # Event reported on mouse pointer move.
+  class MousePointerMoveEvent < MouseEvent
 
     # Get position along X axis.
     def x
@@ -108,20 +108,20 @@ module Kredki
     end
   end
 
-  class MouseEnterEvent < MouseEvent
+  class MousePointerEnterEvent < MouseEvent
     def move?
-      @source&.is_a? MouseMoveEvent
+      @source&.is_a? MousePointerMoveEvent
     end
   end
 
-  class MouseLeaveEvent < MouseEvent
+  class MousePointerLeaveEvent < MouseEvent
     def move?
-      @source&.is_a? MouseMoveEvent
+      @source&.is_a? MousePointerMoveEvent
     end
   end
 
-  # Event reported on mouse scroll move.
-  class MouseScrollEvent < MouseEvent
+  # Event reported on mouse wheel spin.
+  class MouseWheelSpinEvent < MouseEvent
 
     # Get position along X axis.
     def x

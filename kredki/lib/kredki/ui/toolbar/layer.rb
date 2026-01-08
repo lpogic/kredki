@@ -9,14 +9,14 @@ module Kredki
         def initialize
           super
 
-          @items = new Context::Pad, outline: [1, :dark_gray]
-          @item_group = @items.new Context::ItemGroup
+          @context_pad = new Context::Pad, outline: [1, :dark_gray]
+          @item_group = @context_pad.new Context::ItemGroup
         end
 
-        attr :items, :item_group
+        attr :context_pad, :item_group
 
         def load_common x, y
-          @items.xy! x, y
+          @context_pad.xy! x, y
           parent.action.push_layer self
           break_layout
         end
@@ -30,10 +30,10 @@ module Kredki
           !!@pad_parent
         end
 
-        def mouse_down e
+        def mouse_push e
         end
 
-        def mouse_up e
+        def mouse_free e
         end
       end#Layer
     end#Toolbar

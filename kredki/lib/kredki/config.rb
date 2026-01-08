@@ -179,17 +179,15 @@ module Kredki
   end
 
   plugin! :terminate_on_esc do
-    on_key_down! :escape do |event|
+    on_key_press! :escape do |event|
       action.window.terminate!
     end
   end
 
   plugin! :close_on_esc do
-    on_key_down! :escape do |event|
+    on_key_press! :escape do |event|
       action.window.destroy!
     end
   end
 
 end
-
-K = Kredki

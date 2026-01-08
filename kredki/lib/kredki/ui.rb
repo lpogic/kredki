@@ -5,8 +5,8 @@ module Kredki
     class << self
       attr_accessor :layout_map
 
-      def layout! id, type, *a
-        @layout_map[id] = type.new *a
+      def layout! id, layout
+        @layout_map[id] = layout
       end
   
       def layout param = nil
@@ -29,11 +29,11 @@ module Kredki
   require_relative 'ui/action'
 
   module UI
-    layout! nil, Layout::Align, :c, :c
+    layout! nil, Layout::Align.new(:c, :c)
     [:s, :c, :e].repeated_permutation 2 do
-      layout! "a#{it[0]}#{it[1]}".to_sym, Layout::Align, it[0], it[1]
-      layout! "x#{it[0]}#{it[1]}".to_sym, Layout::XWay, it[0], it[1]
-      layout! "y#{it[0]}#{it[1]}".to_sym, Layout::YWay, it[0], it[1]
+      layout! "a#{it[0]}#{it[1]}".to_sym, Layout::Align.new(*it)
+      layout! "x#{it[0]}#{it[1]}".to_sym, Layout::XWay.new(*it)
+      layout! "y#{it[0]}#{it[1]}".to_sym, Layout::YWay.new(*it)
     end
   end
 end

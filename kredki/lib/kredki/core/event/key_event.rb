@@ -91,10 +91,10 @@ module Kredki
   end
 
   # Event reported on key down.
-  class KeyDownEvent < KeyEvent
+  class KeyboardKeyPushEvent < KeyEvent
   end
 
   # Event reported on key up.
-  class KeyUpEvent < KeyEvent
+  class KeyboardKeyFreeEvent < KeyEvent
   end
 end

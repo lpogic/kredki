@@ -32,7 +32,7 @@ module Kredki
           e.resolve
         end
 
-        on_mouse_scroll! do |e|
+        on_mouse_spin! do |e|
           ps = layout_pads
           if !ps.empty?
             jump = Kredki.keyboard.alt? ? Kredki.mouse.scrollbar_alt_speed : Kredki.mouse.scrollbar_speed
@@ -68,10 +68,10 @@ module Kredki
         end
       end
 
-      def mouse_down e
+      def mouse_push e
       end
 
-      def mouse_up e
+      def mouse_free e
       end
 
       def put_pad pad, at = nil

@@ -1,9 +1,10 @@
 require_relative 'text/navigable_text'
+require_relative 'portal_layer'
 
 module Kredki
   module UI
     # Control with text transfering click events to selected pad.
-    class Label < SortPad
+    class Label < Pad
       include TextNavigation
 
       # Set selector for click event target.
@@ -57,6 +58,7 @@ module Kredki
 
         @text = new NavigableText, h: 1r do
           cursor.w = 0
+          mousy! false
         end
       end
 
@@ -64,16 +66,24 @@ module Kredki
         super
 
         wh! :fit, 24
-        for! :~
-        keyboardy!
+        for! proc{ it.pa&.fc{ it.keyboardy? } }
+        keyboardy! false
+        area.fill! false
 
         text_navigation @text
+      end
 
-        on_mouse_click! do |e|
-          find_pad @for, proc{ it.keyboardy? } do
-            keyboard_request
-            report e
-          end
+      def for_pad
+        @for.call self
+      end
+
+      def behavior
+        super
+
+        on_mouse_enter! do |event|
+          @portal_layer = action.layer! PortalLayer
+          @portal_layer.entry = self
+          @portal_layer.exit = for_pad
         end
       end
     end

@@ -55,7 +55,7 @@ module Kredki
         end
 
         note.action.push_layer self
-        @pad[Item]&.keyboard_request
+        @pad.fd(Item)&.keyboard_request
       end
 
       def unload
@@ -67,11 +67,11 @@ module Kredki
         !!@note
       end
 
-      def mouse_down e
+      def mouse_push e
         unload
       end
 
-      def mouse_up e
+      def mouse_free e
       end
     end
   end

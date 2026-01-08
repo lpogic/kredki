@@ -48,39 +48,39 @@ module Kredki
       event = case event_type
       when 768
         abi = Pastele::KeyboardEvent.new event_ptr
-        window_event abi.window_id, KeyDownEvent.new(Kredki.keyboard, abi) do |event|
+        window_event abi.window_id, KeyboardKeyPushEvent.new(Kredki.keyboard, abi) do |event|
           @resolve_next_text_event = event.resolved? && (32..122).include?(event.input_id)
         end
       when 769
         abi = Pastele::KeyboardEvent.new event_ptr
-        window_event abi.window_id, KeyUpEvent.new(Kredki.keyboard, abi)
+        window_event abi.window_id, KeyboardKeyFreeEvent.new(Kredki.keyboard, abi)
       when 1024
         abi = Pastele::MouseMotionEvent.new event_ptr
-        event = MouseMoveEvent.new Kredki.mouse, abi
+        event = MousePointerMoveEvent.new Kredki.mouse, abi
         if window = @windows[abi.window_id]
           window.resolve event
         end
         event
       when 1027
         abi = Pastele::MouseWheelEvent.new event_ptr
-        window_event abi.window_id, MouseScrollEvent.new(Kredki.mouse, abi)
+        window_event abi.window_id, MouseWheelSpinEvent.new(Kredki.mouse, abi)
       when 1025
         abi = Pastele::MouseButtonEvent.new event_ptr
-        event = MouseButtonDownEvent.new Kredki.mouse, abi
+        event = MouseButtonPushEvent.new Kredki.mouse, abi
         if window = @windows[abi.window_id]
           window.resolve event
         end
         event
       when 1026
         abi = Pastele::MouseButtonEvent.new event_ptr
-        event = MouseButtonUpEvent.new Kredki.mouse, abi
+        event = MouseButtonFreeEvent.new Kredki.mouse, abi
         if window = @windows[abi.window_id]
           window.resolve event
         end
         event
       when 771
         abi = Pastele::TextInputEvent.new event_ptr
-        text_event = TextEvent.new(event_ptr, abi)
+        text_event = TextInputEvent.new(event_ptr, abi)
         @resolve_next_text_event &&= text_event.resolve && false
         window_event abi.window_id, text_event
       when 4096
@@ -118,7 +118,7 @@ module Kredki
         window_event abi.window_id, WindowRestoreEvent.new(abi)
       when 0x20C
         abi = Pastele::WindowEvent.new event_ptr
-        event = MouseEnterEvent.new abi
+        event = MousePointerEnterEvent.new abi
         if window = @windows[abi.window_id]
           window.set_mouse_in true
           window.resolve event
@@ -126,7 +126,7 @@ module Kredki
         event
       when 0x20D
         abi = Pastele::WindowEvent.new event_ptr
-        event = MouseLeaveEvent.new abi
+        event = MousePointerLeaveEvent.new abi
         if window = @windows[abi.window_id]
           window.set_mouse_in false
           window.resolve event
@@ -161,7 +161,7 @@ module Kredki
         arena_event JoystickButtonDownEvent.new(Kredki.opened_joysticks[abi_event.which], abi_event)
       when 1540
         abi_event = Pastele::JoyButtonEvent.new event_ptr
-        arena_event JoystickButtonUpEvent.new(Kredki.opened_joysticks[abi_event.which], abi_event)
+        arena_event JoystickMouseButtonFreeEvent.new(Kredki.opened_joysticks[abi_event.which], abi_event)
       when 1536
         abi_event = Pastele::JoyAxisEvent.new event_ptr
         arena_event JoystickAxisEvent.new(Kredki.opened_joysticks[abi_event.which], abi_event)

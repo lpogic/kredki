@@ -2,36 +2,30 @@ require_relative '../text_pad'
 
 module Kredki
   module UI
-    # Text in rectangle. Part of group.
+    # Item group member.
     class Item < RectanglePad
 
-      # Set content.
-      def content! content = @content
-        return send_ahp :content!, yield(self.content) if block_given?
-        return if @content == content
-        @content = content
-        text&.content! content
+      # Set object.
+      def object! object = @object
+        return send_ahp :object!, yield(self.object) if block_given?
+        return if @object == object
+        @object = object
         true
       end
 
-      # See #content!.
-      def content= param
-        send_ahp :content!, param
+      # See #object!.
+      def object= param
+        send_ahp :object!, param
       end
 
-      # Get content.
-      def content
-        @content
+      # Get object.
+      def object
+        @object
       end
 
-      # Get text.
-      def text
-        self[TextPad]
-      end
-
-      # Get whether has any item. Overrided in inheriting classes.
-      def has_items?
-        false
+      # Get whether is leaf.
+      def leaf?
+        true
       end
 
       # Get whether is down.
@@ -79,7 +73,7 @@ module Kredki
       def << feature
         case feature
         when String
-          content! feature
+          fc(TextPad)&.alter feature or new TextPad, feature
         else
           super
         end
@@ -88,12 +82,6 @@ module Kredki
       # :section: LEVEL 2
 
       class PickEvent < Event
-      end
-
-      def initialize
-        super
-        
-        @text = new TextPad, "", mousy: false, verse_size: 19
       end
 
       def sketch
@@ -112,8 +100,8 @@ module Kredki
         Event.each(
           on_focus_enter!,
           on_focus_leave!,
-          on_mouse_down!,
-          on_mouse_up!,
+          on_mouse_push!,
+          on_mouse_free!,
           on_mouse_enter!,
           on_mouse_leave!,
           do: method(:repaint)
@@ -139,12 +127,11 @@ module Kredki
       end
 
       def mouse_enter e
-        # parent&.mouse_enter self if action.event.is_a? Kredki::UI::PositionEvent
         parent&.mouse_enter self
       end
 
       def min_w
-        @text.fit_w
+        fit_w
       end
     end
   end

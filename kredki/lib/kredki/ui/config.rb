@@ -16,8 +16,7 @@ require_relative 'text/navigable_text'
 require_relative 'note'
 require_relative 'notes'
 require_relative 'button'
-require_relative 'check'
-require_relative 'labeled_check'
+require_relative 'check/check'
 require_relative 'radio/group'
 require_relative 'label'
 require_relative 'option/option'
@@ -29,7 +28,8 @@ require_relative 'toolbar/pad'
 
 module Kredki
 
-  color! :outline_focus, 182, 142, 0, 255
+  # color! :outline_focus, 182, 142, 0, 255
+  color! :outline_focus, 0, 142, 182, 255
   color! :text_selection, 70, 80, 122, 255
   color! :text_selection_inactive, 70, 80, 112, 155
   color! :text, 255, 255, 255, 255
@@ -48,7 +48,6 @@ module Kredki
       define :yslide!, VerticalSlide
       define :button!, Button
       define :check!, Check
-      define :labeled_check!, LabeledCheck
       define :note!, Note
       define :notes!, Notes
       define :label!, Label
@@ -67,7 +66,7 @@ module Kredki
   Window.default_action = UI::Action
 
   plugin! :carry_focus_on_tab do
-    on_key_down! :tab do |event|
+    on_key_press! :tab do |event|
       next_pad = layer.keyboard_pad&.then do |p0|
         each_pad(reverse: event.shift?, deep: true)
           .lazy

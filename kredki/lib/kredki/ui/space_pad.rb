@@ -23,10 +23,10 @@ module Kredki
         wh! 1r
       end
 
-      def mouse_down e
+      def mouse_push e
       end
 
-      def mouse_up e
+      def mouse_free e
       end
     end
   end

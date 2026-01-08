@@ -8,7 +8,7 @@ module Kredki
       # Get repeated click counter value. The counter is reset when the next click occurs after a specified time interval, 
       # or the click target is a different pad, or the click location is beyond a specified distance limit from the previous one.
       def mouse_clicks
-        @mouse_click_data&.combo || 0
+        @click_data&.combo || 0
       end
 
       # Detach from action.
@@ -16,7 +16,7 @@ module Kredki
         unless transfer
           update_keyboard_pad nil
           @pin_data = nil
-          @mouse_click_data = nil
+          @click_data = nil
         end
         super
       end
@@ -44,7 +44,7 @@ module Kredki
 
       end
 
-      class MouseClickData
+      class ClickData
 
         def initialize pad, xy, timestamp, combo
           @pad = pad
@@ -66,7 +66,7 @@ module Kredki
         @pin_data = nil
         @keyboard_pads = []
         @mouse_pads = []
-        @mouse_click_data = nil
+        @click_data = nil
       end
 
       def sketch
@@ -79,11 +79,11 @@ module Kredki
       def behavior
         super
         
-        on_key_down! aim: true do |e|
+        on_key_press! aim: true do |e|
           @down_keys[e.param || e.input_id] = true
         end
 
-        on_key_up! aim: true do |e|
+        on_key_free! aim: true do |e|
           if @down_keys[e.param || e.input_id]
             @down_keys[e.param || e.input_id] = false
             keyboard_event KeyClickEvent.new e
@@ -151,29 +151,29 @@ module Kredki
       end
 
       def mouse_event e
-        e.drag = @pin_data&.drag if e.is_a? MouseButtonUpEvent
+        e.drag = @pin_data&.drag if e.is_a? MouseButtonFreeEvent
         mouse_pad&.report e
+        e
       end
 
       def update_mouse_location event
         xy = event.xy
 
+        arrange
+        @mouse_pads, last_mouse_pads = [], @mouse_pads
+        point_pads *xy, @mouse_pads
         if @pin_data
           @pin_data.drag ||= layer_drag_check xy
           event.drag = @pin_data.drag
           @pin_data.pad.report event
-          return true
+          return event
         end
-        arrange
-        mouse_pads = []
-        included = point_pads *xy, mouse_pads
-        enter, stay, leave = *Util.polarize(mouse_pads, @mouse_pads)
-        @mouse_pads = mouse_pads
-        leave.reverse_each{ it.report MouseLeaveEvent.new(event), false }
-        enter.reverse_each{ it.report MouseEnterEvent.new(event), false }
-        mouse_top = @mouse_pads.last
-        mouse_top.report event if mouse_top
-        return included
+
+        enter, stay, leave = *Util.polarize(@mouse_pads, last_mouse_pads)
+        leave.reverse_each{ it.report MousePointerLeaveEvent.new(event), false }
+        enter.reverse_each{ it.report MousePointerEnterEvent.new(event), false }
+        @mouse_pads.last&.report event
+        event
       end
 
       def point_pads x, y, pads, force = false
@@ -190,34 +190,38 @@ module Kredki
         unless @mouse_pads.empty?
           mouse_pads = @mouse_pads
           @mouse_pads = []
-          mouse_pads.reverse_each{ it.report MouseLeaveEvent.new(nil, *xy), false }
+          mouse_pads.reverse_each{ it.report MousePointerLeaveEvent.new(nil, *xy), false }
         end
         @pin_data&.pad&.pin_dispose
       end
 
-      def mouse_down e
+      def mouse_push e
         keyboard_request if keyboardy?
         pin_request e.xy, e.button.id
       end
 
-      def mouse_up e
+      def mouse_free e
         pin_dispose e.button.id
         if !e.drag && include_point?(e.x, e.y)
-          report MouseClickEvent.new e
+          report MouseButtonClickEvent.new e
         end
       end
 
       def mouse_click event
-        if @mouse_click_data && 
-          @mouse_click_data.pad == event.target && 
-          !event.target.drag_check(@mouse_click_data.xy, event.xy) && 
-          event.timestamp - @mouse_click_data.timestamp < 200000000
+        if @click_data && 
+          @click_data.pad == event.target && 
+          !event.target.drag_check(@click_data.xy, event.xy) && 
+          event.timestamp - @click_data.timestamp < 200000000
         then
-          combo = @mouse_click_data.combo + 1
+          combo = @click_data.combo + 1
         else
           combo = 1
         end
-        @mouse_click_data = MouseClickData.new event.target, event.xy, event.timestamp, combo
+        @click_data = ClickData.new event.target, event.xy, event.timestamp, combo
+      end
+
+      def layer_check_mouse_in pad
+        mouse_pad&.check_mouse_in pad
       end
 
       def pin_pad

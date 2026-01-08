@@ -12,8 +12,10 @@ module Kredki
 
       # Reopen class to avoid circular depedency.
       class ItemGroup
-        def item! *a, **na, &b
-          new Item, *a, w: 1r, **na, &b
+
+        # Add new item.
+        def item!(...)
+          new(Item, w: 1r).alter(...)
         end
       end
       
@@ -97,13 +99,13 @@ module Kredki
 
             @parent_events.push = parent.on_mouse_click! :secondary do |e|
               @context_layer.load *e.xy
-              @context_layer[Item]&.keyboard_request
+              @context_layer.fd(Item)&.keyboard_request
               e.resolve
             end
       
             @parent_events.push = parent.on_key! :context do |e|
               @context_layer.load *parent.translate(parent.sx / 2, parent.sy / 2)
-              @context_layer[Item]&.keyboard_request
+              @context_layer.fd(Item)&.keyboard_request
               e.resolve
             end
           end

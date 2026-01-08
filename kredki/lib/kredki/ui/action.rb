@@ -38,20 +38,20 @@ module Kredki
         super
         @mouse_stale = false
 
-        @event_manager.manager MouseMoveEvent, proc{|e| update_mouse_location e }
-        @event_manager.manager MouseEnterEvent, proc{|e| update_mouse_location }
-        @event_manager.manager MouseLeaveEvent, proc{|e| update_mouse_location }
-        @event_manager.mouse_manager MouseButtonDownEvent, [], proc{|e| mouse_event e }
-        @event_manager.mouse_manager MouseButtonUpEvent, [], proc{|e| mouse_event e }
-        @event_manager.manager MouseScrollEvent, proc{|e| mouse_event e }
+        @event_manager.manager MousePointerMoveEvent, proc{|e| update_mouse_location e }
+        @event_manager.manager MousePointerEnterEvent, proc{|e| update_mouse_location }
+        @event_manager.manager MousePointerLeaveEvent, proc{|e| update_mouse_location }
+        @event_manager.mouse_manager MouseButtonPushEvent, [], proc{|e| mouse_event e }
+        @event_manager.mouse_manager MouseButtonFreeEvent, [], proc{|e| mouse_event e }
+        @event_manager.manager MouseWheelSpinEvent, proc{|e| mouse_event e }
 
-        on_key_down! do |e|
+        on_key_press! do |e|
           keyboard_event e
         end
-        on_key_up! do |e|
+        on_key_free! do |e|
           keyboard_event e
         end
-        on_text! do |e|
+        on_text_input! do |e|
           keyboard_event e
         end
 
@@ -120,7 +120,7 @@ module Kredki
         arrange
         @services.reverse_each do |layer|
           event.target = nil
-          layer.mouse_event event
+          event = layer.mouse_event event
           @event_director.resolve
         end
       end
@@ -132,7 +132,7 @@ module Kredki
           if event.resolved?
             layer.clear_mouse_location xy
           else
-            layer.update_mouse_location event
+            event = layer.update_mouse_location event
           end
           @event_director.resolve
         end
@@ -167,9 +167,12 @@ module Kredki
         layer
       end
 
-      def remove_pad layer, transfer = false
+      def remove_service layer, transfer = false
         @services.delete layer
         @mouse_stale = true
+      end
+
+      def remove_pad pad, transfer = false
       end
     end
   end

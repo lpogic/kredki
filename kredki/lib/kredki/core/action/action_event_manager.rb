@@ -23,8 +23,8 @@ module Kredki
       resolver ? manager.attach!(resolver, always:) : manager
     end
 
-    def mouse_manager event_type, indexes, resolver, always = false
-      manager = (@managers[event_type] ||= MouseEventManager.new)[*indexes]
+    def mouse_manager event_type, buttoncodes, resolver, always = false
+      manager = (@managers[event_type] ||= MouseEventManager.new)[*buttoncodes]
       resolver ? manager.attach!(resolver, always:) : manager
     end
     

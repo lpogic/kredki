@@ -1,5 +1,5 @@
+require_relative 'item_button'
 require_relative 'item'
-require_relative 'labeled_item'
 
 module Kredki
   module UI
@@ -12,45 +12,32 @@ module Kredki
           new(Item, ...)
         end
 
-        # Add new labeled radio item.
-        def labeled_item! ...
-          p0 = self
-          new LabeledItem do
-            put! p0.item!
-            new Label, "Radio label item"
-          end.alter(...)
-        end
-
         # :section: LEVEL 2
 
-        def key event, radio
+        def key event, item_button
           case event.key.id
           when :up
-            r = previous_radio radio
-            r.keyboard_request
-            r.roi!
+            previous_item_button(item_button).keyboard_request
             event.resolve
           when :down
-            r = next_radio radio
-            r.keyboard_request
-            r.roi!
+            next_item_button(item_button).keyboard_request
             event.resolve
           end
         end
 
-        def previous_radio radio
-          radios = self[Item...].to_a
-          radios[radios.index(radio) - 1]
+        def previous_item_button item_button
+          item_buttons = each_fd(ItemButton).to_a
+          item_buttons[item_buttons.index(item_button) - 1]
         end
 
-        def next_radio radio
-          radios = self[Item...].to_a
-          radios[(radios.index(radio) + 1) % radios.size]
+        def next_item_button item_button
+          item_buttons = each_fd(ItemButton).to_a
+          item_buttons[(item_buttons.index(item_button) + 1) % item_buttons.size]
         end
 
-        def set_checked radio, checked
-          self[Item...]{ it.checked? }.each{ it.set_checked false } if checked
-          radio.set_checked checked
+        def set_checked item_button, checked
+          each_fd(ItemButton){ it.checked? }.each{ it.set_checked false } if checked
+          item_button.set_checked checked
         end
       end#Group
     end#Radio

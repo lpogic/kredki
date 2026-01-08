@@ -1,6 +1,6 @@
 module Kredki
   # Event reported on text entered.
-  class TextEvent < PasteleEvent
+  class TextInputEvent < PasteleEvent
     
     # Entered content.
     def text

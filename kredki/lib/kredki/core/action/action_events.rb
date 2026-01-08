@@ -17,62 +17,62 @@ module Kredki
     end
 
     # Create and attach key down event resolver.
-    def on_key_down! *selected_keys, do: nil, &block
+    def on_key_press! *selected_keys, do: nil, &block
       keycodes = Kredki.keyboard.keycodes selected_keys
-      @event_manager.keyboard_manager KeyDownEvent, keycodes, block || binding.local_variable_get(:do)
+      @event_manager.keyboard_manager KeyboardKeyPushEvent, keycodes, block || binding.local_variable_get(:do)
     end
 
-    # See #on_key_down!.
-    def on_key_down= resolver
-      on_key_down! do: resolver
+    # See #on_key_press!.
+    def on_key_press= resolver
+      on_key_press! do: resolver
     end
 
     # Create and attach key up event resolver.
-    def on_key_up! *selected_keys, do: nil, &block
+    def on_key_free! *selected_keys, do: nil, &block
       keycodes = Kredki.keyboard.keycodes selected_keys
-      @event_manager.keyboard_manager KeyUpEvent, keycodes, block || binding.local_variable_get(:do)
+      @event_manager.keyboard_manager KeyboardKeyFreeEvent, keycodes, block || binding.local_variable_get(:do)
     end
 
-    # See #on_key_up!.
-    def on_key_up= resolver
-      on_key_up! do: resolver
+    # See #on_key_free!.
+    def on_key_free= resolver
+      on_key_free! do: resolver
     end
 
     # Create and attach text event resolver.
-    def on_text! ...
-      on!(TextEvent, ...)
+    def on_text_input! ...
+      on!(TextInputEvent, ...)
     end
 
-    # See #on_text!.
-    def on_text= resolver
-      on_text! do: resolver
+    # See #on_text_input!.
+    def on_text_input= resolver
+      on_text_input! do: resolver
     end
 
     # Create and attach mouse down event resolver.
-    def on_mouse_down! *selected_buttons, do: nil, &block
+    def on_mouse_push! *selected_buttons, do: nil, &block
       indexes = Kredki.mouse.indexes selected_buttons
-      @event_manager.mouse_manager MouseButtonDownEvent, indexes, block || binding.local_variable_get(:do)
+      @event_manager.button_manager ButtonDownEvent, indexes, block || binding.local_variable_get(:do)
     end
 
-    # See #on_mouse_down!.
-    def on_mouse_down= resolver
-      on_mouse_down! do: resolver
+    # See #on_mouse_push!.
+    def on_mouse_push= resolver
+      on_mouse_push! do: resolver
     end
 
     # Create and attach mouse up event resolver.
-    def on_mouse_up! *selected_buttons, do: nil, &block
+    def on_mouse_free! *selected_buttons, do: nil, &block
       indexes = Kredki.mouse.indexes selected_buttons
-      @event_manager.mouse_manager MouseButtonUpEvent, indexes, block || binding.local_variable_get(:do)
+      @event_manager.button_manager MouseButtonFreeEvent, indexes, block || binding.local_variable_get(:do)
     end
 
-    # See #on_mouse_up!.
-    def on_mouse_up= resolver
-      on_mouse_up! do: resolver
+    # See #on_mouse_free!.
+    def on_mouse_free= resolver
+      on_mouse_free! do: resolver
     end
 
     # Create and attach mouse enter event resolver.
     def on_mouse_enter! ...
-      on!(MouseEnterEvent, ...)
+      on!(PointerEnterEvent, ...)
     end
 
     # See #on_mouse_enter!.
@@ -82,7 +82,7 @@ module Kredki
 
     # Create and attach mouse leave event resolver.
     def on_mouse_leave! ...
-      on!(MouseLeaveEvent, ...)
+      on!(PointerLeaveEvent, ...)
     end
 
     # See #on_mouse_leave!.
@@ -92,7 +92,7 @@ module Kredki
 
     # Create and attach mouse move event resolver.
     def on_mouse_move! ...
-      on!(WindowMouseMoveEvent, ...)
+      on!(PointerMoveEvent, ...)
     end
 
     # See #on_mouse_move!.
@@ -100,38 +100,38 @@ module Kredki
       on_mouse_move! do: resolver
     end
     
-    # Create and attach mouse scroll event resolver.
-    def on_mouse_scroll! ...
-      on!(WindowMouseScrollEvent, ...)
+    # Create and attach mouse spin event resolver.
+    def on_mouse_spin! ...
+      on!(MouseWheelSpinEvent, ...)
     end
 
-    # See #on_mouse_scroll!.
-    def on_mouse_scroll= resolver
-      on_mouse_scroll! do: resolver
+    # See #on_mouse_spin!.
+    def on_mouse_spin= resolver
+      on_mouse_spin! do: resolver
     end
 
     # Create and attach joystick down event resolver.
-    def on_joystick_down! joystick_id, *selected_buttons, do: nil, &block
+    def on_joystick_push! joystick_id, *selected_buttons, do: nil, &block
       joystick = Kredki.joystick joystick_id
       indexes = joystick.buttons selected_buttons
       @event_manager.joystick_manager JoystickButtonDownEvent, joystick, indexes, block || binding.local_variable_get(:do)
     end
 
-    # See #on_joystick_down!.
-    def on_joystick_down= resolver
-      on_joystick_down! do: resolver
+    # See #on_joystick_push!.
+    def on_joystick_push= resolver
+      on_joystick_push! do: resolver
     end
 
     # Create and attach joystick up event resolver.
-    def on_joystick_up! joystick_id, *selected_buttons, do: nil, &block
+    def on_joystick_free! joystick_id, *selected_buttons, do: nil, &block
       joystick = Kredki.joystick joystick_id
       indexes = joystick.buttons selected_buttons
-      @event_manager.joystick_manager JoystickButtonUpEvent, joystick, indexes, block || binding.local_variable_get(:do)
+      @event_manager.joystick_manager JoystickMouseButtonFreeEvent, joystick, indexes, block || binding.local_variable_get(:do)
     end
 
-    # See #on_joystick_up!.
-    def on_joystick_up= resolver
-      on_joystick_up! do: resolver
+    # See #on_joystick_free!.
+    def on_joystick_free= resolver
+      on_joystick_free! do: resolver
     end
 
     # Create and attach joystick move event resolver.
@@ -177,23 +177,23 @@ module Kredki
     end
 
     # Create and attach step event resolver.
-    def on_step! ...
+    def on_clock_step! ...
       on!(StepEvent, ...)
     end
 
-    # See #on_step!.
-    def on_step= resolver
-      on_step! do: resolver
+    # See #on_clock_step!.
+    def on_clock_step= resolver
+      on_clock_step! do: resolver
     end
 
     # Create and attach quit event resolver.
-    def on_quit! ...
+    def on_loop_quit! ...
       on!(QuitEvent, ...)
     end
 
-    # See #on_quit!.
-    def on_quit= resolver
-      on_quit! do: resolver
+    # See #on_loop_quit!.
+    def on_loop_quit= resolver
+      on_loop_quit! do: resolver
     end
 
     # Create and attach window show event resolver.

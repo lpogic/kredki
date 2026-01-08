@@ -28,7 +28,7 @@ module Kredki
       end
     end
 
-    # Get button indexes for input.
+    # Get button codes.
     def indexes input
       input.map{ button(_1).buttoncode }.uniq
     end
@@ -84,21 +84,21 @@ module Kredki
     end
 
     # Get whether button is down.
-    def down? button_id = :primary
-      Pastele.mouse_get_button_state(button(button_id).buttoncode) != 0
+    def down? id = :primary
+      Pastele.mouse_get_button_state(button(id).buttoncode) != 0
     end
 
-    # Get cursor position along X axis.
+    # Get pointer position along X axis.
     def x
       xy[0]
     end
 
-    # Get cursor position along Y axis.
+    # Get pointer position along Y axis.
     def y
       xy[1]
     end
 
-    # Get cursor position along X and Y axes.
+    # Get pointer position along X and Y axes.
     def xy
       get_cursor_position
     end

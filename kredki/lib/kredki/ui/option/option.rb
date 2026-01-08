@@ -47,7 +47,6 @@ module Kredki
         @arrow = @note.new Button, w: 20, h: 1r do
           outline_w! 0
           keyboardy! false
-          text.detach!
           new RectanglePad, mousy: false, keyboardy: false, fill: 0, wh: 1r do
             outline! fill: :text, w: 3, cap: :round
             area! do |w, h|
@@ -99,7 +98,7 @@ module Kredki
 
         on_pick! do |e|
           @dropdown.unload
-          content = e.target.content
+          content = e.target.fd(TextPad).content
           @note.content! content
           @note.verse.set_cursor content.to_s.length
         end

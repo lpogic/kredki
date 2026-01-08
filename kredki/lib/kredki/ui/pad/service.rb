@@ -50,14 +50,9 @@ module Kredki
         end
       end
 
-      # Get first ancestor matching +filter+.
-      def grand filter
-        lineage.find{ _1 =~ filter }
-      end
-
       # Get Kredki::UI::Layer ancestor.
       def layer
-        grand Layer
+        is Layer or fa Layer
       end
 
       # Get Kredki::Action ancestor.
@@ -123,8 +118,10 @@ module Kredki
       end
 
       # Match self with +filter+.
-      def =~(filter)
+      def =~ filter
         case filter
+        when nil
+          true
         when Symbol
           !!@tags[filter]
         when Module, Proc
@@ -136,6 +133,11 @@ module Kredki
         else
           raise "Unsupported =~ (#{filter} : #{filter.class})"
         end
+      end
+
+      # Get whether match filters.
+      def is *filters, &block
+        self =~ filters && self =~ block ? self : nil
       end
 
       # Push the feature.

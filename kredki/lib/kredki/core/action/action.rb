@@ -76,7 +76,7 @@ module Kredki
       @fill = rectangle! xy: 0
       @the = The.new self
 
-      on_step! do: method(:step)
+      on_clock_step! do: method(:step)
     end
 
     attr :event_director

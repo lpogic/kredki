@@ -87,8 +87,8 @@ module Kredki
         super
 
         Event.each(
-          on_mouse_down!, 
-          on_mouse_up!, 
+          on_mouse_push!, 
+          on_mouse_free!, 
           on_mouse_enter!, 
           on_mouse_leave!,
           do: method(:repaint)
@@ -103,7 +103,7 @@ module Kredki
       def behavior
         super 
 
-        on_mouse_scroll! do |e|
+        on_mouse_spin! do |e|
           jump = Kredki.keyboard.alt? ? Kredki.mouse.scrollbar_alt_speed : Kredki.mouse.scrollbar_speed
           value!{ (it - jump * e.xory).clamp(0..1) } and report EditEvent.new e
           e.resolve
@@ -112,11 +112,11 @@ module Kredki
         p0 = self
 
         @handle.alter do
-          on_mouse_up! do |e|
+          on_mouse_free! do |e|
             p0.report ChangeEvent.new
           end
 
-          on_mouse_down! do |e|
+          on_mouse_push! do |e|
             drag! e.xy, e.button.id
             e.resolve
           end
@@ -158,7 +158,7 @@ module Kredki
       def behavior
         super
 
-        on_mouse_down! :primary do |e|
+        on_mouse_push! :primary do |e|
           @handle.drag! @handle.translate(@handle.sw * 0.5, 0), :primary
           e.resolve
         end
@@ -207,7 +207,7 @@ module Kredki
       def behavior
         super
 
-        on_mouse_down! :primary do |e|
+        on_mouse_push! :primary do |e|
           @handle.drag! @handle.translate(0, @handle.sh * 0.5), :primary
           e.resolve
         end

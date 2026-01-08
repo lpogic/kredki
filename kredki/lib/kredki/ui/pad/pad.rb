@@ -404,7 +404,14 @@ module Kredki
 
       # [Create] and attach area and optionally clip area.
       def area! area = BlockShapeArea, clip: :auto, &block
-        a = Class === area ? area.new(&block) : area
+        a = case area
+        when Class
+          area.new(&block)
+        when Proc
+          BlockShapeArea.new(&area)
+        else
+          area
+        end
         unless @area == a
           a.alter_kw **@area
           a.attach! @scene, true, @area
@@ -557,7 +564,8 @@ module Kredki
 
       # Get whether mouse cursor is over Pad.
       def mouse_in?
-        layer&.mouse_pad&.pad_lineage&.any?{ _1 == self } || false
+        layer&.layer_check_mouse_in self or false
+        # layer&.mouse_pad&.pad_lineage&.any?{ _1 == self } || false
       end
 
       # Get whether mouse cursor is directly over Pad.
@@ -633,7 +641,7 @@ module Kredki
       def drag! start_xy = nil, button = nil
         mouse_xy = window.mouse_xy
         pin_request start_xy || mouse_xy, button, true
-        event = MouseMoveEvent.new Kredki.mouse, PositionEvent.new(*mouse_xy)
+        event = MousePointerMoveEvent.new Kredki.mouse, PositionEvent.new(*mouse_xy)
         event.drag = :start
         report event
       end
@@ -657,7 +665,7 @@ module Kredki
       # Attach self to +parent+.
       def attach! parent
         super
-        parent&.grand(Pad)&.put_pad self
+        parent&.find(:<, Pad)&.put_pad self
       end
 
       # Detach from containing Pad.
@@ -671,6 +679,8 @@ module Kredki
         case feature
         when Pad
           put! feature
+        when String
+          new TextPad, feature
         else
           super
         end
@@ -717,14 +727,14 @@ module Kredki
       end
 
       def behavior
-        on_mouse_down! do: method(:mouse_down)
-        on_mouse_up! do: method(:mouse_up)
+        on_mouse_push! do: method(:mouse_push)
+        on_mouse_free! do: method(:mouse_free)
         on_mouse_enter! do: method(:mouse_enter)
         on_mouse_leave! do: method(:mouse_leave)
         on_mouse_move! do: method(:mouse_move)
         on_focus_enter! do: method(:focus_enter)
         on_focus_leave! do: method(:focus_leave)
-        on! KeyboardOfferEvent, do: method(:keyboard_offer)
+        on! FocusOfferEvent, do: method(:keyboard_offer)
       end
 
       def keyboard_offer e
@@ -740,16 +750,16 @@ module Kredki
       def mouse_move e
       end
 
-      def mouse_down e
-        report KeyboardOfferEvent.new if e.button.id == :primary
+      def mouse_push e
+        report FocusOfferEvent.new if e.button.id == :primary
         pin_request e.xy, e.button.id
         e.resolve
       end
 
-      def mouse_up e
+      def mouse_free e
         pin_dispose e.button.id
         if !e.drag && include_point?(*layer.translate(*e.xy, self))
-          report MouseClickEvent.new e
+          report MouseButtonClickEvent.new e
         end
         e.resolve
       end
@@ -944,7 +954,9 @@ module Kredki
 
       def min_w
         m = @margin_xs + @margin_xe
-        [min_wv(m), min_wl(@w_limit, m)].max
+        mw = min_wv(m)
+        mw = [mw, min_wl(@w_limit, m)].max if @w_limit
+        mw
       end
 
       def min_wv m
@@ -955,6 +967,8 @@ module Kredki
           fit_w
         when :layout
           @area.w
+        when :h
+          get_h
         when Numeric
           @w < 0 ? m : @w
         else
@@ -1024,7 +1038,9 @@ module Kredki
 
       def min_h
         m = @margin_ys + @margin_ye
-        [min_hv(m), min_hl(@h_limit, m)].max
+        mh = min_hv(m)
+        mh = [mh, min_hl(@h_limit, m)].max if @h_limit
+        mh
       end
 
       def min_hv m
@@ -1035,6 +1051,8 @@ module Kredki
           fit_h
         when :layout
           @area.h
+        when :w
+          get_w
         when Numeric
           @h < 0 ? m : @h
         else
@@ -1165,6 +1183,12 @@ module Kredki
         layer.update_keyboard_pad if keyboard_in?
       end
 
+      def check_mouse_in pad
+        fa Pad, with_self: true do
+          pad == it
+        end
+      end
+
       def pin_request xy = nil, button = nil, drag = false
         layer&.update_pin_pad self, xy, button, drag
       end
@@ -1205,11 +1229,11 @@ module Kredki
         event_director = action&.event_director
         return unless event_director
         if path
-          ancs = pad_lineage.to_a
-          ancs.reverse_each do |pad|
+          path = pad_lineage.to_a.reverse if path == true
+          path.each do |pad|
             event_director.push event, pad, true, instant
           end
-          ancs.each do |pad|
+          path.reverse_each do |pad|
             event_director.push event, pad, false, instant
           end
         else
@@ -1224,7 +1248,7 @@ module Kredki
 
       def c_set_parent at
         return if @pad_parent
-        set_pad_parent (@parent&.grand Pad), at
+        set_pad_parent @parent.is(Pad) || @parent.fa(Pad), at
       end
 
       def set_pad_parent pad_parent, at

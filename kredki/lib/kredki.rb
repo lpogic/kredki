@@ -5,7 +5,7 @@ if defined? IRB
   require_relative 'kredki/irb'
 else
   arena = Kredki.arena!
-  A = arena.window!(show: false).action[Kredki::UI::Layer]
+  A = arena.window!(show: false).action.fd Kredki::UI::Layer
   module Kredki
     module Extend
       extend Forwardable

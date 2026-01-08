@@ -12,7 +12,7 @@ module Kredki
 
         # Add menu item.
         def item!(...)
-          @item_group.item!(...)
+          fc(ItemGroup).item!(...)
         end
 
         # Create and attach item pick event resolver.
@@ -35,10 +35,14 @@ module Kredki
           layout! :xsc
           fill! :gray
         
-          @item_group = new ItemGroup
+          new ItemGroup
+        end
+
+        def behavior
+          super
 
           on_pick! do |e|
-            keyboard_dispose unless e.target.has_items?
+            keyboard_dispose unless e.target.fd Context::Item
           end
         end
 

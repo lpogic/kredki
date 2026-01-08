@@ -17,7 +17,7 @@ module Kredki
       def down! value = true, event = nil
         return if (c = down) == (value = block_given? ? yield(c) : value == :not ? !c : value)
         @down = value
-        report (@down ? ButtonDownEvent.new(event) : ButtonUpEvent.new(event)) if event
+        report (@down ? ButtonDownEvent.new(event) : MouseButtonFreeEvent.new(event)) if event
         true
       end
 
@@ -56,16 +56,11 @@ module Kredki
         @suit
       end
 
-      # Get text.
-      def text
-        self[TextPad]
-      end
-
       # Push the feature.
       def << arg
         case arg
         when String
-          text << arg
+          (sc TextPad or default_text) << arg
         else
           super
         end
@@ -79,18 +74,11 @@ module Kredki
       class ButtonDownEvent < Event
       end
 
-      class ButtonUpEvent < Event
+      class MouseButtonFreeEvent < Event
       end
 
       def sketch
         super
-
-        new TextPad, "Button" do
-          mousy! false
-          h! :fit
-          verse_size! 24
-          verse_layout! :ycc
-        end
 
         keyboardy!
         outline_w! 1
@@ -109,7 +97,7 @@ module Kredki
           on_mouse_enter!, 
           on_mouse_leave!, 
           on!(ButtonDownEvent), 
-          on!(ButtonUpEvent),
+          on!(MouseButtonFreeEvent),
           do: method(:repaint)
         )
       end
@@ -123,7 +111,7 @@ module Kredki
       def behavior
         super
 
-        Event.each on_mouse_down!(:primary), on_key_down!(:enter, :space) do |e|
+        Event.each on_mouse_push!(:primary), on_key_press!(:enter, :space) do |e|
           down! true, e
         end
 
@@ -131,19 +119,34 @@ module Kredki
           down! false, e
         end
 
-        on_mouse_up! :primary do |e|
+        on_mouse_click! :primary do |e|
           down = keyboard_in? && ( Kredki.keyboard.down?(:space) || Kredki.keyboard.down?(:enter) )
-          report ButtonClickEvent.new e if !down && down!(false, e) && !e.drag && include_point?(*layer.translate(*e.xy, self))
+          
+          report ButtonClickEvent.new e if !down && down!(false, e)
         end
 
-        on_key_up! :enter do |e|
+        # on_mouse_free! :primary do |e|
+        #   down = keyboard_in? && ( Kredki.keyboard.down?(:space) || Kredki.keyboard.down?(:enter) )
+        #   report ButtonClickEvent.new e if !down && down!(false, e) && !e.drag && include_point?(*layer.translate(*e.xy, self))
+        # end
+
+        on_key_free! :enter do |e|
           down = pin_top?(:primary) || ( keyboard_in? && Kredki.keyboard.down?(:space) )
           report ButtonClickEvent.new e if !down && down!(false, e)
         end
 
-        on_key_up! :space do |e|
+        on_key_free! :space do |e|
           down = pin_top?(:primary) || ( keyboard_in? && Kredki.keyboard.down?(:enter) )
           report ButtonClickEvent.new e if !down && down!(false, e)
+        end
+      end
+
+      def default_text
+        new TextPad, "Button" do
+          mousy! false
+          h! :fit
+          verse_size! 24
+          verse_layout! :ycc
         end
       end
     end

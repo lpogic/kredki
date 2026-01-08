@@ -50,7 +50,7 @@ module Kredki
       end
     end
 
-    class MouseClickEvent < Event
+    class MouseButtonClickEvent < Event
 
       # Get event button.
       def button
@@ -170,7 +170,7 @@ module Kredki
       end
     end
 
-    class KeyboardOfferEvent < Event
+    class FocusOfferEvent < Event
     end
 
     class ROIEvent < PositionEvent
@@ -207,25 +207,25 @@ module Kredki
       end
 
       # Create and attach key down event resolver.
-      def on_key_down! *filtered_keys, aim: false, always: false, do: nil, &block
+      def on_key_press! *filtered_keys, aim: false, always: false, do: nil, &block
         keycodes = Kredki.keyboard.keycodes filtered_keys
-        @event_manager.keyboard_manager KeyDownEvent, keycodes, block || binding.local_variable_get(:do), aim, always
+        @event_manager.keyboard_manager KeyboardKeyPushEvent, keycodes, block || binding.local_variable_get(:do), aim, always
       end
 
-      # See #on_key_down!.
-      def on_key_down= param
-        on_key_down! do: param
+      # See #on_key_press!.
+      def on_key_press= param
+        on_key_press! do: param
       end
 
       # Create and attach key up event resolver.
-      def on_key_up! *filtered_keys, aim: false, always: false, do: nil, &block
+      def on_key_free! *filtered_keys, aim: false, always: false, do: nil, &block
         keycodes = Kredki.keyboard.keycodes filtered_keys
-        @event_manager.keyboard_manager KeyUpEvent, keycodes, block || binding.local_variable_get(:do), aim, always
+        @event_manager.keyboard_manager KeyboardKeyFreeEvent, keycodes, block || binding.local_variable_get(:do), aim, always
       end
 
-      # See #on_key_up!.
-      def on_key_up= param
-        on_key_up! do: param
+      # See #on_key_free!.
+      def on_key_free= param
+        on_key_free! do: param
       end
 
       # Create and attach key event resolver.
@@ -239,41 +239,41 @@ module Kredki
         on_key! do: param
       end
 
-      def on_text! ...
-        on!(TextEvent, ...)
+      def on_text_input! ...
+        on!(TextInputEvent, ...)
       end
 
-      # See #on_text!.
-      def on_text= param
-        on_text! do: param
+      # See #on_text_input!.
+      def on_text_input= param
+        on_text_input! do: param
       end
   
       # Create and attach mouse down event resolver.
-      def on_mouse_down! *filtered_buttons, aim: false, always: false, do: nil, &block
+      def on_mouse_push! *filtered_buttons, aim: false, always: false, do: nil, &block
         indexes = Kredki.mouse.indexes filtered_buttons
-        @event_manager.mouse_manager MouseButtonDownEvent, indexes, block || binding.local_variable_get(:do), aim, always
+        @event_manager.mouse_manager MouseButtonPushEvent, indexes, block || binding.local_variable_get(:do), aim, always
       end
 
-      # See #on_mouse_down!.
-      def on_mouse_down= param
-        on_mouse_down! do: param
+      # See #on_mouse_push!.
+      def on_mouse_push= param
+        on_mouse_push! do: param
       end
   
       # Create and attach mouse up event resolver.
-      def on_mouse_up! *filtered_buttons, aim: false, always: false, do: nil, &block
+      def on_mouse_free! *filtered_buttons, aim: false, always: false, do: nil, &block
         indexes = Kredki.mouse.indexes filtered_buttons
-        @event_manager.mouse_manager MouseButtonUpEvent, indexes, block || binding.local_variable_get(:do), aim, always
+        @event_manager.mouse_manager MouseButtonFreeEvent, indexes, block || binding.local_variable_get(:do), aim, always
       end
 
-      # See #on_mouse_up!.
-      def on_mouse_up= param
-        on_mouse_up! do: param
+      # See #on_mouse_free!.
+      def on_mouse_free= param
+        on_mouse_free! do: param
       end
 
       # Create and attach mouse click event resolver.
       def on_mouse_click! *filtered_buttons, aim: false, always: false, do: nil, &block
         indexes = Kredki.mouse.indexes filtered_buttons
-        @event_manager.mouse_manager MouseClickEvent, indexes, block || binding.local_variable_get(:do), aim, always
+        @event_manager.mouse_manager MouseButtonClickEvent, indexes, block || binding.local_variable_get(:do), aim, always
       end
 
       # See #on_mouse_click!.
@@ -283,7 +283,7 @@ module Kredki
 
       # Create and attach mouse enter event resolver.
       def on_mouse_enter! ...
-        on!(MouseEnterEvent, ...)
+        on!(MousePointerEnterEvent, ...)
       end
 
       # See #on_mouse_enter!.
@@ -293,7 +293,7 @@ module Kredki
 
       # Create and attach mouse leave event resolver.
       def on_mouse_leave! ...
-        on!(MouseLeaveEvent, ...)
+        on!(MousePointerLeaveEvent, ...)
       end
 
       # See #on_mouse_leave!.
@@ -303,7 +303,7 @@ module Kredki
 
       # Create and attach mouse move event resolver.
       def on_mouse_move! ...
-        on!(MouseMoveEvent, ...)
+        on!(MousePointerMoveEvent, ...)
       end
 
       # See #on_mouse_move!.
@@ -312,37 +312,37 @@ module Kredki
       end
 
       # Create and attach mouse scroll event resolver.
-      def on_mouse_scroll! ...
-        on!(MouseScrollEvent, ...)
+      def on_mouse_spin! ...
+        on!(MouseWheelSpinEvent, ...)
       end
 
-      # See #on_mouse_scroll!.
-      def on_mouse_scroll= param
-        on_mouse_scroll! do: param
+      # See #on_mouse_spin!.
+      def on_mouse_spin= param
+        on_mouse_spin! do: param
       end
       
       # Create and attach joystick down event resolver.
-      def on_joystick_down! joystick_id, *filtered_buttons, aim: false, always: false, do: nil, &block
+      def on_joystick_push! joystick_id, *filtered_buttons, aim: false, always: false, do: nil, &block
         joystick = Kredki.joystick joystick_id
         indexes = joystick.buttons filtered_buttons
         @event_manager.joystick_manager JoystickButtonDownEvent, joystick, indexes, block || binding.local_variable_get(:do), aim, always
       end
 
-      # See #on_joystick_down!.
-      def on_joystick_down= param
-        on_joystick_down! do: param
+      # See #on_joystick_push!.
+      def on_joystick_push= param
+        on_joystick_push! do: param
       end
 
       # Create and attach joystick up event resolver.
-      def on_joystick_up! joystick_id, *filtered_buttons, aim: false, always: false, do: nil, &block
+      def on_joystick_free! joystick_id, *filtered_buttons, aim: false, always: false, do: nil, &block
         joystick = Kredki.joystick joystick_id
         indexes = joystick.buttons filtered_buttons
-        @event_manager.joystick_manager JoystickButtonUpEvent, joystick, indexes, block || binding.local_variable_get(:do), aim, always
+        @event_manager.joystick_manager JoystickMouseButtonFreeEvent, joystick, indexes, block || binding.local_variable_get(:do), aim, always
       end
 
-      # See #on_joystick_up!.
-      def on_joystick_up= param
-        on_joystick_up! do: param
+      # See #on_joystick_free!.
+      def on_joystick_free= param
+        on_joystick_free! do: param
       end
 
       # Create and attach joystick axis event resolver.

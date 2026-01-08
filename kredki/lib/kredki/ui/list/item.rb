@@ -55,8 +55,8 @@ module Kredki
           Event.each(
             on_focus_enter!,
             on_focus_leave!,
-            on_mouse_down!,
-            on_mouse_up!,
+            on_mouse_push!,
+            on_mouse_free!,
             on_mouse_enter!,
             on_mouse_leave!,
             do: method(:repaint)
@@ -65,20 +65,20 @@ module Kredki
 
         def repaint event = nil
           color = Kredki.color @suit
-          area.fill = selected? ? :text_selection : mouse_in? ? color.lighten : color
-            if keyboard_in?
-              area.outline_w = 1
-              area.outline_fill = :outline_focus
-            else
-              area.outline_w = 0
-              area.outline_fill = color
-            end
+          area.fill = selected? ? mouse_in? ? Kredki.color(:text_selection).lighten : :text_selection : mouse_in? ? color.lighten : color
+          if keyboard_in?
+            area.outline_w = 1
+            area.outline_fill = :outline_focus
+          else
+            area.outline_w = 0
+            area.outline_fill = color
+          end
         end
 
         def behavior
           super
 
-          on_key_down! :up do |e|
+          on_key_press! :up do |e|
             selected! if e.shift?
             item = parent.update_selected_item(:previous)
             if item
@@ -88,7 +88,7 @@ module Kredki
             e.resolve
           end
 
-          on_key_down! :down do |e|
+          on_key_press! :down do |e|
             selected! if e.shift?
             item = parent.update_selected_item(:next)
             if item
@@ -102,13 +102,9 @@ module Kredki
         def mouse_enter e
         end
 
-        def mouse_down e
+        def mouse_push e
           parent.selected_up_to self if Kredki.keyboard.then{ it.shift? && !it.ctrl? }
           super
-        end
-
-        def min_w
-          @text.fit_w
         end
 
       end#Item

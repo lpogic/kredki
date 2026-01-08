@@ -31,26 +31,26 @@ module Kredki
           layout! :yss
           h! :fit
 
-          @item_group = new ListItemGroup
+          @item_group = new ItemGroup
         end
 
         def behavior
           super
 
-          on! Item::PickEvent do
-            item = it.target
-            kb = keyboard
+          on! Item::PickEvent do |e|
+            item = e.target
+            kb = Kredki.keyboard
             if kb.shift?
-              item.select!
+              item.selected!
             elsif kb.ctrl?
-              item.select! :not
+              item.selected! :not
             else
-              self[Item...].each_alter{ selected! it == item }
+              each_fd(Item).each_alter{ selected! it == item }
             end
           end
 
           on_focus_leave! do
-            self[Item...].each_alter select: false
+            each_fd(Item).each_alter selected: false
           end
         end
 
