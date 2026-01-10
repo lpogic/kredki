@@ -21,21 +21,21 @@ module Kredki
     def play param = nil
       stop
       @param = param
-      @next_ms = Kredki.ms
+      @next_ms = @scene.arena.ms
       @total_ms = 0
-      @action.put_job self
+      @scene.put_job self
     end
 
     # Stop job and all subjobs.
     def stop
-      @action.remove_job self
+      @scene.remove_job self
       @event_manager.resolve StopEvent.new
     end
 
     # :section: LEVEL 2
 
-    def initialize action, block, period
-      super(action)
+    def initialize scene, block, period
+      super(scene)
       @block = block
       @period = period
       @next_ms = 0

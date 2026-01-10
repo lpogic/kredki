@@ -201,6 +201,8 @@ void Window::surfaceToPng(const char* file) {
 
 void Window::show(void) {
     SDL_ShowWindow(sdl_window);
+    setNeedResize();
+    needDraw = true;
 }
 
 void Window::hide(void) {

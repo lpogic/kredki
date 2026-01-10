@@ -143,7 +143,7 @@ module Kredki
         return send_ahp :corner_ss!, yield(self.corner_ss) if block_given?
         @area.corner_ss!(corner_ss) | 
         if clip_corner == :auto
-          @clip_area.corner_ss! corner_ss - (@margin_xs + @margin_ys) * 0.5
+          @clip_area.corner_ss! corner_ss - (@mxs + @mys) * 0.5
         elsif clip_corner
           @clip_area.corner_ss! clip_corner
         end
@@ -164,7 +164,7 @@ module Kredki
         return send_ahp :corner_es!, yield(self.corner_es) if block_given?
         @area.corner_es!(corner_es) | 
         if clip_corner == :auto
-          @clip_area.corner_es! corner_es - (@margin_xe + @margin_ys) * 0.5
+          @clip_area.corner_es! corner_es - (@mxe + @mys) * 0.5
         elsif clip_corner
           @clip_area.corner_es! clip_corner
         end
@@ -185,7 +185,7 @@ module Kredki
         return send_ahp :corner_se!, yield(self.corner_se) if block_given?
         @area.corner_se!(corner_se) | 
         if clip_corner == :auto
-          @clip_area.corner_se! corner_se - (@margin_xs + @margin_ye) * 0.5
+          @clip_area.corner_se! corner_se - (@mxs + @mye) * 0.5
         elsif clip_corner
           @clip_area.corner_se! clip_corner
         end
@@ -206,7 +206,7 @@ module Kredki
         return send_ahp :corner_ee!, yield(self.corner_ee) if block_given?
         @area.corner_ee!(corner_ee) | 
         if clip_corner == :auto
-          @clip_area.corner_ee! corner_ee - (@margin_xe + @margin_ye) * 0.5
+          @clip_area.corner_ee! corner_ee - (@mxe + @mye) * 0.5
         elsif clip_corner
           @clip_area.corner_ee! clip_corner
         end

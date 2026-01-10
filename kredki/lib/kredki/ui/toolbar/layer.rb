@@ -17,7 +17,7 @@ module Kredki
 
         def load_common x, y
           @context_pad.xy! x, y
-          parent.action.push_layer self
+          parent.window.push_layer self
           break_layout
         end
         
@@ -30,7 +30,7 @@ module Kredki
           !!@pad_parent
         end
 
-        def mouse_push e
+        def mouse_press e
         end
 
         def mouse_free e

@@ -1,9 +1,30 @@
 require_relative 'service'
+require_relative 'pad_events'
 
 module Kredki
   module UI
     # Base class of visible UI tree nodes.
     class Pad < Service
+      include PadEvents
+
+      # Set subject.
+      def subject! subject = @subject
+        return send_ahp :subject!, yield(self.subject) if block_given?
+        return if @subject == subject
+        @subject = subject
+        set_subject subject
+        true
+      end
+
+      # See #subject!.
+      def subject= param
+        send_ahp :subject!, param
+      end
+
+      # Get subject.
+      def subject
+        @subject
+      end
 
       # Set position along the X axis.
       def x! x = @x
@@ -181,161 +202,161 @@ module Kredki
       end
 
       # Set X start margin.
-      def margin_xs! m = @margin_xs
-        return margin_xs! yield @margin_xs if block_given?
-        return if Util.eqr @margin_xs, m
-        @margin_xs = m
+      def mxs! m = @mxs
+        return mxs! yield @mxs if block_given?
+        return if Util.eqr @mxs, m
+        @mxs = m
         layer&.break_layout
         true
       end
 
-      # See #margin_xs!.
-      def margin_xs= param
-        send_ahp :margin_xs!, param
+      # See #mxs!.
+      def mxs= param
+        send_ahp :mxs!, param
       end
 
       # Get X start margin.
-      def margin_xs
-        @margin_xs
+      def mxs
+        @mxs
       end
 
       # Set X end margin.
-      def margin_xe! m = @margin_xe
-        return margin_xe! yield @margin_xe if block_given?
-        return if Util.eqr @margin_xe, m
-        @margin_xe = m
+      def mxe! m = @mxe
+        return mxe! yield @mxe if block_given?
+        return if Util.eqr @mxe, m
+        @mxe = m
         layer&.break_layout
         true
       end
 
-      # See #margin_xe!.
-      def margin_xe= param
-        send_ahp :margin_xe!, param
+      # See #mxe!.
+      def mxe= param
+        send_ahp :mxe!, param
       end
 
       # Get X end margin.
-      def margin_xe
-        @margin_xe
+      def mxe
+        @mxe
       end
 
       # Set Y start margin.
-      def margin_ys! m = @margin_ys
-        return margin_ys! yield @margin_ys if block_given?
-        return if Util.eqr @margin_ys, m
-        @margin_ys = m
+      def mys! m = @mys
+        return mys! yield @mys if block_given?
+        return if Util.eqr @mys, m
+        @mys = m
         layer&.break_layout
         true
       end
 
-      # See #margin_ys!.
-      def margin_ys= param
-        send_ahp :margin_ys!, param
+      # See #mys!.
+      def mys= param
+        send_ahp :mys!, param
       end
 
       # Get Y start margin.
-      def margin_ys
-        @margin_ys
+      def mys
+        @mys
       end
 
       # Set Y end margin.
-      def margin_ye! m = @margin_ye
-        return margin_ye! yield @margin_ye if block_given?
-        return if Util.eqr @margin_ye, m
-        @margin_ye = m
+      def mye! m = @mye
+        return mye! yield @mye if block_given?
+        return if Util.eqr @mye, m
+        @mye = m
         layer&.break_layout
         true
       end
 
-      # See #margin_ye!.
-      def margin_ye= param
-        send_ahp :margin_ye!, param
+      # See #mye!.
+      def mye= param
+        send_ahp :mye!, param
       end
 
       # Get Y end margin.
-      def margin_ye
-        @margin_ye
+      def mye
+        @mye
       end
 
-      # Set X start and head margin.
-      def margin_x! mt = @margin_xs, mh = mt
-        return send_ahp :margin_x!, yield(self.margin_x) if block_given?
-        return if (Util.eqr @margin_xs, mt) && (Util.eqr @margin_xe, mh)
-        @margin_xs = mt
-        @margin_xe = mh
+      # Set X start and X end margin.
+      def mx! mt = @mxs, mh = mt
+        return send_ahp :mx!, yield(self.mx) if block_given?
+        return if (Util.eqr @mxs, mt) && (Util.eqr @mxe, mh)
+        @mxs = mt
+        @mxe = mh
         layer&.break_layout
         true
       end
 
-      # See #margin_x!.
-      def margin_x= param
-        send_ahp :margin_x!, param
+      # See #mx!.
+      def mx= param
+        send_ahp :mx!, param
       end
 
-      # Get X start and head margin.
-      def margin_x
-        [@margin_xs, @margin_xe]
+      # Get X start and X end margin.
+      def mx
+        [@mxs, @mxe]
       end
 
-      # Set Y start and head margin.
-      def margin_y! margin_ys = @margin_ys, margin_ye = margin_ys
-        return send_ahp :margin_y!, yield(self.margin_y) if block_given?
-        return if (Util.eqr @margin_ys, margin_ys) && (Util.eqr @margin_ye, margin_ye)
-        @margin_ys = margin_ys
-        @margin_ye = margin_ye
+      # Set Y start and X end margin.
+      def my! mys = @mys, mye = mys
+        return send_ahp :my!, yield(self.my) if block_given?
+        return if (Util.eqr @mys, mys) && (Util.eqr @mye, mye)
+        @mys = mys
+        @mye = mye
         layer&.break_layout
         true
       end
 
-      # See #margin_y!.
-      def margin_y= param
-        send_ahp :margin_y!, param
+      # See #my!.
+      def my= param
+        send_ahp :my!, param
       end
 
-      # Get Y start and head margin.
-      def margin_y
-        [@margin_ys, @margin_ye]
+      # Get Y start and Y end margin.
+      def my
+        [@mys, @mye]
       end
 
       # Set X and Y start and X and Y end margin.
-      def margin! margin_xs = @margin_xs, margin_ys = margin_xs, margin_xe = margin_xs, margin_ye = margin_ys, **na
-        return send_ahp :margin!, yield(self.m) if block_given?
-        unless (Util.eqr @margin_xs, margin_xs) && (Util.eqr @margin_xe, margin_xe) && (Util.eqr @margin_ys, margin_ys) && (Util.eqr @margin_ye, margin_ye)
-          @margin_xs = margin_xs
-          @margin_xe = margin_xe
-          @margin_ys = margin_ys
-          @margin_ye = margin_ye
+      def m! mxs = @mxs, mys = mxs, mxe = mxs, mye = mys, **na
+        return send_ahp :m!, yield(self.m) if block_given?
+        unless (Util.eqr @mxs, mxs) && (Util.eqr @mxe, mxe) && (Util.eqr @mys, mys) && (Util.eqr @mye, mye)
+          @mxs = mxs
+          @mxe = mxe
+          @mys = mys
+          @mye = mye
           layer&.break_layout
           true
         end | send_branch(:margin, na)
       end
 
-      # See #margin!.
-      def margin= param
-        send_ahp :margin!, param
+      # See #m!.
+      def m= param
+        send_ahp :m!, param
       end
 
       # Get X and Y start and X and Y end margin.
-      def margin
-        [@margin_xs, @margin_ys, @margin_xe, @margin_ye]
+      def m
+        [@mxs, @mys, @mxe, @mye]
       end
 
       # Set inner margin.
-      def margin_i! margin_i = @margin_i
-        return margin_i! yield @margin_i if block_given?
-        return if Util.eqr @margin_i, margin_i
-        @margin_i = margin_i
+      def mi! mi = @mi
+        return mi! yield @mi if block_given?
+        return if Util.eqr @mi, mi
+        @mi = mi
         layer&.break_layout
         true
       end
 
-      # See #margin_i!.
-      def margin_i= param
-        send_ahp :margin_i!, param
+      # See #mi!.
+      def mi= param
+        send_ahp :mi!, param
       end
 
       # Get inner margin.
-      def margin_i
-        @margin_i
+      def mi
+        @mi
       end
 
       # Set rotation angle around the pivot point.
@@ -694,7 +715,7 @@ module Kredki
         @w = @h = :layout
         @w_limit = @h_limit = nil
         @rot = 0
-        @margin_xs = @margin_xe = @margin_ys = @margin_ye = 0
+        @mxs = @mxe = @mys = @mye = 0
         @pad_parent = nil
         @scene = Scene.new
         initialize_area
@@ -727,7 +748,7 @@ module Kredki
       end
 
       def behavior
-        on_mouse_push! do: method(:mouse_push)
+        on_mouse_press! do: method(:mouse_press)
         on_mouse_free! do: method(:mouse_free)
         on_mouse_enter! do: method(:mouse_enter)
         on_mouse_leave! do: method(:mouse_leave)
@@ -750,7 +771,7 @@ module Kredki
       def mouse_move e
       end
 
-      def mouse_push e
+      def mouse_press e
         report FocusOfferEvent.new if e.button.id == :primary
         pin_request e.xy, e.button.id
         e.resolve
@@ -768,6 +789,9 @@ module Kredki
       end
 
       def focus_leave e
+      end
+
+      def set_subject subject
       end
 
       def sx
@@ -828,7 +852,7 @@ module Kredki
       def pad_lineage include_self = true
         Enumerator.new do |e|
           pad = include_self ? self : pad_parent
-          while pad&.is_a?(Action)&.!
+          while pad&.isnt WindowScene
             e << pad
             pad = pad.pad_parent
           end
@@ -929,11 +953,11 @@ module Kredki
       end
 
       def set_size w, h
-        margin_x = @margin_xs + @margin_xe
-        margin_y = @margin_ys + @margin_ye
+        mx = @mxs + @mxe
+        my = @mys + @mye
         @area.wh! w, h
         @scene.pivot_xy! w * 0.5, h * 0.5
-        @clip_area.wh! w - margin_x, h - margin_y
+        @clip_area.wh! w - mx, h - my
       end
 
       def layout_pads
@@ -949,11 +973,11 @@ module Kredki
       end
 
       def fit_w
-        @margin_xs + @margin_xe + @ui_layout.fit_w(self)
+        @mxs + @mxe + @ui_layout.fit_w(self)
       end
 
       def min_w
-        m = @margin_xs + @margin_xe
+        m = @mxs + @mxe
         mw = min_wv(m)
         mw = [mw, min_wl(@w_limit, m)].max if @w_limit
         mw
@@ -1033,11 +1057,11 @@ module Kredki
       end
 
       def fit_h
-        @margin_ys + @margin_ye + @ui_layout.fit_h(self)
+        @mys + @mye + @ui_layout.fit_h(self)
       end
 
       def min_h
-        m = @margin_ys + @margin_ye
+        m = @mys + @mye
         mh = min_hv(m)
         mh = [mh, min_hl(@h_limit, m)].max if @h_limit
         mh
@@ -1117,8 +1141,8 @@ module Kredki
       end
 
       def set_margin
-        x = @margin_xs
-        y = @margin_ys
+        x = @mxs
+        y = @mys
         @clip_scene.xy! x, y
         @clip_area.xy! x, y
       end
@@ -1226,7 +1250,7 @@ module Kredki
 
       def report event, path = true, instant = false
         event.target ||= self
-        event_director = action&.event_director
+        event_director = window&.event_director
         return unless event_director
         if path
           path = pad_lineage.to_a.reverse if path == true
@@ -1242,8 +1266,8 @@ module Kredki
         end
       end
 
-      def resolve event, aim = false
-        @event_manager.resolve event, aim
+      def resolve event, early = false
+        @event_manager.resolve event, early
       end
 
       def c_set_parent at

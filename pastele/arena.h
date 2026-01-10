@@ -31,7 +31,7 @@ class Arena
     void insertWindow(Window* window);
     void eraseWindow(Window* window);
     void run();
-    void terminate(void);
+    void exit(void);
 };
 
 }

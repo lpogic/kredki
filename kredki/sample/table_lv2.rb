@@ -2,7 +2,7 @@ require 'kredki'
 
 table! w: 3/4r do
   fill! :black
-  margin! 2
+  m! 2
   column! 1r, limit: :fit..;
   column! 2r
   column! 100

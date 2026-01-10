@@ -1,4 +1,3 @@
-require_relative '../pad/service'
 require_relative 'y_item'
 
 module Kredki

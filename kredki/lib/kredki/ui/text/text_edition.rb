@@ -13,19 +13,16 @@ module Kredki
 
         # :section: LEVEL 2
 
-        def initialize selection_min, selection_max, string, action
+        def initialize selection_min, selection_max, string
           super()
           @selection_min = selection_min
           @selection_max = selection_max
           @string = string
-          @action  = action
         end
 
         attr_accessor :selection_min
         attr_accessor :selection_max
-        attr_accessor :string
-        attr_accessor :action
-        
+        attr_accessor :string        
       end
       
       def on_edit! ...
@@ -66,10 +63,10 @@ module Kredki
           end
         end
 
-        on_edit! aim: true do |e|
+        on_edit! early: true do |e|
           content = content_after_edit e
           cursor_position = e.string.length + e.selection_min
-          text.edit e.action, content, cursor_position
+          text.edit content, cursor_position
         end
 
         if multiline

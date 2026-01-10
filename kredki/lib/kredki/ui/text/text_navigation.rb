@@ -63,7 +63,7 @@ module Kredki
           end
         end
 
-        on_mouse_push! :primary do |e|
+        on_mouse_press! :primary do |e|
           if Kredki.keyboard.shift?
             text.drag *text.layer.translate(*e.xy, text)
           else

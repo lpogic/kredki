@@ -35,16 +35,14 @@ module Kredki
         @note = note
         @scroll.x = proc do |pw, sw|
           x, y = *note.translate(0, note.sh)
-          if x + sw > action.w
-            x = [action.w - sw, 0].max
-          end
+          w = window.w - sw
+          x = [w, 0].max if x > w
           x
         end
         @scroll.y = proc do |ph, sh|
           x, y = *note.translate(0, note.sh)
-          if y + sh > action.h
-            y = [y - sh, 0].max
-          end
+          h = window.h - sh
+          y = [h, 0].max if y > h
           y
         end
         @scroll.w = proc{ note.sw }
@@ -54,7 +52,7 @@ module Kredki
           [pw, fit_w].max
         end
 
-        note.action.push_layer self
+        note.window.push_layer self
         @pad.fd(Item)&.keyboard_request
       end
 
@@ -67,7 +65,7 @@ module Kredki
         !!@note
       end
 
-      def mouse_push e
+      def mouse_press e
         unload
       end
 

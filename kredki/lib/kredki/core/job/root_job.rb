@@ -17,8 +17,8 @@ module Kredki
 
     # :section: LEVEL 2
 
-    def initialize action, block
-      super(action)
+    def initialize scene, block
+      super(scene)
       @block = block
     end
   end

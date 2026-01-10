@@ -9,11 +9,6 @@ module Kredki
       Pastele.window_hide @pointer
     end
 
-    # Break event loop.
-    def terminate! result = nil
-      @arena&.terminate! result
-    end
-
     # Maximize a window.
     def maximize!
       Pastele.window_maximize @pointer
@@ -120,7 +115,7 @@ module Kredki
     end
 
     # Set position along X and Y axes.
-    def xy! x = @x, y = x
+    def xy! x = 0, y = x
       return send_ahp :xy!, yield(self.xy) if block_given?
       Pastele.window_set_position @pointer, x, y
       true
@@ -139,11 +134,11 @@ module Kredki
     end
 
     # Set width and height. 
-    def wh! w = @w, h = w, **na
+    def wh! w = 400, h = w, **na
       return send_ahp :wh!, yield(self.wh) if block_given?
-      if @w != w || @h != h
-        Pastele.window_set_size @pointer, w, h
-      end | na.count{ send_ahp "wh_#{_1}!", _2 }.nonzero?
+      Pastele.window_set_size @pointer, w, h
+      na.each{ send_ahp "wh_#{_1}!", _2 }
+      true
     end
 
     # See #wh!.
@@ -219,7 +214,7 @@ module Kredki
     # Get title.
     def title
       title = Pastele.window_get_title @pointer
-      title.to_s.force_encoding("utf-8");
+      title.to_s.force_encoding "utf-8"
     end
 
     # Set whether window is always in the foreground.
@@ -305,7 +300,7 @@ module Kredki
       !!mouse_in
     end
 
-    # Set whether capture mode is on.
+    # Get whether capture mode is on.
     def mouse_capture
       Pastele.window_get_flags(@pointer) & 0x4000 != 0
     end
@@ -315,27 +310,27 @@ module Kredki
       !!mouse_capture
     end
 
-    # Set and build current action.
-    def action! action = nil, ...
-      action ||= Window.default_action
-      if action.is_a? Class
-        action = action.new
-        set_action action
-        action.sketch
+    # Set and build current scene.
+    def scene! scene = nil, ...
+      scene ||= Window.default_scene
+      if scene.is_a? Class
+        scene = scene.new
+        set_scene scene
+        scene.sketch
       else
-        set_action action
+        set_scene scene
       end
-      action.build_context.alter(...)
+      scene.build_context.alter(...)
     end
 
-    # See #action!.
-    def action= param
-      send_ahp :action!, param
+    # See #scene!.
+    def scene= param
+      send_ahp :scene!, param
     end
 
-    # Get current action.
-    def action
-      @action
+    # Get current scene.
+    def scene
+      @scene
     end
 
     # Get window (self).
@@ -345,11 +340,12 @@ module Kredki
 
     # Hide window and free its memory.
     def destroy!
+      hide!
       @arena&.remove_window self
     end
 
     def to_png filepath
-      action&.arrange
+      scene&.arrange
       Pastele.window_surface_to_png @pointer, File.expand_path(filepath)
     end
 
@@ -358,16 +354,16 @@ module Kredki
     def initialize w = 400, h = 400
       @pointer = Pastele.window_new w, h
       @arena = nil
-      @action = nil
+      @scene = nil
       @mouse_in = nil
       ObjectSpace.define_finalizer(self, Window.finalizer(@pointer))
     end
 
     class << self
-      attr_accessor :default_action
+      attr_accessor :default_scene
     end
 
-    self.default_action = Action
+    self.default_scene = WindowScene
 
     def self.finalizer pointer
       proc{ Pastele.window_delete pointer }
@@ -377,7 +373,7 @@ module Kredki
     attr :pointer
 
     def resolve ...
-      @action.resolve(...)
+      @scene.resolve(...)
     end
 
     def update_paint paint
@@ -388,15 +384,15 @@ module Kredki
       "#{self.class}:#{object_id}"
     end
 
-    def set_action action, &block
-      action.scene = self
-      Pastele.window_set_scene @pointer, action.pointer
-      update_paint action
-      @action = action
+    def set_scene scene, &block
+      scene.scene = self
+      Pastele.window_set_scene @pointer, scene.pointer
+      update_paint scene
+      @scene = scene
     end
 
-    def paint_shown action, direct
-      @action == action && !!@arena
+    def paint_shown scene, direct
+      @scene == scene && !!@arena
     end
 
     def set_mouse_in set

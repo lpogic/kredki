@@ -21,23 +21,25 @@ file "sketch/sketch.rb" => "sketch" do
 end
 
 task :sample, [:path] do |task, args|
-  if args[:path] == "*"
+  if !args[:path] || args[:path] == "*"
     chdir "kredki/sample"
-    Dir["*.rb"].each do |sample|
-      system "rake sample[#{sample}]"
+    Dir["*.rb"].all? do |sample|
+      print "Next sample: \"#{sample}\".     S - skip, E - exit, else - continue: "
+      case $stdin.gets.chomp
+      when 'e', 'E'
+        false
+      when 's', 'S'
+        true
+      else
+        system "rake sample[#{sample}]"
+        true
+      end
     end
   else
     $LOAD_PATH << File.expand_path(".")
     $LOAD_PATH << File.expand_path("kredki/lib")
     chdir "kredki/sample"
     require_relative "kredki/sample/#{args[:path]}"
-  end
-end
-
-task :samples do
-  Dir["kredki/sample/*.rb"].each do |file|
-    puts file
-    `rake sample[#{file[14...-3]}]`
   end
 end
 

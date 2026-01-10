@@ -84,7 +84,7 @@ module Kredki
           outline_w! 1
           layout! :acc
           wh! 20
-          margin! 4
+          m! 4
           suit! :gray
         end
 
@@ -94,7 +94,7 @@ module Kredki
           Event.each(
             on_focus_enter!,
             on_focus_leave!,
-            on_mouse_push!,
+            on_mouse_press!,
             on_mouse_free!,
             on_mouse_enter!,
             on_mouse_leave!,
@@ -115,7 +115,7 @@ module Kredki
             report ChangeEvent.new true if !checked
           end
 
-          on_change! aim: true do |e|
+          on_change! early: true do |e|
             e.resolve unless checked! e.value
           end
 

@@ -15,11 +15,11 @@ end
 
 layer! do
   button! do
-    text << button_text_input(layouts.first)
+    text! button_text_input(layouts.first)
 
     on_click! do
       layouts.rotate!
-      text << button_text_input(layouts.first)
+      fd(TextPad) << button_text_input(layouts.first)
       l.layout! layouts.first
     end
   end

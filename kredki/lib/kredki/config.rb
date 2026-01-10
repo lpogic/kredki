@@ -178,15 +178,15 @@ module Kredki
     axis! :z, 2
   end
 
-  plugin! :terminate_on_esc do
+  plugin! :exit_on_esc do
     on_key_press! :escape do |event|
-      action.window.terminate!
+      arena.exit!
     end
   end
 
   plugin! :close_on_esc do
     on_key_press! :escape do |event|
-      action.window.destroy!
+      window.close!
     end
   end
 

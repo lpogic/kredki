@@ -81,7 +81,7 @@ module Kredki
         super
 
         on_mouse_enter! do |event|
-          @portal_layer = action.layer! PortalLayer
+          @portal_layer = window.layer! PortalLayer
           @portal_layer.entry = self
           @portal_layer.exit = for_pad
         end

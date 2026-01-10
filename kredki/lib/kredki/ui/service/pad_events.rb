@@ -202,14 +202,14 @@ module Kredki
 
     module PadEvents
 
-      def on! event_type, aim: false, always: false, do: nil, &block
-        @event_manager.manager event_type, block || binding.local_variable_get(:do), aim, always
+      def on! event_type, early: false, always: false, do: nil, &block
+        @event_manager.manager event_type, block || binding.local_variable_get(:do), early, always
       end
 
       # Create and attach key down event resolver.
-      def on_key_press! *filtered_keys, aim: false, always: false, do: nil, &block
+      def on_key_press! *filtered_keys, early: false, always: false, do: nil, &block
         keycodes = Kredki.keyboard.keycodes filtered_keys
-        @event_manager.keyboard_manager KeyboardKeyPushEvent, keycodes, block || binding.local_variable_get(:do), aim, always
+        @event_manager.keyboard_manager KeyboardKeyPushEvent, keycodes, block || binding.local_variable_get(:do), early, always
       end
 
       # See #on_key_press!.
@@ -218,9 +218,9 @@ module Kredki
       end
 
       # Create and attach key up event resolver.
-      def on_key_free! *filtered_keys, aim: false, always: false, do: nil, &block
+      def on_key_free! *filtered_keys, early: false, always: false, do: nil, &block
         keycodes = Kredki.keyboard.keycodes filtered_keys
-        @event_manager.keyboard_manager KeyboardKeyFreeEvent, keycodes, block || binding.local_variable_get(:do), aim, always
+        @event_manager.keyboard_manager KeyboardKeyFreeEvent, keycodes, block || binding.local_variable_get(:do), early, always
       end
 
       # See #on_key_free!.
@@ -229,9 +229,9 @@ module Kredki
       end
 
       # Create and attach key event resolver.
-      def on_key! *filtered_keys, aim: false, always: false, do: nil, &block
+      def on_key! *filtered_keys, early: false, always: false, do: nil, &block
         keycodes = Kredki.keyboard.keycodes filtered_keys
-        @event_manager.keyboard_manager KeyClickEvent, keycodes, block || binding.local_variable_get(:do), aim, always
+        @event_manager.keyboard_manager KeyClickEvent, keycodes, block || binding.local_variable_get(:do), early, always
       end
 
       # See #on_key!.
@@ -249,20 +249,20 @@ module Kredki
       end
   
       # Create and attach mouse down event resolver.
-      def on_mouse_push! *filtered_buttons, aim: false, always: false, do: nil, &block
+      def on_mouse_press! *filtered_buttons, early: false, always: false, do: nil, &block
         indexes = Kredki.mouse.indexes filtered_buttons
-        @event_manager.mouse_manager MouseButtonPushEvent, indexes, block || binding.local_variable_get(:do), aim, always
+        @event_manager.mouse_manager MouseButtonPushEvent, indexes, block || binding.local_variable_get(:do), early, always
       end
 
-      # See #on_mouse_push!.
-      def on_mouse_push= param
-        on_mouse_push! do: param
+      # See #on_mouse_press!.
+      def on_mouse_press= param
+        on_mouse_press! do: param
       end
   
       # Create and attach mouse up event resolver.
-      def on_mouse_free! *filtered_buttons, aim: false, always: false, do: nil, &block
+      def on_mouse_free! *filtered_buttons, early: false, always: false, do: nil, &block
         indexes = Kredki.mouse.indexes filtered_buttons
-        @event_manager.mouse_manager MouseButtonFreeEvent, indexes, block || binding.local_variable_get(:do), aim, always
+        @event_manager.mouse_manager MouseButtonFreeEvent, indexes, block || binding.local_variable_get(:do), early, always
       end
 
       # See #on_mouse_free!.
@@ -271,9 +271,9 @@ module Kredki
       end
 
       # Create and attach mouse click event resolver.
-      def on_mouse_click! *filtered_buttons, aim: false, always: false, do: nil, &block
+      def on_mouse_click! *filtered_buttons, early: false, always: false, do: nil, &block
         indexes = Kredki.mouse.indexes filtered_buttons
-        @event_manager.mouse_manager MouseButtonClickEvent, indexes, block || binding.local_variable_get(:do), aim, always
+        @event_manager.mouse_manager MouseButtonClickEvent, indexes, block || binding.local_variable_get(:do), early, always
       end
 
       # See #on_mouse_click!.
@@ -322,22 +322,22 @@ module Kredki
       end
       
       # Create and attach joystick down event resolver.
-      def on_joystick_push! joystick_id, *filtered_buttons, aim: false, always: false, do: nil, &block
+      def on_joystick_press! joystick_id, *filtered_buttons, early: false, always: false, do: nil, &block
         joystick = Kredki.joystick joystick_id
         indexes = joystick.buttons filtered_buttons
-        @event_manager.joystick_manager JoystickButtonDownEvent, joystick, indexes, block || binding.local_variable_get(:do), aim, always
+        @event_manager.joystick_manager JoystickButtonDownEvent, joystick, indexes, block || binding.local_variable_get(:do), early, always
       end
 
-      # See #on_joystick_push!.
-      def on_joystick_push= param
-        on_joystick_push! do: param
+      # See #on_joystick_press!.
+      def on_joystick_press= param
+        on_joystick_press! do: param
       end
 
       # Create and attach joystick up event resolver.
-      def on_joystick_free! joystick_id, *filtered_buttons, aim: false, always: false, do: nil, &block
+      def on_joystick_free! joystick_id, *filtered_buttons, early: false, always: false, do: nil, &block
         joystick = Kredki.joystick joystick_id
         indexes = joystick.buttons filtered_buttons
-        @event_manager.joystick_manager JoystickMouseButtonFreeEvent, joystick, indexes, block || binding.local_variable_get(:do), aim, always
+        @event_manager.joystick_manager JoystickMouseButtonFreeEvent, joystick, indexes, block || binding.local_variable_get(:do), early, always
       end
 
       # See #on_joystick_free!.
@@ -346,10 +346,10 @@ module Kredki
       end
 
       # Create and attach joystick axis event resolver.
-      def on_joystick_axis! joystick_id, *filtered_axes, aim: false, always: false, do: nil, &block
+      def on_joystick_axis! joystick_id, *filtered_axes, early: false, always: false, do: nil, &block
         joystick = Kredki.joystick joystick_id
         indexes = joystick.axes filtered_axes
-        @event_manager.joystick_manager JoystickAxisEvent, joystick, indexes, block || binding.local_variable_get(:do), aim, always
+        @event_manager.joystick_manager JoystickAxisEvent, joystick, indexes, block || binding.local_variable_get(:do), early, always
       end
 
       # See #on_joystick_axis!.

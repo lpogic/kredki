@@ -213,7 +213,7 @@ module Kredki
 
       def fit_h
         size, space = verse_metrics 0
-        @margin_ys + @margin_ye + (size + space) * @verses.size - space
+        @mys + @mye + (size + space) * @verses.size - space
       end
 
       def set_size w, h

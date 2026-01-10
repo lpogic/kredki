@@ -131,7 +131,7 @@ module Kredki
         mousy!
         keyboardy!
         outline_w! 1
-        margin! 2
+        m! 2
         suit! :gray
         h! 24
 

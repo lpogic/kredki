@@ -305,14 +305,9 @@ module Kredki
       set_show false
     end
 
-    # Get Kredki::Window ancestor.
+    # Get Kredki::WindowScene ancestor.
     def window
       @scene&.window
-    end
-
-    # Get Kredki::Action ancestor.
-    def action
-      @scene&.action
     end
 
     # Push the feature.

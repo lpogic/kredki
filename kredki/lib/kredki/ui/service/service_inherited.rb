@@ -1,10 +1,10 @@
 module Kredki
   module UI
-    # Module extended in Kredki::UI::Pad and all inherited classes.
-    module PadInherited
+    # Module extended in Kredki::UI::Service and all inherited classes.
+    module ServiceInherited
       def self.extended cl
         cl.define_singleton_method :inherited do |cl1|
-          cl1.extend PadInherited
+          cl1.extend ServiceInherited
         end
       end
 
@@ -31,6 +31,6 @@ module Kredki
         end
       end
 
-    end#PadInherited
+    end#ServiceInherited
   end#UI
 end#Kredki

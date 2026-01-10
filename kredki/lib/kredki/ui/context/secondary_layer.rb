@@ -10,13 +10,13 @@ module Kredki
 
         def load item
           item.layer&.arrange
-          action = parent.action
+          w, h = parent.window.wh
           x, y = *item.translate(item.sw, 0)
-          if x + @items.sw > action.sw
+          if x + @items.sw > w
             x = [x - item.sw - @items.sw, 0].max
           end
-          if y + @items.sh > action.sh
-            y = [action.sh - @items.sh, 0].max
+          if y + @items.sh > h
+            y = [h - @items.sh, 0].max
           end
           load_common x, y
         end

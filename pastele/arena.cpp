@@ -99,7 +99,7 @@ void Arena::run() {
     }
 }
 
-void Arena::terminate(void) {
+void Arena::exit(void) {
     running = false;
 }
 

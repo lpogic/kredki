@@ -1,8 +1,6 @@
-require_relative 'pad/pad'
-
 module Kredki
   module UI
-    # Pad which is Kredki::UI::Action child. Layers form a layer stack. Pads from higher layers are processed before pads from lower ones.
+    # Kredki::UI::WindowScene child. Layers form a layer stack. Pads from higher layers are processed before pads from lower ones.
     class Layer < RectanglePad
 
       # Get repeated click counter value. The counter is reset when the next click occurs after a specified time interval, 
@@ -11,7 +9,7 @@ module Kredki
         @click_data&.combo || 0
       end
 
-      # Detach from action.
+      # Detach from window.
       def detach! transfer = false
         unless transfer
           update_keyboard_pad nil
@@ -23,7 +21,7 @@ module Kredki
 
       # Extend API at runtime.
       def define ...
-        action.define(...)
+        ServiceDefines.define(...)
       end
 
       # :section: LEVEL 2
@@ -79,18 +77,18 @@ module Kredki
       def behavior
         super
         
-        on_key_press! aim: true do |e|
+        on_key_press! early: true do |e|
           @down_keys[e.param || e.input_id] = true
         end
 
-        on_key_free! aim: true do |e|
+        on_key_free! early: true do |e|
           if @down_keys[e.param || e.input_id]
             @down_keys[e.param || e.input_id] = false
             keyboard_event KeyClickEvent.new e
           end
         end
 
-        on_mouse_click! aim: true, do: method(:mouse_click)
+        on_mouse_click! early: true, do: method(:mouse_click)
       end
 
       def break_layout
@@ -195,7 +193,7 @@ module Kredki
         @pin_data&.pad&.pin_dispose
       end
 
-      def mouse_push e
+      def mouse_press e
         keyboard_request if keyboardy?
         pin_request e.xy, e.button.id
       end

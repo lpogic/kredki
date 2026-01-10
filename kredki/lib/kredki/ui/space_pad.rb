@@ -7,9 +7,9 @@ module Kredki
       def << feature
         case feature
         in Numeric
-          margin! feature * 0.5
+          m! feature * 0.5
         in [Numeric, Numeric]
-          margin! feature[0] * 0.5, feature[1] * 0.5
+          m! feature[0] * 0.5, feature[1] * 0.5
         else
           super
         end
@@ -23,7 +23,7 @@ module Kredki
         wh! 1r
       end
 
-      def mouse_push e
+      def mouse_press e
       end
 
       def mouse_free e

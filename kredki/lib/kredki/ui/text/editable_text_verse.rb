@@ -33,7 +33,7 @@ module Kredki
         super("#{content}\n".each_line(chomp: true).to_a.join, cursor_position, &b)
       end
 
-      def edit action, new_content, new_cursor_position
+      def edit new_content, new_cursor_position
         v = @verses.first
         w0 = v.w
         content! new_content, new_cursor_position

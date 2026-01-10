@@ -60,7 +60,7 @@ module Kredki
       def << arg
         case arg
         when String
-          (sc TextPad or default_text) << arg
+          (fc TextPad or default_text) << arg
         else
           super
         end
@@ -85,7 +85,7 @@ module Kredki
         layout! :acc
         wh! :fit
         suit! :gray
-        margin! 3
+        m! 3
       end
 
       def presence
@@ -111,7 +111,7 @@ module Kredki
       def behavior
         super
 
-        Event.each on_mouse_push!(:primary), on_key_press!(:enter, :space) do |e|
+        Event.each on_mouse_press!(:primary), on_key_press!(:enter, :space) do |e|
           down! true, e
         end
 

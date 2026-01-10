@@ -87,7 +87,7 @@ module Kredki
         super
 
         Event.each(
-          on_mouse_push!, 
+          on_mouse_press!, 
           on_mouse_free!, 
           on_mouse_enter!, 
           on_mouse_leave!,
@@ -116,7 +116,7 @@ module Kredki
             p0.report ChangeEvent.new
           end
 
-          on_mouse_push! do |e|
+          on_mouse_press! do |e|
             drag! e.xy, e.button.id
             e.resolve
           end
@@ -158,7 +158,7 @@ module Kredki
       def behavior
         super
 
-        on_mouse_push! :primary do |e|
+        on_mouse_press! :primary do |e|
           @handle.drag! @handle.translate(@handle.sw * 0.5, 0), :primary
           e.resolve
         end
@@ -207,7 +207,7 @@ module Kredki
       def behavior
         super
 
-        on_mouse_push! :primary do |e|
+        on_mouse_press! :primary do |e|
           @handle.drag! @handle.translate(0, @handle.sh * 0.5), :primary
           e.resolve
         end

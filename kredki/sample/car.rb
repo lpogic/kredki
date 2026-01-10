@@ -43,7 +43,7 @@ end
 
 space! wh: 2/3r do
   layout! :yss
-  margin_i! 60
+  mi! 60
   car! wh: 1r, rim: :green, body: :orange
   car! wh: 1r, mag: -1, rim: :red, body: :gray
 end

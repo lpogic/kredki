@@ -9,7 +9,7 @@ require_relative '../event/window_event'
 
 module Kredki
   # Set of methods for event resolving.
-  module ActionEvents
+  module WindowSceneEvents
 
     # Create and attach generic event resolver.
     def on! event_type, do: nil, &block
@@ -49,14 +49,14 @@ module Kredki
     end
 
     # Create and attach mouse down event resolver.
-    def on_mouse_push! *selected_buttons, do: nil, &block
+    def on_mouse_press! *selected_buttons, do: nil, &block
       indexes = Kredki.mouse.indexes selected_buttons
       @event_manager.button_manager ButtonDownEvent, indexes, block || binding.local_variable_get(:do)
     end
 
-    # See #on_mouse_push!.
-    def on_mouse_push= resolver
-      on_mouse_push! do: resolver
+    # See #on_mouse_press!.
+    def on_mouse_press= resolver
+      on_mouse_press! do: resolver
     end
 
     # Create and attach mouse up event resolver.
@@ -111,15 +111,15 @@ module Kredki
     end
 
     # Create and attach joystick down event resolver.
-    def on_joystick_push! joystick_id, *selected_buttons, do: nil, &block
+    def on_joystick_press! joystick_id, *selected_buttons, do: nil, &block
       joystick = Kredki.joystick joystick_id
       indexes = joystick.buttons selected_buttons
       @event_manager.joystick_manager JoystickButtonDownEvent, joystick, indexes, block || binding.local_variable_get(:do)
     end
 
-    # See #on_joystick_push!.
-    def on_joystick_push= resolver
-      on_joystick_push! do: resolver
+    # See #on_joystick_press!.
+    def on_joystick_press= resolver
+      on_joystick_press! do: resolver
     end
 
     # Create and attach joystick up event resolver.
@@ -187,13 +187,13 @@ module Kredki
     end
 
     # Create and attach quit event resolver.
-    def on_loop_quit! ...
+    def on_quit! ...
       on!(QuitEvent, ...)
     end
 
-    # See #on_loop_quit!.
-    def on_loop_quit= resolver
-      on_loop_quit! do: resolver
+    # See #on_quit!.
+    def on_quit= resolver
+      on_quit! do: resolver
     end
 
     # Create and attach window show event resolver.

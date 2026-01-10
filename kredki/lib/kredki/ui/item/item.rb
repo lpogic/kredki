@@ -5,24 +5,6 @@ module Kredki
     # Item group member.
     class Item < RectanglePad
 
-      # Set object.
-      def object! object = @object
-        return send_ahp :object!, yield(self.object) if block_given?
-        return if @object == object
-        @object = object
-        true
-      end
-
-      # See #object!.
-      def object= param
-        send_ahp :object!, param
-      end
-
-      # Get object.
-      def object
-        @object
-      end
-
       # Get whether is leaf.
       def leaf?
         true
@@ -73,7 +55,7 @@ module Kredki
       def << feature
         case feature
         when String
-          fc(TextPad)&.alter feature or new TextPad, feature
+          fc(TextPad)&.alter feature or new TextPad, feature, mousy: false
         else
           super
         end
@@ -100,7 +82,7 @@ module Kredki
         Event.each(
           on_focus_enter!,
           on_focus_leave!,
-          on_mouse_push!,
+          on_mouse_press!,
           on_mouse_free!,
           on_mouse_enter!,
           on_mouse_leave!,

@@ -4,21 +4,21 @@ module Kredki
     
     # Create and attach Kredki::AfterJob.
     def after delay = 0, &block
-      job = AfterJob.new @action, block, delay
+      job = AfterJob.new @scene, block, delay
       @event_manager << job
       job
     end
 
     # Create and attach Kredki::LoopJob.
     def loop period = 0, &block
-      job = LoopJob.new @action, block, period
+      job = LoopJob.new @scene, block, period
       @event_manager << job
       job
     end
 
     # Create and attach Kredki::SideJob.
     def side &block
-      job = SideJob.new @action, block
+      job = SideJob.new @scene, block
       @event_manager << job
       job
     end
@@ -41,8 +41,8 @@ module Kredki
     class StopEvent < Event
     end
 
-    def initialize action
-      @action = action
+    def initialize scene
+      @scene = scene
       @event_manager = EventManager.new
       @param = nil
     end

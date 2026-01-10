@@ -24,7 +24,7 @@ class KredkiWorkSpace < IRB::WorkSpace
     @mutex.synchronize do
       if @cmd
         if @cmd == [:exit]
-          Kredki.terminate!
+          Kredki.exit!
         else
           @cmd = oeval *@cmd
         end
@@ -39,25 +39,25 @@ KredkiProc = proc do
   convar = Thread::ConditionVariable.new
   Thread.new do
     arena = Kredki.arena!
-    A = arena.window!(show: false).action[Kredki::UI::Layer]
+    W = arena.window! show: false
     module Kredki
       module Extend
         extend Forwardable
 
-        (A.methods - Object.instance_methods).each do
-            def_delegator :A, it
+        (W.methods - Object.instance_methods).each do
+            def_delegator :W, it
         end
 
         def window! ...
-          A.arena.window!(...)
+          W.arena.window!(...)
         end
   
         def layer! ...
-          A.action.layer!(...)
+          W.window.layer!(...)
         end
   
         def define ...
-          def_delegator :A, PadBase.define(...)
+          def_delegator :W, ServiceDefines.define(...)
         end
   
         def plugin! ...
@@ -70,7 +70,7 @@ KredkiProc = proc do
     include Kredki::UI
     extend Forwardable
 
-    use! :terminate_on_esc
+    use! :exit_on_esc
     use! :carry_focus_on_tab
     window.alter{ wh_drag!; text_input!; top! }
     fill! 110, 301, 101
@@ -78,7 +78,6 @@ KredkiProc = proc do
     kredki_workspace = KredkiWorkSpace.new binding
     IRB.CurrentContext.replace_workspace kredki_workspace
     IRB.conf[:AT_EXIT] << proc{ kredki_workspace.evaluate :exit }
-    Kredki.run_ms = Pastele.sdl_get_ticks
     loop!{ kredki_workspace.release }
     mutex.synchronize{ convar.signal }
     window.show!

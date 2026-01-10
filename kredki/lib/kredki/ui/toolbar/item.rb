@@ -53,7 +53,7 @@ module Kredki
         def sketch
           super
 
-          margin_x! 5
+          mx! 5
         end
 
         def behavior

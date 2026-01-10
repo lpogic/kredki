@@ -25,7 +25,7 @@ module Kredki
           super
           
           new SpacePad, h: 1r, w: :h
-          new TextPad, ""
+          new TextPad, "", mousy: false
           new RectanglePad, :end_icon, mousy: false, keyboardy: false, fill: 0, x: :e, h: 1r, w: :h do
             outline! fill: :text, w: 2, cap: :round
             area! do |w, h|
@@ -46,6 +46,7 @@ module Kredki
               it.fd(Item)&.keyboard_request and e.resolve
             end
           end
+
         end
 
         def mouse_enter e

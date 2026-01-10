@@ -22,7 +22,7 @@ space! wh: 1r, layout: :xss do
   anim play: :bounce_loop
 end
 space! wh: 1r, layout: :xss do
-  anim play: proc{|ms, d| K::Util.sin01 ms, d }, name: "proc sin"
-  anim play: proc{|ms, d| K::Util.cos01 ms, d }, name: "proc cos"
+  anim play: proc{|ms, d| Kredki::Util.sin01 ms, d }, name: "proc sin"
+  anim play: proc{|ms, d| Kredki::Util.cos01 ms, d }, name: "proc cos"
   space! wh: 1r
 end

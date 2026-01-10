@@ -82,8 +82,8 @@ CABI void arena_run(pastele::Arena* self) {
     self->run();
 }
 
-CABI void arena_terminate(pastele::Arena* self) {
-    self->terminate();
+CABI void arena_exit(pastele::Arena* self) {
+    self->exit();
 }
 
 

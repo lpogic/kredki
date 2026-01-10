@@ -22,7 +22,7 @@ module Kredki
     extern 'uint32_t arena_erase_window(pastele::Arena* self, pastele::Window* window)'
     extern 'void arena_set_event_handler(pastele::Arena* self, int( *eventHandler)(int,  SDL_Event*))'
     extern 'void arena_run(pastele::Arena* self)'
-    extern 'void arena_terminate(pastele::Arena* self)'
+    extern 'void arena_exit(pastele::Arena* self)'
     extern 'void* window_new(int width, int height)'
     extern 'void window_delete(pastele::Window* self)'
     extern 'void window_update(pastele::Window* self)'

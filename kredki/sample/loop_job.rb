@@ -3,7 +3,7 @@ require 'kredki'
 # Bounced rotation with loop job.
 
 button! do |b|
-  text << "Click me!" 
+  alter "Click me!" 
   b.on_click = job.tap do
     it.loop do
       b.rot += it.ms * 0.008

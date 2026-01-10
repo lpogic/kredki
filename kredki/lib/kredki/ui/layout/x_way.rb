@@ -37,14 +37,14 @@ module Kredki
           clw = pad.clw
           clh = pad.clh
           sp = pad.layout_pads.map{ get_span it, it.w, it.w_limit, clw }
-          measurement, sw = spans sp, clw, pad.margin_i || 0
+          measurement, sw = spans sp, clw, pad.mi || 0
  
           pad.layout_pads.zip measurement do |p1, m|
             ph = p1.get_h clh, m
             p1.set_size m, ph
           end
 
-          arrange_pads pad.arranged_pads, sw, clw, clh, pad.margin_i || 0
+          arrange_pads pad.arranged_pads, sw, clw, clh, pad.mi || 0
         end
 
         def arrange_pads pads, sw, clw, clh, space
@@ -93,7 +93,7 @@ module Kredki
         end
 
         def fit_w pad
-          space = pad.margin_i || 0
+          space = pad.mi || 0
           pad.layout_pads.map{|p1| p1.min_w }.reduce{ _1 + space + _2 } || 0
         end
 
@@ -101,7 +101,7 @@ module Kredki
           index = p0.layout_pads.find_index{ it == p1 }
           if index
             sp = p0.layout_pads.map{ get_span it, it.w, it.w_limit, p0w }
-            measurement, sw = spans sp, p0w, p0.margin_i || 0
+            measurement, sw = spans sp, p0w, p0.mi || 0
             measurement[index]
           else
             r * p0w

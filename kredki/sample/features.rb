@@ -3,7 +3,7 @@ require 'kredki'
 # Pad customization overview. Every point gives the same result.
 
 layout! :yss
-margin_i! 4
+mi! 4
 params = {wh: 50, corner: 20, fill: :yellow}
 
 # 1. Via named arguments

@@ -1,17 +1,12 @@
-require_relative 'pad/pad_base'
+require_relative 'service/service_filter'
 require_relative 'layer'
 
 module Kredki
   module UI
-    # Action for UI module.
-    class Action < Kredki::Action
-      include PadBase
+    # WindowScene for UI module.
+    class WindowScene < Kredki::WindowScene
+      include ServiceFilter
       
-      # Extend API at runtime.
-      def define ...
-        PadBase.define(...)
-      end
-
       # Add new layer.
       def layer! klass = Layer, *a, **na, &b
         layer = klass.new
@@ -19,6 +14,20 @@ module Kredki
         put_pad layer
         layer.alter *a, **na, &b
         layer
+      end
+
+      # Match self with +filter+.
+      def =~ filter
+        case filter
+        when nil
+          true
+        when Module, Proc
+          filter === self
+        when Array
+          filter.all?{ self =~ it }
+        else
+          raise "Unsupported =~ (#{filter} : #{filter.class})"
+        end
       end
 
       # Get ancestors.
@@ -155,7 +164,7 @@ module Kredki
 
       def push_layer layer
         return if layer.pad_parent == self
-        layer.action&.remove_pad layer
+        layer.window&.remove_pad layer
         put_paint layer.scene
         layer.set_pad_parent self
         w, h = wh
@@ -167,12 +176,14 @@ module Kredki
         layer
       end
 
-      def remove_service layer, transfer = false
-        @services.delete layer
-        @mouse_stale = true
-      end
+      # def remove_service layer, transfer = false
+      #   @services.delete layer
+      #   @mouse_stale = true
+      # end
 
       def remove_pad pad, transfer = false
+        @services.delete pad
+        @mouse_stale = true
       end
     end
   end

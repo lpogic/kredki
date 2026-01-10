@@ -1,30 +1,38 @@
 module Kredki
   class Arena
     
-    # Create new attached Kredki::Window.
+    # Create new window.
     def window! *a, show: true, **na, &b
       w = Window.new
-      put_window(w).action!(*a, **na, &b)
+      s = put_window(w).scene!(*a, **na, &b)
       w.show! if show
-      w
+      s
     end
 
-    # Get attached Kredki::Window.
+    # Get window.
     def window key = nil
-      key ? @windows[key] : @main_window
+      (key ? @windows[key] : @main_window)&.then{ it.scene }
     end
 
     # Start event loop.
     def run!
-      Kredki.run_ms = Pastele.sdl_get_ticks
+      @run_ms = Kredki.ms
       Pastele.arena_run @pointer
       @result
     end
 
+    def run_ms
+      @run_ms
+    end
+
+    def ms
+      Kredki.ms - @run_ms
+    end
+
     # Break event loop.
-    def terminate! result = nil
+    def exit! result = nil
       @result = result
-      Pastele.arena_terminate @pointer
+      Pastele.arena_exit @pointer
     end
 
     # :section: LEVEL 2
@@ -155,7 +163,8 @@ module Kredki
       when 0x213
         abi = Pastele::WindowEvent.new event_ptr
         window_event abi.window_id, WindowDisplayChangeEvent.new(abi)
-      when 256 then arena_event QuitEvent.new(Pastele::QuitEvent.new event_ptr)
+      when 256
+        arena_event QuitEvent.new(Pastele::QuitEvent.new event_ptr)
       when 1539
         abi_event = Pastele::JoyButtonEvent.new event_ptr
         arena_event JoystickButtonDownEvent.new(Kredki.opened_joysticks[abi_event.which], abi_event)
@@ -217,7 +226,7 @@ module Kredki
       @windows.delete window_id
       window.arena = nil
       if @windows.empty?
-        terminate!
+        exit!
       else
         @main_window = @windows.values.first if @main_window == window
       end
@@ -230,7 +239,7 @@ module Kredki
     end
 
     def arena_event event, &post_process
-      @windows.values.each{ _1.resolve event }
+      @windows.values.each{ it.resolve event }
       post_process&.call event
       event
     end

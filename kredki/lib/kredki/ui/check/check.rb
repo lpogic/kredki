@@ -56,7 +56,7 @@ module Kredki
         super
 
         h! :fit
-        margin_i! 8
+        mi! 8
         layout! :xsc
       end
 

@@ -8,13 +8,13 @@ module Kredki
 
         def load item
           arrange
-          action = parent.action
+          w, h = parent.window.wh
           x, y = *item.translate(0, item.sh)
-          if x + @context_pad.sw > action.sw
-            x = [action.sw - @context_pad.sw, 0].max
+          if x + @context_pad.sw > w
+            x = [w - @context_pad.sw, 0].max
           end
-          if y + @context_pad.sh > action.sh
-            y = [action.sh - @context_pad.sh, 0].max
+          if y + @context_pad.sh > h
+            y = [h - @context_pad.sh, 0].max
           end
           load_common x, y
         end
@@ -36,7 +36,7 @@ module Kredki
             e.resolve
           end
 
-          on_mouse_push! do |e|
+          on_mouse_press! do |e|
             pad_detach
           end
         end

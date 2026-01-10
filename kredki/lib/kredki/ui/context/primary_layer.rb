@@ -9,18 +9,18 @@ module Kredki
 
         def load x, y
           arrange
-          action = parent.action
-          x_max = action.w - @items.sw 
+          w, h = parent.window.wh
+          x_max = w - @items.sw 
           x = [x_max, 0].max if x > x_max
           sh = @items.sh
-          y = [y - sh, 0].max if y + sh > action.h
+          y = [y - sh, 0].max if y + sh > h
           load_common x, y
         end
 
         def behavior
           super
 
-          on! Item::PickEvent, aim: true do |e|
+          on! Item::PickEvent, early: true do |e|
             if e.target.fd Item
               e.resolve
             else
@@ -33,7 +33,7 @@ module Kredki
             e.resolve
           end
 
-          on_mouse_push! do |e|
+          on_mouse_press! do |e|
             pad_detach
           end
         end

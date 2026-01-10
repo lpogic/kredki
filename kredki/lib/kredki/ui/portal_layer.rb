@@ -1,5 +1,3 @@
-require_relative 'pad/pad'
-
 module Kredki
   module UI
     class PortalLayer < Layer
@@ -73,7 +71,7 @@ module Kredki
       end
 
       def translated_xy xy
-        lx, ly = action.translate *xy, @entry
+        lx, ly = window.translate *xy, @entry
         @exit.translate lx * @exit.sw / @entry.sw, ly * @exit.sh / @entry.sh
       end
 
@@ -84,7 +82,7 @@ module Kredki
         @mouse_pads, last_mouse_pads = [], @mouse_pads
         @entry.layer.point_pads *xy, @mouse_pads
         if @mouse_pads.last != @entry
-          detach!
+          pad_detach
           return event
         end
         PortalMousePointerMoveEvent.new *translated_xy(event.xy), event

@@ -35,7 +35,7 @@ module Kredki
   color! :text, 255, 255, 255, 255
 
   module UI
-    module PadBase
+    module ServiceDefines
       define :pad!, RectanglePad
       define :space!, SpacePad
       define :scroll!, ScrollPad
@@ -60,10 +60,10 @@ module Kredki
       define :context!, Context::Menu
       define :toolbar!, Toolbar::Pad
 
-    end#PadBase
+    end#ServiceDefines
   end#UI
 
-  Window.default_action = UI::Action
+  Window.default_scene = UI::WindowScene
 
   plugin! :carry_focus_on_tab do
     on_key_press! :tab do |event|

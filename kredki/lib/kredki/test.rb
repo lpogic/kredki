@@ -11,17 +11,16 @@ module Kredki
     end
 
     def define ...
-      def_delegator :@layer, PadBase.define(...)
+      def_delegator :@layer, ServiceDefines.define(...)
     end
 
     def setup
-      @window = Kredki.arena!.window! show: false
-      @layer = @window.action[UI::Layer]
+      @layer = Kredki.arena!.window! show: false
     end
 
     def assert_png
       path = Kredki / "test/tmp/#{self.class}_#{name}.png"
-      @window.to_png path
+      @layer.window.to_png path
       expected = File.expand_path "#{dir}/#{name}.png"
       of = File.new path, "rb"
       ef = File.new expected, "rb"

@@ -23,7 +23,7 @@ class PadTest < Kredki::Test
   end
 
   def test_button
-    button! "TEST", suit: :green, margin_x: 20
+    button! "TEST", suit: :green, mx: 20
     assert_png
   end
 

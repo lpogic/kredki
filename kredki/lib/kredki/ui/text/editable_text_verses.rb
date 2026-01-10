@@ -27,7 +27,7 @@ module Kredki
         end
       end
 
-      def edit action, new_content, new_cursor_position
+      def edit new_content, new_cursor_position
         content! new_content, new_cursor_position
       end
     end

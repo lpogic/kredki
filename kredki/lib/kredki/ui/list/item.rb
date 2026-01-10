@@ -55,7 +55,7 @@ module Kredki
           Event.each(
             on_focus_enter!,
             on_focus_leave!,
-            on_mouse_push!,
+            on_mouse_press!,
             on_mouse_free!,
             on_mouse_enter!,
             on_mouse_leave!,
@@ -102,7 +102,7 @@ module Kredki
         def mouse_enter e
         end
 
-        def mouse_push e
+        def mouse_press e
           parent.selected_up_to self if Kredki.keyboard.then{ it.shift? && !it.ctrl? }
           super
         end

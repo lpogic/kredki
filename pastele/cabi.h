@@ -88,7 +88,7 @@ CABI uint32_t arena_insert_window(pastele::Arena* self, pastele::Window* window)
 CABI uint32_t arena_erase_window(pastele::Arena* self, pastele::Window* window);
 CABI void arena_set_event_handler(pastele::Arena* self, int(*eventHandler)(int, SDL_Event*));
 CABI void arena_run(pastele::Arena* self);
-CABI void arena_terminate(pastele::Arena* self);
+CABI void arena_exit(pastele::Arena* self);
 
 CABI void* window_new(int width, int height);
 CABI void window_delete(pastele::Window* self);

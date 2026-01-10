@@ -17,11 +17,11 @@ module Kredki
       "#{self.class}:#{object_id}"
     end
 
-    def push event, stop, aim = false, instant = false
+    def push event, stop, early = false, instant = false
       if instant
-        @stops[@i += 1] = [stop, event, aim]
+        @stops[@i += 1] = [stop, event, early]
       else
-        @stops << [stop, event, aim]
+        @stops << [stop, event, early]
       end
       resolve if !@stem
     end
@@ -46,8 +46,8 @@ module Kredki
           @i = -1
           return
         end
-        stop, event, aim = *stop
-        stop.resolve event, aim
+        stop, event, early = *stop
+        stop.resolve event, early
       end
     end
 

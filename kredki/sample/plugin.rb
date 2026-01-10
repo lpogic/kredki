@@ -24,8 +24,8 @@ plugin! :mouse_in_scale do
 end
 
 layout! :xcc
-margin_i! 10
+mi! 10
 
-button! :mouse_in_scale
+button! "One", :mouse_in_scale
 button! "Hello", :mouse_in_scale
-button! :mouse_in_scale, suit: :green
+button! "Two", :mouse_in_scale, suit: :green

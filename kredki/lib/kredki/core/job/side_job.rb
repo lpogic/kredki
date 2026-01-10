@@ -9,14 +9,14 @@ module Kredki
       @thread = Thread.new do
         @result = @block.call self, @param
       end
-      @action.put_job self
+      @scene.put_job self
     end
 
     # Stop job and all subjobs.
     def stop
       @thread&.kill
       @thread = nil
-      @action.remove_job self
+      @scene.remove_job self
       @event_manager.resolve StopEvent.new
     end
 
@@ -28,8 +28,8 @@ module Kredki
 
     # :section: LEVEL 2
 
-    def initialize action, block
-      super(action)
+    def initialize scene, block
+      super(scene)
       @block = block
       @threat = nil
       @result = nil

@@ -157,9 +157,9 @@ module Kredki
     def play! play = true, &block
       play = block if play == true && block
       return if @play == play
-      action = scene.action
-      action.put_job self unless @play
-      action.remove_job self unless play
+      window = scene.window
+      window.put_job self unless @play
+      window.remove_job self unless play
       @play = play
       true
     end
@@ -199,9 +199,9 @@ module Kredki
 
     # Attach animation and related Kredki::Picture to the Kredki::Scene.
     def attach! scene, show = true, at = nil
-      @picture.action&.remove_job self if @play
+      @picture.window&.remove_job self if @play
       @picture.attach! scene, show, at
-      @picture.action&.put_job self if @play
+      @picture.window&.put_job self if @play
       self
     end
 

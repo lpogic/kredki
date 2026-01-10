@@ -68,7 +68,7 @@ module Kredki
         end
       end
 
-      def mouse_push e
+      def mouse_press e
       end
 
       def mouse_free e
@@ -100,7 +100,7 @@ module Kredki
 
       def arrange prepare = true
         @oclw = @och = 0 if prepare
-        margin_x, margin_y, @lw, @lh = super()
+        mx, my, @lw, @lh = super()
         oh = @xslide.get_h
         ow = @yslide.get_w
         ps = arranged_pads
@@ -124,7 +124,7 @@ module Kredki
             @xslide.set_size xs, oh
             @xslide.set_xy 0, h - oh
             @xslide.arrange @lw
-            pad_x += ((xs - @lw) * @xslide.value).round - margin_x
+            pad_x += ((xs - @lw) * @xslide.value).round - mx
           end
           
           @yslide.show = yscroll
@@ -134,7 +134,7 @@ module Kredki
             @yslide.set_size ow, ys
             @yslide.set_xy w - ow, 0
             @yslide.arrange @lh
-            pad_y += ((ys - @lh) * @yslide.value).round - margin_y
+            pad_y += ((ys - @lh) * @yslide.value).round - my
           end
           
           ps.each do |p1|

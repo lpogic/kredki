@@ -6,20 +6,20 @@ module Kredki
     def play param = nil
       stop
       @param = param
-      @start_ms = Kredki.ms + @delay
-      @action.put_job self
+      @start_ms = @scene.arena.ms + @delay
+      @scene.put_job self
     end
 
     # Stop job and all subjobs.
     def stop
-      @action.remove_job self
+      @scene.remove_job self
       @event_manager.resolve StopEvent.new
     end
 
     # :section: LEVEL 2
 
-    def initialize action, block, delay
-      super(action)
+    def initialize scene, block, delay
+      super(scene)
       @block = block
       @delay = delay
       @start_ms = 0

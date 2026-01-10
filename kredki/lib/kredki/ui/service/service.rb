@@ -1,15 +1,14 @@
-require_relative 'pad_event_manager'
-require_relative 'pad_events'
-require_relative 'pad_base'
-require_relative 'pad_inherited'
+require_relative 'service_event_manager'
+require_relative 'service_inherited'
+require_relative 'service_filter'
 
 module Kredki
   module UI
     # Base class of UI tree nodes.
     class Service
-      include PadBase
-      include PadEvents
-      extend PadInherited
+      extend ServiceInherited
+      include ServiceDefines
+      include ServiceFilter
 
       # Set whether Pad is tagged with +tag+.
       def tag! tag, set = true
@@ -36,14 +35,14 @@ module Kredki
 
       # Get static pads container.
       def the
-        action.the
+        window.the
       end
 
       # Get ancestors.
       def lineage include_self = true
         Enumerator.new do |e|
           c = include_self ? self : parent
-          while c && !c.is_a?(Action)
+          while c && c.isnt(WindowScene)
             e << c
             c = c.parent
           end
@@ -55,14 +54,9 @@ module Kredki
         is Layer or fa Layer
       end
 
-      # Get Kredki::Action ancestor.
-      def action
-        layer&.pad_parent
-      end
-
-      # Get Kredki::Window ancestor.
+      # Get Kredki::WindowScene ancestor.
       def window
-        action&.window
+        layer&.pad_parent
       end
 
       # Get Kredki::Arena ancestor.
@@ -106,6 +100,10 @@ module Kredki
         instance_exec *a, **na, &plugin
       end
 
+      def on! event_type, early: false, always: false, do: nil, &block
+        @event_manager.manager event_type, block || binding.local_variable_get(:do), early, always
+      end
+
       # Play custom local loop.
       def play! id, &block
         @loops[id]&.stop
@@ -135,9 +133,14 @@ module Kredki
         end
       end
 
-      # Get whether match filters.
+      # Get whether match all filters.
       def is *filters, &block
-        self =~ filters && self =~ block ? self : nil
+        self =~ filters && self =~ block ? self : false
+      end
+
+      # Get whether not match all filter.
+      def isnt *filters, &block
+        filters.all?{ self !~ filters } && (!block || self !~ block ? self : false)
       end
 
       # Push the feature.
@@ -164,7 +167,7 @@ module Kredki
         @parent = nil
         @tags = {}
         @services = []
-        @event_manager = PadEventManager.new
+        @event_manager = ServiceEventManager.new
         @loops = {}
       end
 
@@ -230,7 +233,7 @@ module Kredki
         @services.each{ _1.grand_pad_detach }
       end
 
-      def resolve event, aim = false
+      def resolve event, early = false
       end
 
       def report event, path = true, instant = false

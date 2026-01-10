@@ -47,7 +47,7 @@ module Kredki
 
         layout! :acc
         wh! 20
-        margin! 3
+        m! 3
       end
 
     end

@@ -4,23 +4,18 @@ module Kredki
   class << self
  
     # Start application loop.
-    def run! action = nil, *a, **na, &block
+    def run! scene = nil, *a, **na, &block
       if !@arena
-        arena!.window! action, *a, **na, &block
+        arena!.window! scene, *a, **na, &block
       else
-        @arena.window.action! action, *a, **na, &block
+        @arena.window.scene! scene, *a, **na, &block
       end
       @arena.run!
     end
 
-    # Break application loop.
-    def terminate! ...
-      @arena.terminate!(...)
-    end
-
-    # Milliseconds since application loop was started.
+    # Milliseconds since SDL was initialized.
     def ms
-      Pastele.sdl_get_ticks - run_ms
+      Pastele.sdl_get_ticks
     end
     
     # Set clipboard model.
@@ -109,7 +104,6 @@ module Kredki
     # :section: LEVEL 2
 
     attr :arena
-    attr_accessor :run_ms
     attr_accessor :clipboard
     attr_accessor :keyboard
     attr_accessor :mouse
@@ -177,5 +171,5 @@ require_relative 'job/after_job'
 require_relative 'job/loop_job'
 require_relative 'job/side_job'
 
-require_relative 'action/action'
-require_relative 'window'
+require_relative 'window/window_scene'
+require_relative 'window/window'
