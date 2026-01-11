@@ -36,7 +36,7 @@ rake install
 require 'kredki'
 
 button! "Say hello" do
-  on_click! do
+  on_click do
     puts "Hello world!"
   end
 end

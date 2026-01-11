@@ -164,7 +164,7 @@ when /cygwin|mswin|mingw|bccwin|wince|emx/
   namespace :pastele do
     desc "Update pastele sln"
     make = task :make do
-      check_vars :$sdl, :$thorvg,  :$vcpkg
+      check_vars :$sdl, :$thorvg, :$vcpkg
       check_vars :$make, file: false
       File.write "pastele/CMakeLists.txt", <<~xx
         cmake_minimum_required(VERSION 3.10)
@@ -198,8 +198,9 @@ when /cygwin|mswin|mingw|bccwin|wince|emx/
     end
 
     task :make? do
-      make.invoke unless File.exist? "pastele/cmaked/pastele.sln"
-      
+      if !File.exist?("pastele/cmaked/pastele.sln") || !File.exist?("pastele/CMakeLists.txt")
+        make.invoke
+      end
     end
   
     desc "Build pastele"

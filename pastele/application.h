@@ -17,7 +17,7 @@
 
 namespace pastele {
 
-class Arena
+class Application
 {
     protected:
 

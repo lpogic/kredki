@@ -47,24 +47,24 @@ module Kredki
         @suit
       end
 
-      # Create and attach edit event resolver.
-      def on_edit! ...
-        on!(EditEvent, ...)
+      # Create and attach edit event reaction.
+      def on_edit ...
+        on(EditEvent, ...)
       end
 
-      # See #on_edit!.
+      # See #on_edit.
       def on_edit= param
-        on_edit! do: param
+        on_edit do: param
       end
 
-      # Create and attach change event resolver.
-      def on_change! ...
-        on!(ChangeEvent, ...)
+      # Create and attach change event reaction.
+      def on_change ...
+        on(ChangeEvent, ...)
       end
 
-      # See #on_change!.
+      # See #on_change.
       def on_change= param
-        on_change! do: param
+        on_change do: param
       end
 
       # :section: LEVEL 2
@@ -87,10 +87,10 @@ module Kredki
         super
 
         Event.each(
-          on_mouse_press!, 
-          on_mouse_free!, 
-          on_mouse_enter!, 
-          on_mouse_leave!,
+          on_mouse_press, 
+          on_mouse_release, 
+          on_mouse_enter, 
+          on_mouse_leave,
           do: method(:repaint)
         )
       end
@@ -103,22 +103,22 @@ module Kredki
       def behavior
         super 
 
-        on_mouse_spin! do |e|
-          jump = Kredki.keyboard.alt? ? Kredki.mouse.scrollbar_alt_speed : Kredki.mouse.scrollbar_speed
+        on_mouse_spin do |e|
+          jump = Kredki.keyboard.alt? ? Kredki.mouse.wheel_alt_speed : Kredki.mouse.wheel_speed
           value!{ (it - jump * e.xory).clamp(0..1) } and report EditEvent.new e
-          e.resolve
+          e.close
         end
 
         p0 = self
 
         @handle.alter do
-          on_mouse_free! do |e|
+          on_mouse_release do |e|
             p0.report ChangeEvent.new
           end
 
-          on_mouse_press! do |e|
+          on_mouse_press do |e|
             drag! e.xy, e.button.id
-            e.resolve
+            e.close
           end
         end
       end
@@ -135,7 +135,7 @@ module Kredki
         p0 = self
         @handle = new RectanglePad, fill: :gray do
           x0 = 0
-          on_mouse_move! do |e|
+          on_mouse_move do |e|
             if e.drag
               s = sw
               max_x = p0.sw - s
@@ -143,7 +143,7 @@ module Kredki
               start_x = layer.pin_xy[0]
               x = [[0, x0 + e.x - start_x].max, max_x].min
               p0.value! 1.0 * x / max_x and p0.report EditEvent.new e
-              e.resolve
+              e.close
             end
           end
         end
@@ -158,9 +158,9 @@ module Kredki
       def behavior
         super
 
-        on_mouse_press! :primary do |e|
+        on_mouse_press :primary do |e|
           @handle.drag! @handle.translate(@handle.sw * 0.5, 0), :primary
-          e.resolve
+          e.close
         end
       end
 
@@ -184,7 +184,7 @@ module Kredki
         p0 = self
         @handle = new RectanglePad, fill: :gray do
           y0 = 0
-          on_mouse_move! do |e|
+          on_mouse_move do |e|
             if e.drag
               s = sh
               max_y = p0.sh - s
@@ -192,7 +192,7 @@ module Kredki
               start_y = layer&.pin_xy[1]
               y = [[0, y0 + e.y - start_y].max, max_y].min
               p0.value! 1.0 * y / max_y and p0.report EditEvent.new e
-              e.resolve
+              e.close
             end
           end
         end
@@ -207,9 +207,9 @@ module Kredki
       def behavior
         super
 
-        on_mouse_press! :primary do |e|
+        on_mouse_press :primary do |e|
           @handle.drag! @handle.translate(0, @handle.sh * 0.5), :primary
-          e.resolve
+          e.close
         end
       end
 

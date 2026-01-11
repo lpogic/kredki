@@ -20,37 +20,37 @@ module Kredki
         def behavior
           super
 
-          on! Item::PickEvent, early: true do |e|
+          on Item::PickEvent, early: true do |e|
             if e.target.fd Item
-              e.resolve
+              e.close
             else
               pad_detach
             end
           end
 
-          on_key! :escape do |e|
+          on_key :escape do |e|
             pad_detach
-            e.resolve
+            e.close
           end
 
-          on_mouse_press! do |e|
+          on_mouse_press do |e|
             pad_detach
           end
         end
 
         def mouse_enter e
           super
-          e.resolve
+          e.close
         end
 
         def mouse_leave e
           super
-          e.resolve
+          e.close
         end
 
         def mouse_move e
           super
-          e.resolve
+          e.close
         end
 
       end#PrimaryLayer

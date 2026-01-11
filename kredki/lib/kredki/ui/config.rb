@@ -28,14 +28,20 @@ require_relative 'toolbar/pad'
 
 module Kredki
 
-  # color! :outline_focus, 182, 142, 0, 255
   color! :outline_focus, 0, 142, 182, 255
   color! :text_selection, 70, 80, 122, 255
   color! :text_selection_inactive, 70, 80, 112, 155
   color! :text, 255, 255, 255, 255
 
   module UI
-    module ServiceDefines
+    layout! nil, Layout::Align.new(:c, :c)
+    [:s, :c, :e].repeated_permutation 2 do
+      layout! "x#{it[0]}#{it[1]}".to_sym, Layout::XWay.new(*it)
+      layout! "y#{it[0]}#{it[1]}".to_sym, Layout::YWay.new(*it)
+      layout! "z#{it[0]}#{it[1]}".to_sym, Layout::Align.new(*it)
+    end
+
+    module GlobalServices
       define :pad!, RectanglePad
       define :space!, SpacePad
       define :scroll!, ScrollPad
@@ -60,13 +66,13 @@ module Kredki
       define :context!, Context::Menu
       define :toolbar!, Toolbar::Pad
 
-    end#ServiceDefines
+    end#GlobalServices
   end#UI
 
   Window.default_scene = UI::WindowScene
 
   plugin! :carry_focus_on_tab do
-    on_key_press! :tab do |event|
+    on_key_press :tab do |event|
       next_pad = layer.keyboard_pad&.then do |p0|
         each_pad(reverse: event.shift?, deep: true)
           .lazy

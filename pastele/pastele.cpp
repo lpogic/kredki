@@ -1,3 +1,3 @@
 #include "window.h"
-#include "arena.h"
+#include "application.h"
 #include "cabi.h"

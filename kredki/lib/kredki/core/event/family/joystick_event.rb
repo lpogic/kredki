@@ -37,15 +37,15 @@ module Kredki
     end
   end
 
-  # Event reported on joystick button down.
-  class JoystickButtonDownEvent < JoystickButtonEvent
+  # Event reported on joystick button press.
+  class JoystickButtonPressEvent < JoystickButtonEvent
   end
 
-  # Event reported on joystick button up.
-  class JoystickMouseButtonFreeEvent < JoystickButtonEvent
+  # Event reported on joystick button release.
+  class JoystickMouseButtonReleaseEvent < JoystickButtonEvent
   end
 
-  # Event reported on joystick axis state change.
+  # Event reported on joystick axis change.
   class JoystickAxisEvent < JoystickEvent
 
     # Get event axis.

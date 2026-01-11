@@ -1,10 +1,10 @@
 module Kredki
-  # Responsible for the order in which events are resolved.
-  class EventDirector
+  # Responsible for the order in which events are reported.
+  class EventQueue
 
     # :section: LEVEL 2
 
-    # The maximum number of attempts to resolve the event chain, before director switch to loop safe mode.
+    # The maximum number of reported events in one call, before EventQueue switch to loop safe mode.
     EVENT_LOOP_SAFE_THRESHOLD = 500
 
     def initialize
@@ -23,16 +23,16 @@ module Kredki
       else
         @stops << [stop, event, early]
       end
-      resolve if !@stem
+      process if !@stem
     end
 
-    def resolve
+    def process
       stem, @stem = @stem, true
       (0..).each do |i|
         @i = i
         if i > EVENT_LOOP_SAFE_THRESHOLD
           begin
-            return loop_safe_resolve i
+            return loop_safe_report i
           ensure
             @stops = []
             @stem = stem
@@ -47,7 +47,7 @@ module Kredki
           return
         end
         stop, event, early = *stop
-        stop.resolve event, early
+        stop.report event, early
       end
     end
 
@@ -60,7 +60,7 @@ module Kredki
       raise EventLoopError.new "#{@stops[range]}"
     end
 
-    def loop_safe_resolve start = 0
+    def loop_safe_report start = 0
       proceed = {}
       (start..).each do |i|
         @i = i
@@ -70,8 +70,8 @@ module Kredki
         else
           proceed[stop] = i
         end
-        stop, event, mode = *stop
-        stop.resolve event, mode
+        stop, event, early = *stop
+        stop.report event, early
       end
     end
 

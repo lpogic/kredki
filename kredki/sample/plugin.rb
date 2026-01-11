@@ -1,8 +1,8 @@
 require 'kredki'
 
 plugin! :mouse_in_scale do
-  on_mouse_enter! do
-    play! :mouse_in_scale do |job|
+  on_mouse_enter do
+    run! :mouse_in_scale do |job|
       if job.total_ms > 500
         stop! :mouse_in_scale
       else
@@ -11,8 +11,8 @@ plugin! :mouse_in_scale do
     end
   end
 
-  on_mouse_leave! do
-    play! :mouse_in_scale do |job|
+  on_mouse_leave do
+    run! :mouse_in_scale do |job|
       if job.total_ms > 500
         stop! :mouse_in_scale
         mag! 1

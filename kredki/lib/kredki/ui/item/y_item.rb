@@ -10,19 +10,19 @@ module Kredki
       def behavior
         super
 
-        on_key_press! :up do |e|
+        on_key_press :up do |e|
           item = parent.update_selected_item :previous 
           if item
             item.roi!
-            e.resolve
+            e.close
           end
         end
 
-        on_key_press! :down do |e|
+        on_key_press :down do |e|
           item = parent.update_selected_item :next
           if item
             item.roi!
-            e.resolve
+            e.close
           end
         end
       end

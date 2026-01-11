@@ -29,29 +29,29 @@ module Kredki
       button&.id
     end
 
-    # Get position along X axis.
+    # Get pointer position along X axis.
     def x
       @source.x
     end
 
-    # Get position along Y axis.
+    # Get pointer position along Y axis.
     def y
       @source.y
     end
 
-    # Get position along X and Y axes.
+    # Get pointer position along X and Y axes.
     def xy
       [@source.x, @source.y]
     end
   end
 
-  # Event reported on mouse button down.
-  class MouseButtonPushEvent < MouseButtonEvent
+  # Event reported on mouse button press.
+  class MouseButtonPressEvent < MouseButtonEvent
   end
 
-  # Event reported on mouse button up.
-  class MouseButtonFreeEvent < MouseButtonEvent
-    # Get whether it is drag move. +:start+ is returned if it is initial drag move.
+  # Event reported on mouse button release.
+  class MouseButtonReleaseEvent < MouseButtonEvent
+    # Get whether it is drag move.
     def drag
       @drag
     end
@@ -71,17 +71,17 @@ module Kredki
   # Event reported on mouse pointer move.
   class MousePointerMoveEvent < MouseEvent
 
-    # Get position along X axis.
+    # Get pointer position along X axis.
     def x
       @source.x
     end
 
-    # Get position along Y axis.
+    # Get pointer position along Y axis.
     def y
       @source.y
     end
 
-    # Get position along X and Y axes.
+    # Get pointer position along X and Y axes.
     def xy
       [@source.x, @source.y]
     end
@@ -91,7 +91,7 @@ module Kredki
       xy
     end
 
-    # Get whether it is drag move. +:start+ is returned if it is initial drag move.
+    # Get whether it is drag move. +:start+ is returned if it is initial drag move event.
     def drag
       @drag
     end
@@ -108,13 +108,19 @@ module Kredki
     end
   end
 
+  # Event reported on mouse pointer enter.
   class MousePointerEnterEvent < MouseEvent
+
+    # Get whether it is move sourced event.
     def move?
       @source&.is_a? MousePointerMoveEvent
     end
   end
 
+  # Event reported on mouse pointer enter.
   class MousePointerLeaveEvent < MouseEvent
+
+    # Get whether it is move sourced event.
     def move?
       @source&.is_a? MousePointerMoveEvent
     end
@@ -123,27 +129,27 @@ module Kredki
   # Event reported on mouse wheel spin.
   class MouseWheelSpinEvent < MouseEvent
 
-    # Get position along X axis.
+    # Get spin value along X axis.
     def x
       @source.x
     end
 
-    # Get position along Y axis.
+    # Get spin value along Y axis.
     def y
       @source.y
     end
 
-    # Get position along X and Y axes.
+    # Get spin value along X and Y axes.
     def xy
       [@source.x, @source.y]
     end
 
-    # Get move along X axis or Y if X is 0.
+    # Get spin value along X axis or Y if X is 0.
     def xory
       x == 0 ? y : x
     end
 
-    # Get move along Y axis or X if Y is 0.
+    # Get spin value along Y axis or X if Y is 0.
     def yorx
       y == 0 ? x : y
     end

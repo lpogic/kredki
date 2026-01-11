@@ -19,18 +19,23 @@ module Kredki
       end
 
       # Run animation in given play mode.
-      def play! ...
-        @area.play!(...)
+      def run! ...
+        @area.run!(...)
       end
 
-      # See: #play!
-      def play= param
-        send_ahp :play!, param
+      # See: #run!
+      def run= param
+        send_ahp :run!, param
       end
 
       # Get running play mode.
-      def play
-        @area.play
+      def run
+        @area.run
+      end
+
+      # See #run.
+      def run?
+        !!run
       end
 
       # Push the feature.

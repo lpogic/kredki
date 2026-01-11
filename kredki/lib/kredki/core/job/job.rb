@@ -4,57 +4,65 @@ module Kredki
     
     # Create and attach Kredki::AfterJob.
     def after delay = 0, &block
-      job = AfterJob.new @scene, block, delay
+      job = AfterJob.new block, delay
       @event_manager << job
       job
     end
 
     # Create and attach Kredki::LoopJob.
     def loop period = 0, &block
-      job = LoopJob.new @scene, block, period
+      job = LoopJob.new block, period
       @event_manager << job
       job
     end
 
     # Create and attach Kredki::SideJob.
     def side &block
-      job = SideJob.new @scene, block
+      job = SideJob.new block
       @event_manager << job
       job
     end
 
-    # Get main parameter.
-    def param
-      @param
+    # Get event.
+    def event
+      @event
     end
 
-    # See #param.
-    def ~
-      param
+    # Get host.
+    def host
+      @host
     end
 
     # :section: LEVEL 2
 
-    class PlayEvent < Event
+    class RunEvent < Event
+      def initialize result, ...
+        super(...)
+        @result = result
+      end
+
+      def result
+        @result
+      end
     end
 
-    class StopEvent < Event
+    class CancelEvent < Event
     end
 
-    def initialize scene
-      @scene = scene
+    def initialize
       @event_manager = EventManager.new
-      @param = nil
+      @host = nil
+      @event = nil
     end
 
     def call event
       case event
-      when StopEvent
-        stop
-      when PlayEvent
-        play event.target
+      when CancelEvent
+        cancel event
+      when RunEvent
+        run event.target, event
       else
-        play event
+        run event.target.window, event
       end
     end
   end

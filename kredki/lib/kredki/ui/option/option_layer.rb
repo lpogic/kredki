@@ -21,7 +21,7 @@ module Kredki
       end
 
       def behavior
-        on! Item::PickEvent do |e|
+        on Item::PickEvent do |e|
           parent.report e
         end
       end
@@ -69,7 +69,7 @@ module Kredki
         unload
       end
 
-      def mouse_free e
+      def mouse_release e
       end
     end
   end

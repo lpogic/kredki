@@ -22,36 +22,36 @@ module Kredki
         def behavior
           super
 
-          on! Item::PickEvent do |e|
+          on Item::PickEvent do |e|
             if e.target.fd Item
-              e.resolve
+              e.close
             else
               parent.report e
               pad_detach
             end
           end
         
-          on_key! :escape do |e|
+          on_key :escape do |e|
             pad_detach
-            e.resolve
+            e.close
           end
 
-          on_mouse_press! do |e|
+          on_mouse_press do |e|
             pad_detach
           end
         end
 
         def set_parent parent, at = nil
           if super
-            @parent_events&.each{ _1.detach! }
+            @parent_events&.each{ _1.detach }
             @parent_events = []
 
 
-            @parent_events.push = parent.on_focus_enter! do |e|
+            @parent_events.push = parent.on_focus_enter do |e|
               load parent
             end
 
-            @parent_events.push = parent.on_focus_leave! do |e|
+            @parent_events.push = parent.on_focus_leave do |e|
               unload if loaded?
             end
           end

@@ -159,7 +159,7 @@ module Kredki
 
     # Available blending methods.
     class BlendMethod
-      # Blenging disabled (default).
+      # Blending disabled (default).
       def self.normal = 0
       def self.add = 1
       def self.screen = 2
@@ -203,13 +203,12 @@ module Kredki
       def self.inv_alpha = 2
       def self.luma = 3
       def self.inv_luma = 4
-
-      # ADD = 5
-      # SUBSTRACT = 6
-      # INTERSECT = 7
-      # DIFFERENCE = 8
-      # LIGHTEN = 9
-      # DARKEN = 10
+      def self.add = 5
+      def self.substract = 6
+      def self.intersect = 7
+      def self.difference = 8
+      def self.lighten = 9
+      def self.darken = 10
     end
 
     # Set color masking method with +target+.
@@ -288,13 +287,13 @@ module Kredki
     end
 
     # Detach the Paint from the containing Kredki::Scene.
-    def detach!
+    def detach
       @scene&.remove_paint self
       @scene = nil
     end
 
     # Attach the Paint to the Kredki::Scene.
-    def attach! scene, show = true, at = nil
+    def attach scene, show = true, at = nil
       @scene&.remove_paint self
       scene.put_paint self, show, at
       @scene = scene

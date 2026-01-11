@@ -7,7 +7,7 @@
 #include "sw_window.h"
 #include "gl_window.h"
 #include "wg_window.h"
-#include "arena.h"
+#include "application.h"
 
 #define CABI __declspec(dllexport)
 
@@ -82,13 +82,13 @@ CABI uint8_t joystick_get_button_state(int device_id, int button_index);
 CABI int16_t joystick_get_axis_value(int device_id, int axis_index);
 
 
-CABI void* arena_new(void);
-CABI void arena_delete(pastele::Arena* self);
-CABI uint32_t arena_insert_window(pastele::Arena* self, pastele::Window* window);
-CABI uint32_t arena_erase_window(pastele::Arena* self, pastele::Window* window);
-CABI void arena_set_event_handler(pastele::Arena* self, int(*eventHandler)(int, SDL_Event*));
-CABI void arena_run(pastele::Arena* self);
-CABI void arena_exit(pastele::Arena* self);
+CABI void* application_new(void);
+CABI void application_delete(pastele::Application* self);
+CABI uint32_t application_insert_window(pastele::Application* self, pastele::Window* window);
+CABI uint32_t application_erase_window(pastele::Application* self, pastele::Window* window);
+CABI void application_set_event_handler(pastele::Application* self, int(*eventHandler)(int, SDL_Event*));
+CABI void application_run(pastele::Application* self);
+CABI void application_exit(pastele::Application* self);
 
 CABI void* window_new(int width, int height);
 CABI void window_delete(pastele::Window* self);
@@ -205,7 +205,7 @@ CABI Animation* animation_new(void);
 CABI void animation_set_frame(Animation* self, float no);
 CABI Paint* animation_get_picture(Animation* self);
 // CABI int tvg_animation_get_frame(Animation* self, float* no);
-CABI float animation_get_total_frame(Animation* self);
+CABI float animation_get_total_frames(Animation* self);
 CABI float animation_get_duration(Animation* self);
 CABI void animation_set_segment(Animation* self, float begin, float end);
 // CABI int tvg_animation_get_segment(Animation* self, float* begin, float* end);

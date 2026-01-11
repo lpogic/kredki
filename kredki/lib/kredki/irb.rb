@@ -1,8 +1,9 @@
 require 'irb'
 
 class KredkiWorkSpace < IRB::WorkSpace
-  def initialize ...
-    super
+  def initialize application, ...
+    super(...)
+    @application = application
     @mutex = Thread::Mutex.new
     @convar = Thread::ConditionVariable.new
     @cmd = nil
@@ -24,7 +25,7 @@ class KredkiWorkSpace < IRB::WorkSpace
     @mutex.synchronize do
       if @cmd
         if @cmd == [:exit]
-          Kredki.exit!
+          @application.exit
         else
           @cmd = oeval *@cmd
         end
@@ -38,8 +39,8 @@ KredkiProc = proc do
   mutex = Thread::Mutex.new
   convar = Thread::ConditionVariable.new
   Thread.new do
-    arena = Kredki.arena!
-    W = arena.window! show: false
+    application = Kredki.application!
+    W = application.window! show: false
     module Kredki
       module Extend
         extend Forwardable
@@ -49,7 +50,7 @@ KredkiProc = proc do
         end
 
         def window! ...
-          W.arena.window!(...)
+          W.application.window!(...)
         end
   
         def layer! ...
@@ -57,7 +58,7 @@ KredkiProc = proc do
         end
   
         def define ...
-          def_delegator :W, ServiceDefines.define(...)
+          def_delegator :W, GlobalServices.define(...)
         end
   
         def plugin! ...
@@ -75,13 +76,13 @@ KredkiProc = proc do
     window.alter{ wh_drag!; text_input!; top! }
     fill! 110, 301, 101
 
-    kredki_workspace = KredkiWorkSpace.new binding
+    kredki_workspace = KredkiWorkSpace.new application, binding
     IRB.CurrentContext.replace_workspace kredki_workspace
     IRB.conf[:AT_EXIT] << proc{ kredki_workspace.evaluate :exit }
     loop!{ kredki_workspace.release }
     mutex.synchronize{ convar.signal }
     window.show!
-    arena.run!
+    application.run
   end
 
   mutex.synchronize{ convar.wait mutex }

@@ -1,10 +1,8 @@
 require 'kredki'
 
-# Job api overview
-
 button! "Countdown" do
-  on_click! do |e|
-    e.resolver.detach! # do not resolve more than 1 event
+  on_click do |e|
+    e.reaction.cancel # cancel reaction in first event
 
     i = 5
     countdown = proc do
@@ -27,9 +25,9 @@ button! "Countdown" do
         end.after 1000 do # then do something after 1000 ms
           alter "Exit in #{i} second"
         end.after 1000 do
-          arena.exit!
+          application.exit
         end
       end
-    end.play
+    end.run window
   end
 end

@@ -3,14 +3,6 @@ module Kredki
   class WindowEvent < PasteleEvent
   end
 
-  # Event reported on show.
-  class ShowEvent < PasteleEvent
-  end
-
-  # Event reported on hide.
-  class HideEvent < PasteleEvent
-  end
-
   # Event reported on window expose.
   class WindowExposeEvent < WindowEvent
   end
@@ -55,15 +47,7 @@ module Kredki
   class WindowRestoreEvent < WindowEvent
   end
 
-  # Event reported on focus enter.
-  class FocusEnterEvent < WindowEvent
-  end
-
-  # Event reported on focus leave.
-  class FocusLeaveEvent < WindowEvent
-  end
-
-  # Event reported on window is about to close. Closing will continue if the event is not resolved.
+  # Event reported on window is about to close. Window closing will continue if the event is not closed.
   class WindowCloseEvent < WindowEvent
   end
 

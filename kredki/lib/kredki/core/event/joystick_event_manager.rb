@@ -1,5 +1,5 @@
 module Kredki
-  # Manage joystick events resolving.
+  # Manage joystick event managers.
   class JoystickEventManager
 
     # :section: LEVEL 2
@@ -8,10 +8,10 @@ module Kredki
       @managers = {}
     end
 
-    def resolve event
-      @managers.dig(event.joystick, event.input_id)&.resolve event
-      @managers.dig(event.joystick, nil)&.resolve event
-      @managers.dig(nil, nil)&.resolve event
+    def report event
+      @managers.dig(event.joystick, event.input_id)&.report event
+      @managers.dig(event.joystick, nil)&.report event
+      @managers.dig(nil, nil)&.report event
     end
 
     def [](joystick, indexes)

@@ -48,11 +48,11 @@ module Kredki
         end
       end
       
-      class PortalMouseButtonPushEvent < MouseButtonPushEvent
+      class PortalMouseButtonPressEvent < MouseButtonPressEvent
         include PortalMouseButtonEvent
       end
       
-      class PortalMouseButtonFreeEvent < MouseButtonFreeEvent
+      class PortalMouseButtonReleaseEvent < MouseButtonReleaseEvent
         include PortalMouseButtonEvent
       end
     
@@ -61,10 +61,10 @@ module Kredki
 
       def mouse_event event
         case event
-        when MouseButtonPushEvent
-          PortalMouseButtonPushEvent.new *translated_xy(event.xy), event
-        when MouseButtonFreeEvent
-          PortalMouseButtonFreeEvent.new *translated_xy(event.xy), event
+        when MouseButtonPressEvent
+          PortalMouseButtonPressEvent.new *translated_xy(event.xy), event
+        when MouseButtonReleaseEvent
+          PortalMouseButtonReleaseEvent.new *translated_xy(event.xy), event
         else
           event
         end

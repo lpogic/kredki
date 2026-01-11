@@ -7,7 +7,7 @@ module Kredki
     # Base class of UI tree nodes.
     class Service
       extend ServiceInherited
-      include ServiceDefines
+      include GlobalServices
       include ServiceFilter
 
       # Set whether Pad is tagged with +tag+.
@@ -59,9 +59,9 @@ module Kredki
         layer&.pad_parent
       end
 
-      # Get Kredki::Arena ancestor.
-      def arena
-        window&.arena
+      # Get Kredki::Application ancestor.
+      def application
+        window&.application
       end
 
       # Get whether +grand+ contains self.
@@ -80,15 +80,15 @@ module Kredki
       end
 
       # Attach self to +parent+.
-      def attach! parent
+      def attach parent
         return if @parent == parent
         raise "LOOP" if parent.lineage.find{ _1 == self }
-        detach! true if @parent
+        detach true if @parent
         parent&.push_service self
       end
 
       # Detach self.
-      def detach! transfer = false
+      def detach transfer = false
         @parent&.remove_service self
         @parent = nil
       end
@@ -100,19 +100,19 @@ module Kredki
         instance_exec *a, **na, &plugin
       end
 
-      def on! event_type, early: false, always: false, do: nil, &block
+      def on event_type, early: false, always: false, do: nil, &block
         @event_manager.manager event_type, block || binding.local_variable_get(:do), early, always
       end
 
-      # Play custom local loop.
-      def play! id, &block
-        @loops[id]&.stop
+      # Cancel custom local loop.
+      def run! id, &block
+        @loops[id]&.cancel
         @loops[id] = loop! &block
       end
 
-      # Stop custom local loop.
+      # Cancel custom local loop.
       def stop! id
-        @loops.delete(id)&.stop
+        @loops.delete(id)&.cancel
       end
 
       # Match self with +filter+.
@@ -183,6 +183,7 @@ module Kredki
       end
 
       attr :services
+      attr :event_manager
 
       def service_tree
         @services.map{ [it, it.service_tree] }.to_h
@@ -233,10 +234,12 @@ module Kredki
         @services.each{ _1.grand_pad_detach }
       end
 
-      def resolve event, early = false
-      end
-
       def report event, path = true, instant = false
+        event.target ||= self
+        event_queue = window&.event_queue
+        return unless event_queue
+        event_queue.push event, @event_manager, true, instant
+        event_queue.push event, @event_manager, false, instant
       end
     end
   end

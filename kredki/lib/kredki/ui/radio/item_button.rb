@@ -53,12 +53,12 @@ module Kredki
           attr_accessor :value
         end
 
-        def on_change! ...
-          on!(ChangeEvent, ...)
+        def on_change ...
+          on(ChangeEvent, ...)
         end
 
         def on_change= param
-          on_change! do: param
+          on_change do: param
         end
 
         # :section: LEVEL 2
@@ -82,7 +82,7 @@ module Kredki
           end
           keyboardy!
           outline_w! 1
-          layout! :acc
+          layout! :zcc
           wh! 20
           m! 4
           suit! :gray
@@ -92,12 +92,12 @@ module Kredki
           super
 
           Event.each(
-            on_focus_enter!,
-            on_focus_leave!,
-            on_mouse_press!,
-            on_mouse_free!,
-            on_mouse_enter!,
-            on_mouse_leave!,
+            on_focus_enter,
+            on_focus_leave,
+            on_mouse_press,
+            on_mouse_release,
+            on_mouse_enter,
+            on_mouse_leave,
             do: method(:repaint)
           )
         end
@@ -111,15 +111,15 @@ module Kredki
         def behavior
           super
 
-          Event.each on_mouse_click!, on_key!(:space, :enter) do |e|
+          Event.each on_mouse_click, on_key(:space, :enter) do |e|
             report ChangeEvent.new true if !checked
           end
 
-          on_change! early: true do |e|
-            e.resolve unless checked! e.value
+          on_change early: true do |e|
+            e.close unless checked! e.value
           end
 
-          on_key_press! do |e|
+          on_key_press do |e|
             fa(Group).key e, self
           end
         end

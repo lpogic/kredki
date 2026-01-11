@@ -12,44 +12,51 @@ module Kredki
       @total_ms
     end
 
-    # Break job loop.
-    def break
+    # Break loop.
+    def break result = nil
       @break = true
+      @result = result
     end
 
-    # Start job.
-    def play param = nil
-      stop
-      @param = param
-      @next_ms = @scene.arena.ms
+    # Run job.
+    def run host, event = nil
+      cancel
+      @host = host
+      @event = event || RunEvent.new(nil, nil, self)
+      @next_ms = @host.application.ms
       @total_ms = 0
-      @scene.put_job self
+      @host.put_job self
     end
 
-    # Stop job and all subjobs.
-    def stop
-      @scene.remove_job self
-      @event_manager.resolve StopEvent.new
+    # Cancel job and all subjobs.
+    def cancel event = nil
+      @host&.remove_job self
+      @event_manager.report event || CancelEvent.new
+      @host = nil
     end
 
     # :section: LEVEL 2
 
-    def initialize scene, block, period
-      super(scene)
+    def initialize block, period
+      super()
       @block = block
       @period = period
       @next_ms = 0
       @break = false
-
+      @result = nil
       @ms = nil
     end
 
-    def step ms
+    def tick ms
       dms = ms - @next_ms
       if dms >= 0
         @ms = dms + @period
         @total_ms += @ms
-        @block.call self, @param
+        if RunEvent === @event
+          @block.call self, @event.source || @event, @event.result
+        else
+          @block.call self, @event
+        end
         if @period > 0
           @next_ms += @period * (1 + dms / @period) 
         else
@@ -57,7 +64,14 @@ module Kredki
         end
         if @break
           @break = false
-          @event_manager.resolve PlayEvent.new
+          if RunEvent === @event
+            @event_manager.report RunEvent.new @result, @event.source || nil, @host
+          else
+            @event_manager.report RunEvent.new @result, @event, @host
+          end
+          @host = nil
+          @event = nil
+          @result = nil
           return false
         end
       end

@@ -1,22 +1,22 @@
 #include <iostream>
-#include "arena.h"
+#include "application.h"
 using namespace std;
 
 namespace pastele {
 
-void Arena::setEventHandler(int(*eventHandler)(int, SDL_Event*)) {
+void Application::setEventHandler(int(*eventHandler)(int, SDL_Event*)) {
     this->eventHandler = eventHandler;
 }
 
-void Arena::insertWindow(Window* window) {
+void Application::insertWindow(Window* window) {
     windows.insert(window);
 }
 
-void Arena::eraseWindow(Window* window) {
+void Application::eraseWindow(Window* window) {
     windows.erase(window);
 }
 
-void Arena::run() {
+void Application::run() {
     SDL_Event event;
 
     running = true;
@@ -99,7 +99,7 @@ void Arena::run() {
     }
 }
 
-void Arena::exit(void) {
+void Application::exit(void) {
     running = false;
 }
 

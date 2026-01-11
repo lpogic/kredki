@@ -1,7 +1,7 @@
 require 'kredki'
 
-on_focus_leave! do
-  arena.exit!
+on_focus_leave do
+  application.exit
 end
 
 layout! :yss
@@ -51,7 +51,7 @@ space! layout: :xss, m: 10, mi: 10 do
       end
     end
     scroll! wh: [1r, limit: :fit] do
-      picture! "test.png"
+      picture! "stuff/test.png"
     end
   end
   space! layout: :yss, w: 1/2r, mi: 10 do
@@ -70,6 +70,6 @@ space! layout: :xss, m: 10, mi: 10 do
       item! "Radio 2"
       item! "Radio 3"
     end
-    animation! "1643-exploding-star.json", wh: [1r, limit: :ratio], x: :c, play: :bounce_loop
+    animation! "stuff/1643-exploding-star.json", wh: [1r, limit: :ratio], x: :c, run: :bounce_loop
   end
 end

@@ -27,14 +27,14 @@ module Kredki
         @dropdown
       end
 
-      # Create and attach pick event resolver.
-      def on_pick! ...
-        on!(Item::PickEvent, ...)
+      # Create and attach pick event reaction.
+      def on_pick ...
+        on(Item::PickEvent, ...)
       end
 
-      # See #on_pick!.
+      # See #on_pick.
       def on_pick= param
-        on_pick! do: param
+        on_pick do: param
       end
 
       # :section: LEVEL 2
@@ -69,46 +69,46 @@ module Kredki
       def behavior
         super
 
-        Event.each on_key!(:enter) do
+        Event.each on_key(:enter) do
           @dropdown.load self unless @dropdown.loaded?
         end
 
-        # Event.each on_move!, on_resize! do |e|
+        # Event.each on_move, on_resize do |e|
         #   @dropdown.break_layout
         # end
 
-        on_mouse_click! :primary do
+        on_mouse_click :primary do
           @dropdown.load self unless @dropdown.loaded?
         end
 
-        @arrow.on_mouse_click! :primary do |e|
+        @arrow.on_mouse_click :primary do |e|
           if @dropdown.loaded?
             @dropdown.unload
           else
             @dropdown.load self
           end
-          e.resolve
+          e.close
         end
 
-        @arrow.on_mouse_move! do
+        @arrow.on_mouse_move do
           if it.drag
-            it.resolve
+            it.close
           end
         end
 
-        on_pick! do |e|
+        on_pick do |e|
           @dropdown.unload
           content = e.target.fd(TextPad).content
           @note.content! content
           @note.verse.set_cursor content.to_s.length
         end
 
-        @dropdown.on_key! :escape do
+        @dropdown.on_key :escape do
           @dropdown.unload
-          it.resolve
+          it.close
         end
 
-        on_focus_leave! do
+        on_focus_leave do
           @dropdown.unload
         end
       end

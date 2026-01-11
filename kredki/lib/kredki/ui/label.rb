@@ -80,7 +80,7 @@ module Kredki
       def behavior
         super
 
-        on_mouse_enter! do |event|
+        on_mouse_enter do |event|
           @portal_layer = window.layer! PortalLayer
           @portal_layer.entry = self
           @portal_layer.exit = for_pad

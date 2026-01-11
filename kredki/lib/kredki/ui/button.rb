@@ -4,36 +4,36 @@ module Kredki
   module UI
     class Button < RectanglePad
 
-      # Create and attach button click event resolver.
-      def on_click! ...
-        on!(ButtonClickEvent, ...)
+      # Create and attach button click event reaction.
+      def on_click ...
+        on(ButtonClickEvent, ...)
       end
 
       def on_click= param
-        on_click! do: param
+        on_click do: param
       end
 
-      # Set whether is down.
-      def down! value = true, event = nil
-        return if (c = down) == (value = block_given? ? yield(c) : value == :not ? !c : value)
-        @down = value
-        report (@down ? ButtonDownEvent.new(event) : MouseButtonFreeEvent.new(event)) if event
+      # Set whether is pressed.
+      def pressed! value = true, event = nil
+        return if (c = pressed) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+        @pressed = value
+        report (@pressed ? ButtonPressEvent.new(event) : MouseButtonReleaseEvent.new(event)) if event
         true
       end
 
-      # See #down!.
-      def down= param
-        send_ahp :down!, param
+      # See #pressed!.
+      def pressed= param
+        send_ahp :pressed!, param
       end
 
-      # Get whether is down.
-      def down
-        @down
+      # Get whether is pressed.
+      def pressed
+        @pressed
       end
 
-      # See #down.
-      def down?
-        !!down
+      # See #pressed.
+      def pressed?
+        !!pressed
       end
 
       # Set suit.
@@ -71,10 +71,10 @@ module Kredki
       class ButtonClickEvent < Event
       end
 
-      class ButtonDownEvent < Event
+      class ButtonPressEvent < Event
       end
 
-      class MouseButtonFreeEvent < Event
+      class MouseButtonReleaseEvent < Event
       end
 
       def sketch
@@ -82,7 +82,7 @@ module Kredki
 
         keyboardy!
         outline_w! 1
-        layout! :acc
+        layout! :zcc
         wh! :fit
         suit! :gray
         m! 3
@@ -92,52 +92,52 @@ module Kredki
         super
 
         Event.each(
-          on_focus_enter!, 
-          on_focus_leave!, 
-          on_mouse_enter!, 
-          on_mouse_leave!, 
-          on!(ButtonDownEvent), 
-          on!(MouseButtonFreeEvent),
+          on_focus_enter, 
+          on_focus_leave, 
+          on_mouse_enter, 
+          on_mouse_leave, 
+          on(ButtonPressEvent), 
+          on(MouseButtonReleaseEvent),
           do: method(:repaint)
         )
       end
 
       def repaint event = nil
         color = Kredki.color @suit
-        area.fill = down? ? color.darken : mouse_in? ? color.lighten : color
+        area.fill = pressed? ? color.darken : mouse_in? ? color.lighten : color
         area.outline_fill = keyboard_in? ? :outline_focus : color.darken
       end
 
       def behavior
         super
 
-        Event.each on_mouse_press!(:primary), on_key_press!(:enter, :space) do |e|
-          down! true, e
+        Event.each on_mouse_press(:primary), on_key_press(:enter, :space) do |e|
+          pressed! true, e
         end
 
-        on_focus_leave! do |e|
-          down! false, e
+        on_focus_leave do |e|
+          pressed! false, e
         end
 
-        on_mouse_click! :primary do |e|
-          down = keyboard_in? && ( Kredki.keyboard.down?(:space) || Kredki.keyboard.down?(:enter) )
+        on_mouse_click :primary do |e|
+          pressed = keyboard_in? && ( Kredki.keyboard.pressed?(:space) || Kredki.keyboard.pressed?(:enter) )
           
-          report ButtonClickEvent.new e if !down && down!(false, e)
+          report ButtonClickEvent.new e if !pressed && pressed!(false, e)
         end
 
-        # on_mouse_free! :primary do |e|
-        #   down = keyboard_in? && ( Kredki.keyboard.down?(:space) || Kredki.keyboard.down?(:enter) )
-        #   report ButtonClickEvent.new e if !down && down!(false, e) && !e.drag && include_point?(*layer.translate(*e.xy, self))
+        # on_mouse_release :primary do |e|
+        #   pressed = keyboard_in? && ( Kredki.keyboard.pressed?(:space) || Kredki.keyboard.pressed?(:enter) )
+        #   report ButtonClickEvent.new e if !pressed && pressed!(false, e) && !e.drag && include_point?(*layer.translate(*e.xy, self))
         # end
 
-        on_key_free! :enter do |e|
-          down = pin_top?(:primary) || ( keyboard_in? && Kredki.keyboard.down?(:space) )
-          report ButtonClickEvent.new e if !down && down!(false, e)
+        on_key_release :enter do |e|
+          pressed = pin_top?(:primary) || ( keyboard_in? && Kredki.keyboard.pressed?(:space) )
+          report ButtonClickEvent.new e if !pressed && pressed!(false, e)
         end
 
-        on_key_free! :space do |e|
-          down = pin_top?(:primary) || ( keyboard_in? && Kredki.keyboard.down?(:enter) )
-          report ButtonClickEvent.new e if !down && down!(false, e)
+        on_key_release :space do |e|
+          pressed = pin_top?(:primary) || ( keyboard_in? && Kredki.keyboard.pressed?(:enter) )
+          report ButtonClickEvent.new e if !pressed && pressed!(false, e)
         end
       end
 

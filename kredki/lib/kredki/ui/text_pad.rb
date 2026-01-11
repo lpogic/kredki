@@ -8,7 +8,7 @@ module Kredki
         return send_ahp :content!, yield(self.content) if block_given?
         return if @content == content
         @content = content
-        @verses&.each{ it.detach! }
+        @verses&.each{ it.detach }
         @verses = "#{content}\n".each_line(chomp: true).map do |line|
           @scene.text! line.chomp, fill: @area.fill
         end

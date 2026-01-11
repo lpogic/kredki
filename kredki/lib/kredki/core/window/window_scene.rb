@@ -1,4 +1,4 @@
-require_relative '../event/manage/event_director'
+require_relative '../event/event_queue'
 require_relative 'the'
 require_relative 'window_scene_events'
 require_relative 'window_scene_event_manager'
@@ -15,14 +15,19 @@ module Kredki
       instance_exec *a, **na, &plugin
     end
 
+    # Shift from current scene to another.
+    def shift! ...
+      @scene.scene!(...)
+    end
+
     # Get Kredki::Window ancestor.
     def window
       self
     end
 
-    # Get Kredki::Arena ancestor.
-    def arena
-      @scene&.arena
+    # Get Kredki::Application ancestor.
+    def application
+      @scene&.application
     end
 
     # Get static object container.
@@ -332,21 +337,21 @@ module Kredki
 
       @jobs = []
       @event_manager = WindowSceneEventManager.new
-      @event_director = EventDirector.new
+      @event_queue = EventQueue.new
       @fill = rectangle! xy: 0
       @the = The.new self
 
-      on_clock_step! do: method(:step)
+      on_clock_tick do: method(:tick)
     end
 
-    attr :event_director
+    attr :event_queue
 
     def update_paint paint
       @scene&.update_paint paint
     end
 
     def sketch
-      on_window_resize!{ @fill.wh = it.wh }
+      on_window_resize{ @fill.wh = it.wh }
       @fill.wh = *wh
       fill! 20, 70, 20
     end
@@ -374,16 +379,16 @@ module Kredki
     end
 
     def report event
-      @event_director.push event, self
+      @event_queue.push event, self
     end
 
-    def resolve event, early = false
-      @event_manager.resolve event
+    def report event, early = false
+      @event_manager.report event
     end
 
-    def step event
-      ms = event.timestamp / 1_000_000 - arena.run_ms
-      @jobs.filter!{ it.step ms }
+    def tick event
+      ms = event.timestamp / 1_000_000 - application.run_ms
+      @jobs.filter!{ it.tick ms }
     end
 
     def build_context

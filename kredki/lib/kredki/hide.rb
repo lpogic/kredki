@@ -1,5 +1,5 @@
 require_relative 'script'
 
 at_exit do
-  arena.run!
+  application.run
 end

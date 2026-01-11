@@ -29,14 +29,14 @@ module Kredki
           @context_layer.item_group.item!(...)
         end
 
-        # Create and attach pick event resolver.
-        def on_pick! ...
-          on!(Item::PickEvent, ...)
+        # Create and attach pick event reaction.
+        def on_pick ...
+          on(Item::PickEvent, ...)
         end
 
-        # See #on_pick!.
+        # See #on_pick.
         def on_pick= param
-          on_pick! do: param
+          on_pick do: param
         end
 
         # Set primary pad width.
@@ -94,19 +94,19 @@ module Kredki
 
         def set_parent parent, at = nil
           if super
-            @parent_events&.each{ _1.detach! }
+            @parent_events&.each{ _1.detach }
             @parent_events = []
 
-            @parent_events.push = parent.on_mouse_click! :secondary do |e|
+            @parent_events.push = parent.on_mouse_click :secondary do |e|
               @context_layer.load *e.xy
               @context_layer.fd(Item)&.keyboard_request
-              e.resolve
+              e.close
             end
       
-            @parent_events.push = parent.on_key! :context do |e|
+            @parent_events.push = parent.on_key :context do |e|
               @context_layer.load *parent.translate(parent.sx / 2, parent.sy / 2)
               @context_layer.fd(Item)&.keyboard_request
-              e.resolve
+              e.close
             end
           end
         end

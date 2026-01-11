@@ -45,7 +45,7 @@ module Kredki
       def sketch
         super
 
-        layout! :acc
+        layout! :zcc
         wh! 20
         m! 3
       end

@@ -22,20 +22,20 @@ module Kredki
         super
         p0 = self
         
-        @yslide.on_edit! do |e|
+        @yslide.on_edit do |e|
           layer&.break_layout
-          e.resolve
+          e.close
         end
 
-        @xslide.on_edit! do |e|
+        @xslide.on_edit do |e|
           layer&.break_layout
-          e.resolve
+          e.close
         end
 
-        on_mouse_spin! do |e|
+        on_mouse_spin do |e|
           ps = layout_pads
           if !ps.empty?
-            jump = Kredki.keyboard.alt? ? Kredki.mouse.scrollbar_alt_speed : Kredki.mouse.scrollbar_speed
+            jump = Kredki.keyboard.alt? ? Kredki.mouse.wheel_alt_speed : Kredki.mouse.wheel_speed
             xjump = 1.0 * p0.sw / @lw * jump
             yjump = 1.0 * p0.sh / @lh * jump
             xo, yo = if p0.sw < @lw && p0.sh < @lh
@@ -47,11 +47,11 @@ module Kredki
             else
               [0, 0]
             end
-            e.resolve if @xslide.value!{ (it - xo * xjump).clamp(0..1) } | @yslide.value!{ (it - yo * yjump).clamp(0..1) }
+            e.close if @xslide.value!{ (it - xo * xjump).clamp(0..1) } | @yslide.value!{ (it - yo * yjump).clamp(0..1) }
           end
         end
 
-        on! ROIEvent do |e|
+        on ROIEvent do |e|
           x, y = e.target.translate *e.xy, self
 
           if (range = (@lw || 0) - sw) > 0
@@ -71,7 +71,7 @@ module Kredki
       def mouse_press e
       end
 
-      def mouse_free e
+      def mouse_release e
       end
 
       def put_pad pad, at = nil

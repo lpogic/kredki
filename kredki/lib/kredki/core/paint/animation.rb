@@ -1,23 +1,13 @@
 module Kredki
-  # Represents an picture that may change over time.
+  # Picture that may change over time.
   class Animation
 
     def content! ...
       if @picture.content!(...)
-        @total_frame = Pastele.animation_get_total_frame @pointer
+        @total_frames = Pastele.animation_get_total_frames @pointer
         true
       end
     end
-
-    # # Set content.
-    # def content! content = @content
-    #   return content! yield @content if block_given?
-    #   return if @content == content
-    #   Pastele.picture_load @picture.pointer, content.to_s
-    #   @total_frame = Pastele.animation_get_total_frame @pointer
-    #   @content = content
-    #   @picture.update
-    # end
 
     # See #content!.
     def content= param
@@ -146,7 +136,9 @@ module Kredki
     end
 
     # Get total animation frames.
-    attr :total_frame
+    def total_frames
+      @total_frames
+    end
 
     # Get animation duration in milliseconds.
     def duration
@@ -154,24 +146,29 @@ module Kredki
     end
 
     # Run animation in given play mode.
-    def play! play = true, &block
-      play = block if play == true && block
-      return if @play == play
+    def run! play_mode = true, &block
+      play_mode = block if block
+      return if @play_mode == play_mode
       window = scene.window
-      window.put_job self unless @play
-      window.remove_job self unless play
-      @play = play
+      window.remove_job self if @play_mode
+      window.put_job self if play_mode
+      @play_mode = play_mode
       true
     end
 
-    # See: #play!
-    def play= param
-      send_ahp :play!, param
+    # See: #run!
+    def run= param
+      send_ahp :run!, param
     end
 
     # Get running play mode.
-    def play
-      @play
+    def run
+      @play_mode
+    end
+
+    # See #run.
+    def run?
+      !!run
     end
 
     # Set animated segment.
@@ -179,36 +176,41 @@ module Kredki
       Pastele.animation_set_segment @pointer, *segment
     end
 
-    # Add animation finished event resolver.
-    def on_finish! always: false, do: nil, &block
-      resolver =  block || binding.local_variable_get(:do)
-      resolver ? @on_finish.attach!(resolver, always: always) : @on_finish
+    # Add animation finished event reaction.
+    def on_finish always: false, do: nil, &block
+      reaction =  block || binding.local_variable_get(:do)
+      reaction ? @on_finish.attach(reaction, always: always) : @on_finish
     end
 
     # See: #on_finish=.
     def on_finish= param
-      on_finish! do: param
+      on_finish do: param
+    end
+
+    # Stop animation and report finish event.
+    def finish
+      run! false and @on_finish.report Event.new
     end
 
     # Stop and restore initial state of the Animation.
-    def reset!
-      self.frame = 0
+    def reset
+      frame! 0
       @ms = nil
-      play! false
+      run! false
     end
 
     # Attach animation and related Kredki::Picture to the Kredki::Scene.
-    def attach! scene, show = true, at = nil
-      @picture.window&.remove_job self if @play
-      @picture.attach! scene, show, at
-      @picture.window&.put_job self if @play
+    def attach scene, show = true, at = nil
+      @picture.window&.remove_job self if @play_mode
+      @picture.attach scene, show, at
+      @picture.window&.put_job self if @play_mode
       self
     end
 
     # Detach animation and related Kredki::Picture from the Kredki::Scene.
-    def detach!
-      play! false
-      @picture.detach!
+    def detach
+      run! false
+      @picture.detach
     end
 
     # Set whether Animation is drawn on the scene.
@@ -235,11 +237,6 @@ module Kredki
       !!show
     end
 
-    # Stop animation and report finish event.
-    def finish!
-      play! false and @on_finish.resolve Event.new
-    end
-
     # Push the feature.
     def << feature
       case feature
@@ -261,10 +258,10 @@ module Kredki
       ObjectSpace.define_finalizer(self, Animation.finalizer(@pointer))
 
       @picture = Picture.new Pastele.animation_get_picture @pointer
-      @play = false
+      @play_mode = false
       @ms = nil
-      @total_frame = nil
-      @on_end = EventManager.new
+      @total_frames = nil
+      @on_finish = EventManager.new
     end
 
     def self.finalizer pointer
@@ -282,60 +279,60 @@ module Kredki
       @picture.scene = scene
     end
 
-    def step ms
+    def tick ms
       @ms = ms if !@ms
       ms -= @ms
       d = duration
-      case @play
+      case @play_mode
       when :once, true
         if ms > d
-          final_step
+          final_tick
         else
-          frame! ms * @total_frame / d
+          frame! ms * @total_frames / d
         end
       when :back
         if ms > d
-          final_step
+          final_tick
         else
-          frame! (d - ms) * @total_frame / d
+          frame! (d - ms) * @total_frames / d
         end
       when :bounce
         d2 = d * 2
         if ms < d
-          frame! ms * @total_frame / d
+          frame! ms * @total_frames / d
         elsif ms < d2
-          frame! (d2 - ms) * @total_frame / d
+          frame! (d2 - ms) * @total_frames / d
         else
-          final_step
+          final_tick
         end
       when :loop
-        frame! (ms % d) * @total_frame / d
+        frame! (ms % d) * @total_frames / d
         true
       when :back_loop
-        frame! (d - (ms % d)) * @total_frame / d
+        frame! (d - (ms % d)) * @total_frames / d
         true
       when :bounce_loop
         d2 = d * 2
         rem = ms % d2
         if rem < d
-          frame! rem * @total_frame / d
+          frame! rem * @total_frames / d
         else
-          frame! (d2 - rem) * @total_frame / d
+          frame! (d2 - rem) * @total_frames / d
         end
         true
       when Proc
-        if frame = @play.call(ms, duration)
-          frame! frame * @total_frame / d
+        if frame = @play_mode.call(ms, duration)
+          frame! frame * @total_frames / d
         else
-          final_step
+          final_tick
         end
       end
     end
 
-    def final_step
-      if @play
-        @play = false
-        @on_end.resolve Event.new
+    def final_tick
+      if @play_mode
+        @play_mode = false
+        @on_finish.report Event.new
       end
       false
     end

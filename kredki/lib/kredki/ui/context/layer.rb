@@ -33,15 +33,15 @@ module Kredki
         def behavior
           super
 
-          on_key! :up, :down do |e|
-            e.resolve
+          on_key :up, :down do |e|
+            e.close
           end
         end
 
         def mouse_press e
         end
 
-        def mouse_free e
+        def mouse_release e
         end
       end#Layer
     end#Context

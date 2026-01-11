@@ -24,9 +24,9 @@ module Kredki
         def behavior
           super
           
-          on! Item::PickEvent do |e|
+          on Item::PickEvent do |e|
             if e.target.fd Item
-              e.resolve
+              e.close
             else
               parent.report e
               pad_detach
@@ -36,21 +36,21 @@ module Kredki
 
         def set_parent parent, at = nil
           if super
-            @parent_events&.each{ _1.detach! }
+            @parent_events&.each{ _1.detach }
             @parent_events = []
 
-            @parent_events.push = parent.on_focus_enter! do |e|
+            @parent_events.push = parent.on_focus_enter do |e|
               load parent
             end
 
-            @parent_events.push = parent.on_focus_leave! do |e|
+            @parent_events.push = parent.on_focus_leave do |e|
               unload if loaded?
             end
             
-            @parent_events.push = on_key_press! :left do |e|
+            @parent_events.push = on_key_press :left do |e|
               if loaded?
                 unload
-                e.resolve
+                e.close
               end
             end
           end

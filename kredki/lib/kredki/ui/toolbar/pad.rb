@@ -15,14 +15,14 @@ module Kredki
           fc(ItemGroup).item!(...)
         end
 
-        # Create and attach item pick event resolver.
-        def on_pick! ...
-          on!(Item::PickEvent, ...)
+        # Create and attach item pick event reaction.
+        def on_pick ...
+          on(Item::PickEvent, ...)
         end
 
-        # See #on_pick!.
+        # See #on_pick.
         def on_pick= param
-          on_pick! do: param
+          on_pick do: param
         end
 
         # :section: LEVEL 2
@@ -41,7 +41,7 @@ module Kredki
         def behavior
           super
 
-          on_pick! do |e|
+          on_pick do |e|
             keyboard_dispose unless e.target.fd Context::Item
           end
         end

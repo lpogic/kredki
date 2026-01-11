@@ -3,9 +3,9 @@ module Kredki
   class Shape < Paint
 
     # Helper for creating Shape path.
-    class Drawer
+    class Crayon
 
-      # Set current coortinates to [+x+, +y+].
+      # Set [+x+, +y+] as crayon position.
       def xy! x, y = x
         Pastele.shape_move_to @shape.pointer, x, y
         @x = x
@@ -13,7 +13,7 @@ module Kredki
         self
       end
   
-      # Make line from current coortinates to [+x+, +y+] and sets the current coortinates to given ones.
+      # Make line from crayon position to [+x+, +y+] then set [+x+, +y+] as crayon position.
       def line! x, y
         Pastele.shape_line_to @shape.pointer, x, y
         @shape.update if @autoupdate
@@ -22,7 +22,7 @@ module Kredki
         self
       end
   
-      # Make bezier curve from current coortinates to [+x+, +y+] with leading points [+cx1+, +cy1+] and [+cx2+, +cy2+]. Then sets the current coortinates to [+x+, +y+].
+      # Make bezier curve from crayon position to [+x+, +y+] with leading points [+cx1+, +cy1+] and [+cx2+, +cy2+]. Then set [+x+, +y+] as crayon position.
       def curve! x, y, cx1, cy1, cx2, cy2
         Pastele.shape_cubic_to @shape.pointer, cx1, cy1, cx2, cy2, x, y
         @shape.update if @autoupdate
@@ -31,22 +31,22 @@ module Kredki
         self
       end
 
-      # Make ellipse of +w+ width and +h+ height with the center at the current coortinates.
+      # Make ellipse of +w+ width and +h+ height with the center at crayon position.
       def ellipse! w, h = w
         Pastele.shape_append_circle @shape.pointer, @x, @y, w * 0.5, h * 0.5
         @shape.update if @autoupdate
         self
       end
 
-      # Make rectangle of +w+ width and +h+ height with +corner_ss+, +corner_es+, +corner_se+ and +corner_ee+ corneres. 
-      # The rectangle is placed at the current coortinates.
+      # Make rectangle of +w+ width and +h+ height with +corner_ss+, +corner_es+, +corner_se+ and +corner_ee+ corners. 
+      # The rectangle is placed at crayon position.
       def rectangle! w, h = w, corner_ss = 0, corner_es = corner_ss, corner_se = corner_ss, corner_ee = corner_ss
         Pastele.shape_append_round_rect @shape.pointer, @x - w * 0.5, @y - h * 0.5, w, h, corner_ss, corner_es, corner_se, corner_ee
         @shape.update if @autoupdate
         self
       end
   
-      # Make line from the current position to the first path position.
+      # Make line from the crayon position to the first path position.
       def close!
         Pastele.shape_close @shape.pointer
         @shape.update if @autoupdate
@@ -71,18 +71,18 @@ module Kredki
       end
     end
 
-    # Get Drawer to create custom path.
+    # Get Crayon to create custom path.
     #
-    # +block+ is called in Drawer context if given.
+    # +block+ is called in Crayon context if given.
     def draw! reset = true, x = 0, y = 0, &block
-      drawer = Drawer.new self, reset, x, y
+      crayon = Crayon.new self, reset, x, y
       if block
-        drawer.autoupdate = false
-        drawer.alter &block
-        drawer.commit!
-        drawer.autoupdate = true
+        crayon.autoupdate = false
+        crayon.alter &block
+        crayon.commit!
+        crayon.autoupdate = true
       end
-      drawer
+      crayon
     end
 
     # Set fill.
@@ -188,7 +188,7 @@ module Kredki
       @outline_w
     end
 
-    # LAvailable path ending methods.
+    # Available path ending methods.
     class OutlineCap
       def self.square = 0
       def self.round = 1

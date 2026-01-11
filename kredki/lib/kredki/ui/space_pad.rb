@@ -26,7 +26,7 @@ module Kredki
       def mouse_press e
       end
 
-      def mouse_free e
+      def mouse_release e
       end
     end
   end

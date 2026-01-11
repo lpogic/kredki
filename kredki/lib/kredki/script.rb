@@ -4,8 +4,8 @@ require_relative 'ui'
 if defined? IRB
   require_relative 'irb'
 else
-  arena = Kredki.arena!
-  W = arena.window! show: false
+  application = Kredki.application!
+  W = application.window! show: false
   module Kredki
     module Extend
       extend Forwardable
@@ -15,7 +15,7 @@ else
       end
 
       def window! ...
-        W.arena.window!(...)
+        W.application.window!(...)
       end
 
       def layer! ...
@@ -23,7 +23,7 @@ else
       end
 
       def define ...
-        def_delegator :W, ServiceDefines.define(...)
+        def_delegator :W, GlobalServices.define(...)
       end
 
       def plugin! ...

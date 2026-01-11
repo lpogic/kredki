@@ -7,14 +7,14 @@ module Kredki
       def behavior
         super
 
-        on_key_press! :left do |e|
+        on_key_press :left do |e|
           parent.update_selected_item(:previous)&.roi!
-          e.resolve
+          e.close
         end
 
-        on_key_press! :right do |e|
+        on_key_press :right do |e|
           parent.update_selected_item(:next)&.roi!
-          e.resolve
+          e.close
         end
       end
     end

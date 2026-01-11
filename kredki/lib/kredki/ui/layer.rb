@@ -10,7 +10,7 @@ module Kredki
       end
 
       # Detach from window.
-      def detach! transfer = false
+      def detach transfer = false
         unless transfer
           update_keyboard_pad nil
           @pin_data = nil
@@ -21,7 +21,7 @@ module Kredki
 
       # Extend API at runtime.
       def define ...
-        ServiceDefines.define(...)
+        GlobalServices.define(...)
       end
 
       # :section: LEVEL 2
@@ -77,18 +77,18 @@ module Kredki
       def behavior
         super
         
-        on_key_press! early: true do |e|
-          @down_keys[e.param || e.input_id] = true
+        on_key_press early: true do |e|
+          @pressed_keys[e.param || e.input_id] = true
         end
 
-        on_key_free! early: true do |e|
-          if @down_keys[e.param || e.input_id]
-            @down_keys[e.param || e.input_id] = false
+        on_key_release early: true do |e|
+          if @pressed_keys[e.param || e.input_id]
+            @pressed_keys[e.param || e.input_id] = false
             keyboard_event KeyClickEvent.new e
           end
         end
 
-        on_mouse_click! early: true, do: method(:mouse_click)
+        on_mouse_click early: true, do: method(:mouse_click)
       end
 
       def break_layout
@@ -119,7 +119,7 @@ module Kredki
       end
 
       def keyboard_event event
-        if !event.resolved? && show? && (kp = keyboard_pad)
+        if !event.closed? && show? && (kp = keyboard_pad)
           event.target = kp
           kp.report event
         end
@@ -136,12 +136,12 @@ module Kredki
           leave.reverse_each{ it.report FocusLeaveEvent.new, false }
           enter.reverse_each{ it.report FocusEnterEvent.new, false }
         end
-        @down_keys = {}
+        @pressed_keys = {}
         true
       end
 
-      def check_key_down key
-        !!@down_keys[key]
+      def check_key_pressed key
+        !!@pressed_keys[key]
       end
 
       def mouse_pad
@@ -149,7 +149,7 @@ module Kredki
       end
 
       def mouse_event e
-        e.drag = @pin_data&.drag if e.is_a? MouseButtonFreeEvent
+        e.drag = @pin_data&.drag if e.is_a? MouseButtonReleaseEvent
         mouse_pad&.report e
         e
       end
@@ -198,7 +198,7 @@ module Kredki
         pin_request e.xy, e.button.id
       end
 
-      def mouse_free e
+      def mouse_release e
         pin_dispose e.button.id
         if !e.drag && include_point?(e.x, e.y)
           report MouseButtonClickEvent.new e

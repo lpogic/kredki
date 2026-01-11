@@ -2,22 +2,28 @@ module Kredki
   # Job executed in separated thread.
   class SideJob < Job
 
-    # Start job.
-    def play param = nil
-      stop
-      @param = param
+    # Run job.
+    def run host, event = nil
+      cancel
+      @host = host
+      @event = event || RunEvent.new(nil, nil, self)
       @thread = Thread.new do
-        @result = @block.call self, @param
+        if RunEvent === @event
+          @result = @block.call self, @event.source || @event, @event.result
+        else
+          @result = @block.call self, @event
+        end
       end
-      @scene.put_job self
+      @host.put_job self
     end
 
-    # Stop job and all subjobs.
-    def stop
+    # Cancel job and all subjobs.
+    def cancel event = nil
       @thread&.kill
       @thread = nil
-      @scene.remove_job self
-      @event_manager.resolve StopEvent.new
+      @host&.remove_job self
+      @event_manager.report event || CancelEvent.new
+      @host = nil
     end
 
     # Break thread.
@@ -28,16 +34,23 @@ module Kredki
 
     # :section: LEVEL 2
 
-    def initialize scene, block
-      super(scene)
+    def initialize block
+      super()
       @block = block
       @threat = nil
       @result = nil
     end
 
-    def step ms
+    def tick ms
       if !@thread&.alive?
-        @event_manager.resolve PlayEvent.new @result
+        if RunEvent === @event
+          @event_manager.report RunEvent.new @result, @event.source || nil, @host
+        else
+          @event_manager.report RunEvent.new @result, @event, @host
+        end
+        @host = nil
+        @event = nil
+        @result = nil
         return false
       end
       true

@@ -435,8 +435,8 @@ module Kredki
         end
         unless @area == a
           a.alter_kw **@area
-          a.attach! @scene, true, @area
-          @area.detach!
+          a.attach @scene, true, @area
+          @area.detach
           @area = a
           true
         end | 
@@ -671,7 +671,7 @@ module Kredki
       def clear!
         pads, @pads = @pads, []
         pads.each do |pad|
-          pad.detach! true
+          pad.detach true
         end
         layer&.break_layout unless pads.empty?
       end
@@ -684,13 +684,13 @@ module Kredki
       end
 
       # Attach self to +parent+.
-      def attach! parent
+      def attach parent
         super
         parent&.find(:<, Pad)&.put_pad self
       end
 
       # Detach from containing Pad.
-      def detach! transfer = false
+      def detach transfer = false
         super
         pad_detach transfer
       end
@@ -748,18 +748,18 @@ module Kredki
       end
 
       def behavior
-        on_mouse_press! do: method(:mouse_press)
-        on_mouse_free! do: method(:mouse_free)
-        on_mouse_enter! do: method(:mouse_enter)
-        on_mouse_leave! do: method(:mouse_leave)
-        on_mouse_move! do: method(:mouse_move)
-        on_focus_enter! do: method(:focus_enter)
-        on_focus_leave! do: method(:focus_leave)
-        on! FocusOfferEvent, do: method(:keyboard_offer)
+        on_mouse_press do: method(:mouse_press)
+        on_mouse_release do: method(:mouse_release)
+        on_mouse_enter do: method(:mouse_enter)
+        on_mouse_leave do: method(:mouse_leave)
+        on_mouse_move do: method(:mouse_move)
+        on_focus_enter do: method(:focus_enter)
+        on_focus_leave do: method(:focus_leave)
+        on FocusOfferEvent, do: method(:keyboard_offer)
       end
 
       def keyboard_offer e
-        e.resolve if keyboardy? && keyboard_request
+        e.close if keyboardy? && keyboard_request
       end
 
       def mouse_enter e
@@ -774,15 +774,15 @@ module Kredki
       def mouse_press e
         report FocusOfferEvent.new if e.button.id == :primary
         pin_request e.xy, e.button.id
-        e.resolve
+        e.close
       end
 
-      def mouse_free e
+      def mouse_release e
         pin_dispose e.button.id
         if !e.drag && include_point?(*layer.translate(*e.xy, self))
           report MouseButtonClickEvent.new e
         end
-        e.resolve
+        e.close
       end
 
       def focus_enter e
@@ -868,7 +868,7 @@ module Kredki
       end
 
       def pad_detach transfer = false
-        @scene.detach!
+        @scene.detach
         if @pad_parent
           @pad_parent.remove_pad self, transfer
           @pad_parent = nil
@@ -1249,25 +1249,20 @@ module Kredki
       end
 
       def report event, path = true, instant = false
-        event.target ||= self
-        event_director = window&.event_director
-        return unless event_director
         if path
+          event.target ||= self
+          event_queue = window&.event_queue
+          return unless event_queue
           path = pad_lineage.to_a.reverse if path == true
-          path.each do |pad|
-            event_director.push event, pad, true, instant
+          path.each do
+            event_queue.push event, it.event_manager, true, instant
           end
-          path.reverse_each do |pad|
-            event_director.push event, pad, false, instant
+          path.reverse_each do
+            event_queue.push event, it.event_manager, false, instant
           end
         else
-          event_director.push event, self, true, instant
-          event_director.push event, self, false, instant
+          super
         end
-      end
-
-      def resolve event, early = false
-        @event_manager.resolve event, early
       end
 
       def c_set_parent at

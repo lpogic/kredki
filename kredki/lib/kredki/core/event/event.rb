@@ -2,17 +2,18 @@ module Kredki
   # General event.
   class Event
 
-    # Attach few events to identical resolvers.
+    # Attach few events to identical reaction.
     def self.each *event_managers, do: nil, &block
       attached = block || binding.local_variable_get(:do)
-      event_managers.map{ it.attach! attached }
+      event_managers.map{ it.attach attached }
     end
 
     # Make new event.
-    def initialize source = nil, target = nil, resolved = false
+    def initialize source = nil, target = nil
       @source = source
       @target = target
-      @resolved = resolved
+      @closed = false
+      @reaction = nil
     end
 
     # Set target.
@@ -45,27 +46,27 @@ module Kredki
       nil
     end
     
-    # Get whether event is resolved.
-    def resolved?
-      @resolved
+    # Get whether event is closed.
+    def closed?
+      @closed
     end
 
-    # Resolve event.
-    def resolve
-      @resolved = true
+    # Close event.
+    def close
+      @closed = true
     end
 
-    # Get current event resolver.
-    def resolver
-      Array === @resolver ? @resolver.last : @resolver
+    # Get current event reaction.
+    def reaction
+      Array === @reaction ? @reaction.last : @reaction
     end
 
-    # Set whether all visited resolvers are collected. 
-    def trace trace = true
+    # Set whether all visited reactions are collected. 
+    def trace= trace
       if trace
-        @resolver = Util.cover @resolver
+        @reaction = Util.cover @reaction
       else
-        @resolver = resolver
+        @reaction = reaction
       end
     end
 
@@ -75,12 +76,16 @@ module Kredki
       "#{self.class}:#{object_id}"
     end
 
-    def push_resolver resolver
-      if Array === @resolver
-        @resolver << resolver
+    def reaction= reaction
+      if Array === @reaction
+        @reaction << reaction
       else
-        @resolver = resolver
+        @reaction = reaction
       end
+    end
+
+    def reactions
+      @reaction
     end
   end
 end

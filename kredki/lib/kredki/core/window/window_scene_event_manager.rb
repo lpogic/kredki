@@ -1,7 +1,7 @@
-require_relative '../event/manage/event_manager'
-require_relative '../event/manage/keyboard_event_manager'
-require_relative '../event/manage/mouse_event_manager'
-require_relative '../event/manage/joystick_event_manager'
+require_relative '../event/event_manager'
+require_relative '../event/keyboard_event_manager'
+require_relative '../event/mouse_event_manager'
+require_relative '../event/joystick_event_manager'
 
 module Kredki
   # Manage window scene events.
@@ -13,28 +13,28 @@ module Kredki
       @managers = {}
     end
 
-    def manager event_type, resolver, always = false
+    def manager event_type, reaction, always = false
       manager = (@managers[event_type] ||= EventManager.new)
-      resolver ? manager.attach!(resolver, always:) : manager
+      reaction ? manager.attach(reaction, always:) : manager
     end
 
-    def keyboard_manager event_type, keycodes, resolver, always = false
+    def keyboard_manager event_type, keycodes, reaction, always = false
       manager = (@managers[event_type] ||= KeyboardEventManager.new)[*keycodes]
-      resolver ? manager.attach!(resolver, always:) : manager
+      reaction ? manager.attach(reaction, always:) : manager
     end
 
-    def mouse_manager event_type, buttoncodes, resolver, always = false
+    def mouse_manager event_type, buttoncodes, reaction, always = false
       manager = (@managers[event_type] ||= MouseEventManager.new)[*buttoncodes]
-      resolver ? manager.attach!(resolver, always:) : manager
+      reaction ? manager.attach(reaction, always:) : manager
     end
     
-    def joystick_manager event_type, joystick, indexes, resolver, always = false
+    def joystick_manager event_type, joystick, indexes, reaction, always = false
       manager = (@managers[event_type] ||= JoystickEventManager.new)[joystick, indexes]
-      resolver ? manager.attach!(resolver, always:) : manager
+      reaction ? manager.attach(reaction, always:) : manager
     end
 
-    def resolve event
-      @managers[event.class]&.resolve event
+    def report event
+      @managers[event.class]&.report event
     end
   end
 end

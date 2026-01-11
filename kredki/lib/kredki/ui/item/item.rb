@@ -10,13 +10,13 @@ module Kredki
         true
       end
 
-      # Get whether is down.
-      def down? keyboard_in = nil
+      # Get whether is pressed.
+      def pressed? keyboard_in = nil
         keyboard_in = keyboard_in? if keyboard_in.nil?
         pin_top? :primary or (
           keyboard_in and (
-            Kredki.keyboard.down? :space or
-            Kredki.keyboard.down? :enter
+            Kredki.keyboard.pressed? :space or
+            Kredki.keyboard.pressed? :enter
           )
         )
       end
@@ -41,14 +41,14 @@ module Kredki
         @suit
       end
 
-      # Create and attach pick event resolver.
-      def on_pick! ...
-        on!(PickEvent, ...)
+      # Create and attach pick event reaction.
+      def on_pick ...
+        on(PickEvent, ...)
       end
 
-      # See #on_pick!.
+      # See #on_pick.
       def on_pick= param
-        on_pick! do: param
+        on_pick do: param
       end
 
       # Push the feature.
@@ -80,12 +80,12 @@ module Kredki
         super
         
         Event.each(
-          on_focus_enter!,
-          on_focus_leave!,
-          on_mouse_press!,
-          on_mouse_free!,
-          on_mouse_enter!,
-          on_mouse_leave!,
+          on_focus_enter,
+          on_focus_leave,
+          on_mouse_press,
+          on_mouse_release,
+          on_mouse_enter,
+          on_mouse_leave,
           do: method(:repaint)
         )
       end
@@ -98,13 +98,13 @@ module Kredki
       def behavior
         super
 
-        on_mouse_click! :primary do |e|
+        on_mouse_click :primary do |e|
           report PickEvent.new e
         end
 
-        on_key! :space, :enter do |e|
+        on_key :space, :enter do |e|
           report PickEvent.new e
-          e.resolve
+          e.close
         end
       end
 

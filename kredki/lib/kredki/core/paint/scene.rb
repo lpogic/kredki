@@ -148,7 +148,7 @@ module Kredki
     end
 
     def new_animation *a, show: true, at: nil, **na, &b
-      Animation.new.attach!(self, show, at).alter(*a, **na, &b)
+      Animation.new.attach(self, show, at).alter(*a, **na, &b)
     end
 
     def each_paint &b
@@ -166,7 +166,7 @@ module Kredki
     end
 
     def put_paint paint, show = true, at = nil
-      paint.detach! if paint.scene
+      paint.detach if paint.scene
       paint.scene = self
       if show
         Pastele.scene_push @pointer, paint.pointer, next_shown(at)&.pointer

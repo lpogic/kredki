@@ -50,21 +50,21 @@ module Kredki
         @event_manager.manager MousePointerMoveEvent, proc{|e| update_mouse_location e }
         @event_manager.manager MousePointerEnterEvent, proc{|e| update_mouse_location }
         @event_manager.manager MousePointerLeaveEvent, proc{|e| update_mouse_location }
-        @event_manager.mouse_manager MouseButtonPushEvent, [], proc{|e| mouse_event e }
-        @event_manager.mouse_manager MouseButtonFreeEvent, [], proc{|e| mouse_event e }
+        @event_manager.mouse_manager MouseButtonPressEvent, [], proc{|e| mouse_event e }
+        @event_manager.mouse_manager MouseButtonReleaseEvent, [], proc{|e| mouse_event e }
         @event_manager.manager MouseWheelSpinEvent, proc{|e| mouse_event e }
 
-        on_key_press! do |e|
+        on_key_press do |e|
           keyboard_event e
         end
-        on_key_free! do |e|
+        on_key_release do |e|
           keyboard_event e
         end
-        on_text_input! do |e|
+        on_text_input do |e|
           keyboard_event e
         end
 
-        on_window_resize! do
+        on_window_resize do
           w, h = *wh
           @services.each do 
             it.set_xy 0, 0
@@ -108,7 +108,7 @@ module Kredki
         window.wh
       end
 
-      def step ms
+      def tick ms
         super
         arrange
       end
@@ -130,7 +130,7 @@ module Kredki
         @services.reverse_each do |layer|
           event.target = nil
           event = layer.mouse_event event
-          @event_director.resolve
+          @event_queue.process
         end
       end
 
@@ -138,12 +138,12 @@ module Kredki
         event ||= PositionEvent.new *window.mouse_xy
         xy = event.xy
         @services.reverse_each do |layer|
-          if event.resolved?
+          if event.closed?
             layer.clear_mouse_location xy
           else
             event = layer.update_mouse_location event
           end
-          @event_director.resolve
+          @event_queue.process
         end
         @mouse_stale = false
       end
@@ -152,8 +152,8 @@ module Kredki
         @services.reverse_each.find do |layer|
           event.target = nil
           layer.keyboard_event event
-          @event_director.resolve
-          event.resolved?
+          @event_queue.process
+          event.closed?
         end
       end
 

@@ -173,12 +173,12 @@ module Kredki
     end
 
     # See #corner!.
-    def cr= param
+    def corner= param
       send_ahp :corner!, param
     end
     
     # Get corners.
-    def cr
+    def corner
       [@corner_ss, @corner_es, @corner_se, @corner_ee]
     end
 

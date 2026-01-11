@@ -2,38 +2,51 @@ module Kredki
   # Job executed after given delay.
   class AfterJob < Job
 
-    # Start job.
-    def play param = nil
-      stop
-      @param = param
-      @start_ms = @scene.arena.ms + @delay
-      @scene.put_job self
+    # Run job.
+    def run host, event = nil
+      cancel
+      @host = host
+      @event = event || RunEvent.new(nil, nil, self)
+      @run_ms = @host.application.ms + @delay
+      @host.put_job self
     end
 
-    # Stop job and all subjobs.
-    def stop
-      @scene.remove_job self
-      @event_manager.resolve StopEvent.new
+    # Cancel job and all subjobs.
+    def cancel event = nil
+      @host&.remove_job self
+      @event_manager.report event || CancelEvent.new
+      @host = nil
     end
 
     # :section: LEVEL 2
 
-    def initialize scene, block, delay
-      super(scene)
+    def initialize block, delay
+      super()
       @block = block
       @delay = delay
-      @start_ms = 0
+      @run_ms = 0
     end
 
-    def step ms
-      dms = ms - @start_ms
+    def tick ms
+      dms = ms - @run_ms
       if dms >= 0
-        if @block
-          result = @block.call self, @param
+        if RunEvent === @event
+          if @block 
+            result = @block.call self, @event.source || @event, @event.result
+          else
+            result = @event.result
+          end
+          @event_manager.report RunEvent.new result, @event.source || nil, @host
         else
-          result = @param
+          if @block
+            result = @block.call self, @event
+          else
+            result = nil
+          end
+          @event_manager.report RunEvent.new result, @event, @host
         end
-        @event_manager.resolve PlayEvent.new result
+        @host = nil
+        @event = nil
         return false
       end
       true

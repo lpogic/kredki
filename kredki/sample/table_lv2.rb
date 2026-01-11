@@ -11,8 +11,8 @@ table! w: 3/4r do
   c = {fill: :black}
 
   row! do
-    cell!(layout: :aec).text! "Header 1", c
-    cell!(layout: :asc).text! "Header 2", c
+    cell!(layout: :zec).text! "Header 1", c
+    cell!(layout: :zsc).text! "Header 2", c
     cell!.text! "Header 3", c
   end
 

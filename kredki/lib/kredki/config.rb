@@ -158,8 +158,8 @@ module Kredki
     button! :center, 2
     button! :right, 3
   
-    scrollbar_speed! 0.3
-    scrollbar_alt_speed! 0.06
+    wheel_speed! 0.3
+    wheel_alt_speed! 0.06
   end
 
   joystick! do
@@ -179,13 +179,13 @@ module Kredki
   end
 
   plugin! :exit_on_esc do
-    on_key_press! :escape do |event|
-      arena.exit!
+    on_key_press :escape do |event|
+      application.exit
     end
   end
 
   plugin! :close_on_esc do
-    on_key_press! :escape do |event|
+    on_key_press :escape do |event|
       window.close!
     end
   end

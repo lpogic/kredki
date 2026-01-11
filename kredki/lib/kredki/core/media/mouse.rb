@@ -1,5 +1,5 @@
 module Kredki
-  # Mouse interface and configuration.
+  # Mouse device interface.
   class Mouse
     # Mouse button interface.
     class Button
@@ -33,38 +33,38 @@ module Kredki
       input.map{ button(_1).buttoncode }.uniq
     end
 
-    # Set scrollbar speed.
-    def scrollbar_speed! speed = @scrollbar_speed
-      return scrollbar_speed! yield @scrollbar_speed if block_given?
-      @scrollbar_speed = speed
+    # Set wheel speed.
+    def wheel_speed! speed = @wheel_speed
+      return wheel_speed! yield @wheel_speed if block_given?
+      @wheel_speed = speed
       true
     end
 
-    # See #scrollbar_speed!.
-    def scrollbar_speed= param
-      scrollbar_speed! param
+    # See #wheel_speed!.
+    def wheel_speed= param
+      wheel_speed! param
     end
 
-    # Get scrollbar speed.
-    def scrollbar_speed
-      @scrollbar_speed
+    # Get wheel speed.
+    def wheel_speed
+      @wheel_speed
     end
 
-    # Set alternative scrollbar speed.
-    def scrollbar_alt_speed! speed = @scrollbar_alt_speed
-      return scrollbar_alt_speed! yield @scrollbar_alt_speed if block_given?
-      @scrollbar_alt_speed = speed
+    # Set alternative wheel speed.
+    def wheel_alt_speed! speed = @wheel_alt_speed
+      return wheel_alt_speed! yield @wheel_alt_speed if block_given?
+      @wheel_alt_speed = speed
       true
     end
 
-    # See #scrollbar_alt_speed!.
-    def scrollbar_alt_speed= param
-      scrollbar_alt_speed! param
+    # See #wheel_alt_speed!.
+    def wheel_alt_speed= param
+      wheel_alt_speed! param
     end
 
-    # Get alternative scrollbar speed.
-    def scrollbar_alt_speed
-      @scrollbar_alt_speed
+    # Get alternative wheel speed.
+    def wheel_alt_speed
+      @wheel_alt_speed
     end
 
     # Set button.
@@ -83,8 +83,8 @@ module Kredki
       end
     end
 
-    # Get whether button is down.
-    def down? id = :primary
+    # Get whether button is pressed.
+    def pressed? id = :primary
       Pastele.mouse_get_button_state(button(id).buttoncode) != 0
     end
 
@@ -100,7 +100,9 @@ module Kredki
 
     # Get pointer position along X and Y axes.
     def xy
-      get_cursor_position
+      point = Pastele::Point.malloc(Fiddle::RUBY_FREE)
+      Pastele.mouse_get_cursor_position point
+      [point.x, point.y]
     end
 
     # Set whether capture mode is on.
@@ -117,18 +119,11 @@ module Kredki
     
     # :section: LEVEL 2
 
-    def initialize &block
+    def initialize
       @button_map = {}
       @buttoncode_map = {}
-      @scrollbar_speed = 0.3
-      @scrollbar_alt_speed = 0.06
-      alter &block
+      @wheel_speed = 0.3
+      @wheel_alt_speed = 0.06
     end
-
-    def get_cursor_position
-      point = Pastele::Point.malloc(Fiddle::RUBY_FREE)
-      Pastele.mouse_get_cursor_position point
-      [point.x, point.y]
-    end    
   end
 end

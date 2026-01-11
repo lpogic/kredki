@@ -11,11 +11,11 @@ module Kredki
     end
 
     def define ...
-      def_delegator :@layer, ServiceDefines.define(...)
+      def_delegator :@layer, GlobalServices.define(...)
     end
 
     def setup
-      @layer = Kredki.arena!.window! show: false
+      @layer = Kredki.application!.window! show: false
     end
 
     def assert_png

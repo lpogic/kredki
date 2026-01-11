@@ -40,10 +40,10 @@ module Kredki
         def behavior
           super
 
-          on_key_press! :right do |e|
+          on_key_press :right do |e|
             fc(SecondaryLayer)&.then do
               it.load self unless it.loaded?
-              it.fd(Item)&.keyboard_request and e.resolve
+              it.fd(Item)&.keyboard_request and e.close
             end
           end
 

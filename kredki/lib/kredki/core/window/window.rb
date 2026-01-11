@@ -339,9 +339,9 @@ module Kredki
     end
 
     # Hide window and free its memory.
-    def destroy!
+    def close!
       hide!
-      @arena&.remove_window self
+      @application&.remove_window self
     end
 
     def to_png filepath
@@ -353,7 +353,7 @@ module Kredki
 
     def initialize w = 400, h = 400
       @pointer = Pastele.window_new w, h
-      @arena = nil
+      @application = nil
       @scene = nil
       @mouse_in = nil
       ObjectSpace.define_finalizer(self, Window.finalizer(@pointer))
@@ -369,11 +369,11 @@ module Kredki
       proc{ Pastele.window_delete pointer }
     end
 
-    attr_accessor :arena
+    attr_accessor :application
     attr :pointer
 
-    def resolve ...
-      @scene.resolve(...)
+    def report ...
+      @scene.report(...)
     end
 
     def update_paint paint
@@ -392,7 +392,7 @@ module Kredki
     end
 
     def paint_shown scene, direct
-      @scene == scene && !!@arena
+      @scene == scene && !!@application
     end
 
     def set_mouse_in set

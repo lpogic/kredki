@@ -4,13 +4,13 @@ module Kredki
   class << self
  
     # Start application loop.
-    def run! scene = nil, *a, **na, &block
-      if !@arena
-        arena!.window! scene, *a, **na, &block
+    def run scene = nil, *a, **na, &block
+      if !@application
+        application!.window! scene, *a, **na, &block
       else
-        @arena.window.scene! scene, *a, **na, &block
+        @application.window.scene! scene, *a, **na, &block
       end
-      @arena.run!
+      @application.run
     end
 
     # Milliseconds since SDL was initialized.
@@ -103,7 +103,7 @@ module Kredki
 
     # :section: LEVEL 2
 
-    attr :arena
+    attr :application
     attr_accessor :clipboard
     attr_accessor :keyboard
     attr_accessor :mouse
@@ -113,13 +113,13 @@ module Kredki
     attr_accessor :fonts
     attr_accessor :colors
 
-    def arena!
-      if !@arena
+    def application!
+      if !@application
         Pastele.thorvg_engine_init 2, 4
         Pastele.sdl_init ($kredki_joystick || joystick ? 1 : 0)
-        @arena = Arena.new
+        @application = Application.new
       end
-      @arena
+      @application
     end
 
   end
@@ -133,22 +133,26 @@ end
 
 require_relative 'pastele/pastele'
 
-require_relative 'event/event'
-require_relative 'event/pastele_event'
-require_relative 'event/drop_event'
-require_relative 'event/key_event'
-require_relative 'event/mouse_event'
-require_relative 'event/step_event'
-require_relative 'event/quit_event'
-require_relative 'event/text_event'
-require_relative 'event/window_event'
-require_relative 'event/joystick_event'
-
-require_relative 'arena'
+require_relative 'application'
 require_relative 'media/clipboard'
 require_relative 'media/keyboard'
 require_relative 'media/mouse'
 require_relative 'media/joystick'
+
+require_relative 'event/event'
+require_relative 'event/family/pastele_event'
+require_relative 'event/family/focus_enter_event'
+require_relative 'event/family/focus_leave_event'
+require_relative 'event/family/show_event'
+require_relative 'event/family/hide_event'
+require_relative 'event/family/drop_event'
+require_relative 'event/family/key_event'
+require_relative 'event/family/mouse_event'
+require_relative 'event/family/tick_event'
+require_relative 'event/family/exit_event'
+require_relative 'event/family/text_event'
+require_relative 'event/family/window_event'
+require_relative 'event/family/joystick_event'
 
 require_relative 'color'
 require_relative 'font'
@@ -170,6 +174,11 @@ require_relative 'job/root_job'
 require_relative 'job/after_job'
 require_relative 'job/loop_job'
 require_relative 'job/side_job'
+
+require_relative 'event/event_manager'
+require_relative 'event/keyboard_event_manager'
+require_relative 'event/mouse_event_manager'
+require_relative 'event/joystick_event_manager'
 
 require_relative 'window/window_scene'
 require_relative 'window/window'

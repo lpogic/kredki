@@ -11,14 +11,14 @@ module Kredki
           @item_group.item! *a, w: 1r, **na, &b
         end
         
-        # Create and attach pick event resolver.
-        def on_pick! ...
-          on!(Item::PickEvent, ...)
+        # Create and attach pick event reaction.
+        def on_pick ...
+          on(Item::PickEvent, ...)
         end
 
-        # See #on_pick!.
+        # See #on_pick.
         def on_pick= param
-          on_pick! do: param
+          on_pick do: param
         end
 
         # :section: LEVEL 2
@@ -37,7 +37,7 @@ module Kredki
         def behavior
           super
 
-          on! Item::PickEvent do |e|
+          on Item::PickEvent do |e|
             item = e.target
             kb = Kredki.keyboard
             if kb.shift?
@@ -49,7 +49,7 @@ module Kredki
             end
           end
 
-          on_focus_leave! do
+          on_focus_leave do
             each_fd(Item).each_alter selected: false
           end
         end

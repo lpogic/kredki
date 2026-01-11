@@ -56,33 +56,33 @@ CABI int16_t joystick_get_axis_value(int device_id, int axis_index) {
     return SDL_GetJoystickAxis(SDL_GetJoystickFromID(device_id), axis_index);
 }
 
-CABI void* arena_new(void) {
-    return new pastele::Arena;
+CABI void* application_new(void) {
+    return new pastele::Application;
 }
 
-CABI void arena_delete(pastele::Arena* self) {
+CABI void application_delete(pastele::Application* self) {
     delete self;
 }
 
-CABI uint32_t arena_insert_window(pastele::Arena* self, pastele::Window* window) {
+CABI uint32_t application_insert_window(pastele::Application* self, pastele::Window* window) {
     self->insertWindow(window);
     return SDL_GetWindowID(window->sdl_window);
 }
 
-CABI uint32_t arena_erase_window(pastele::Arena* self, pastele::Window* window) {
+CABI uint32_t application_erase_window(pastele::Application* self, pastele::Window* window) {
     self->eraseWindow(window);
     return SDL_GetWindowID(window->sdl_window);
 }
 
-CABI void arena_set_event_handler(pastele::Arena* self, int(*eventHandler)(int, SDL_Event*)) {
+CABI void application_set_event_handler(pastele::Application* self, int(*eventHandler)(int, SDL_Event*)) {
     self->setEventHandler(eventHandler);
 }
 
-CABI void arena_run(pastele::Arena* self) {
+CABI void application_run(pastele::Application* self) {
     self->run();
 }
 
-CABI void arena_exit(pastele::Arena* self) {
+CABI void application_exit(pastele::Application* self) {
     self->exit();
 }
 
@@ -831,7 +831,7 @@ CABI Paint* animation_get_picture(Animation* self) {
 //     return TVG_RESULT_SUCCESS;
 // }
 
-CABI float animation_get_total_frame(Animation* self) {
+CABI float animation_get_total_frames(Animation* self) {
     return self->totalFrame();
 }
 

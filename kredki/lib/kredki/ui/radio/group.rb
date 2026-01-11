@@ -18,10 +18,10 @@ module Kredki
           case event.key.id
           when :up
             previous_item_button(item_button).keyboard_request
-            event.resolve
+            event.close
           when :down
             next_item_button(item_button).keyboard_request
-            event.resolve
+            event.close
           end
         end
 

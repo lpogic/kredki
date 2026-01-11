@@ -7,11 +7,11 @@ module Kredki
         # :section: LEVEL 2
 
         def mouse_enter e
-          e.resolve
+          e.close
         end
 
         def mouse_move e
-          e.resolve
+          e.close
         end
 
         def sketch

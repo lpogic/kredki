@@ -146,10 +146,10 @@ module Kredki
         super
 
         Event.each(
-          on_focus_enter!, 
-          on_focus_leave!, 
-          on_mouse_enter!, 
-          on_mouse_leave!,
+          on_focus_enter, 
+          on_focus_leave, 
+          on_mouse_enter, 
+          on_mouse_leave,
           do: method(:repaint)
         )
       end

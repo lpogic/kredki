@@ -59,14 +59,14 @@ module Kredki
         def behavior
           super
 
-          on_key_press! :down, :up, :enter, :space do |e|
+          on_key_press :down, :up, :enter, :space do |e|
             fc(PrimaryLayer)&.then do
               it.load self unless it.loaded?
-              it.fd(Context::Item)&.keyboard_request and e.resolve
+              it.fd(Context::Item)&.keyboard_request and e.close
             end
           end
 
-          on_mouse_click! do |e|
+          on_mouse_click do |e|
             fd(PrimaryLayer)&.then{ it.load self unless it.loaded? }
           end
         end

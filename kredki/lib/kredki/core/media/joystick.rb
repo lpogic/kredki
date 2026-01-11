@@ -1,7 +1,7 @@
 module Kredki
-  # Joystick interface and configuration.
+  # Joystick device interface.
   class Joystick
-    # Joystick button interface
+    # Joystick button interface.
     class Button
 
       # Get button id.
@@ -94,8 +94,8 @@ module Kredki
       end
     end
 
-    # Get whether button is down.
-    def down? key
+    # Get whether button is pressed.
+    def pressed? key
       return nil if !opened?
       Pastele.joystick_get_button_state(@device_id, button(key).code) != 0
     end
@@ -115,13 +115,12 @@ module Kredki
 
     @@next_name = :joystick_1
 
-    def initialize &block
+    def initialize
       @button_map = {}
       @buttoncode_map = {}
       @axis_map = {}
       @axiscode_map = {}
       @device_id = nil
-      alter &block
       if @name.nil?
         @name = @@next_name
         @@next_name = @@next_name.next
