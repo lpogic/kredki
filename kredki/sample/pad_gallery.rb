@@ -1,9 +1,5 @@
 require 'kredki'
 
-on_focus_leave do
-  application.exit
-end
-
 layout! :yss
 
 toolbar! do
@@ -40,6 +36,7 @@ space! layout: :xss, m: 10, mi: 10 do
       space! layout: :yss, mi: 10 do
         text! "Some text"
         xslide!
+        button! "Button"
       end
       tree! do
         item! "Branch"
@@ -70,6 +67,8 @@ space! layout: :xss, m: 10, mi: 10 do
       item! "Radio 2"
       item! "Radio 3"
     end
-    animation! "stuff/1643-exploding-star.json", wh: [1r, limit: :ratio], x: :c, run: :bounce_loop
+    animation! "stuff/1643-exploding-star.json", wh: [1r, limit: :ratio], x: :center do
+      job.animate self, true
+    end
   end
 end

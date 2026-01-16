@@ -132,8 +132,8 @@ module Kredki
       'uint32_t window_id',
       'float x',
       'float y',
-      # 'char* file',
-      # 'uint32_t window_id'
+      'char* source',
+      'char* data',
     ]
 
     QuitEvent = struct [

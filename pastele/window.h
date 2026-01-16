@@ -107,6 +107,7 @@ class Window
     bool getTextInput();
     int getFlags();
     void surfaceToPng(const char* file);
+    void getDisplayBounds(SDL_Rect* rect);
     void show(void);
     void hide(void);
 

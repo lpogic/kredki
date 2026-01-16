@@ -4,7 +4,9 @@ module Kredki
 
     def content! ...
       if @picture.content!(...)
-        @total_frames = Pastele.animation_get_total_frames @pointer
+        @duration = (Pastele.animation_get_duration(@pointer) * 1000).to_i
+        @frame_ms_to_index = Pastele.animation_get_total_frames(@pointer) / @duration
+        @frame = 0
         true
       end
     end
@@ -129,46 +131,28 @@ module Kredki
       @picture.contain?(...)
     end
 
-    # Set current animation frame.
-    def frame! frame_index
-      Pastele.animation_set_frame @pointer, frame_index
-      @picture.update
-    end
-
-    # Get total animation frames.
-    def total_frames
-      @total_frames
-    end
-
-    # Get animation duration in milliseconds.
-    def duration
-      (Pastele.animation_get_duration(@pointer) * 1000).to_i
-    end
-
-    # Run animation in given play mode.
-    def run! play_mode = true, &block
-      play_mode = block if block
-      return if @play_mode == play_mode
-      window = scene.window
-      window.remove_job self if @play_mode
-      window.put_job self if play_mode
-      @play_mode = play_mode
+    # Set current animation frame ms.
+    def frame! frame = @frame
+      return frame! yield @frame if block_given?
+      return if @frame == frame
+      set_frame frame * @frame_ms_to_index
+      @frame = frame
       true
     end
 
-    # See: #run!
-    def run= param
-      send_ahp :run!, param
+    # See #frame!.
+    def frame= param
+      send_ahp :frame!, param
     end
 
-    # Get running play mode.
-    def run
-      @play_mode
+    # Get current animation frame ms.
+    def frame
+      @frame
     end
 
-    # See #run.
-    def run?
-      !!run
+    # Get duration.
+    def duration
+      @duration
     end
 
     # Set animated segment.
@@ -176,40 +160,14 @@ module Kredki
       Pastele.animation_set_segment @pointer, *segment
     end
 
-    # Add animation finished event reaction.
-    def on_finish always: false, do: nil, &block
-      reaction =  block || binding.local_variable_get(:do)
-      reaction ? @on_finish.attach(reaction, always: always) : @on_finish
-    end
-
-    # See: #on_finish=.
-    def on_finish= param
-      on_finish do: param
-    end
-
-    # Stop animation and report finish event.
-    def finish
-      run! false and @on_finish.report Event.new
-    end
-
-    # Stop and restore initial state of the Animation.
-    def reset
-      frame! 0
-      @ms = nil
-      run! false
-    end
-
     # Attach animation and related Kredki::Picture to the Kredki::Scene.
     def attach scene, show = true, at = nil
-      @picture.window&.remove_job self if @play_mode
       @picture.attach scene, show, at
-      @picture.window&.put_job self if @play_mode
       self
     end
 
     # Detach animation and related Kredki::Picture from the Kredki::Scene.
     def detach
-      run! false
       @picture.detach
     end
 
@@ -251,6 +209,28 @@ module Kredki
       end
     end
 
+    def step ms, loop = false, &block
+      if loop
+        if block
+          value = block.call ms, @duration
+          return true if !value
+          frame! value
+        else
+          frame! ms % @duration
+        end
+      else
+        if block
+          value = block.call ms, @duration
+          return true if !value || value < 0 || value > @duration
+          frame! value
+        else
+          return true if ms > @duration
+          frame! ms
+        end
+      end
+      false
+    end
+
     # :section: LEVEL 2
 
     def initialize
@@ -258,10 +238,8 @@ module Kredki
       ObjectSpace.define_finalizer(self, Animation.finalizer(@pointer))
 
       @picture = Picture.new Pastele.animation_get_picture @pointer
-      @play_mode = false
-      @ms = nil
-      @total_frames = nil
-      @on_finish = EventManager.new
+      @frame_ms_to_index = nil
+      @duration = nil
     end
 
     def self.finalizer pointer
@@ -279,70 +257,17 @@ module Kredki
       @picture.scene = scene
     end
 
-    def tick ms
-      @ms = ms if !@ms
-      ms -= @ms
-      d = duration
-      case @play_mode
-      when :once, true
-        if ms > d
-          final_tick
-        else
-          frame! ms * @total_frames / d
-        end
-      when :back
-        if ms > d
-          final_tick
-        else
-          frame! (d - ms) * @total_frames / d
-        end
-      when :bounce
-        d2 = d * 2
-        if ms < d
-          frame! ms * @total_frames / d
-        elsif ms < d2
-          frame! (d2 - ms) * @total_frames / d
-        else
-          final_tick
-        end
-      when :loop
-        frame! (ms % d) * @total_frames / d
-        true
-      when :back_loop
-        frame! (d - (ms % d)) * @total_frames / d
-        true
-      when :bounce_loop
-        d2 = d * 2
-        rem = ms % d2
-        if rem < d
-          frame! rem * @total_frames / d
-        else
-          frame! (d2 - rem) * @total_frames / d
-        end
-        true
-      when Proc
-        if frame = @play_mode.call(ms, duration)
-          frame! frame * @total_frames / d
-        else
-          final_tick
-        end
-      end
-    end
-
-    def final_tick
-      if @play_mode
-        @play_mode = false
-        @on_finish.report Event.new
-      end
-      false
-    end
-
     def set_show show
       @picture.set_show show
     end
   
     def get_show
       @picture.get_show
+    end
+
+    def set_frame frame_index
+      Pastele.animation_set_frame @pointer, frame_index
+      @picture.update
     end
   end
 end

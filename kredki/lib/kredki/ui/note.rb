@@ -127,7 +127,7 @@ module Kredki
       def sketch
         super
 
-        layout! NoteLayout.new(:s, :c)
+        layout! NoteLayout.new(:start, :center)
         mousy!
         keyboardy!
         outline_w! 1

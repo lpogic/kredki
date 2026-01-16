@@ -103,7 +103,7 @@ module Kredki
       def behavior
         super 
 
-        on_mouse_spin do |e|
+        on_mouse_scroll do |e|
           jump = Kredki.keyboard.alt? ? Kredki.mouse.wheel_alt_speed : Kredki.mouse.wheel_speed
           value!{ (it - jump * e.xory).clamp(0..1) } and report EditEvent.new e
           e.close

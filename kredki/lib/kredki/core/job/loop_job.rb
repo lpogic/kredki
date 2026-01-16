@@ -50,17 +50,19 @@ module Kredki
     def tick ms
       dms = ms - @next_ms
       if dms >= 0
-        @ms = dms + @period
-        @total_ms += @ms
-        if RunEvent === @event
-          @block.call self, @event.source || @event, @event.result
-        else
-          @block.call self, @event
-        end
-        if @period > 0
-          @next_ms += @period * (1 + dms / @period) 
-        else
-          @next_ms += dms
+        unless @break
+          @ms = dms + @period
+          @total_ms += @ms
+          if RunEvent === @event
+            @block.call self, @event.source || @event, @event.result
+          else
+            @block.call self, @event
+          end
+          if @period > 0
+            @next_ms += @period * (1 + dms / @period) 
+          else
+            @next_ms += dms
+          end
         end
         if @break
           @break = false

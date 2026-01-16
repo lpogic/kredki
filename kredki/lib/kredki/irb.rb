@@ -73,13 +73,12 @@ KredkiProc = proc do
 
     use! :exit_on_esc
     use! :carry_focus_on_tab
-    window.alter{ wh_drag!; text_input!; top! }
-    fill! 110, 301, 101
+    window.alter{ wh_drag!; text_input!; fill! 20, 70, 20; top! }
 
     kredki_workspace = KredkiWorkSpace.new application, binding
     IRB.CurrentContext.replace_workspace kredki_workspace
     IRB.conf[:AT_EXIT] << proc{ kredki_workspace.evaluate :exit }
-    loop!{ kredki_workspace.release }
+    job.loop{ kredki_workspace.release }
     mutex.synchronize{ convar.signal }
     window.show!
     application.run

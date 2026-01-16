@@ -154,10 +154,6 @@ module Kredki
     button! :secondary, 3
     button! :scroll, 2
   
-    button! :left, 1
-    button! :center, 2
-    button! :right, 3
-  
     wheel_speed! 0.3
     wheel_alt_speed! 0.06
   end

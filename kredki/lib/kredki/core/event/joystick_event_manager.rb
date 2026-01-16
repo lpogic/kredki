@@ -11,6 +11,7 @@ module Kredki
     def report event
       @managers.dig(event.joystick, event.input_id)&.report event
       @managers.dig(event.joystick, nil)&.report event
+      @managers.dig(nil, event.input_id)&.report event
       @managers.dig(nil, nil)&.report event
     end
 

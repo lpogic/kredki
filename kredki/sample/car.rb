@@ -34,8 +34,8 @@ end
 define :car! do |*a, body: :blue, rim: :gray, tire: :black, **na, &b|
   space! **na do
     car_body! fill: body, wh: 1r
-    wheel! x: 1/4r, y: :e, wh: 1/2r, rim:, tire:;
-    wheel! x: 3/4r, y: :e, wh: 1/2r, rim:, tire:;
+    wheel! x: 1/4r, y: :end, wh: 1/2r, rim:, tire:;
+    wheel! x: 3/4r, y: :end, wh: 1/2r, rim:, tire:;
   end.alter &b
 end
 

@@ -23,10 +23,20 @@ module Kredki
       @clipboard = clipboard || Clipboard.new
     end
 
+    # Get clipboard model.
+    def clipboard
+      @clipboard
+    end
+
     # Set keyboard model.
     def keyboard! keyboard = nil, **na, &b
       @keyboard = keyboard || Keyboard.new
       @keyboard.alter **na, &b
+    end
+
+    # Get keyboard model.
+    def keyboard
+      @keyboard
     end
 
     # Set mouse model.
@@ -35,29 +45,34 @@ module Kredki
       @mouse.alter **na, &b
     end
 
+    # Get mouse model.
+    def mouse
+      @mouse
+    end
+
     # Set joystick model.
-    def joystick! id = nil, joystick = nil, **na, &b
-      (@joysticks[id] = joystick || Joystick.new).alter **na, &b
+    def joystick! key = nil, joystick = nil, **na, &b
+      (@joysticks[key] = joystick || Joystick.new).alter **na, &b
     end
 
     # Get joystick model.
-    def joystick id = nil
-      @joysticks[id] or raise "Joystick #{id.inspect} not registered"
+    def joystick key = nil
+      @joysticks[key] or raise "Joystick #{key.inspect} not registered"
     end
 
     # Set plugin.
-    def plugin! id, &b
-      @plugins[id] = b
+    def plugin! key, &b
+      @plugins[key] = b
     end
 
     # Get plugin.
-    def plugin id
-      @plugins[id]
+    def plugin key
+      @plugins[key]
     end
     
     # Set font.
-    def font! id, path
-      @fonts[id] = Font.new path
+    def font! key, path
+      @fonts[key] = Font.new path
     end
 
     # Get font.
@@ -104,9 +119,6 @@ module Kredki
     # :section: LEVEL 2
 
     attr :application
-    attr_accessor :clipboard
-    attr_accessor :keyboard
-    attr_accessor :mouse
     attr_accessor :joysticks
     attr_accessor :plugins
     attr_accessor :opened_joysticks
@@ -133,11 +145,7 @@ end
 
 require_relative 'pastele/pastele'
 
-require_relative 'application'
-require_relative 'media/clipboard'
-require_relative 'media/keyboard'
-require_relative 'media/mouse'
-require_relative 'media/joystick'
+require_relative 'media/keyboard_modifiers_decoder'
 
 require_relative 'event/event'
 require_relative 'event/family/pastele_event'
@@ -153,6 +161,12 @@ require_relative 'event/family/exit_event'
 require_relative 'event/family/text_event'
 require_relative 'event/family/window_event'
 require_relative 'event/family/joystick_event'
+
+require_relative 'application'
+require_relative 'media/clipboard'
+require_relative 'media/keyboard'
+require_relative 'media/mouse'
+require_relative 'media/joystick'
 
 require_relative 'color'
 require_relative 'font'
@@ -170,7 +184,6 @@ require_relative 'paint/picture'
 require_relative 'paint/animation'
 
 require_relative 'job/job'
-require_relative 'job/root_job'
 require_relative 'job/after_job'
 require_relative 'job/loop_job'
 require_relative 'job/side_job'

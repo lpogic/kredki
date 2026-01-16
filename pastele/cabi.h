@@ -125,6 +125,7 @@ CABI void window_set_text_input(pastele::Window* self, int input);
 CABI int window_get_text_input(pastele::Window* self);
 CABI int window_get_flags(pastele::Window* self);
 CABI void window_surface_to_png(pastele::Window* self, const char* file);
+CABI void window_get_display_bounds(pastele::Window* self, Bounds* bounds);
 
 CABI void paint_delete(Paint* self);
 CABI void paint_set_transform(Paint* self, float pivot_x, float pivot_y, float x, float y, float a, float mag_x, float fy);

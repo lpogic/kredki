@@ -4,8 +4,7 @@ require_relative 'ui'
 if defined? IRB
   require_relative 'irb'
 else
-  application = Kredki.application!
-  W = application.window! show: false
+  W = Kredki.application!.window! show: false
   module Kredki
     module Extend
       extend Forwardable
@@ -38,6 +37,5 @@ else
 
   use! :exit_on_esc
   use! :carry_focus_on_tab
-  window.alter{ wh_drag!; text_input! }
-  fill! 110, 301, 101
+  window.alter{ wh_drag!; text_input!; fill! 20, 70, 20 }
 end

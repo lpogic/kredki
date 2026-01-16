@@ -49,11 +49,11 @@ module Kredki
 
         def arrange_pads pads, sw, clw, clh, space
           cx = case @x
-          when :c
-            (clw - sw) * 0.5
-          when :s
+          when :start
             0
-          when :e
+          when :center
+            (clw - sw) * 0.5
+          when :end
             clw - sw
           when Rational 
             clw * @x

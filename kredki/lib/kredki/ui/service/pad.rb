@@ -916,12 +916,12 @@ module Kredki
           @x[pclw, sw]
         when Range
           ax + @x.begin
-        when :e
-          pclw - sw
-        when :s
+        when :start
           0
-        when :c
+        when :center
           (pclw - sw) * 0.5
+        when :end
+          pclw - sw
         when :layout
           ax
         when Numeric
@@ -938,12 +938,12 @@ module Kredki
           @y[pch, sh]
         when Range
           ay + @y.begin
-        when :e
-          pch - sh
-        when :s
+        when :start
           0
-        when :c
+        when :center
           (pch - sh) * 0.5
+        when :end
+          pch - sh
         when :layout
           ay
         when Numeric
@@ -1249,20 +1249,7 @@ module Kredki
       end
 
       def report event, path = true, instant = false
-        if path
-          event.target ||= self
-          event_queue = window&.event_queue
-          return unless event_queue
-          path = pad_lineage.to_a.reverse if path == true
-          path.each do
-            event_queue.push event, it.event_manager, true, instant
-          end
-          path.reverse_each do
-            event_queue.push event, it.event_manager, false, instant
-          end
-        else
-          super
-        end
+        super(event, path == true ? pad_lineage.to_a.reverse : path, instant)
       end
 
       def c_set_parent at

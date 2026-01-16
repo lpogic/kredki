@@ -58,6 +58,7 @@ module Kredki
     extern 'int window_get_text_input(pastele::Window* self)'
     extern 'int window_get_flags(pastele::Window* self)'
     extern 'void window_surface_to_png(pastele::Window* self, const char* file)'
+    extern 'void window_get_display_bounds(pastele::Window* self, Bounds* bounds)'
     extern 'void paint_delete(Paint* self)'
     extern 'void paint_set_transform(Paint* self, float pivot_x, float pivot_y, float x, float y, float a, float mag_x, float fy)'
     extern 'void paint_set_opacity(Paint* self, uint8_t opacity)'

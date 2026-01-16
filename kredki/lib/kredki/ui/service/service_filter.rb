@@ -143,32 +143,6 @@ module Kredki
           Enumerator.new{|enum| each_pad enum, reverse:, deep: }
         end
       end
-
-      # Add new job tree.
-      def job &block
-        RootJob.new block
-      end
-
-      # Add new Kredki::AfterJob.
-      def after! delay = 0, &block
-        job = AfterJob.new block, delay
-        job.run window
-        job
-      end
-
-      # Add new Kredki::LoopJob.
-      def loop! period = 0, &block
-        job = LoopJob.new block, period
-        job.run window
-        job
-      end
-
-      # Add new Kredki::SideJob.
-      def side! &block
-        job = SideJob.new block
-        job.run window
-        job
-      end
     end
   end
 end

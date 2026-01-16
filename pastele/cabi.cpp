@@ -237,6 +237,15 @@ CABI void window_surface_to_png(pastele::Window* self, const char* file) {
     self->surfaceToPng(file);
 }
 
+CABI void window_get_display_bounds(pastele::Window* self, Bounds* bounds) {
+    SDL_Rect rect;
+    self->getDisplayBounds(&rect);
+    bounds->x = rect.x;
+    bounds->y = rect.y;
+    bounds->w = rect.w;
+    bounds->h = rect.h;
+}
+
 /************************************************************************/
 /* Engine API                                                           */
 /************************************************************************/

@@ -34,11 +34,11 @@ module Kredki
   color! :text, 255, 255, 255, 255
 
   module UI
-    layout! nil, Layout::Align.new(:c, :c)
-    [:s, :c, :e].repeated_permutation 2 do
-      layout! "x#{it[0]}#{it[1]}".to_sym, Layout::XWay.new(*it)
-      layout! "y#{it[0]}#{it[1]}".to_sym, Layout::YWay.new(*it)
-      layout! "z#{it[0]}#{it[1]}".to_sym, Layout::Align.new(*it)
+    layout! nil, Layout::Align.new(:center, :center)
+    [:start, :center, :end].repeated_permutation 2 do
+      layout! "x#{it[0].to_s[0]}#{it[1].to_s[0]}".to_sym, Layout::XWay.new(*it)
+      layout! "y#{it[0].to_s[0]}#{it[1].to_s[0]}".to_sym, Layout::YWay.new(*it)
+      layout! "z#{it[0].to_s[0]}#{it[1].to_s[0]}".to_sym, Layout::Align.new(*it)
     end
 
     module GlobalServices

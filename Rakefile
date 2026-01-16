@@ -21,7 +21,7 @@ file "sketch/sketch.rb" => "sketch" do
 end
 
 task :sample, [:path] do |task, args|
-  if !args[:path] || args[:path] == "*"
+  if args[:path] == "*"
     chdir "kredki/sample"
     Dir["*.rb"].all? do |sample|
       print "Next sample: \"#{sample}\".     S - skip, E - exit, else - continue: "
@@ -35,11 +35,14 @@ task :sample, [:path] do |task, args|
         true
       end
     end
-  else
+  elsif args[:path]
     $LOAD_PATH << File.expand_path(".")
     $LOAD_PATH << File.expand_path("kredki/lib")
     chdir "kredki/sample"
     require_relative "kredki/sample/#{args[:path]}"
+  else
+    chdir "kredki/sample"
+    system "rake sample[#{Dir["*.rb"].sample}]"
   end
 end
 

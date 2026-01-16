@@ -42,7 +42,7 @@ module Kredki
     # Create and attach mouse button(s) press event reaction.
     def on_mouse_press *selected_buttons, do: nil, &block
       indexes = Kredki.mouse.indexes selected_buttons
-      @event_manager.button_manager ButtonPressEvent, indexes, block || binding.local_variable_get(:do)
+      @event_manager.mouse_manager MouseButtonPressEvent, indexes, block || binding.local_variable_get(:do)
     end
 
     # See #on_mouse_press.
@@ -53,7 +53,7 @@ module Kredki
     # Create and attach mouse button(s) release event reaction.
     def on_mouse_release *selected_buttons, do: nil, &block
       indexes = Kredki.mouse.indexes selected_buttons
-      @event_manager.button_manager MouseButtonReleaseEvent, indexes, block || binding.local_variable_get(:do)
+      @event_manager.mouse_manager MouseButtonReleaseEvent, indexes, block || binding.local_variable_get(:do)
     end
 
     # See #on_mouse_release.
@@ -63,7 +63,7 @@ module Kredki
 
     # Create and attach mouse pointer enter event reaction.
     def on_mouse_enter ...
-      on(PointerEnterEvent, ...)
+      on(MousePointerEnterEvent, ...)
     end
 
     # See #on_mouse_enter.
@@ -73,7 +73,7 @@ module Kredki
 
     # Create and attach mouse pointer leave event reaction.
     def on_mouse_leave ...
-      on(PointerLeaveEvent, ...)
+      on(MousePointerLeaveEvent, ...)
     end
 
     # See #on_mouse_leave.
@@ -83,7 +83,7 @@ module Kredki
 
     # Create and attach mouse pointer move event reaction.
     def on_mouse_move ...
-      on(PointerMoveEvent, ...)
+      on(MousePointerMoveEvent, ...)
     end
 
     # See #on_mouse_move.
@@ -91,21 +91,22 @@ module Kredki
       on_mouse_move do: reaction
     end
     
-    # Create and attach mouse wheel spin event reaction.
-    def on_mouse_spin ...
-      on(MouseWheelSpinEvent, ...)
+    # Create and attach mouse wheel scroll event reaction.
+    def on_mouse_scroll ...
+      on(MouseWheelScrollEvent, ...)
     end
 
-    # See #on_mouse_spin.
-    def on_mouse_spin= reaction
-      on_mouse_spin do: reaction
+    # See #on_mouse_scroll.
+    def on_mouse_scroll= reaction
+      on_mouse_scroll do: reaction
     end
 
     # Create and attach joystick button(s) press event reaction.
-    def on_joystick_press joystick_id, *selected_buttons, do: nil, &block
-      joystick = Kredki.joystick joystick_id
-      indexes = joystick.buttons selected_buttons
-      @event_manager.joystick_manager JoystickButtonPressEvent, joystick, indexes, block || binding.local_variable_get(:do)
+    def on_joystick_press *buttons, joystick: nil, do: nil, &block
+      j = Kredki.joystick joystick
+      indexes = j.buttons buttons
+      j = nil if joystick.nil?
+      @event_manager.joystick_manager JoystickButtonPressEvent, j, indexes, block || binding.local_variable_get(:do)
     end
 
     # See #on_joystick_press.
@@ -114,10 +115,11 @@ module Kredki
     end
 
     # Create and attach joystick button(s) release event reaction.
-    def on_joystick_release joystick_id, *selected_buttons, do: nil, &block
-      joystick = Kredki.joystick joystick_id
-      indexes = joystick.buttons selected_buttons
-      @event_manager.joystick_manager JoystickMouseButtonReleaseEvent, joystick, indexes, block || binding.local_variable_get(:do)
+    def on_joystick_release *buttons, joystick: nil, do: nil, &block
+      j = Kredki.joystick joystick
+      indexes = j.buttons buttons
+      j = nil if joystick.nil?
+      @event_manager.joystick_manager JoystickButtonReleaseEvent, j, indexes, block || binding.local_variable_get(:do)
     end
 
     # See #on_joystick_release.
@@ -126,10 +128,11 @@ module Kredki
     end
 
     # Create and attach joystick axis(axes) move event reaction.
-    def on_joystick_move joystick_id, *selected_axes, do: nil, &block
-      joystick = Kredki.joystick joystick_id
-      indexes = joystick.axes selected_axes
-      @event_manager.joystick_manager JoystickAxisEvent, joystick, indexes, block || binding.local_variable_get(:do)
+    def on_joystick_move *axes, joystick: nil, do: nil, &block
+      j = Kredki.joystick joystick
+      indexes = j.axes axes
+      j = nil if joystick.nil?
+      @event_manager.joystick_manager JoystickAxisMoveEvent, j, indexes, block || binding.local_variable_get(:do)
     end
 
     # See #on_joystick_move.
@@ -148,33 +151,33 @@ module Kredki
     end
 
     # Create and attach file drop event reaction.
-    def on_file_drop ...
-      on(FileDropEvent, ...)
+    def on_drop ...
+      on(DropEvent, ...)
     end
 
-    # See #on_file_drop.
-    def on_file_drop= reaction
-      on_file_drop do: reaction
+    # See #on_drop.
+    def on_drop= reaction
+      on_drop do: reaction
     end
 
-    # Create and attach drop end event reaction.
-    def on_drop_end ...
-      on(DropEndEvent, ...)
+    # Create and attach drop cancel event reaction.
+    def on_drop_cancel ...
+      on(DropCancelEvent, ...)
     end
 
-    # See #on_drop_end.
-    def on_drop_end= reaction
-      on_drop_end do: reaction
+    # See #on_drop_cancel.
+    def on_drop_cancel= reaction
+      on_drop_cancel do: reaction
     end
 
     # Create and attach tick event reaction.
-    def on_clock_tick ...
+    def on_tick ...
       on(TickEvent, ...)
     end
 
-    # See #on_clock_tick.
-    def on_clock_tick= reaction
-      on_clock_tick do: reaction
+    # See #on_tick.
+    def on_tick= reaction
+      on_tick do: reaction
     end
 
     # Create and attach quit event reaction.
@@ -188,103 +191,103 @@ module Kredki
     end
 
     # Create and attach window show event reaction.
-    def on_window_show ...
+    def on_show ...
       on(ShowEvent, ...)
     end
 
-    # See #on_window_show.
-    def on_window_show= reaction
-      on_window_show do: reaction
+    # See #on_show.
+    def on_show= reaction
+      on_show do: reaction
     end
 
     # Create and attach window hide event reaction.
-    def on_window_hide ...
+    def on_hide ...
       on(HideEvent, ...)
     end
 
-    # See #on_window_hide.
-    def on_window_hide= reaction
-      on_window_hide do: reaction
+    # See #on_hide.
+    def on_hide= reaction
+      on_hide do: reaction
     end
 
     # Create and attach window expose event reaction.
-    def on_window_expose ...
+    def on_expose ...
       on(WindowExposeEvent, ...)
     end
 
-    # See #on_window_expose.
-    def on_window_expose= reaction
-      on_window_expose do: reaction
+    # See #on_expose.
+    def on_expose= reaction
+      on_expose do: reaction
     end
 
     # Create and attach window move event reaction.
-    def on_window_move ...
+    def on_move ...
       on(MoveEvent, ...)
     end
 
-    # See #on_window_move.
-    def on_window_move= reaction
-      on_window_move do: reaction
+    # See #on_move.
+    def on_move= reaction
+      on_move do: reaction
     end
 
     # Create and attach window resize event reaction.
-    def on_window_resize ...
+    def on_resize ...
       on(ResizeEvent, ...)
     end
 
-    # See #on_window_resize.
-    def on_window_resize= reaction
-      on_window_resize do: reaction
+    # See #on_resize.
+    def on_resize= reaction
+      on_resize do: reaction
     end
 
     # Create and attach window size change event reaction.
-    def on_window_size_change ...
+    def on_size_change ...
       on(WindowSizeChangeEvent, ...)
     end
 
-    # See #on_window_size_change.
-    def on_window_size_change= reaction
-      on_window_size_change do: reaction
+    # See #on_size_change.
+    def on_size_change= reaction
+      on_size_change do: reaction
     end
 
     # Create and attach window minimize event reaction.
-    def on_window_minimize ...
+    def on_minimize ...
       on(WindowMinimizeEvent, ...)
     end
 
-    # See #on_window_minimize.
-    def on_window_minimize= reaction
-      on_window_minimize do: reaction
+    # See #on_minimize.
+    def on_minimize= reaction
+      on_minimize do: reaction
     end
 
     # Create and attach window maximize event reaction.
-    def on_window_maximize ...
+    def on_maximize ...
       on(WindowMaximizeEvent, ...)
     end
 
-    # See #on_window_maximize.
-    def on_window_maximize= reaction
-      on_window_maximize do: reaction
+    # See #on_maximize.
+    def on_maximize= reaction
+      on_maximize do: reaction
     end
 
     # Create and attach window restore event reaction.
-    def on_window_restore ...
+    def on_restore ...
       on(WindowRestoreEvent, ...)
     end
 
-    # See #on_window_restore.
-    def on_window_restore= reaction
-      on_window_restore do: reaction
+    # See #on_restore.
+    def on_restore= reaction
+      on_restore do: reaction
     end
 
     # Create and attach window close event reaction.
-    def on_window_close ...
+    def on_close ...
       on(WindowCloseEvent, ...)
     end
 
-    # See #on_window_close.
-    def on_window_close= reaction
-      on_window_close do: reaction
+    # See #on_close.
+    def on_close= reaction
+      on_close do: reaction
     end
 
     # Create and attach focus enter event reaction.

@@ -246,20 +246,21 @@ module Kredki
       end
 
       # Create and attach mouse scroll event reaction.
-      def on_mouse_spin ...
-        on(MouseWheelSpinEvent, ...)
+      def on_mouse_scroll ...
+        on(MouseWheelScrollEvent, ...)
       end
 
-      # See #on_mouse_spin.
-      def on_mouse_spin= param
-        on_mouse_spin do: param
+      # See #on_mouse_scroll.
+      def on_mouse_scroll= param
+        on_mouse_scroll do: param
       end
       
-      # Create and attach joystick pressed event reaction.
-      def on_joystick_press joystick_id, *filtered_buttons, early: false, always: false, do: nil, &block
-        joystick = Kredki.joystick joystick_id
-        indexes = joystick.buttons filtered_buttons
-        @event_manager.joystick_manager JoystickButtonPressEvent, joystick, indexes, block || binding.local_variable_get(:do), early, always
+      # Create and attach joystick press event reaction.
+      def on_joystick_press *buttons, joystick: nil, early: false, always: false, do: nil, &block
+        j = Kredki.joystick joystick
+        indexes = j.buttons buttons
+        j = nil if joystick.nil?
+        @event_manager.joystick_manager JoystickButtonPressEvent, j, indexes, block || binding.local_variable_get(:do), early, always
       end
 
       # See #on_joystick_press.
@@ -267,11 +268,12 @@ module Kredki
         on_joystick_press do: param
       end
 
-      # Create and attach joystick up event reaction.
-      def on_joystick_release joystick_id, *filtered_buttons, early: false, always: false, do: nil, &block
-        joystick = Kredki.joystick joystick_id
-        indexes = joystick.buttons filtered_buttons
-        @event_manager.joystick_manager JoystickMouseButtonReleaseEvent, joystick, indexes, block || binding.local_variable_get(:do), early, always
+      # Create and attach joystick release event reaction.
+      def on_joystick_release *buttons, joystick: nil, early: false, always: false, do: nil, &block
+        j = Kredki.joystick joystick
+        indexes = j.buttons buttons
+        j = nil if joystick.nil?
+        @event_manager.joystick_manager JoystickButtonReleaseEvent, j, indexes, block || binding.local_variable_get(:do), early, always
       end
 
       # See #on_joystick_release.
@@ -279,16 +281,27 @@ module Kredki
         on_joystick_release do: param
       end
 
-      # Create and attach joystick axis event reaction.
-      def on_joystick_axis joystick_id, *filtered_axes, early: false, always: false, do: nil, &block
-        joystick = Kredki.joystick joystick_id
-        indexes = joystick.axes filtered_axes
-        @event_manager.joystick_manager JoystickAxisEvent, joystick, indexes, block || binding.local_variable_get(:do), early, always
+      # Create and attach joystick axis(axes) move event reaction.
+      def on_joystick_move *axes, joystick: nil, early: false, always: false, do: nil, &block
+        j = Kredki.joystick joystick
+        indexes = j.axes axes
+        j = nil if joystick.nil?
+        @event_manager.joystick_manager JoystickAxisMoveEvent, j, indexes, block || binding.local_variable_get(:do), early, always
       end
 
-      # See #on_joystick_axis.
-      def on_joystick_axis= param
-        on_joystick_axis do: param
+      # See #on_joystick_move.
+      def on_joystick_move= reaction
+        on_joystick_move do: reaction
+      end
+
+      # Create and attach file drop event reaction.
+      def on_drop ...
+        on(DropEvent, ...)
+      end
+
+      # See #on_drop.
+      def on_drop= reaction
+        on_drop do: reaction
       end
 
       # Create and attach show event reaction.

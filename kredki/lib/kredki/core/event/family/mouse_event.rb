@@ -96,15 +96,25 @@ module Kredki
       @drag
     end
 
+    # Get whether it is drop move.
+    def drop
+      @drop
+    end
+
     # :section: LEVEL 2
 
     def initialize ...
       super
       @drag = false
+      @drop = false
     end
 
     def drag= drag
       @drag = drag
+    end
+
+    def drop= drop
+      @drop = drop
     end
   end
 
@@ -126,37 +136,37 @@ module Kredki
     end
   end
 
-  # Event reported on mouse wheel spin.
-  class MouseWheelSpinEvent < MouseEvent
+  # Event reported on mouse wheel scroll.
+  class MouseWheelScrollEvent < MouseEvent
 
-    # Get spin value along X axis.
+    # Get scroll value along X axis.
     def x
       @source.x
     end
 
-    # Get spin value along Y axis.
+    # Get scroll value along Y axis.
     def y
       @source.y
     end
 
-    # Get spin value along X and Y axes.
+    # Get scroll value along X and Y axes.
     def xy
       [@source.x, @source.y]
     end
 
-    # Get spin value along X axis or Y if X is 0.
+    # Get scroll value along X axis or Y if X is 0.
     def xory
       x == 0 ? y : x
     end
 
-    # Get spin value along Y axis or X if Y is 0.
+    # Get scroll value along Y axis or X if Y is 0.
     def yorx
       y == 0 ? x : y
     end
 
     # Get main parameter
     def param
-      xy
+      yorx
     end
   end
 end

@@ -34,7 +34,11 @@ module Kredki
     end
 
     def report event
-      @managers[event.class]&.report event
+      cl = event.class
+      while cl != Object
+        @managers[cl]&.report event
+        cl = cl.superclass
+      end
     end
   end
 end

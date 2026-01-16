@@ -23,6 +23,7 @@ module Kredki
   end
 
   require_relative "ui/layout/layout"
+  require_relative 'ui/service/event_queue'
   require_relative 'ui/service/global_services'
   require_relative 'ui/service/pad'
   require_relative 'ui/service/sort_pad'

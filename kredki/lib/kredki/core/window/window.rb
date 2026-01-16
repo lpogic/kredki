@@ -20,8 +20,8 @@ module Kredki
     end
 
     # Request that a window be raised above other windows and gain the input focus.
-    def raise!
-      Pastele.window_raise @pointer
+    def focus!
+      Pastele.window_focus @pointer
     end
 
     # Request that the size and position of a minimized or maximized window be restored.
@@ -117,13 +117,37 @@ module Kredki
     # Set position along X and Y axes.
     def xy! x = 0, y = x
       return send_ahp :xy!, yield(self.xy) if block_given?
+      x = case x
+      when :start
+        0
+      when :center
+        (display_wh[0] - wh[0]) * 0.5
+      when :end
+        display_wh[0] - wh[0]
+      when Numeric
+        x
+      else raise_ia x
+      end
+
+      y = case y
+      when :start
+        0
+      when :center
+        (display_wh[1] - wh[1]) * 0.5
+      when :end
+        display_wh[1] - wh[1]
+      when Numeric
+        y
+      else raise_ia y
+      end
+
       Pastele.window_set_position @pointer, x, y
       true
     end
 
     # See #xy!.
     def xy= param
-      send_ahp :wh!, param
+      send_ahp :xy!, param
     end
     
     # Get position along X and Y axes.
@@ -136,6 +160,22 @@ module Kredki
     # Set width and height. 
     def wh! w = 400, h = w, **na
       return send_ahp :wh!, yield(self.wh) if block_given?
+      w = case w
+      when Rational
+        display_wh[0] * w
+      when Numeric
+        w
+      else raise_ia w
+      end
+
+      h = case h
+      when Rational
+        display_wh[1] * h
+      when Numeric
+        h
+      else raise_ia h
+      end
+      
       Pastele.window_set_size @pointer, w, h
       na.each{ send_ahp "wh_#{_1}!", _2 }
       true
@@ -344,6 +384,13 @@ module Kredki
       @application&.remove_window self
     end
 
+    def display_wh
+      bounds = Pastele::Bounds.malloc(Fiddle::RUBY_FREE)
+      Pastele.window_get_display_bounds @pointer, bounds
+      [bounds.w, bounds.h]
+    end
+
+    # Save window as PNG image.
     def to_png filepath
       scene&.arrange
       Pastele.window_surface_to_png @pointer, File.expand_path(filepath)

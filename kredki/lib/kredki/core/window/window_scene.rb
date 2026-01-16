@@ -1,7 +1,6 @@
-require_relative '../event/event_queue'
-require_relative 'the'
-require_relative 'window_scene_events'
 require_relative 'window_scene_event_manager'
+require_relative 'window_scene_events'
+require_relative 'the'
 
 module Kredki
   # Root element of Paint tree.
@@ -69,8 +68,8 @@ module Kredki
     end
 
     # Request that a window be raised above other windows and gain the input focus.
-    def raise!
-      @scene.raise!
+    def focus!
+      @scene.focus!
     end
 
     # Request that the size and position of a minimized or maximized window be restored.
@@ -330,6 +329,18 @@ module Kredki
       !!mouse_capture
     end
 
+    # Save window as PNG image.
+    def to_png filepath
+      @scene.to_png filepath
+    end
+
+    # Create new job tree.
+    def job run = true, &block
+      job = AfterJob.new nil, block, 0
+      job.run self if run
+      job
+    end
+
     # :section: LEVEL 2
 
     def initialize
@@ -337,21 +348,18 @@ module Kredki
 
       @jobs = []
       @event_manager = WindowSceneEventManager.new
-      @event_queue = EventQueue.new
       @fill = rectangle! xy: 0
       @the = The.new self
 
-      on_clock_tick do: method(:tick)
+      on_tick do: method(:tick)
     end
-
-    attr :event_queue
 
     def update_paint paint
       @scene&.update_paint paint
     end
 
     def sketch
-      on_window_resize{ @fill.wh = it.wh }
+      on_resize{ @fill.wh = it.wh }
       @fill.wh = *wh
       fill! 20, 70, 20
     end
@@ -378,8 +386,8 @@ module Kredki
       @jobs.delete job
     end
 
-    def report event
-      @event_queue.push event, self
+    def jobs
+      @jobs
     end
 
     def report event, early = false
@@ -388,7 +396,8 @@ module Kredki
 
     def tick event
       ms = event.timestamp / 1_000_000 - application.run_ms
-      @jobs.filter!{ it.tick ms }
+      jobs, @jobs = @jobs, []
+      jobs.each{ @jobs << it if it.tick ms }
     end
 
     def build_context

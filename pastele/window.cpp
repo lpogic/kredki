@@ -199,6 +199,11 @@ void Window::surfaceToPng(const char* file) {
     SDL_SavePNG(surface, file);
 }
 
+void Window::getDisplayBounds(SDL_Rect* rect) {
+    auto display = SDL_GetDisplayForWindow(sdl_window);
+    SDL_GetDisplayBounds(display, rect);
+}
+
 void Window::show(void) {
     SDL_ShowWindow(sdl_window);
     setNeedResize();

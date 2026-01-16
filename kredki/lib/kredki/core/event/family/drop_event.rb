@@ -1,32 +1,40 @@
 module Kredki
-  # Event reported on file drop in window area.
-  class FileDropEvent < PasteleEvent
+  # Event reported on drop.
+  class DropEvent < PasteleEvent
     
-    # Get path to dropped file.
-    def file
-      @file
+    # Get data.
+    def data
+      @data
+    end
+
+    # Get whether it is multi drop event.
+    def multi?
+      @data.size > 1
+    end
+
+    # Get first dropped object text.
+    def text
+      @data.first.text
     end
 
     # Get main parameter
     def param
-      file
+      text
     end
 
     # :section: LEVEL 2
 
-    def initialize abi
-      super
-
-      @file = abi.file.to_s.force_encoding("utf-8")
-      abi.file.free
+    def initialize data, ...
+      super(...)
+      @data = data
     end
   end
   
   # Event reported on drop action begin.
-  class DropBeginEvent < Event
+  class DropBeginEvent < PasteleEvent
   end
 
-  # Event reported on drop action end.
-  class DropEndEvent < Event
+  # Event reported on drop action cancel.
+  class DropCancelEvent < DropEvent
   end
 end

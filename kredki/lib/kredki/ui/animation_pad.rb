@@ -18,26 +18,6 @@ module Kredki
         @area.content
       end
 
-      # Run animation in given play mode.
-      def run! ...
-        @area.run!(...)
-      end
-
-      # See: #run!
-      def run= param
-        send_ahp :run!, param
-      end
-
-      # Get running play mode.
-      def run
-        @area.run
-      end
-
-      # See #run.
-      def run?
-        !!run
-      end
-
       # Push the feature.
       def << arg
         case arg
@@ -46,6 +26,14 @@ module Kredki
         else
           super
         end
+      end
+
+      def step ...
+        @area.step(...)
+      end
+
+      def frame
+        @area.frame
       end
 
       # :section: LEVEL 2

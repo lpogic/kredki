@@ -8,6 +8,8 @@ module Kredki
       super(...)
       @joystick = joystick
     end
+
+    attr :joystick
   end
 
   # Event reported on joystick connect.
@@ -42,11 +44,11 @@ module Kredki
   end
 
   # Event reported on joystick button release.
-  class JoystickMouseButtonReleaseEvent < JoystickButtonEvent
+  class JoystickButtonReleaseEvent < JoystickButtonEvent
   end
 
   # Event reported on joystick axis change.
-  class JoystickAxisEvent < JoystickEvent
+  class JoystickAxisMoveEvent < JoystickEvent
 
     # Get event axis.
     def axis

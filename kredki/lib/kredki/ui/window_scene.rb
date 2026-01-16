@@ -40,6 +40,7 @@ module Kredki
       def initialize
         super
         
+        @event_queue = EventQueue.new
         @services = []
       end
 
@@ -47,24 +48,21 @@ module Kredki
         super
         @mouse_stale = false
 
-        @event_manager.manager MousePointerMoveEvent, proc{|e| update_mouse_location e }
+        on_mouse_move do: method(:update_mouse_location)
         @event_manager.manager MousePointerEnterEvent, proc{|e| update_mouse_location }
         @event_manager.manager MousePointerLeaveEvent, proc{|e| update_mouse_location }
-        @event_manager.mouse_manager MouseButtonPressEvent, [], proc{|e| mouse_event e }
-        @event_manager.mouse_manager MouseButtonReleaseEvent, [], proc{|e| mouse_event e }
-        @event_manager.manager MouseWheelSpinEvent, proc{|e| mouse_event e }
+        on_mouse_press do: method(:mouse_event)
+        on_mouse_release do: method(:mouse_event)
+        on_mouse_scroll do: method(:mouse_event)
+        on_drop do: method(:mouse_event)
+        on_key_press do: method(:keyboard_event)
+        on_key_release do: method(:keyboard_event)
+        on_text_input do: method(:keyboard_event)
+        on_joystick_press do: method(:joystick_event)
+        on_joystick_release do: method(:joystick_event)
+        on_joystick_move do: method(:joystick_event)
 
-        on_key_press do |e|
-          keyboard_event e
-        end
-        on_key_release do |e|
-          keyboard_event e
-        end
-        on_text_input do |e|
-          keyboard_event e
-        end
-
-        on_window_resize do
+        on_resize do
           w, h = *wh
           @services.each do 
             it.set_xy 0, 0
@@ -74,6 +72,10 @@ module Kredki
         end
 
         layer!.keyboard_request
+      end
+
+      def event_queue
+        @event_queue
       end
 
       def pad_parent
@@ -152,6 +154,15 @@ module Kredki
         @services.reverse_each.find do |layer|
           event.target = nil
           layer.keyboard_event event
+          @event_queue.process
+          event.closed?
+        end
+      end
+
+      def joystick_event event
+        @services.reverse_each.find do |layer|
+          event.target = nil
+          layer.joystick_event event
           @event_queue.process
           event.closed?
         end

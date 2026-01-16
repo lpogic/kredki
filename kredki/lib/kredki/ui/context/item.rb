@@ -26,7 +26,7 @@ module Kredki
           
           new SpacePad, h: 1r, w: :h
           new TextPad, "", mousy: false
-          new RectanglePad, :end_icon, mousy: false, keyboardy: false, fill: 0, x: :e, h: 1r, w: :h do
+          new RectanglePad, :end_icon, mousy: false, keyboardy: false, fill: 0, x: :end, h: 1r, w: :h do
             outline! fill: :text, w: 2, cap: :round
             area! do |w, h|
               xy! w * 0.5, h * 0.35

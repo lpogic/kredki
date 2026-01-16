@@ -125,5 +125,21 @@ module Kredki
       @wheel_speed = 0.3
       @wheel_alt_speed = 0.06
     end
+
+    def wheel_scroll_event pastele_event
+      MouseWheelScrollEvent.new self, pastele_event
+    end
+
+    def pointer_move_event pastele_event
+      MousePointerMoveEvent.new self, pastele_event
+    end
+
+    def button_press_event pastele_event
+      MouseButtonPressEvent.new self, pastele_event
+    end
+
+    def button_release_event pastele_event
+      MouseButtonReleaseEvent.new self, pastele_event
+    end
   end
 end

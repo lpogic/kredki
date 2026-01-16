@@ -12,11 +12,11 @@ module Kredki
 
       def get_p cr, pc, sc
         case cr
-        when :c
-          (pc - sc) * 0.5
-        when :s
+        when :start
           0
-        when :e
+        when :center
+          (pc - sc) * 0.5
+        when :end
           pc - sc
         when Rational
           cr * pc - sc * 0.5

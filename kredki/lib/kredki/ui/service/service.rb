@@ -104,17 +104,6 @@ module Kredki
         @event_manager.manager event_type, block || binding.local_variable_get(:do), early, always
       end
 
-      # Cancel custom local loop.
-      def run! id, &block
-        @loops[id]&.cancel
-        @loops[id] = loop! &block
-      end
-
-      # Cancel custom local loop.
-      def stop! id
-        @loops.delete(id)&.cancel
-      end
-
       # Match self with +filter+.
       def =~ filter
         case filter
@@ -160,6 +149,13 @@ module Kredki
         self
       end
 
+      # Create new job tree.
+      def job run = true, &block
+        job = AfterJob.new block, 0
+        job.run window if run
+        job
+      end
+
       # :section: LEVEL 2
 
       def initialize
@@ -168,7 +164,6 @@ module Kredki
         @tags = {}
         @services = []
         @event_manager = ServiceEventManager.new
-        @loops = {}
       end
 
       def sketch_service
@@ -234,12 +229,21 @@ module Kredki
         @services.each{ _1.grand_pad_detach }
       end
 
-      def report event, path = true, instant = false
+      def report event, path = false, instant = false
         event.target ||= self
         event_queue = window&.event_queue
         return unless event_queue
-        event_queue.push event, @event_manager, true, instant
-        event_queue.push event, @event_manager, false, instant
+        if path
+          path.each do
+            event_queue.push event, it.event_manager, true, instant
+          end
+          path.reverse_each do
+            event_queue.push event, it.event_manager, false, instant
+          end
+        else
+          event_queue.push event, @event_manager, true, instant
+          event_queue.push event, @event_manager, false, instant
+        end
       end
     end
   end

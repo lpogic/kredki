@@ -144,6 +144,12 @@ module Kredki
         !!@pressed_keys[key]
       end
 
+      def joystick_event event
+        if !event.closed?
+          report event
+        end
+      end
+
       def mouse_pad
         @pin_data&.pad || @mouse_pads.last
       end

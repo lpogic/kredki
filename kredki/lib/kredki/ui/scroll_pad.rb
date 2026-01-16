@@ -11,7 +11,7 @@ module Kredki
         super
         
         # this component creation order is intentional; @corner existence is checked in put_pad
-        corner = new RectanglePad, layoutic: false, fill: :gray, wh: 10, xy: :e
+        corner = new RectanglePad, layoutic: false, fill: :gray, wh: 10, xy: :end
         @xslide = new HorizontalSlide, layoutic: false, h: 10
         @yslide = new VerticalSlide, layoutic: false, w: 10
         @corner = corner
@@ -32,7 +32,7 @@ module Kredki
           e.close
         end
 
-        on_mouse_spin do |e|
+        on_mouse_scroll do |e|
           ps = layout_pads
           if !ps.empty?
             jump = Kredki.keyboard.alt? ? Kredki.mouse.wheel_alt_speed : Kredki.mouse.wheel_speed
