@@ -41,7 +41,7 @@ module Kredki
 
             loop do
               if rd > 0
-                total_span = sp.map{ it[3] < it[2] ? it[0] : 0 }.sum
+                total_span = sp.map{|it| it[3] < it[2] ? it[0] : 0 }.sum
                 break if total_span == 0
                 nd = rd / total_span
                 rd = 0
@@ -57,7 +57,7 @@ module Kredki
                   end
                 end
               elsif rd < 0
-                total_span = sp.map{ it[3] > it[1] ? it[0] : 0 }.sum
+                total_span = sp.map{|it| it[3] > it[1] ? it[0] : 0 }.sum
                 break if total_span == 0
                 nd = rd / total_span
                 rd = 0
@@ -77,9 +77,9 @@ module Kredki
               end
             end
             
-            return [m = sp.map{ it[3] }, m.sum + total_space]
+            return [m = sp.map{|it| it[3] }, m.sum + total_space]
           end
-          [sp.map{ it[3] }, ad + total_space]
+          [sp.map{|it| it[3] }, ad + total_space]
         end
 
         def arrange_non_layoutic pad, clw, clh

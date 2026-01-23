@@ -4,10 +4,10 @@ require 'kredki'
 
 button! do |b|
   alter "Click me!" 
-  on_click.loop do
+  on_click.loop do |it|
     b.rot += it.ms * 0.008
     it.release if rot >= Math::PI
-  end.loop do
+  end.loop do |it|
     b.rot -= it.ms * 0.005
     if rot <= 0
       rot! 0

@@ -21,7 +21,7 @@ module Kredki
         end
 
         def subitems item
-          each_sn(Item).take_while{ it.level > item.level }
+          each_sn(Item).take_while{|it| it.level > item.level }
         end
 
         def update_show
@@ -40,7 +40,7 @@ module Kredki
           case item
           when :previous, :next
             kb = nil
-            each_fd(Item, reverse: item == :previous).each do
+            each_fd(Item, reverse: item == :previous).each do |it|
               if kb
                 return update_selected_item it if it.show?
               elsif it.keyboard_in?
@@ -48,7 +48,7 @@ module Kredki
               end
             end
             return update_selected_item kb if kb
-            fd(Item){ it.show? }&.then{ update_selected_item it }
+            fd(Item){|it| it.show? }&.then{|it| update_selected_item it }
           else
             item&.keyboard_request
             item

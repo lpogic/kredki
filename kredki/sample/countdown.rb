@@ -15,19 +15,19 @@ button! "Countdown" do
     end.after do # when last job ends
       countdown.call
     end.after(1000) # wait 1000 ms
-    .then do
+    .then do |it|
       # two loops in parallel
 
       first_loop = it.loop 500 do # in loop with period 500 ms
-        fd(Text).fill!{ it != :white ? :white : :red }
+        fd(TextPad).fill!{ it != :white ? :white : :red }
       end
 
-      it.loop 1000 do # in loop with period 1000 ms
+      it.loop 1000 do |it| # in loop with period 1000 ms
         countdown.call
         it.release if counter < 2 # release job
       end.after 1000 do # after 1000 ms
         first_loop.cancel
-        fd(Text).alter fill: :yellow, content: "Bye bye"
+        fd(TextPad).alter fill: :yellow, content: "Bye bye"
       end.after 1000 do
         application.exit
       end

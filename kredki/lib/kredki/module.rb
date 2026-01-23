@@ -43,13 +43,19 @@ module Kredki
 end
 
 
-
-if RUBY_PLATFORM =~ /cygwin|mswin|mingw|bccwin|wince|emx/
+case RUBY_PLATFORM
+when /cygwin|mswin|mingw|bccwin|wince|emx/
   $kredki_sdl ||= "#{Kredki.dir}/stuff/dll/SDL3.dll"
   $kredki_thorvg ||= "#{Kredki.dir}/stuff/dll/thorvg-1-1.dll"
   $kredki_pastele ||= "#{Kredki.dir}/stuff/dll/pastele.dll"
-elsif !$kredki_sdl || !$kredki_thorvg || !$kredki_pastele
-  raise "No default shared libraries for #{RUBY_PLATFORM} found. Provide paths to custom ones in $kredki_sdl, $kredki_thorvg and $kredki_pastele before require 'kredki'"
+when /linux/
+  $kredki_sdl ||= "#{Kredki.dir}/stuff/so/libSDL3.so"
+  $kredki_thorvg ||= "#{Kredki.dir}/stuff/so/libthorvg-1.so"
+  $kredki_pastele ||= "#{Kredki.dir}/stuff/so/libpastele.so"
+else
+  if !$kredki_sdl || !$kredki_thorvg || !$kredki_pastele
+    raise "No default shared libraries for #{RUBY_PLATFORM} found. Provide paths to custom ones in $kredki_sdl, $kredki_thorvg and $kredki_pastele before require 'kredki'"
+  end
 end
 
 require_relative 'core/kredki'

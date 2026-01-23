@@ -8,7 +8,7 @@ module Kredki
         return send_ahp :content!, yield(self.content) if block_given?
         return if @content == content
         @content = content
-        @verses&.each{ it.detach }
+        @verses&.each{|it| it.detach }
         @verses = "#{content}\n".each_line(chomp: true).map do |line|
           @scene.text! line.chomp, fill: @area.fill
         end
@@ -31,7 +31,7 @@ module Kredki
       def fill! *fill
         return send_ahp :fill!, yield(self.fill) if block_given?
         return unless @area.fill! *fill
-        @verses.each{ it.fill! *fill }
+        @verses.each{|it| it.fill! *fill }
         true
       end
       
@@ -47,7 +47,7 @@ module Kredki
 
       # Set verse features.
       def verse! *a, **na
-        a.map do
+        a.map do |it|
           case it
           when Hash
             verse! **it
@@ -208,7 +208,7 @@ module Kredki
 
       def fit_w
         size, _ = verse_metrics get_h
-        @verses.map{ size * it.w / it.h }.max
+        @verses.map{|it| size * it.w / it.h }.max
       end
 
       def fit_h

@@ -36,7 +36,7 @@ module Kredki
         end
 
         def set_checked item_button, checked
-          each_fd(ItemButton){ it.checked? }.each{ it.set_checked false } if checked
+          each_fd(ItemButton){|it| it.checked? }.each{|it| it.set_checked false } if checked
           item_button.set_checked checked
         end
       end#Group

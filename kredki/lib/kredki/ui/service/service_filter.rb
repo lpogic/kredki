@@ -15,7 +15,7 @@ module Kredki
 
       # Get ancestors matching filters.
       def each_fa *filters, with_self: false, reverse: false, &block
-        lineage(with_self).then{ reverse ? it.reverse_each : it }.filter{ it =~ filters and it =~ block }
+        lineage(with_self).then{|it| reverse ? it.reverse_each : it }.filter{|it| it =~ filters and it =~ block }
       end
 
       # Find descedant.
@@ -54,15 +54,15 @@ module Kredki
           method = reverse ? :reverse_each : :each
           case deep
           when false
-            @services.send(method){ enum << it if it =~ filter }
+            @services.send(method){|it| enum << it if it =~ filter }
           when :first
-            @services.send method do
+            @services.send method do |it|
               enum << it if it =~ filter 
               it.each_service enum, reverse:, deep:, filter: ;
             end
           else
-            @services.send(method){ enum << it if it =~ filter }
-            @services.send(method){ it.each_service enum, reverse:, deep:, filter: }
+            @services.send(method){|it| enum << it if it =~ filter }
+            @services.send(method){|it| it.each_service enum, reverse:, deep:, filter: }
           end
           enum
         else

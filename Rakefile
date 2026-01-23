@@ -54,7 +54,7 @@ RDoc::Task.new do |rdoc|
   rdoc.template = "aliki"
 end
 
-# require "minitest/test_task"
+require "minitest/test_task"
 
 Minitest::TestTask.create(:test) do |t|
   t.libs << "kredki/test"
@@ -258,8 +258,8 @@ when /linux/
     if generate
       File.write "rake-config.rb", <<~xx
         $thorvg =   "/home/user/thorvg" # thorvg project root folder
-        $sdl =      "/home/user/sdl" # sdl project root folder
-        $make =     "make"
+        $sdl =      "/home/user/SDL" # sdl project root folder
+        $make =     "cmake"
         $meson =    "meson" # for thorvg building
         $ninja =    "ninja" # for thorvg building
       xx

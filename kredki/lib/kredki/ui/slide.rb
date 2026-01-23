@@ -105,7 +105,7 @@ module Kredki
 
         on_mouse_scroll do |e|
           jump = Kredki.keyboard.alt? ? Kredki.mouse.wheel_alt_speed : Kredki.mouse.wheel_speed
-          value!{ (it - jump * e.xory).clamp(0..1) } and report EditEvent.new e
+          value!{|it| (it - jump * e.xory).clamp(0..1) } and report EditEvent.new e
           e.close
         end
 
@@ -169,7 +169,7 @@ module Kredki
         lw ||= 3 * w
         hw = (w.to_f / lw * w).clamp 20, [w - 20, 20].max
         @handle.set_size hw, sh
-        @handle.set_xy (w - hw) * @value.to_f.then{ it.nan? ? 0 : it.clamp(0..1) }, 0
+        @handle.set_xy (w - hw) * @value.to_f.then{|it| it.nan? ? 0 : it.clamp(0..1) }, 0
       end
     end
 
@@ -218,7 +218,7 @@ module Kredki
         lh ||= 3 * h
         hh = (h.to_f / lh * h).clamp 20, [h - 20, 20].max
         @handle.set_size sw, hh
-        @handle.set_xy 0, (h - hh) * @value.to_f.then{ it.nan? ? 0 : it.clamp(0..1) }
+        @handle.set_xy 0, (h - hh) * @value.to_f.then{|it| it.nan? ? 0 : it.clamp(0..1) }
       end
     end
   end

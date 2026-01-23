@@ -48,7 +48,7 @@ space! layout: :xss, m: 10, mi: 10 do
       end
     end
     scroll! wh: [1r, limit: :fit] do
-      picture! "#{Kredki.dir}/stuff/test.png"
+      picture! "#{Kredki.dir}/sample/stuff/test.png"
     end
   end
   space! layout: :yss, w: 1/2r, mi: 10 do

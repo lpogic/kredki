@@ -730,7 +730,7 @@ module Kredki
       end
 
       def pad_tree
-        @pads.map{ [it, it.pad_tree] }.to_h
+        @pads.map{|it| [it, it.pad_tree] }.to_h
       end
 
       def sketch_service
@@ -960,7 +960,7 @@ module Kredki
       end
 
       def layout_pads
-        pads.filter{ it.layoutic? }
+        pads.filter{|it| it.layoutic? }
       end
 
       def arranged_pads
@@ -1207,7 +1207,7 @@ module Kredki
       end
 
       def check_mouse_in pad
-        fa Pad, with_self: true do
+        fa Pad, with_self: true do |it|
           pad == it
         end
       end

@@ -40,7 +40,7 @@ module Kredki
           super
 
           on_key_press :right do |e|
-            fc(SecondaryLayer)&.then do
+            fc(SecondaryLayer)&.then do |it|
               it.load self unless it.loaded?
               it.fd(Item)&.keyboard_request and e.close
             end
@@ -50,7 +50,7 @@ module Kredki
 
         def mouse_enter e
           super
-          fd(SecondaryLayer)&.then{ it.update_keyboard_pad nil if it.loaded? }
+          fd(SecondaryLayer)&.then{|it| it.update_keyboard_pad nil if it.loaded? }
         end
         
       end#Item

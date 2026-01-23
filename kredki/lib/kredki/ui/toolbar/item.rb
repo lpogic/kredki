@@ -59,20 +59,20 @@ module Kredki
           super
 
           on_key_press :down, :up, :enter, :space do |e|
-            fc(PrimaryLayer)&.then do
+            fc(PrimaryLayer)&.then do |it|
               it.load self unless it.loaded?
               it.fd(Context::Item)&.keyboard_request and e.close
             end
           end
 
           on_mouse_click do |e|
-            fd(PrimaryLayer)&.then{ it.load self unless it.loaded? }
+            fd(PrimaryLayer)&.then{|it| it.load self unless it.loaded? }
           end
         end
 
         def mouse_enter e
           super
-          fd(PrimaryLayer)&.then{ it.update_keyboard_pad nil if it.loaded? }
+          fd(PrimaryLayer)&.then{|it| it.update_keyboard_pad nil if it.loaded? }
         end
 
       end#Item

@@ -116,7 +116,7 @@ module Kredki
         when Integer
           pad_index == filter
         when Array
-          filter.all?{ self =~ it }
+          filter.all?{|it| self =~ it }
         else
           raise "Unsupported =~ (#{filter} : #{filter.class})"
         end
@@ -181,7 +181,7 @@ module Kredki
       attr :event_manager
 
       def service_tree
-        @services.map{ [it, it.service_tree] }.to_h
+        @services.map{|it| [it, it.service_tree] }.to_h
       end
 
       def new klass, *a, at: nil, **na, &b
@@ -222,7 +222,7 @@ module Kredki
       end
 
       def c_set_parent at
-        @services.each{ it.set_parent self }
+        @services.each{|it| it.set_parent self }
       end
 
       def grand_pad_detach
@@ -234,10 +234,10 @@ module Kredki
         event_queue = window&.event_queue
         return unless event_queue
         if path
-          path.each do
+          path.each do |it|
             event_queue.push event, it.event_manager, true, instant
           end
-          path.reverse_each do
+          path.reverse_each do |it|
             event_queue.push event, it.event_manager, false, instant
           end
         else

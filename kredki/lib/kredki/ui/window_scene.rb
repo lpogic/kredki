@@ -24,7 +24,7 @@ module Kredki
         when Module, Proc
           filter === self
         when Array
-          filter.all?{ self =~ it }
+          filter.all?{|it| self =~ it }
         else
           raise "Unsupported =~ (#{filter} : #{filter.class})"
         end
@@ -70,7 +70,7 @@ module Kredki
 
         on_resize do
           w, h = *wh
-          @services.each do 
+          @services.each do |it|
             it.set_xy 0, 0
             it.set_size w, h
             it.wh! w, h
@@ -126,7 +126,7 @@ module Kredki
       end
 
       def pad_tree
-        @services.map{ [it, it.pad_tree] }.to_h
+        @services.map{|it| [it, it.pad_tree] }.to_h
       end
 
       def build_context

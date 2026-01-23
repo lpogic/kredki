@@ -66,7 +66,7 @@ module Kredki
         super
 
         wh! :fit, 24
-        for! proc{|it| it.pa&.fc{ it.keyboardy? } }
+        for! proc{|it| it.pa&.fc{|it| it.keyboardy? } }
         keyboardy! false
         area.fill! false
 

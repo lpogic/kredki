@@ -45,7 +45,7 @@ module Kredki
             elsif kb.ctrl?
               item.selected! :not
             else
-              each_fd(Item).each_alter{ selected! it == item }
+              each_fd(Item).each_alter{|it| selected! it == item }
             end
           end
 

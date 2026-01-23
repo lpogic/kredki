@@ -90,7 +90,7 @@ module Kredki
           e.close
         end
 
-        @arrow.on_mouse_move do
+        @arrow.on_mouse_move do |it|
           if it.drag
             it.close
           end
@@ -103,7 +103,7 @@ module Kredki
           @note.verse.set_cursor content.to_s.length
         end
 
-        @dropdown.on_key :escape do
+        @dropdown.on_key :escape do |it|
           @dropdown.unload
           it.close
         end

@@ -45,7 +45,7 @@ module Kredki
             else
               [0, 0]
             end
-            e.close if @xslide.value!{ (it - xo * xjump).clamp(0..1) } | @yslide.value!{ (it - yo * yjump).clamp(0..1) }
+            e.close if @xslide.value!{|it| (it - xo * xjump).clamp(0..1) } | @yslide.value!{|it| (it - yo * yjump).clamp(0..1) }
           end
         end
 
@@ -77,7 +77,7 @@ module Kredki
       end
 
       def arranged_pads
-        pads.take_while{ it != @xslide }
+        pads.take_while{|it| it != @xslide }
       end
 
       def clw

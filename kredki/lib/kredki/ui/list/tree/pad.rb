@@ -37,7 +37,7 @@ module Kredki
         def behavior
           super
 
-          on Item::PickEvent do
+          on Item::PickEvent do |it|
             item = it.target
             source = it.source
             if source.is_a? KeyEvent
@@ -47,7 +47,7 @@ module Kredki
                 if source.shift?
                   item.select! :not
                 else
-                  each_fd(Item).each_alter{ selected! it == item }
+                  each_fd(Item).each_alter{|it| selected! it == item }
                 end
               end
             else

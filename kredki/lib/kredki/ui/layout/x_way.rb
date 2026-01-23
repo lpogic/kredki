@@ -15,7 +15,7 @@ module Kredki
             when nil
               [w, 0, Float::INFINITY, 0]
             when Range
-              [w, wv = limit.begin&.then{ pad.get_wv(it, pclw, nil) } || 0, limit.end&.then{ pad.get_wv(it, pclw, nil) } || Float::INFINITY, wv]
+              [w, wv = limit.begin&.then{|it| pad.get_wv(it, pclw, nil) } || 0, limit.end&.then{|it| pad.get_wv(it, pclw, nil) } || Float::INFINITY, wv]
             else
               [w, 0, pad.get_wv(limit, pclw, nil), 0]
             end
@@ -24,7 +24,7 @@ module Kredki
             when nil
               [1r, 0, Float::INFINITY, 0]
             when Range
-              [1r, wv = limit.begin&.then{ pad.get_wv(it, pclw, nil) } || 0, limit.end&.then{ pad.get_wv(it, pclw, nil) } || Float::INFINITY, wv]
+              [1r, wv = limit.begin&.then{|it| pad.get_wv(it, pclw, nil) } || 0, limit.end&.then{|it| pad.get_wv(it, pclw, nil) } || Float::INFINITY, wv]
             else
               [1r, 0, pad.get_wv(limit, pclw, nil), 0]
             end
@@ -36,7 +36,7 @@ module Kredki
         def arrange pad
           clw = pad.clw
           clh = pad.clh
-          sp = pad.layout_pads.map{ get_span it, it.w, it.w_limit, clw }
+          sp = pad.layout_pads.map{|it| get_span it, it.w, it.w_limit, clw }
           measurement, sw = spans sp, clw, pad.mi || 0
  
           pad.layout_pads.zip measurement do |p1, m|
@@ -98,9 +98,9 @@ module Kredki
         end
 
         def get_wr p0, p0w, p1, r
-          index = p0.layout_pads.find_index{ it == p1 }
+          index = p0.layout_pads.find_index{|it| it == p1 }
           if index
-            sp = p0.layout_pads.map{ get_span it, it.w, it.w_limit, p0w }
+            sp = p0.layout_pads.map{|it| get_span it, it.w, it.w_limit, p0w }
             measurement, sw = spans sp, p0w, p0.mi || 0
             measurement[index]
           else
