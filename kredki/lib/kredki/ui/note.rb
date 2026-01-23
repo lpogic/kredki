@@ -159,7 +159,7 @@ module Kredki
         kb_top = keyboard_top?
         area.fill = kb_top ? color.darken : mouse_in? ? color.lighten : color
         area.outline_fill = kb_top ? :outline_focus : color
-        verse.selection.each_paint{ it.fill! kb_top ? :text_selection : :text_selection_inactive }
+        verse.selection.each_paint{|it| it.fill! kb_top ? :text_selection : :text_selection_inactive }
       end
     end
   end

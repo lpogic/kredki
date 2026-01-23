@@ -18,7 +18,7 @@ module Kredki
     attr :reactions
 
     def report event
-      @reactions.reverse_each{ it.call event }
+      @reactions.reverse_each{|it| it.call event }
     end
 
     def attach attached = nil, always: false, last: false, &block

@@ -45,7 +45,7 @@ KredkiProc = proc do
       module Extend
         extend Forwardable
 
-        (W.methods - Object.instance_methods).each do
+        (W.methods - Object.instance_methods).each do |it|
             def_delegator :W, it
         end
 

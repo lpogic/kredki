@@ -9,7 +9,11 @@
 #include "wg_window.h"
 #include "application.h"
 
-#define CABI __declspec(dllexport)
+#ifdef __WINDOWS__
+    #define CABI __declspec(dllexport)
+#else
+    #define CABI __attribute__((visibility("default")))
+#endif
 
 using namespace tvg;
 

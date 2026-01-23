@@ -15,7 +15,7 @@ module Kredki
 
       def polarize left, right
         both = []
-        right_only = right.reject{ both << it if left.include? it }
+        right_only = right.reject{|it| both << it if left.include? it }
         [left - both, both, right_only]
       end
 

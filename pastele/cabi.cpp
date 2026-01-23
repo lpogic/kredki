@@ -1,5 +1,6 @@
 #include <string>
 #include <algorithm>
+#include <cmath>
 #include <thorvg.h>
 #include "cabi.h"
 #ifdef THORVG_LOTTIE_LOADER_SUPPORT
@@ -297,8 +298,8 @@ CABI void paint_delete(Paint* self)
 
 CABI void paint_set_transform(Paint* self, float pivot_x, float pivot_y, float x, float y, float a, float mag_x, float fy) {
     auto m = self->transform();
-    auto s = sinf(a);
-    auto c = cosf(a);
+    auto s = sin(a);
+    auto c = cos(a);
     m.e11 = c * mag_x;
     m.e12 = -s * mag_x;
     m.e13 = x + pivot_x - m.e11 * pivot_x - m.e12 * pivot_y;

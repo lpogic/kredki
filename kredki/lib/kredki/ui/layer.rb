@@ -133,8 +133,8 @@ module Kredki
           keyboard_pads = keyboard_pad.pad_lineage.to_a.reverse
           enter, no_change, leave = *Util.polarize(keyboard_pads, @keyboard_pads)
           @keyboard_pads = keyboard_pads
-          leave.reverse_each{ it.report FocusLeaveEvent.new, false }
-          enter.reverse_each{ it.report FocusEnterEvent.new, false }
+          leave.reverse_each{|it| it.report FocusLeaveEvent.new, false }
+          enter.reverse_each{|it| it.report FocusEnterEvent.new, false }
         end
         @pressed_keys = {}
         true
@@ -174,8 +174,8 @@ module Kredki
         end
 
         enter, stay, leave = *Util.polarize(@mouse_pads, last_mouse_pads)
-        leave.reverse_each{ it.report MousePointerLeaveEvent.new(event), false }
-        enter.reverse_each{ it.report MousePointerEnterEvent.new(event), false }
+        leave.reverse_each{|it| it.report MousePointerLeaveEvent.new(event), false }
+        enter.reverse_each{|it| it.report MousePointerEnterEvent.new(event), false }
         @mouse_pads.last&.report event
         event
       end
@@ -185,7 +185,7 @@ module Kredki
           pads << self
           x -= @clip_scene.x
           y -= @clip_scene.y
-          return true if @pads.reverse_each.find{ it.point_pads x - it.sx, y - it.sy, pads }
+          return true if @pads.reverse_each.find{|it| it.point_pads x - it.sx, y - it.sy, pads }
         end
         return false
       end
@@ -194,7 +194,7 @@ module Kredki
         unless @mouse_pads.empty?
           mouse_pads = @mouse_pads
           @mouse_pads = []
-          mouse_pads.reverse_each{ it.report MousePointerLeaveEvent.new(nil, *xy), false }
+          mouse_pads.reverse_each{|it| it.report MousePointerLeaveEvent.new(nil, *xy), false }
         end
         @pin_data&.pad&.pin_dispose
       end

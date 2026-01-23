@@ -35,7 +35,7 @@ module Kredki
 
   module UI
     layout! nil, Layout::Align.new(:center, :center)
-    [:start, :center, :end].repeated_permutation 2 do
+    [:start, :center, :end].repeated_permutation 2 do |it|
       layout! "x#{it[0].to_s[0]}#{it[1].to_s[0]}".to_sym, Layout::XWay.new(*it)
       layout! "y#{it[0].to_s[0]}#{it[1].to_s[0]}".to_sym, Layout::YWay.new(*it)
       layout! "z#{it[0].to_s[0]}#{it[1].to_s[0]}".to_sym, Layout::Align.new(*it)
@@ -78,11 +78,11 @@ module Kredki
           .lazy
           .drop_while{|p1| p0 != p1 }
           .drop(1)
-          .filter{ it.keyboardy? && it.show? }
+          .filter{|it| it.keyboardy? && it.show? }
           .first
       end || each_pad(reverse: event.shift?, deep: true)
         .lazy
-        .filter{ it.keyboardy? && it.show? }
+        .filter{|it| it.keyboardy? && it.show? }
         .first
       next_pad.keyboard_request if next_pad
     end

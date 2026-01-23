@@ -62,6 +62,6 @@ end
 
 module Enumerable
   def each_alter ...
-    each{ it.alter(...) }
+    each{|it| it.alter(...) }
   end
 end

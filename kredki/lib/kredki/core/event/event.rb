@@ -5,7 +5,7 @@ module Kredki
     # Attach few events to identical reaction.
     def self.each *event_managers, do: nil, &block
       attached = block || binding.local_variable_get(:do)
-      event_managers.map{ it.attach attached }
+      event_managers.map{|it| it.attach attached }
     end
 
     # Make new event.

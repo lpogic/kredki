@@ -39,11 +39,11 @@ module Kredki
       case subject
       when Numeric
         if loop
-          self.loop do
+          self.loop do |it|
             it.break if block.call it.total_ms, subject
           end
         else
-          self.loop do
+          self.loop do |it|
             if it.total_ms > subject
               block.call subject, subject
               it.break
@@ -54,7 +54,7 @@ module Kredki
         end
 
       else
-        self.loop do
+        self.loop do |it|
           it.break if animation.step it.total_ms, loop, &block
         end
       end
