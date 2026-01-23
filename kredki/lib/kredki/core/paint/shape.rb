@@ -132,7 +132,7 @@ module Kredki
 
     # Set outline features.
     def outline! *a, **na
-      a.map do
+      a.map do |it|
         case it
         when Hash
           outline! **it

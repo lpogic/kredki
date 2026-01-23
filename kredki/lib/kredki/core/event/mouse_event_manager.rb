@@ -20,7 +20,7 @@ module Kredki
       when 1
         @managers[ids.first] ||= EventManager.new
       else
-        CompositeEventManager.new ids.map{ @managers[it] ||= EventManager.new }
+        CompositeEventManager.new ids.map{|it| @managers[it] ||= EventManager.new }
       end
     end
   end

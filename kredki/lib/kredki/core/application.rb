@@ -11,7 +11,7 @@ module Kredki
 
     # Get window.
     def window key = nil
-      (key ? @windows[key] : @main_window)&.then{ it.scene }
+      (key ? @windows[key] : @main_window)&.then{|it| it.scene }
     end
 
     # Start event loop.
@@ -122,7 +122,7 @@ module Kredki
       when 0x1000 # SDL_EVENT_DROP_FILE
         abi = Pastele::DropEvent.new event_ptr
         @drop_data << DropData.new(
-          abi.source.then{ it.null? ? nil : it.to_s.force_encoding("utf-8") },
+          abi.source.then{|it| it.null? ? nil : it.to_s.force_encoding("utf-8") },
           abi.data.to_s.force_encoding("utf-8"),
           :file,
         )
@@ -130,7 +130,7 @@ module Kredki
       when 0x1001 # SDL_EVENT_DROP_TEXT
         abi = Pastele::DropEvent.new event_ptr
         @drop_data << DropData.new(
-          abi.source.then{ it.null? ? nil : it.to_s.force_encoding("utf-8") },
+          abi.source.then{|it| it.null? ? nil : it.to_s.force_encoding("utf-8") },
           abi.data.to_s.force_encoding("utf-8"),
           :text,
         )
@@ -294,7 +294,7 @@ module Kredki
     end
 
     def application_event event, &post_process
-      @windows.values.each{ it.report event }
+      @windows.values.each{|it| it.report event }
       post_process&.call event
       event
     end

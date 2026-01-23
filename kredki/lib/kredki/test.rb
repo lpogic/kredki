@@ -6,7 +6,7 @@ module Kredki
   class Test < Minitest::Test
     extend Forwardable
 
-    (UI::Layer.instance_methods - Object.instance_methods).each do
+    (UI::Layer.instance_methods - Object.instance_methods).each do |it|
       def_delegator :@layer, it
     end
 

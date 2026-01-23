@@ -359,7 +359,7 @@ module Kredki
     end
 
     def sketch
-      on_resize{ @fill.wh = it.wh }
+      on_resize{|it| @fill.wh = it.wh }
       @fill.wh = *wh
       fill! 20, 70, 20
     end
@@ -397,7 +397,7 @@ module Kredki
     def tick event
       ms = event.timestamp / 1_000_000 - application.run_ms
       jobs, @jobs = @jobs, []
-      jobs.each{ @jobs << it if it.tick ms }
+      jobs.each{|it| @jobs << it if it.tick ms }
     end
 
     def build_context

@@ -85,7 +85,7 @@ module Kredki
       when :rand
         @fonts.values.sample or raise "No fonts loaded"
       when String
-        @fonts.each_value.find{ it.name == param || it.path == param } or raise "Unknown font #{param.inspect}"
+        @fonts.each_value.find{|it| it.name == param || it.path == param } or raise "Unknown font #{param.inspect}"
       else
         @fonts.itself[param] or raise "Unknown font #{param.inspect}"
       end

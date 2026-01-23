@@ -21,7 +21,7 @@ module Kredki
         BlockEventReaction.new attached, self, always
       else raise_ia attached
       end
-      @managers.each{ it.reactions << reaction }
+      @managers.each{|it| it.reactions << reaction }
       reaction
     end
 
@@ -31,7 +31,7 @@ module Kredki
     end
 
     def detach reaction
-      @managers.each{ it.detach reaction }
+      @managers.each{|it| it.detach reaction }
     end
   end
 end
