@@ -1,5 +1,3 @@
-require_relative 'text_pad'
-
 module Kredki
   module UI
     class Button < RectanglePad
@@ -85,7 +83,7 @@ module Kredki
         layout! :zcc
         wh! :fit
         suit! :gray
-        m! 3
+        m! 2
       end
 
       def presence
@@ -145,7 +143,7 @@ module Kredki
         new TextPad, "Button" do
           mousy! false
           h! :fit
-          verse_size! 24
+          verse_size! 20
           verse_layout! :ycc
         end
       end

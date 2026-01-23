@@ -1,7 +1,7 @@
 require 'kredki'
 
 define :star do |*a, run: nil, name: ""|
-  animation! "stuff/1643-exploding-star.json", wh: 1r do
+  animation! "#{Kredki.dir}/sample/stuff/1643-exploding-star.json", wh: 1r do
     job.animate self, true, &run
     text! name, fill: :white, verse_layout: :ycc
   end

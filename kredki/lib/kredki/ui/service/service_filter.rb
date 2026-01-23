@@ -3,45 +3,19 @@ module Kredki
     # Module to include in service parents.
     module ServiceFilter
 
-      # Get filtered descedants.
+      # Get descedants matching filters.
       def each_fd *filters, reverse: false, &block
         each_service deep: true, reverse:, filter: [*filters, block]
       end
 
-      # Get filtered children.
+      # Get children matching filters.
       def each_fc *filters, reverse: false, &block
         each_service deep: false, reverse:, filter: [*filters, block]
       end
 
-      # Get filtered ancestors.
+      # Get ancestors matching filters.
       def each_fa *filters, with_self: false, reverse: false, &block
         lineage(with_self).then{ reverse ? it.reverse_each : it }.filter{ it =~ filters and it =~ block }
-      end
-
-      def each_sb *filters, reverse: false, &block
-        found = false
-        detect = proc do
-          if found
-            !reverse
-          else
-            found = it == self
-            reverse
-          end
-        end
-        parent&.each_service(deep: false, reverse: !reverse, filter: [detect, *filters, block]) || []
-      end
-
-      def each_sn *filters, reverse: false, &block
-        found = false
-        detect = proc do
-          if found
-            !reverse
-          else
-            found = it == self
-            reverse
-          end
-        end
-        parent&.each_service(deep: false, reverse: reverse, filter: [detect, *filters, block]) || []
       end
 
       # Find descedant.
@@ -59,32 +33,6 @@ module Kredki
         each_fa(*filters, with_self:, reverse: last, &block).first
       end
 
-      def sb *filters, &block
-        found = false
-        detect = proc do
-          if found
-            !reverse
-          else
-            found = it == self
-            reverse
-          end
-        end
-        parent&.each_service(deep: false, filter: detect)&.first&.is *filters, &block
-      end
-
-      def sn *filters, &block
-        found = false
-        detect = proc do
-          if found
-            !reverse
-          else
-            found = it == self
-            reverse
-          end
-        end
-        parent&.each_service(deep: false, filter: detect)&.first&.is *filters, &block
-      end
-
       # Get whether parent match filters.
       def pa *filters, &block
         parent&.is *filters, &block
@@ -95,12 +43,12 @@ module Kredki
         self =~ filters && self =~ block ? self : false
       end
 
-      # Get whether not match all filter.
+      # Get whether not match all filters.
       def isnt *filters, &block
         filters.all?{ self !~ filters } && (!block || self !~ block ? self : false)
       end
       
-      # Iterate over subservices.
+      # Iterate over service descedants.
       def each_service enum = nil, reverse: false, deep: true, filter: nil
         if enum
           method = reverse ? :reverse_each : :each
@@ -122,7 +70,7 @@ module Kredki
         end
       end
 
-      # Iterate over subpads.
+      # Iterate over pad descedants.
       def each_pad enum = nil, reverse: false, deep: true
         if enum
           method = reverse ? :reverse_each : :each

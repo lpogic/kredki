@@ -1,6 +1,6 @@
 module Kredki
   module UI
-    class NavigableText < TextPad
+    class NavigableTextPad < TextPad
       
       # Set content.
       def content! content = @content, cursor_position = 0, &b
@@ -12,9 +12,9 @@ module Kredki
       end
 
       # Set font.
-      def font! font = @lines.first.text.font
+      def font! font = @verses.first.font
         return send_ahp :font!, yield(self.font) if block_given?
-        @lines.count{ _1.text.font! font }.nonzero?
+        @verses.count{ _1.font! font }.nonzero?
       end
       
       # See #font!.
@@ -24,7 +24,7 @@ module Kredki
 
       # Get font
       def font
-        @lines.first.text.font
+        @verses.first.text.font
       end
 
       # Get whether any text is selected.

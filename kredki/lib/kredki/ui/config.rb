@@ -6,12 +6,12 @@
 #   ...
 # This way 'custom_ui_config.rb' will be loaded instead of the current file.
 
+require_relative 'pad/space_pad'
+require_relative 'pad/picture_pad'
+require_relative 'pad/text_pad'
+require_relative 'pad/animation_pad'
 require_relative 'slide'
-require_relative 'scroll_pad'
-require_relative 'space_pad'
-require_relative 'picture_pad'
-require_relative 'text_pad'
-require_relative 'animation_pad'
+require_relative 'pad/scroll_pad'
 require_relative 'text/navigable_text'
 require_relative 'note'
 require_relative 'notes'
@@ -48,7 +48,7 @@ module Kredki
       define :picture!, PicturePad
       define :animation!, AnimationPad
       def text! *a, **na, &b
-        new NavigableText, :text!, *a, keyboardy: true, **na, &b
+        new NavigableTextPad, :text!, *a, keyboardy: true, **na, &b
       end
       define :xslide!, HorizontalSlide
       define :yslide!, VerticalSlide

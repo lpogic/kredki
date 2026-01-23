@@ -25,9 +25,10 @@ module Kredki
   require_relative "ui/layout/layout"
   require_relative 'ui/service/event_queue'
   require_relative 'ui/service/global_services'
-  require_relative 'ui/service/pad'
-  require_relative 'ui/service/sort_pad'
-  require_relative 'ui/service/rectangle_pad'
+  require_relative 'ui/service/service'
+  require_relative 'ui/pad/pad'
+  require_relative 'ui/pad/sort_pad'
+  require_relative 'ui/pad/rectangle_pad'
   require_relative 'ui/window_scene'
 end
 

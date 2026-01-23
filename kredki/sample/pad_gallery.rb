@@ -48,7 +48,7 @@ space! layout: :xss, m: 10, mi: 10 do
       end
     end
     scroll! wh: [1r, limit: :fit] do
-      picture! "stuff/test.png"
+      picture! "#{Kredki.dir}/stuff/test.png"
     end
   end
   space! layout: :yss, w: 1/2r, mi: 10 do
@@ -67,7 +67,7 @@ space! layout: :xss, m: 10, mi: 10 do
       item! "Radio 2"
       item! "Radio 3"
     end
-    animation! "stuff/1643-exploding-star.json", wh: [1r, limit: :ratio], x: :center do
+    animation! "#{Kredki.dir}/sample/stuff/1643-exploding-star.json", wh: [1r, limit: :ratio], x: :center do
       job.animate self, true
     end
   end

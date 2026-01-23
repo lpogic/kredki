@@ -262,14 +262,14 @@ module Kredki
       !!top
     end
 
-    # Get mouse cursor position relative to the window [0, 0].
+    # Get mouse pointer position relative to the window [0, 0].
     def mouse_xy
       x, y = Kredki.mouse.xy
       wx, wy = xy
       [x - wx, y - wy]
     end
 
-    # Set whether mouse cursor is confined to the window.
+    # Set whether mouse pointer is confined to the window.
     def mouse_grab! ...
       @scene.mouse_grab!(...)
     end
@@ -279,7 +279,7 @@ module Kredki
       send_ahp :mouse_grab!, value
     end
     
-    # Get whether mouse cursor is confined to the window.
+    # Get whether mouse pointer is confined to the window.
     def mouse_grab
       @scene.mouse_grab
     end
@@ -309,7 +309,7 @@ module Kredki
       !!mouse_relative
     end
 
-    # Get whether mouse cursor is in window.
+    # Get whether mouse pointer is in window.
     def mouse_in
       @scene.mouse_in
     end

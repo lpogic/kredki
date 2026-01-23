@@ -1,5 +1,3 @@
-require_relative '../text_pad'
-
 module Kredki
   module UI
     # Item group member.

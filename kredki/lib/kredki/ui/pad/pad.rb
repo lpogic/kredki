@@ -1,4 +1,3 @@
-require_relative 'service'
 require_relative 'pad_events'
 
 module Kredki
@@ -583,13 +582,13 @@ module Kredki
         @area.contain? x, y
       end
 
-      # Get whether mouse cursor is over Pad.
+      # Get whether mouse pointer is over Pad.
       def mouse_in?
         layer&.layer_check_mouse_in self or false
         # layer&.mouse_pad&.pad_lineage&.any?{ _1 == self } || false
       end
 
-      # Get whether mouse cursor is directly over Pad.
+      # Get whether mouse pointer is directly over Pad.
       def mouse_top?
         layer&.mouse_pad == self
       end
@@ -604,12 +603,12 @@ module Kredki
         layer&.keyboard_pad == self
       end
 
-      # Get whether mouse cursor is pinned to Pad.
+      # Get whether mouse pointer is pinned to Pad.
       def pin_in? button = nil
         layer&.pin_check self, button, false
       end
 
-      # Get whether mouse cursor is directly pinned to Pad.
+      # Get whether mouse pointer is directly pinned to Pad.
       def pin_top? button = nil
         layer&.pin_check self, button, true
       end

@@ -56,7 +56,7 @@ module Kredki
       def initialize
         super
 
-        @text = new NavigableText, h: 1r do
+        @text = new NavigableTextPad, h: 1r do
           cursor.w = 0
           mousy! false
         end

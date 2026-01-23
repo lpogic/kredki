@@ -12,10 +12,10 @@ module Kredki
       @total_ms
     end
 
-    # Break loop.
-    def break result = nil
-      @break = true
-      @result = result
+    # Release job.
+    def release result = nil
+      super
+      @released = true
     end
 
     # Run job.
@@ -33,6 +33,7 @@ module Kredki
       @host&.remove_job self
       @event_manager.report event || CancelEvent.new
       @host = nil
+      @result = nil
     end
 
     # :section: LEVEL 2
@@ -42,15 +43,14 @@ module Kredki
       @block = block
       @period = period
       @next_ms = 0
-      @break = false
-      @result = nil
+      @released = false
       @ms = nil
     end
 
     def tick ms
       dms = ms - @next_ms
       if dms >= 0
-        unless @break
+        unless @released
           @ms = dms + @period
           @total_ms += @ms
           if RunEvent === @event
@@ -64,8 +64,8 @@ module Kredki
             @next_ms += dms
           end
         end
-        if @break
-          @break = false
+        if @released
+          @released = false
           if RunEvent === @event
             @event_manager.report RunEvent.new @result, @event.source || nil, @host
           else

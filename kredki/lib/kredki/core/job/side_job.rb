@@ -9,9 +9,9 @@ module Kredki
       @event = event || RunEvent.new(nil, nil, self)
       @thread = Thread.new do
         if RunEvent === @event
-          @result = @block.call self, @event.source || @event, @event.result
+          @block.call self, @event.source || @event, @event.result
         else
-          @result = @block.call self, @event
+          @block.call self, @event
         end
       end
       @host.put_job self
@@ -26,19 +26,12 @@ module Kredki
       @host = nil
     end
 
-    # Break thread.
-    def break result = nil
-      @result = result
-      @thread&.kill
-    end
-
     # :section: LEVEL 2
 
     def initialize block
       super()
       @block = block
       @threat = nil
-      @result = nil
     end
 
     def tick ms

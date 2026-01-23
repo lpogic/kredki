@@ -83,8 +83,8 @@ module Kredki
           keyboardy!
           outline_w! 1
           layout! :zcc
-          wh! 20
-          m! 4
+          wh! 16
+          m! 3
           suit! :gray
         end
 

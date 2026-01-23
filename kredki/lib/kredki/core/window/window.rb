@@ -178,6 +178,7 @@ module Kredki
       
       Pastele.window_set_size @pointer, w, h
       na.each{ send_ahp "wh_#{_1}!", _2 }
+      report ResizeEvent.new w, h
       true
     end
 
@@ -279,14 +280,14 @@ module Kredki
       !!top
     end
 
-    # Get mouse cursor position relative to the window [0, 0].
+    # Get mouse pointer position relative to the window [0, 0].
     def mouse_xy
       x, y = Kredki.mouse.xy
       wx, wy = window.xy
       [x - wx, y - wy]
     end
 
-    # Set whether mouse cursor is confined to the window.
+    # Set whether mouse pointer is confined to the window.
     def mouse_grab! value = true
       return if (c = mouse_grab) == (value = block_given? ? yield(c) : value == :not ? !c : value)
       Pastele.window_set_mouse_mouse_grab @pointer, value ? 1 : 0
@@ -298,7 +299,7 @@ module Kredki
       mouse_grab! value
     end
     
-    # Get whether mouse cursor is confined to the window.
+    # Get whether mouse pointer is confined to the window.
     def mouse_grab
       Pastele.window_get_mouse_grab(@pointer) != 0
     end
@@ -330,7 +331,7 @@ module Kredki
       !!mouse_relative
     end
 
-    # Get whether mouse cursor is in window.
+    # Get whether mouse pointer is in window.
     def mouse_in
       @mouse_in.nil? ? Kredki.mouse.get_cursor_position != [0, 0] : @mouse_in
     end
@@ -392,7 +393,6 @@ module Kredki
 
     # Save window as PNG image.
     def to_png filepath
-      scene&.arrange
       Pastele.window_surface_to_png @pointer, File.expand_path(filepath)
     end
 

@@ -154,6 +154,7 @@ void Window::setResizable(bool resizable) {
 
 void Window::setSize(int w, int h) {
     SDL_SetWindowSize(sdl_window, w, h);
+    setNeedResize();
 }
 
 void Window::setTitle(char* title) {
@@ -193,6 +194,7 @@ int Window::getFlags() {
 }
 
 void Window::surfaceToPng(const char* file) {
+    needDraw = true;
     sync();
     auto surface = SDL_GetWindowSurface(sdl_window);
     if (!surface) return;

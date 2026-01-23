@@ -31,9 +31,8 @@ module Kredki
   color! :orange, "#f06000"
   color! :transparent, 0, 0, 0, 0
 
-  font! :arial, Kredki / "stuff/font/Arial.ttf"
-  font! :lato, Kredki / "stuff/font/Lato-Regular.ttf"
-  font! :dejavu, Kredki / "stuff/font/DejaVuSans.ttf"
+  font! :arial, "#{Kredki.dir}/stuff/font/Arial.ttf"
+  font! :courier_prime, "#{Kredki.dir}/stuff/font/Courier Prime.ttf"
 
   clipboard!
   keyboard! do

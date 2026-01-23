@@ -2,8 +2,8 @@ require_relative 'kernel-path'
 
 module Kredki
 
-  def self./ path
-    File.expand_path "../../../#{path}", __FILE__
+  def self.dir
+    File.expand_path "../../..", __FILE__
   end
 
   module Util
@@ -45,9 +45,9 @@ end
 
 
 if RUBY_PLATFORM =~ /cygwin|mswin|mingw|bccwin|wince|emx/
-  $kredki_sdl ||= Kredki / "stuff/dll/SDL3.dll"
-  $kredki_thorvg ||= Kredki / "stuff/dll/thorvg-1-1.dll"
-  $kredki_pastele ||= Kredki / "stuff/dll/pastele.dll"
+  $kredki_sdl ||= "#{Kredki.dir}/stuff/dll/SDL3.dll"
+  $kredki_thorvg ||= "#{Kredki.dir}/stuff/dll/thorvg-1-1.dll"
+  $kredki_pastele ||= "#{Kredki.dir}/stuff/dll/pastele.dll"
 elsif !$kredki_sdl || !$kredki_thorvg || !$kredki_pastele
   raise "No default shared libraries for #{RUBY_PLATFORM} found. Provide paths to custom ones in $kredki_sdl, $kredki_thorvg and $kredki_pastele before require 'kredki'"
 end

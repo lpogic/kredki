@@ -46,7 +46,7 @@ module Kredki
         super
 
         layout! :zcc
-        wh! 20
+        wh! 16
         m! 3
       end
 

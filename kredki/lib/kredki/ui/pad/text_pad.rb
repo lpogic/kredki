@@ -143,7 +143,7 @@ module Kredki
 
         wh! :fit
         verse_layout! :ysc
-        verse_size! 24
+        verse_size! 20
         content! "TEXT"
       end
 

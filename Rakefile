@@ -61,8 +61,6 @@ Minitest::TestTask.create(:test) do |t|
   t.libs << "kredki/lib"
   t.warning = false
   t.test_globs = ["kredki/test/**/*_test.rb"]
-  rm_rf "#{__dir__}/kredki/test/tmp"
-  mkdir "#{__dir__}/kredki/test/tmp"
 end
 
 def check_vars *vars, file: true
@@ -88,15 +86,15 @@ when /cygwin|mswin|mingw|bccwin|wince|emx/
 
     if generate
       File.write "rake-config.rb", <<~xx
-        $msbuild =  "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/MSBuild.exe"
+        $msbuild =  "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/MSBuild.exe" # MS Visual Studio build utility
         $vcvars =   "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Auxiliary/Build/vcvars64.bat"
-        $vcpkg =    "C:/Program Files/vcpkg/scripts/buildsystems/vcpkg.cmake"
-        $thorvg =   "C:/Users/user/Projects/thorvg" # thorvg project root folder
-        $sdl =      "C:/Users/user/Projects/SDL" # sdl project root folder
-        $make =     "cmake"
-        $meson =    "meson" # required for building thorvg
+        $vcpkg =    "C:/Program Files/vcpkg/scripts/buildsystems/vcpkg.cmake" (https://learn.microsoft.com/pl-pl/vcpkg/get_started/get-started?pivots=shell-powershell)
+        $thorvg =   "C:/Users/user/Projects/thorvg" # thorvg project root folder (git clone https://github.com/lpogic/thorvg.git -b thorvg-gui)
+        $sdl =      "C:/Users/user/Projects/SDL" # sdl project root folder (git clone https://github.com/libsdl-org/SDL.git --depth 1)
+        $make =     "cmake" # (https://cmake.org/download/)
+        $meson =    "meson" # required for building thorvg (https://mesonbuild.com/Getting-meson.html)
       xx
-      puts "rake-config.rb created succesfully. Edit it and call 'rake build' to update project binaries."
+      puts "rake-config.rb created succesfully. Customize it then call 'rake build' to update project binaries."
     end
   end
 

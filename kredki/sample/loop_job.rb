@@ -6,12 +6,12 @@ button! do |b|
   alter "Click me!" 
   on_click.loop do
     b.rot += it.ms * 0.008
-    it.break if rot >= Math::PI
+    it.release if rot >= Math::PI
   end.loop do
     b.rot -= it.ms * 0.005
     if rot <= 0
       rot! 0
-      it.break
+      it.release
     end
   end
 end

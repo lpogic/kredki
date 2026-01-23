@@ -1,5 +1,3 @@
-require_relative 'slide'
-
 module Kredki
   module UI
     # Pad with scrollable area.

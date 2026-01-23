@@ -28,16 +28,16 @@ module Kredki
       case subject
       when Numeric
         self.loop do
-          if it.total_ms > subject
-            block.call subject, subject
-            it.break
-          else
+          if it.total_ms < subject
             block.call it.total_ms, subject
+          else
+            block.call subject, subject
+            it.release
           end
         end
       else
         self.loop do
-          it.break if animation.step it.total_ms, loop, &block
+          it.release if animation.step it.total_ms, loop, &block
         end
       end
     end

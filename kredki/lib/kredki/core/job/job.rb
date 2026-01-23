@@ -40,22 +40,22 @@ module Kredki
       when Numeric
         if loop
           self.loop do
-            it.break if block.call it.total_ms, subject
+            it.release if block.call it.total_ms, subject
           end
         else
           self.loop do
-            if it.total_ms > subject
-              block.call subject, subject
-              it.break
-            else
+            if it.total_ms < subject
               block.call it.total_ms, subject
+            else
+              it.relase
+              block.call subject, subject
             end
           end
         end
 
       else
         self.loop do
-          it.break if animation.step it.total_ms, loop, &block
+          it.release if subject.step it.total_ms, loop, &block
         end
       end
     end
@@ -73,6 +73,11 @@ module Kredki
     # Get host.
     def host
       @host
+    end
+
+    # Release result.
+    def release result = nil
+      @result = result
     end
 
     # :section: LEVEL 2
@@ -95,6 +100,7 @@ module Kredki
       @event_manager = EventManager.new
       @host = nil
       @event = nil
+      @result = nil
     end
 
     def call event

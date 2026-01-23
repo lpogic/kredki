@@ -14,16 +14,22 @@ module Kredki
   # Event reported on resize.
   class ResizeEvent < PasteleEvent
     
+    def initialize w, h, ...
+      super(...)
+      @w = w
+      @h = h
+    end
+
     def w
-      @source.data1
+      @w
     end
 
     def h
-      @source.data2
+      @h
     end
 
     def wh
-      [@source.data1, @source.data2]
+      [@w, @h]
     end
 
     def param

@@ -2,7 +2,7 @@ require_relative 'text_edition'
 
 module Kredki
   module UI
-    class EditableTextVerses < NavigableText
+    class EditableTextVerses < NavigableTextPad
 
       # :section: LEVEL 2
 

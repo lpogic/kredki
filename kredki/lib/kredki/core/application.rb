@@ -168,7 +168,7 @@ module Kredki
         window_event abi.window_id, MoveEvent.new(abi)
       when 0x206
         abi = Pastele::WindowEvent.new event_ptr
-        window_event abi.window_id, ResizeEvent.new(abi)
+        window_event abi.window_id, ResizeEvent.new(abi.data1, abi.data1, abi)
       when 0x209
         abi = Pastele::WindowEvent.new event_ptr
         window_event abi.window_id, WindowMinimizeEvent.new(abi)

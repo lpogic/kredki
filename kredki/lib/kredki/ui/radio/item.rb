@@ -53,6 +53,7 @@ module Kredki
           h! :fit
           mi! 8
           layout! :xsc
+          
         end
       end
     end

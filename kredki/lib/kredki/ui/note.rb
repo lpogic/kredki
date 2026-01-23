@@ -121,7 +121,7 @@ module Kredki
       attr :verse
 
       def initialize_verse
-        @verse = new EditableTextVerse, "", wh: 1r, mousy: false, verse_size: 1r
+        @verse = new EditableTextVerse, "", w: 1r, mousy: false, verse_size: 20
       end
 
       def sketch
@@ -133,7 +133,7 @@ module Kredki
         outline_w! 1
         m! 2
         suit! :gray
-        h! 24
+        h! :fit
 
         sketch_verse
       end

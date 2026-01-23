@@ -35,6 +35,12 @@ module Kredki
         []
       end
 
+      # Save window as PNG image.
+      def to_png filepath
+        arrange
+        @scene.to_png filepath
+      end
+
       # :section: LEVEL 2
 
       def initialize
