@@ -1,5 +1,5 @@
 require 'forwardable'
-require_relative 'ui'
+require_relative 'pads'
 
 if defined? IRB
   require_relative 'irb'
@@ -32,7 +32,7 @@ else
   end
   extend Kredki::Extend
   include Kredki
-  include Kredki::UI
+  include Kredki::Pads
   extend Forwardable
 
   use! :exit_on_esc

@@ -2,7 +2,7 @@ require 'kredki'
 
 # Standard layouts overview.
 
-layouts = Kredki::UI.layout_map.keys
+layouts = Kredki::Pads.layout_map.keys
 
 pad! fill: :rand, wh: 140
 pad! fill: :rand, wh: 120

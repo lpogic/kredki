@@ -22,7 +22,7 @@ module Kredki
         self
       end
   
-      # Make bezier curve from crayon position to [+x+, +y+] with leading points [+cx1+, +cy1+] and [+cx2+, +cy2+]. Then set [+x+, +y+] as crayon position.
+      # Make bezier curve from crayon position to [+x+, +y+] with control points [+cx1+, +cy1+] and [+cx2+, +cy2+]. Then set [+x+, +y+] as crayon position.
       def curve! x, y, cx1, cy1, cx2, cy2
         Pastele.shape_cubic_to @shape.pointer, cx1, cy1, cx2, cy2, x, y
         @shape.update if @autoupdate

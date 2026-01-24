@@ -68,7 +68,7 @@ KredkiProc = proc do
     end
     extend Kredki::Extend
     include Kredki
-    include Kredki::UI
+    include Kredki::Pads
     extend Forwardable
 
     use! :exit_on_esc

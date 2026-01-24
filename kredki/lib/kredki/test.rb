@@ -1,4 +1,4 @@
-require_relative 'ui'
+require_relative 'pads'
 require 'minitest/autorun'
 require 'forwardable'
 
@@ -6,7 +6,7 @@ module Kredki
   class Test < Minitest::Test
     extend Forwardable
 
-    (UI::Layer.instance_methods - Object.instance_methods).each do |it|
+    (Pads::Layer.instance_methods - Object.instance_methods).each do |it|
       def_delegator :@layer, it
     end
 

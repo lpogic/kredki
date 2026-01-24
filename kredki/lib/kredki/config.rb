@@ -18,6 +18,7 @@ module Kredki
   color! nil, 211, 211, 211, 255
   color! false, 0, 0, 0, 0
   color! 0, 0, 0, 0, 0
+  color! :transparent, 0, 0, 0, 0
 
   color! :white, 255, 255, 255, 255
   color! :black, 0, 0, 0, 255
@@ -29,7 +30,7 @@ module Kredki
   color! :dark_gray, 88, 88, 88, 255
   color! :yellow, 150, 150, 0, 255
   color! :orange, "#f06000"
-  color! :transparent, 0, 0, 0, 0
+  color! :pink, 200, 50, 100, 255
 
   font! :arial, "#{Kredki.dir}/stuff/font/Arial.ttf"
   font! :courier_prime, "#{Kredki.dir}/stuff/font/Courier Prime.ttf"

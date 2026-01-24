@@ -1,27 +1,10 @@
 # Kredki
 
-A compact Ruby GUI toolkit.
-
-## Usage:
-
-```RUBY
-require 'kredki'
-
-layout! :xcc
-mi! 10
-
-note! "world", w: 100
-button! "Submit" do
-  on_click do
-    puts "Hello #{window.fd(:note!).content}!"
-    application.exit
-  end
-end
-```
+Create images, simulations, games and applications. All in Ruby. Have fun!
 
 ## Installation:
 
-Ruby 3.2.2 or newer is required.
+Ruby 3.3 or newer is required.
 
 ```SHELL
 gem install kredki
@@ -35,21 +18,51 @@ cd kredki
 rake install 
 ```
 
-## Basic usage:
+## Usage:
+
+<table><tr><th>
+Code
+</th><th>
+Output
+</th></tr><tr><td>
 
 ```RUBY
 require 'kredki'
 
-button! "Say hello" do
+window.wh! 400, 200
+
+ellipse! xy: 50, wh: 100, fill: :red
+rectangle! x: 150, y: 50, wh: 100, fill: :green
+shape! x: 250, y: 50, wh: 100, fill: :blue do |w, h|
+  xy! 0, h
+  line! w / 2, 0
+  line! w, h
+end
+```
+
+</td><td>
+<img src="./.github/shape.png">
+</td></tr><tr><td>
+
+```RUBY
+require 'kredki'
+
+window.wh! 400, 250
+layout! :xcc
+mi! 10
+
+label! "Enter name:"
+n = note! w: 100, content: "world"
+button! "Submit", suit: :orange do
   on_click do
-    puts "Hello world!"
+    puts "Hello #{n}!"
   end
 end
 ```
 
-- More examples
-- Manual
-- API documentation
+</td><td>
+<img src="./.github/hello.png">
+</td></tr></table>
 
 ## Essential rake tasks:
 ```
@@ -58,10 +71,11 @@ rake config         # Generate config template
 rake irb            # Run interactive session
 rake rdoc           # Build RDoc HTML files
 rake run            # [DEFAULT] Run sketch
-rake sdl:build      # Build sdl
 rake test           # Run the test suite
-rake thorvg:build   # Build thorvg
 ```
+
+## Notes
+
 
 ## Contact
 

@@ -359,7 +359,7 @@ module Kredki
     end
 
     def sketch
-      on_resize{|it| @fill.wh = it.wh }
+      on_resize{|it| p it.wh; @fill.wh = it.wh }
       @fill.wh = *wh
       fill! 20, 70, 20
     end
