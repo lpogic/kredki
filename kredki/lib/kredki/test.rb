@@ -11,7 +11,7 @@ module Kredki
     end
 
     def define ...
-      def_delegator :@layer, GlobalServices.define(...)
+      def_delegator :@layer, Pads.define(...)
     end
 
     def setup

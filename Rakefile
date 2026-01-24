@@ -35,14 +35,13 @@ task :sample, [:path] do |task, args|
         true
       end
     end
-  elsif args[:path]
+  else
     $LOAD_PATH << File.expand_path(".")
     $LOAD_PATH << File.expand_path("kredki/lib")
     chdir "kredki/sample"
-    require_relative "kredki/sample/#{args[:path]}"
-  else
-    chdir "kredki/sample"
-    system "rake sample[#{Dir["*.rb"].sample}]"
+    sample = "kredki/sample/#{args[:path] || "metasample"}"
+    puts "Running: #{sample}"
+    require_relative sample
   end
 end
 

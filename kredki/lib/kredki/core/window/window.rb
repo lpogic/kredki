@@ -380,7 +380,7 @@ module Kredki
     end
 
     # Hide window and free its memory.
-    def close!
+    def close
       hide!
       @application&.remove_window self
     end

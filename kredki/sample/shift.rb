@@ -1,28 +1,30 @@
 require 'kredki'
 
-def step1
+define :step1 do
+  fill! :yellow
+
   button! "Next" do
     on_click do
-      window.shift!{ step2 }
+      window.shift{ step2 }
     end
   end
 end
 
-def step2
+define :step2 do
   layout! :xcc
   mi! 10
   
   button! "Back" do
     on_click do
-      window.shift!{ step1 }
+      window.shift{ step1 }
     end
   end
 
   button! "Good bye!" do
     on_click do
-      application.exit
+      window.close
     end
   end
 end
 
-window.shift!{ step1 }
+window.shift{ step1 }

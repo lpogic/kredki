@@ -1,3 +1,4 @@
+require 'weakref'
 require_relative 'service_event_manager'
 require_relative 'service_inherited'
 require_relative 'service_filter'
@@ -7,13 +8,16 @@ module Kredki
     # Base class of Pads tree nodes.
     class Service
       extend ServiceInherited
-      include GlobalServices
+      include Pads
       include ServiceFilter
 
       # Set whether Pad is tagged with +tag+.
       def tag! tag, set = true
         return tag! tag, (yield(self.tag tag)) if block_given?
         @tags[tag] = set
+        if tag.start_with? "$"
+          eval "#{tag} = WeakRef.new self"
+        end
         if plugin = Kredki.plugin(tag)
           if set
             instance_exec &plugin
@@ -31,11 +35,6 @@ module Kredki
       # Get whether Pad is tagged with +tag+ _or_ all tags if +tag+ is +nil+.
       def tag tag = nil
         tag ? @tags[tag] : @tags.keys
-      end
-
-      # Get static pads container.
-      def the
-        window.the
       end
 
       # Get ancestors.

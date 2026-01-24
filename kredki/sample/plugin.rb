@@ -1,6 +1,6 @@
 require 'kredki'
 
-plugin! :mouse_in_scale do
+Kredki.plugin! :mouse_in_scale do
   on_mouse_enter.animate(500){|ms, d| mag! 1 + Util.sin01(ms, d * 2) / d / 8 }
   on_mouse_leave.animate(500){|ms, d| mag! 1 + Util.sin01(ms + d * 2, d * 2) / d / 8 }
 end

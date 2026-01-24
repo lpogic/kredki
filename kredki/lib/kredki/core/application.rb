@@ -204,7 +204,7 @@ module Kredki
         abi = Pastele::WindowEvent.new event_ptr
         window_event abi.window_id, WindowCloseEvent.new(abi) do |event|
           unless event.closed?
-            @windows[abi.window_id]&.close!
+            @windows[abi.window_id]&.close
             event.close
           end
         end

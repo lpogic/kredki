@@ -17,6 +17,12 @@ module Kredki
       @host.put_job self
     end
 
+    # Report some partial result.
+    def report &block
+      @host.job &block
+      nil # creating job tree in SideJob is not thread safe - do it in AfterJob block
+    end
+
     # Cancel job and all subjobs.
     def cancel event = nil
       @thread&.kill

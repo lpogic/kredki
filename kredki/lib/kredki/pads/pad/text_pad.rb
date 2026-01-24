@@ -8,9 +8,10 @@ module Kredki
         return send_ahp :content!, yield(self.content) if block_given?
         return if @content == content
         @content = content
+        font = @verses.first&.font || Kredki.font
         @verses&.each{|it| it.detach }
         @verses = "#{content}\n".each_line(chomp: true).map do |line|
-          @scene.text! line.chomp, fill: @area.fill
+          @scene.text! line.chomp, fill: @area.fill, font: font
         end
         arrange_verses
         layer&.break_layout

@@ -67,7 +67,8 @@ space! layout: :xss, m: 10, mi: 10 do
       item! "Radio 2"
       item! "Radio 3"
     end
-    animation! "#{Kredki.dir}/sample/stuff/1643-exploding-star.json", wh: [1r, limit: :ratio], x: :center do
+    exploding_star = "#{Kredki.dir}/sample/stuff/1643-exploding-star.json"
+    animation! exploding_star, wh: [1r, limit: :ratio], x: :center do
       job.animate self, true
     end
   end

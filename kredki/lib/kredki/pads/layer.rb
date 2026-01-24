@@ -21,7 +21,7 @@ module Kredki
 
       # Extend API at runtime.
       def define ...
-        GlobalServices.define(...)
+        Pads.define(...)
       end
 
       # :section: LEVEL 2

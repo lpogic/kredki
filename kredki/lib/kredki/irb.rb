@@ -58,7 +58,7 @@ KredkiProc = proc do
         end
   
         def define ...
-          def_delegator :W, GlobalServices.define(...)
+          def_delegator :W, Pads.define(...)
         end
   
         def plugin! ...

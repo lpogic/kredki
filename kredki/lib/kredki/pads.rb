@@ -1,7 +1,10 @@
 require_relative 'module'
+require_relative 'pads/service/service_inherited'
 
 module Kredki
   module Pads
+    extend ServiceInherited
+
     class << self
       attr_accessor :layout_map
 
@@ -24,7 +27,6 @@ module Kredki
 
   require_relative "pads/layout/layout"
   require_relative 'pads/service/event_queue'
-  require_relative 'pads/service/global_services'
   require_relative 'pads/service/service'
   require_relative 'pads/pad/pad'
   require_relative 'pads/pad/sort_pad'

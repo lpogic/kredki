@@ -1,5 +1,5 @@
 require 'kredki'
-
+p self
 layout! :xss # how pads are positioned by default
 mi! 10 # distance between pads
 

@@ -41,46 +41,44 @@ module Kredki
       layout! "z#{it[0].to_s[0]}#{it[1].to_s[0]}".to_sym, Layout::Align.new(*it)
     end
 
-    module GlobalServices
-      define :rectangle!, RectanglePad
-      def ellipse! ...
-        new(ShapePad, __method__, ...).alter do
-          area! do |w, h|
-            ellipse! w, h
-          end
+    define :rectangle!, RectanglePad
+    def ellipse! ...
+      new(ShapePad, __method__, ...).alter do
+        area! do |w, h|
+          ellipse! w, h
         end
       end
-      def shape! *a, **na, &b
-        new ShapePad, __method__, *a, **na do
-          area! &b
-        end
+    end
+    def shape! *a, **na, &b
+      new ShapePad, __method__, *a, **na do
+        area! &b
       end
+    end
 
-      define :pad!, RectanglePad
-      define :space!, SpacePad
-      define :scroll!, ScrollPad
-      define :picture!, PicturePad
-      define :animation!, AnimationPad
-      def text! *a, **na, &b
-        new NavigableTextPad, __method__, *a, keyboardy: true, **na, &b
-      end
-      define :xslide!, HorizontalSlide
-      define :yslide!, VerticalSlide
-      define :button!, Button
-      define :check!, Check
-      define :note!, Note
-      define :notes!, Notes
-      define :label!, Label
-      define :option!, Option
-      define :table!, Table::Pad
-      define :list!, List::Pad
-      define :tree!, Tree::Pad
+    define :pad!, RectanglePad
+    define :space!, SpacePad
+    define :scroll!, ScrollPad
+    define :picture!, PicturePad
+    define :animation!, AnimationPad
+    def text! *a, **na, &b
+      new NavigableTextPad, __method__, *a, keyboardy: true, **na, &b
+    end
+    define :xslide!, HorizontalSlide
+    define :yslide!, VerticalSlide
+    define :button!, Button
+    define :check!, Check
+    define :note!, Note
+    define :notes!, Notes
+    define :label!, Label
+    define :option!, Option
+    define :table!, Table::Pad
+    define :list!, List::Pad
+    define :tree!, Tree::Pad
 
-      define :radio!, Radio::Group
-      define :context!, Context::Menu
-      define :toolbar!, Toolbar::Pad
+    define :radio!, Radio::Group
+    define :context!, Context::Menu
+    define :toolbar!, Toolbar::Pad
 
-    end#GlobalServices
   end#Pads
 
   Window.default_scene = Pads::WindowScene

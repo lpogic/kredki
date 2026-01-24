@@ -9,11 +9,11 @@ pad! fill: :rand, wh: 120
 pad! fill: :rand, wh: 100
 l = layer
 
-def button_text_input layout
+define :button_text_input do |layout|
   "Click here to change layout\nCurrent layout: #{layout ? ":#{layout}" : "nil"}"
 end
 
-layer! do
+window.layer! do
   button! do
     text! button_text_input(layouts.first)
 

@@ -1,6 +1,5 @@
 require_relative 'window_scene_event_manager'
 require_relative 'window_scene_events'
-require_relative 'the'
 
 module Kredki
   # Root element of Paint tree.
@@ -15,7 +14,7 @@ module Kredki
     end
 
     # Shift from current scene to another.
-    def shift! ...
+    def shift ...
       @scene.scene!(...)
     end
 
@@ -27,11 +26,6 @@ module Kredki
     # Get Kredki::Application ancestor.
     def application
       @scene&.application
-    end
-
-    # Get static object container.
-    def the
-      @the
     end
 
     # Set background fill.
@@ -75,6 +69,11 @@ module Kredki
     # Request that the size and position of a minimized or maximized window be restored.
     def restore!
       @scene.restore!
+    end
+
+    # Hide window and free its memory.
+    def close
+      @scene.close
     end
 
     # Set whether the window has an outline.
@@ -336,7 +335,7 @@ module Kredki
 
     # Create new job tree.
     def job run = true, &block
-      job = AfterJob.new nil, block, 0
+      job = AfterJob.new block, 0
       job.run self if run
       job
     end
@@ -346,12 +345,13 @@ module Kredki
     def initialize
       super
 
-      @jobs = []
+      @jobs = {}
+      @jobs_mutex = Thread::Mutex.new
       @event_manager = WindowSceneEventManager.new
       @fill = rectangle! xy: 0
-      @the = The.new self
 
       on_tick do: method(:tick)
+      on_close{ @jobs.each_key{|it| it.cancel } }
     end
 
     def update_paint paint
@@ -379,15 +379,19 @@ module Kredki
     end
 
     def put_job job
-      @jobs << job unless @jobs.include? job
+      @jobs_mutex.synchronize do
+        @jobs[job] = nil
+      end
     end
 
     def remove_job job
-      @jobs.delete job
+      @jobs_mutex.synchronize do
+        @jobs.delete job
+      end
     end
 
     def jobs
-      @jobs
+      @jobs.each
     end
 
     def report event, early = false
@@ -396,8 +400,8 @@ module Kredki
 
     def tick event
       ms = event.timestamp / 1_000_000 - application.run_ms
-      jobs, @jobs = @jobs, []
-      jobs.each{|it| @jobs << it if it.tick ms }
+      jobs = {**@jobs}
+      jobs.each_key{|it| remove_job it unless it.tick ms }
     end
 
     def build_context

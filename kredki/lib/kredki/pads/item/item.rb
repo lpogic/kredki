@@ -54,6 +54,8 @@ module Kredki
         case feature
         when String
           fc(TextPad)&.alter feature or new TextPad, feature, mousy: false
+          subject! feature
+          self
         else
           super
         end

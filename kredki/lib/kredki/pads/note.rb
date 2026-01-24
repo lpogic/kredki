@@ -44,7 +44,7 @@ module Kredki
 
       # Set verse features.
       def verse! ...
-        @verse.verse!(...)
+        send_branch(:verse, ...)
       end
 
       # See #verse!.
@@ -65,6 +65,21 @@ module Kredki
       # Get verse size.
       def verse_size
         @verse.verse_size
+      end
+
+      # Set verse font.
+      def verse_font! ...
+        @verse.font!(...)
+      end
+
+      # See #verse_font!.
+      def verse_font= param
+        send_ahp :verse_font!, param
+      end
+
+      # Get verse font.
+      def verse_font
+        @verse.font
       end
 
       # Set verse layout.

@@ -126,7 +126,7 @@ module Kredki
 
       # :section: LEVEL 2
       
-      def initialize w, h, x, y, ...
+      def initialize w, h, ...
         super(...)
         @w = w
         @h = h

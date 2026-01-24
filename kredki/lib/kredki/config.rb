@@ -182,7 +182,7 @@ module Kredki
 
   plugin! :close_on_esc do
     on_key_press :escape do |event|
-      window.close!
+      window.close
     end
   end
 

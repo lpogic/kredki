@@ -12,7 +12,8 @@ layout! :yss
 space! wh: 1r, layout: :xss do
   star name: "loop"
   star name: "back\nloop", run: proc{ _2 - _1 % _2 }
-  star name: "bounce\nloop", run: proc{|ms, d| d2 = d * 2; rem = ms % d2; rem > d ? d2 - rem : rem }
+  bounce = proc{|ms, d| d2 = d * 2; rem = ms % d2; rem > d ? d2 - rem : rem }
+  star name: "bounce\nloop", run: bounce
 end
 space! wh: 1r, layout: :xss do
   star name: "sin", run: proc{|ms, d| Kredki::Util.sin01 ms, d }
