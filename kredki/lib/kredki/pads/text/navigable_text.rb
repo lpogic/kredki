@@ -147,7 +147,7 @@ module Kredki
         super + @cursor.w * 2
       end
 
-      def set_size w, h # works until set_size is called before get_x/get_y
+      def set_size w, h # set_size must be called before get_x/get_y
         super
         update_cursor if @cursor.show?
       end
@@ -222,6 +222,31 @@ module Kredki
           end
         end
         true
+      end
+
+      def scroll x, y
+        if @verses.size > 0
+          w, h = swh
+
+          sx = if x == 0
+            @scene.x
+          else
+            tw = fit_w
+            x0 = align_x tw, w
+            tw > w ? (@scene.x + x * w).clamp(w - tw - x0..-x0) : @scene.x
+          end
+
+          sy = if y == 0
+            @scene.y
+          else
+            size, space = verse_metrics h
+            th = (size + space) * @verses.size - space
+            y0 = align_y th, h
+            th > h ? (@scene.y + y * h).clamp(h - th - y0..-y0) : @scene.y
+          end
+
+          @scene.xy! sx, sy
+        end
       end
 
       def update_cursor

@@ -3,7 +3,7 @@ require 'fiddle/import'
 module Kredki
   module Pastele
     extend Fiddle::Importer
-    if $kredki_spec
+    if Setup.unit_test_mode
       class << self
         alias_method :o_extern, :extern
 
@@ -29,11 +29,12 @@ module Kredki
 
     current_lib = nil
     begin
-      dlload (current_lib = $kredki_sdl || raise("$kredki_sdl not configured"))
-      dlload (current_lib = $kredki_thorvg || raise("$kredki_thorvg not configured"))
-      dlload (current_lib = $kredki_pastele || raise("$kredki_pastele not configured"))
+      dlload (current_lib = Setup.sdl || raise("SDL shared library setup is missing"))
+      dlload (current_lib = Setup.thorvg || raise("ThorVG shared library setup is missing"))
+      dlload (current_lib = Setup.pastele || raise("Pastele shared library setup is missing"))
+
     rescue LoadError
-      raise LoadError, "Could not find '#{current_lib}' shared library"
+      raise LoadError, "Could not load #{current_lib}"
     rescue Fiddle::DLError
       raise Fiddle::DLError, current_lib
     end

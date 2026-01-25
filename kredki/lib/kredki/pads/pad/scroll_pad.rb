@@ -33,19 +33,29 @@ module Kredki
         on_mouse_scroll do |e|
           ps = layout_pads
           if !ps.empty?
-            jump = Kredki.keyboard.alt? ? Kredki.mouse.wheel_alt_speed : Kredki.mouse.wheel_speed
-            xjump = 1.0 * p0.sw / @lw * jump
-            yjump = 1.0 * p0.sh / @lh * jump
-            xo, yo = if p0.sw < @lw && p0.sh < @lh
-              Kredki.keyboard.shift? ? [e.y, e.x] : e.xy
-            elsif p0.sw < @lw
-              Kredki.keyboard.shift? ? [e.yorx, 0] : [e.xory, 0]
-            elsif p0.sh < @lh
-              Kredki.keyboard.shift? ? [0, e.xory] : [0, e.yorx]
+            w, h = p0.swh
+            xo, yo = if w < @lw && h < @lh
+              window.relative_scroll *e.xy
+            elsif w < @lw
+              [window.relative_scroll(*e.xy).find{|it| it.nonzero? }, 0]
+            elsif h < @lh
+              [0, window.relative_scroll(*e.xy).find{|it| it.nonzero? }]
             else
               [0, 0]
             end
-            e.close if @xslide.value!{|it| (it - xo * xjump).clamp(0..1) } | @yslide.value!{|it| (it - yo * yjump).clamp(0..1) }
+            if @xslide.value!{|it| (it - xo * w / @lw).clamp(0..1) } | 
+              @yslide.value!{|it| (it - yo * h / @lh).clamp(0..1) }
+            then
+              e.close
+            end
+          end
+        end
+
+        on_mouse_move do |e|
+          if e.drag
+            @xslide.process_drag e, -1
+            @yslide.process_drag e, -1
+            e.close
           end
         end
 

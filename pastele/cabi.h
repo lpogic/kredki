@@ -9,7 +9,7 @@
 #include "wg_window.h"
 #include "application.h"
 
-#ifdef __WINDOWS__
+#ifdef _WIN32
     #define CABI __declspec(dllexport)
 #else
     #define CABI __attribute__((visibility("default")))
@@ -94,7 +94,8 @@ CABI void application_set_event_handler(pastele::Application* self, int(*eventHa
 CABI void application_run(pastele::Application* self);
 CABI void application_exit(pastele::Application* self);
 
-CABI void* window_new(int width, int height);
+CABI void* window_new_sw(int width, int height);
+CABI void* window_new_gl(int width, int height);
 CABI void window_delete(pastele::Window* self);
 CABI void window_update(pastele::Window* self);
 CABI void window_show(pastele::Window* self);
@@ -188,7 +189,7 @@ CABI void picture_set_size(Picture* self, float w, float h);
 CABI void picture_get_size(Picture* self, Point* size);
 CABI void* scene_new(void);
 CABI void scene_delete(Scene* self);
-CABI void scene_push(Scene* self, Paint* paint, Paint* at);
+CABI void scene_add(Scene* self, Paint* paint, Paint* at);
 CABI void scene_remove(Scene* self, Paint* paint);
 CABI void* text_new(void);
 CABI void text_delete(Text* self);

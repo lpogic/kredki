@@ -37,7 +37,7 @@ void GlWindow::resize()
     SDL_GetWindowSize(sdl_window, &width, &height);
 
     canvas->sync();
-    verify(canvas->target(context, 0, width, height, tvg::ColorSpace::ABGR8888S));
+    verify(canvas->target(nullptr, nullptr, context, 0, width, height, tvg::ColorSpace::ABGR8888S));
     canvas->update();
 }
 

@@ -85,12 +85,12 @@ when /cygwin|mswin|mingw|bccwin|wince|emx/
 
     if generate
       File.write "rake-config.rb", <<~xx
+        $make =     "cmake" # (https://cmake.org/download/)
         $msbuild =  "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/MSBuild.exe" # MS Visual Studio build utility
         $vcvars =   "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Auxiliary/Build/vcvars64.bat"
         $vcpkg =    "C:/Program Files/vcpkg/scripts/buildsystems/vcpkg.cmake" (https://learn.microsoft.com/pl-pl/vcpkg/get_started/get-started?pivots=shell-powershell)
-        $thorvg =   "C:/Users/user/Projects/thorvg" # thorvg project root folder (git clone https://github.com/lpogic/thorvg.git -b thorvg-gui)
         $sdl =      "C:/Users/user/Projects/SDL" # sdl project root folder (git clone https://github.com/libsdl-org/SDL.git --depth 1)
-        $make =     "cmake" # (https://cmake.org/download/)
+        $thorvg =   "C:/Users/user/Projects/thorvg" # thorvg project root folder (git clone https://github.com/lpogic/thorvg.git -b thorvg-gui)
         $meson =    "meson" # required for building thorvg (https://mesonbuild.com/Getting-meson.html)
       xx
       puts "rake-config.rb created succesfully. Customize it then call 'rake build' to update project binaries."
@@ -116,7 +116,7 @@ when /cygwin|mswin|mingw|bccwin|wince|emx/
         system $vcvars
         rm_rf "builddir"
         sh "#$meson setup builddir --backend vs " + {
-          engines: "['sw']",
+          engines: "['sw','gl']",
           loaders: "all",
           savers: "all",
           simd: false,
@@ -132,8 +132,8 @@ when /cygwin|mswin|mingw|bccwin|wince|emx/
   
     task :import do
       check_vars :$thorvg
-      target = "kredki/stuff/dll/thorvg-1-1.dll"
-      source = "#$thorvg/builddir/src/thorvg-1-1.dll"
+      target = "kredki/stuff/dll/thorvg-1.dll"
+      source = "#$thorvg/builddir/src/thorvg-1.dll"
       cp source, target
     end
   end
@@ -256,9 +256,9 @@ when /linux/
 
     if generate
       File.write "rake-config.rb", <<~xx
-        $thorvg =   "/home/user/thorvg" # thorvg project root folder
+        $make =     "cmake"        
         $sdl =      "/home/user/SDL" # sdl project root folder
-        $make =     "cmake"
+        $thorvg =   "/home/user/thorvg" # thorvg project root folder
         $meson =    "meson" # for thorvg building
         $ninja =    "ninja" # for thorvg building
       xx

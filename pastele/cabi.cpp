@@ -88,18 +88,12 @@ CABI void application_exit(pastele::Application* self) {
 }
 
 
-CABI void* window_new(int width, int height) {
-    // tvg::CanvasEngine engine = tvg::CanvasEngine::Sw;
-    // switch(engine) {
-    //     case tvg::CanvasEngine::Gl:
-    //         return new pastele::GlWindow(width, height);
-    //     case tvg::CanvasEngine::Wg:
-    //         return new pastele::WgWindow(width, height);
-    //     case tvg::CanvasEngine::Sw:
-    //     default:
-    //         return new pastele::SwWindow(width, height);
-    // }
+CABI void* window_new_sw(int width, int height) {
     return new pastele::SwWindow(width, height);
+}
+
+CABI void* window_new_gl(int width, int height) {
+    return new pastele::GlWindow(width, height);
 }
 
 CABI void window_delete(pastele::Window* self) {
@@ -241,10 +235,10 @@ CABI void window_surface_to_png(pastele::Window* self, const char* file) {
 CABI void window_get_display_bounds(pastele::Window* self, Bounds* bounds) {
     SDL_Rect rect;
     self->getDisplayBounds(&rect);
-    bounds->x = rect.x;
-    bounds->y = rect.y;
-    bounds->w = rect.w;
-    bounds->h = rect.h;
+    bounds->x = (float)rect.x;
+    bounds->y = (float)rect.y;
+    bounds->w = (float)rect.w;
+    bounds->h = (float)rect.h;
 }
 
 /************************************************************************/
@@ -704,8 +698,8 @@ CABI void scene_delete(Scene* self) {
     SDL_PushEvent(&event);
 }
 
-CABI void scene_push(Scene* self, Paint* paint, Paint* at) {
-    self->push(paint, at);
+CABI void scene_add(Scene* self, Paint* paint, Paint* at) {
+    self->add(paint, at);
 }
 
 CABI void scene_remove(Scene* self, Paint* paint) {

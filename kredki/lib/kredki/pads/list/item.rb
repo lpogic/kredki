@@ -103,7 +103,7 @@ module Kredki
         end
 
         def mouse_press e
-          parent.selected_up_to self if Kredki.keyboard.then{|it| it.shift? && !it.ctrl? }
+          parent.selected_up_to self if Kredki.keyboard.mod_pass? shift: true
           super
         end
 

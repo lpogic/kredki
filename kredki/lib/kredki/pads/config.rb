@@ -1,7 +1,8 @@
 # This is pads config loaded by default.
 #
-# If you don't want to load the default configuration, you can set the path to your own in the global variable $kredki_pads_config before require 'kredki':
-#   $kredki_pads_config = './cutom_pads_config.rb'
+# If you don't want to load the default configuration, you can set the path to your own in Kredki::Setup:
+#   require 'kredki/setup'
+#   Kredki::Setup.pads_config = './cutom_pads_config.rb'
 #   require 'kredki'
 #   ...
 # This way 'custom_pads_config.rb' will be loaded instead of the current file.

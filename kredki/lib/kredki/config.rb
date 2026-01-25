@@ -9,8 +9,9 @@
 #     end
 #   end
 #
-# If you don't want to load the default configuration, you can set the path to your own in the global variable $kredki_config before require 'kredki':
-#   $kredki_config = './cutom_config.rb'
+# If you don't want to load the default configuration, you can set the path to your own in Kredki::Setup:
+#   require 'kredki/setup'
+#   Kredki::Setup.config = './cutom_config.rb'
 #   require 'kredki'
 # This way 'custom_config.rb' will be loaded instead of the current file.
 
@@ -154,8 +155,8 @@ module Kredki
     button! :secondary, 3
     button! :scroll, 2
   
-    wheel_speed! 0.3
-    wheel_alt_speed! 0.06
+    scroll_speed! 0.3
+    scroll_speed_alt! 0.06
   end
 
   joystick! do

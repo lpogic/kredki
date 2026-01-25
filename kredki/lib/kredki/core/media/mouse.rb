@@ -34,37 +34,37 @@ module Kredki
     end
 
     # Set wheel speed.
-    def wheel_speed! speed = @wheel_speed
-      return wheel_speed! yield @wheel_speed if block_given?
-      @wheel_speed = speed
+    def scroll_speed! speed = @scroll_speed
+      return scroll_speed! yield @scroll_speed if block_given?
+      @scroll_speed = speed
       true
     end
 
-    # See #wheel_speed!.
-    def wheel_speed= param
-      wheel_speed! param
+    # See #scroll_speed!.
+    def scroll_speed= param
+      scroll_speed! param
     end
 
     # Get wheel speed.
-    def wheel_speed
-      @wheel_speed
+    def scroll_speed
+      @scroll_speed
     end
 
     # Set alternative wheel speed.
-    def wheel_alt_speed! speed = @wheel_alt_speed
-      return wheel_alt_speed! yield @wheel_alt_speed if block_given?
-      @wheel_alt_speed = speed
+    def scroll_speed_alt! speed = @scroll_speed_alt
+      return scroll_speed_alt! yield @scroll_speed_alt if block_given?
+      @scroll_speed_alt = speed
       true
     end
 
-    # See #wheel_alt_speed!.
-    def wheel_alt_speed= param
-      wheel_alt_speed! param
+    # See #scroll_speed_alt!.
+    def scroll_speed_alt= param
+      scroll_speed_alt! param
     end
 
     # Get alternative wheel speed.
-    def wheel_alt_speed
-      @wheel_alt_speed
+    def scroll_speed_alt
+      @scroll_speed_alt
     end
 
     # Set button.
@@ -122,8 +122,8 @@ module Kredki
     def initialize
       @button_map = {}
       @buttoncode_map = {}
-      @wheel_speed = 0.3
-      @wheel_alt_speed = 0.06
+      @scroll_speed = 0.3
+      @scroll_speed_alt = 0.06
     end
 
     def wheel_scroll_event pastele_event

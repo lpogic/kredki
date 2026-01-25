@@ -333,11 +333,19 @@ module Kredki
       @scene.to_png filepath
     end
 
-    # Create new job tree.
+    # Create new job.
     def job run = true, &block
       job = AfterJob.new block, 0
       job.run self if run
       job
+    end
+
+    def relative_scroll x, y
+      mouse = Kredki.mouse
+      keyboard = Kredki.keyboard
+
+      jump = keyboard.alt? ? mouse.scroll_speed_alt : mouse.scroll_speed
+      keyboard.shift? ? [y * jump, x * jump] : [x * jump, y * jump]
     end
 
     # :section: LEVEL 2

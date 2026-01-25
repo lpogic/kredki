@@ -169,7 +169,7 @@ module Kredki
       paint.detach if paint.scene
       paint.scene = self
       if show
-        Pastele.scene_push @pointer, paint.pointer, next_shown(at)&.pointer
+        Pastele.scene_add @pointer, paint.pointer, next_shown(at)&.pointer
         update
       end
       ats = @paints[at] || @paints[nil]
@@ -213,7 +213,7 @@ module Kredki
             n = n.after
           end
         end.find{ _1.shown }
-        Pastele.scene_push @pointer, paint.pointer, at&.paint&.pointer
+        Pastele.scene_add @pointer, paint.pointer, at&.paint&.pointer
         update
         state.shown = true
       end

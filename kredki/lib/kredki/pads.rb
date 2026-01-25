@@ -35,4 +35,4 @@ module Kredki
   require_relative 'pads/window_scene'
 end
 
-load $kredki_pads_config || "#{__dir__}/pads/config.rb"
+load Kredki::Setup.pads_config

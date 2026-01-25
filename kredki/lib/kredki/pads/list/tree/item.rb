@@ -10,7 +10,7 @@ module Kredki
           dir!
         end
 
-        # Set whether is opened
+        # Set whether is opened.
         def open! value = true, &block
           return if (c = open) == (value = block ? block[c] : value == :not ? !c : value)
           @open = value
@@ -37,7 +37,6 @@ module Kredki
         def dir! value = true, set_icon = true, &block
           return if (c = dir) == (value = block ? block[c] : value == :not ? !c : value)
           @dir = value
-          # icon! value ? default_dir_icon : default_icon if set_icon
           true
         end
 
@@ -80,15 +79,10 @@ module Kredki
           super
 
           @level_pad = new SpacePad, at: 0, w: 0
-          # icon! default_icon
         end
 
         def update_level
           @level_pad.w = level * 16
-        end
-
-        def default_icon
-          new RectanglePad, h: 24, w: 16, area: proc{ ellipse! _2 * 0.2 }
         end
 
       end#Item

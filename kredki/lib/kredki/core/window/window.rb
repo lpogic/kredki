@@ -398,8 +398,15 @@ module Kredki
 
     # :section: LEVEL 2
 
-    def initialize w = 400, h = 400
-      @pointer = Pastele.window_new w, h
+    def initialize w = 400, h = 400, engine: :sw
+      @pointer = case engine
+      when :sw
+        @pointer = Pastele.window_new_sw w, h
+      # when :gl
+      #   @pointer = Pastele.window_new_gl w, h
+      else
+        raise_ia engine
+      end
       @application = nil
       @scene = nil
       @mouse_in = nil

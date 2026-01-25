@@ -2,8 +2,8 @@ module Kredki
   class Application
     
     # Create new window.
-    def window! *a, show: true, **na, &b
-      w = Window.new
+    def window! *a, engine: :sw, show: true, **na, &b
+      w = Window.new engine: engine
       s = put_window(w).scene!(*a, **na, &b)
       w.show! if show
       s

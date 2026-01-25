@@ -128,7 +128,7 @@ module Kredki
     def application!
       if !@application
         Pastele.thorvg_engine_init 2, 4
-        Pastele.sdl_init ($kredki_joystick || joystick ? 1 : 0)
+        Pastele.sdl_init joystick ? 1 : 0
         @application = Application.new
       end
       @application

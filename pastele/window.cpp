@@ -26,7 +26,7 @@ void Window::planUpdate(void) {
 void Window::setScene(tvg::Scene* scene) {
     auto canvas = getCanvas();
     canvas->remove();
-    canvas->push(scene);
+    canvas->add(scene);
     toUpdate.insert(nullptr);
 }
 
