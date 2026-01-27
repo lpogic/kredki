@@ -167,7 +167,12 @@ module Kredki
         @mouse_pads, last_mouse_pads = [], @mouse_pads
         point_pads *xy, @mouse_pads
         if @pin_data
-          event.drag = @pin_data.drag || ((@pin_data.drag = layer_drag_check xy) && :start)
+          drag = @pin_data.drag || ((@pin_data.drag = layer_drag_check xy) && :start)
+          if drag
+            event = MousePointerDragEvent.new nil, event
+            event.button = @pin_data.button
+            event.start = true if drag == :start
+          end
           @pin_data.pad.report event
           return event
         end

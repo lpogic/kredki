@@ -661,8 +661,8 @@ module Kredki
       def drag! start_xy = nil, button = nil
         mouse_xy = window.mouse_xy
         pin_request start_xy || mouse_xy, button, true
-        event = MousePointerMoveEvent.new Kredki.mouse, PositionEvent.new(*mouse_xy)
-        event.drag = :start
+        event = MousePointerDragEvent.new Kredki.mouse, PositionEvent.new(*mouse_xy)
+        event.start = true
         report event
       end
 

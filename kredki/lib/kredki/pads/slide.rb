@@ -111,8 +111,8 @@ module Kredki
           e.close
         end
 
-        @handle.on_mouse_move do |e|
-          if e.drag
+        on_mouse_move do |e|
+          if e.drag?
             process_drag e
             e.close
           end
@@ -137,10 +137,10 @@ module Kredki
       def process_drag e, speed = 1
         s = @handle.sw
         max_x = sw - s
-        @c0 = @handle.sx if e.drag == :start
+        @c0 = @handle.sx if e.start?
         start_x = layer.pin_xy[0]
         x = [[0, @c0 + (e.x - start_x) * speed].max, max_x].min
-        value! 1.0 * x / max_x and report EditEvent.new e
+        value! 1.0 * x / max_x and report EditEvent.new e if max_x > 0
       end
 
       def sketch
@@ -175,7 +175,7 @@ module Kredki
       def process_drag e, speed = 1
         s = @handle.sh
         max_y = sh - s
-        @c0 = @handle.sy if e.drag == :start
+        @c0 = @handle.sy if e.start?
         start_y = layer.pin_xy[1]
         y = [[0, @c0 + (e.y - start_y) * speed].max, max_y].min
         value! 1.0 * y / max_y and report EditEvent.new e

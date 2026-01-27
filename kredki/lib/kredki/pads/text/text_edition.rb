@@ -65,6 +65,18 @@ module Kredki
           end
         end
 
+        on_mouse_move do |e|
+          if e.drop?
+            text.drop_move *text.layer.translate(*e.xy, text)
+            e.close
+          end
+        end
+
+        on_drop do |e|
+          text.paste e.param
+          e.close
+        end
+
         on_edit early: true do |e|
           content = content_after_edit e
           cursor_position = e.string.length + e.selection_min

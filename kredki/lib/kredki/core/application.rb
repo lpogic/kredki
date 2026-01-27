@@ -148,8 +148,7 @@ module Kredki
         end
       when 0x1004 # SDL_EVENT_DROP_POSITION
         abi = Pastele::DropEvent.new event_ptr
-        event = MousePointerMoveEvent.new Kredki.mouse, abi
-        event.drag = event.drop = true
+        event = MousePointerDropEvent.new Kredki.mouse, abi
         if window = @windows[abi.window_id]
           window.report event
         end

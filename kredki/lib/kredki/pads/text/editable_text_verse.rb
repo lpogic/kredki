@@ -48,6 +48,14 @@ module Kredki
         else raise_is @verse_layout
         end
       end
+
+      def drop_move x, y
+        cursor_position = cursor_position_for_coordinates x, y
+        if @cursor_position != cursor_position && @selection_min == @selection_max
+          @selection_min = @selection_max = @cursor_position = cursor_position
+          layer&.break_layout
+        end
+      end
     end
   end
 end

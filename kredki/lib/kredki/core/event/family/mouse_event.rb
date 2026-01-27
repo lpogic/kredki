@@ -91,30 +91,58 @@ module Kredki
       xy
     end
 
-    # Get whether it is drag move. +:start+ is returned if it is initial drag move event.
-    def drag
-      @drag
+    # Get whether it is drag move.
+    def drag?
+      false
     end
 
     # Get whether it is drop move.
-    def drop
-      @drop
+    def drop?
+      false
+    end
+
+  end
+
+  # Event reported on mouse pointer drag.
+  class MousePointerDragEvent < MousePointerMoveEvent
+
+    # Get whether it is drag move.
+    def drag?
+      true
+    end
+
+    # Get whether it is drag start move.
+    def start?
+      @start
+    end
+
+    def button
+      @button
     end
 
     # :section: LEVEL 2
 
     def initialize ...
       super
-      @drag = false
-      @drop = false
+      @start = false
+      @button = nil
     end
 
-    def drag= drag
-      @drag = drag
+    def start= start
+      @start = start
     end
 
-    def drop= drop
-      @drop = drop
+    def button= button
+      @button = button
+    end
+  end
+
+  # Event reported on mouse pointer drag.
+  class MousePointerDropEvent < MousePointerMoveEvent
+
+    # Get whether it is drop move.
+    def drop?
+      true
     end
   end
 

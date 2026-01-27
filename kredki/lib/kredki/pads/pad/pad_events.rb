@@ -7,7 +7,6 @@ module Kredki
         super(...)
         @x = x
         @y = y
-        @drag = false
       end
 
       # Get X axis offset.
@@ -28,17 +27,6 @@ module Kredki
       # Get main parameter.
       def param
         xy
-      end
-
-      # Get whether it is drag move. +:start+ is returned if it is initial drag move.
-      def drag
-        @drag
-      end
-
-      # :section: LEVEL 2
-
-      def drag= drag
-        @drag = drag
       end
     end
 

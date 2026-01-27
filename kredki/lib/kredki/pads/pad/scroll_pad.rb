@@ -52,10 +52,16 @@ module Kredki
         end
 
         on_mouse_move do |e|
-          if e.drag
-            @xslide.process_drag e, -1
-            @yslide.process_drag e, -1
-            e.close
+          if e.drag?
+            speed = case e.button
+            when :primary then -1
+            when :scroll then 1
+            end
+            if speed
+              @xslide.process_drag e, speed
+              @yslide.process_drag e, speed
+              e.close
+            end
           end
         end
 

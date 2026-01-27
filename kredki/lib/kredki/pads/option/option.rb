@@ -91,7 +91,7 @@ module Kredki
         end
 
         @arrow.on_mouse_move do |it|
-          if it.drag
+          if it.drag?
             it.close
           end
         end
