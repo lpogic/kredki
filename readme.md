@@ -1,6 +1,6 @@
 # Kredki
 
-Vector graphics & GUI toolkit for Ruby. Easy to use and customize. For playing with vector graphics, simulations, simple games and applications.
+Vector graphics & GUI toolkit for Ruby. For creating images, simulations, simple games and applications. Easy to use and customize.
 
 ## How it works:
 
@@ -100,9 +100,7 @@ puts decision # => yes/no/perhaps
 <img src="./.github/module.png">
 </td></tr></table>
 
-## Customization:
-
-- empty
+For more samples go to kredki/sample. 'metasample.rb' is sample explorer at the same time.
 
 ## Updates:
 
@@ -116,3 +114,4 @@ puts decision # => yes/no/perhaps
 ## Contact
 
 - discord: https://discord.gg/NNrcXKgB
+- pomluk1996@gmail.com
