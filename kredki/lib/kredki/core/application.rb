@@ -30,7 +30,7 @@ module Kredki
     end
 
     # Break event loop.
-    def exit result = nil
+    def return result = nil
       @result = result
       Pastele.application_exit @pointer
     end

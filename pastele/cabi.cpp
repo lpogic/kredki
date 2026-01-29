@@ -327,6 +327,15 @@ CABI void paint_set_blend_method(Paint* self, int method) {
     self->blend((BlendMethod)method);
 }
 
+CABI void paint_accessor_traverse(Paint* self, int(*callback)(const tvg::Paint* paint, void* data)) {
+    auto accessor = unique_ptr<Accessor>(Accessor::gen());
+    accessor->set(self, callback, nullptr);
+}
+
+CABI int paint_get_type(Paint* self) {
+    return (int)self->type();
+}
+
 
 /************************************************************************/
 /* Shape API                                                            */
@@ -563,6 +572,10 @@ CABI void picture_set_size(Picture* self, float w, float h) {
 
 CABI void picture_get_size(Picture* self, Point* size) {
     self->size(&size->x, &size->y);
+}
+
+CABI void* picture_accessor_get(Picture* self, const char* id) {
+    return (void*)self->paint(tvg::Accessor::id(id));
 }
 
 

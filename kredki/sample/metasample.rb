@@ -11,8 +11,7 @@ define :list do
       end
 
       go_sample = proc do |e|
-        smpl = File.expand_path "#{Kredki.dir}/sample/#{e.target.subject}"
-        window.shift{ sample File.read smpl }
+        window.shift{ sample File.expand_path "#{Kredki.dir}/sample/#{e.target.subject}" }
       end
 
       on_mouse_click do |e|
@@ -28,10 +27,10 @@ define :list do
   fd(Item).keyboard_request
 end
 
-define :sample do |code|
+define :sample do |file|
   layout! :yss
 
-  n = notes! code, verse: [font: :courier_prime, size: 14], wh: 1r, 
+  n = notes! File.read(file), verse: [font: :courier_prime, size: 14], wh: 1r, 
     suit: Kredki.color([20, 70, 20])
   space! w: 1r, h: :fit, layout: :xec, mi: 10, m: 10 do
     button! "Back", on_click: proc{ window.shift{ list } }
@@ -39,9 +38,9 @@ define :sample do |code|
       on_click do
         application.window! do 
           window.wh_drag!
-          use! :close_on_esc
+          window.use! :close_on_esc
           begin
-            eval "#{n}" 
+            eval "#{n}", nil, file
           rescue Exception => e
             window.shift do
               fill! :red

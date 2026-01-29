@@ -1,6 +1,14 @@
 # Kredki
 
-Create images, simulations, games and applications. All in Ruby. Have fun!
+Vector graphics & GUI toolkit for Ruby. Easy to use and customize. For playing with vector graphics, simulations, simple games and applications.
+
+## How it works:
+
+The project is based on the [ThorVG](https://www.thorvg.org/) library for rendering and the [SDL](https://www.libsdl.org/) library for connecting to hardware. Main features:
+- Binary files are included and loaded via FFI
+- Memory is managed automatically
+- Drawing is only triggered after scene changes
+- GUI widgets are built from scratch in Ruby
 
 ## Installation:
 
@@ -62,20 +70,48 @@ end
 
 </td><td>
 <img src="./.github/hello.png">
+</td></tr><tr><td>
+
+```RUBY
+require 'kredki/module' # embedded mode
+
+decision = Kredki.run do
+  layout! :ycc
+  
+  space! w: 100, layout: :ysc do
+    radio! do
+      item! "yes", checked: true
+      item! "no"
+      item! "perhaps"
+    end
+    space! wh: 5
+    button! "Submit", w: 1r do
+      on_click do
+        application.return fd(:item!, :checked?).subject
+      end
+    end
+  end
+end
+
+puts decision # => yes/no/perhaps
+```
+
+</td><td>
+<img src="./.github/module.png">
 </td></tr></table>
 
-## Essential rake tasks:
-```
-rake build          # Build Pastele & update project binaries
-rake config         # Generate config template
-rake irb            # Run interactive session
-rake rdoc           # Build RDoc HTML files
-rake run            # [DEFAULT] Run sketch
-rake test           # Run the test suite
-```
+## Customization:
 
-## Notes
+- empty
 
+## Updates:
+
+- empty
+
+## Notes:
+
+- The source files used to generate the ThorVG binary are **not** original - the version used comes from this [fork](https://github.com/lpogic/thorvg/tree/thorvg-gui) that introduces some minor extensions.
+- This is a hobby project.
 
 ## Contact
 

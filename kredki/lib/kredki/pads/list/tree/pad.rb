@@ -47,7 +47,7 @@ module Kredki
                 if source.shift?
                   item.select! :not
                 else
-                  each_fd(Item).each_alter{|it| selected! it == item }
+                  ed(Item).each_alter{|it| selected! it == item }
                 end
               end
             else
@@ -61,14 +61,14 @@ module Kredki
               elsif kb.ctrl?
                 item.selected! :not
               else
-                each_fd(Item).each_alter{|it| selected! it == item }
+                ed(Item).each_alter{|it| selected! it == item }
                 item.open! :not
               end
             end
           end
 
           on_focus_leave do
-            each_fd(Item).each_alter selected: false
+            ed(Item).each_alter selected: false
           end
         end
 

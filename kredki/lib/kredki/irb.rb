@@ -25,7 +25,7 @@ class KredkiWorkSpace < IRB::WorkSpace
     @mutex.synchronize do
       if @cmd
         if @cmd == [:exit]
-          @application.exit
+          @application.return
         else
           @cmd = oeval *@cmd
         end
@@ -48,21 +48,17 @@ KredkiProc = proc do
         (W.methods - Object.instance_methods).each do |it|
             def_delegator :W, it
         end
-
-        def window! ...
-          W.application.window!(...)
-        end
   
         def layer! ...
           W.window.layer!(...)
         end
+
+        def plugin! ...
+          W.window.plugin!(...)
+        end
   
         def define ...
           def_delegator :W, Pads.define(...)
-        end
-  
-        def plugin! ...
-          Kredki.plugin!(...)
         end
       end
     end
@@ -70,10 +66,15 @@ KredkiProc = proc do
     include Kredki
     include Kredki::Pads
     extend Forwardable
-
-    use! :exit_on_esc
-    use! :carry_focus_on_tab
-    window.alter{ wh_drag!; text_input!; fill! 20, 70, 20; top! }
+    
+    window.alter do
+      wh_drag!
+      text_input!
+      fill! 20, 70, 20
+      top!
+      use! :exit_on_esc
+      use! :carry_focus_on_tab
+    end
 
     kredki_workspace = KredkiWorkSpace.new application, binding
     IRB.CurrentContext.replace_workspace kredki_workspace

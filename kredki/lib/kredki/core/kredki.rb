@@ -59,16 +59,6 @@ module Kredki
     def joystick key = nil
       @joysticks[key] or raise "Joystick #{key.inspect} not registered"
     end
-
-    # Set plugin.
-    def plugin! key, &b
-      @plugins[key] = b
-    end
-
-    # Get plugin.
-    def plugin key
-      @plugins[key]
-    end
     
     # Set font.
     def font! key, path
@@ -120,7 +110,6 @@ module Kredki
 
     attr :application
     attr_accessor :joysticks
-    attr_accessor :plugins
     attr_accessor :opened_joysticks
     attr_accessor :fonts
     attr_accessor :colors
@@ -140,7 +129,6 @@ module Kredki
   self.fonts = {}
   self.joysticks = {}
   self.opened_joysticks = {}
-  self.plugins = {}
 end
 
 require_relative 'pastele/pastele'

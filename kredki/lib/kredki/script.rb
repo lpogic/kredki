@@ -1,5 +1,5 @@
 require 'forwardable'
-require_relative 'pads'
+require_relative 'module'
 
 if defined? IRB
   require_relative 'irb'
@@ -13,20 +13,16 @@ else
           def_delegator :W, it
       end
 
-      def window! ...
-        W.application.window!(...)
-      end
-
       def layer! ...
         W.window.layer!(...)
       end
 
-      def define ...
-        def_delegator :W, Pads.define(...)
+      def plugin! ...
+        W.window.plugin!(...)
       end
 
-      def plugin! ...
-        Kredki.plugin!(...)
+      def define ...
+        def_delegator :W, Pads.define(...)
       end
     end
   end
@@ -35,7 +31,11 @@ else
   include Kredki::Pads
   extend Forwardable
 
-  use! :exit_on_esc
-  use! :carry_focus_on_tab
-  window.alter{ wh_drag!; text_input!; fill! 20, 70, 20 }
+  window.alter do
+    wh_drag!
+    text_input!
+    fill! 20, 70, 20
+    use! :exit_on_esc
+    use! :carry_focus_on_tab
+  end
 end

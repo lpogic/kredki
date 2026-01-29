@@ -33,7 +33,8 @@ module Kredki
         def << feature
           case feature
           when String
-            new Label, feature
+            (fc Label or new Label) << feature
+            subject! feature
           else
             super
           end

@@ -12,7 +12,7 @@ module Kredki
 
         def selected_up_to pad
           bound = 0
-          each_fd(Item).each_alter do
+          ed(Item).each_alter do
             bound += 1 if self == pad
             bound += 1 if keyboard_in?
             selected! if bound > 0
@@ -26,7 +26,7 @@ module Kredki
 
         def update_show
           hide_level = 0
-          each_fd(Item).each_alter do
+          ed(Item).each_alter do
             if level <= hide_level
               show!
               hide_level = open? ? level + 1 : level
@@ -40,7 +40,7 @@ module Kredki
           case item
           when :previous, :next
             kb = nil
-            each_fd(Item, reverse: item == :previous).each do |it|
+            ed(Item, reverse: item == :previous).each do |it|
               if kb
                 return update_selected_item it if it.show?
               elsif it.keyboard_in?

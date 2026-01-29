@@ -5,10 +5,20 @@ module Kredki
   # Root element of Paint tree.
   class WindowScene < Scene
     include WindowSceneEvents
+
+    # Set plugin.
+    def plugin! key, &b
+      @plugins[key] = b
+    end
+
+    # Get plugin.
+    def plugin key
+      @plugins[key]
+    end
     
     # Call plugin Proc in WindowScene context.
     def use! id, *a, **na
-      plugin = Kredki.plugin id
+      plugin = @plugins[id]
       raise_ia id unless plugin
       instance_exec *a, **na, &plugin
     end
@@ -355,6 +365,7 @@ module Kredki
 
       @jobs = {}
       @jobs_mutex = Thread::Mutex.new
+      @plugins = {}
       @event_manager = WindowSceneEventManager.new
       @fill = rectangle! xy: 0
 
@@ -370,6 +381,18 @@ module Kredki
       on_resize{|it| p it.wh; @fill.wh = it.wh }
       @fill.wh = *wh
       fill! 20, 70, 20
+
+      plugin! :exit_on_esc do
+        on_key_press :escape do |event|
+          application.return
+        end
+      end
+    
+      plugin! :close_on_esc do
+        on_key_press :escape do |event|
+          window.close
+        end
+      end
     end
 
     def translate x, y, target = nil

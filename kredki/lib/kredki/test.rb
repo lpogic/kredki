@@ -1,4 +1,4 @@
-require_relative 'pads'
+require_relative 'module'
 require 'minitest/autorun'
 require 'forwardable'
 

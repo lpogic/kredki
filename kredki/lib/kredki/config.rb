@@ -174,17 +174,4 @@ module Kredki
     axis! :y, 1
     axis! :z, 2
   end
-
-  plugin! :exit_on_esc do
-    on_key_press :escape do |event|
-      application.exit
-    end
-  end
-
-  plugin! :close_on_esc do
-    on_key_press :escape do |event|
-      window.close
-    end
-  end
-
 end

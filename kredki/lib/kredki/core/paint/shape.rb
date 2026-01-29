@@ -346,9 +346,9 @@ module Kredki
       end
     end
 
-    def initialize extended = false
-      super Pastele.shape_new
-      ObjectSpace.define_finalizer(self, Shape.finalizer(@pointer))
+    def initialize extended = false, pointer = nil
+      super pointer || Pastele.shape_new
+      ObjectSpace.define_finalizer(self, Shape.finalizer(@pointer)) unless pointer
 
       @outline_w = 0
       outline_join! :bevel

@@ -139,6 +139,8 @@ CABI void paint_get_bounds(Paint* self, Bounds* bounds);
 CABI void paint_set_clip(Paint* self, Shape* clipper);
 CABI void paint_set_mask(Paint* self, Paint* target, int mask);
 CABI void paint_set_blend_method(Paint* self, int method);
+CABI void paint_accessor_traverse(Paint* self, int(*callback)(const tvg::Paint* paint, void* data));
+CABI int paint_get_type(Paint* self);
 
 CABI void* shape_new(void);
 CABI void shape_delete(Shape* self);
@@ -187,6 +189,7 @@ CABI int picture_load(Picture* self, const char* path);
 // CABI int picture_load_data(Picture* self, const char *data, uint32_t size, const char *mimetype, const char* rpath, bool copy);
 CABI void picture_set_size(Picture* self, float w, float h);
 CABI void picture_get_size(Picture* self, Point* size);
+CABI void* picture_accessor_get(Picture* self, const char* id);
 CABI void* scene_new(void);
 CABI void scene_delete(Scene* self);
 CABI void scene_add(Scene* self, Paint* paint, Paint* at);

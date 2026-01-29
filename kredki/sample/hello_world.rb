@@ -1,5 +1,5 @@
 require 'kredki'
-p self
+
 layout! :xss # how pads are positioned by default
 mi! 10 # distance between pads
 
@@ -10,4 +10,4 @@ button! do
   end
 end
 
-button! "Exit", on_click: proc{ application.exit }
+button! "Exit", on_click: proc{ application.return }

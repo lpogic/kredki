@@ -37,6 +37,29 @@ module Kredki
       [@ow, @oh]
     end
 
+    # Find shape of the picture.
+    def find_shape id
+      paint = Pastele.picture_accessor_get @pointer, id
+      if !paint.null? && Pastele.paint_get_type(paint) == 1
+        shape = Shape.new(true, paint)
+        shape.set_masking self
+        shape
+      end
+    end
+
+    # Traverse shape tree of the picture.
+    def each_shape &block
+      callback = Fiddle::Closure::BlockCaller.new Fiddle::TYPE_INT, [Fiddle::TYPE_VOIDP, Fiddle::TYPE_VOIDP] do |paint, data|
+        if Pastele.paint_get_type(paint) == 1
+          shape = Shape.new(true, paint)
+          shape.set_masking self
+          block.call shape
+        end
+        1
+      end
+      Pastele.paint_accessor_traverse @pointer, callback
+    end
+
     # Push the feature.
     def << feature
       case feature

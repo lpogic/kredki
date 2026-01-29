@@ -353,15 +353,21 @@ module Kredki
 
     # Set and build current scene.
     def scene! scene = nil, ...
-      scene ||= Window.default_scene
-      if scene.is_a? Class
+      case scene
+      when Class
         scene = scene.new
         set_scene scene
         scene.sketch
+        scene.build_context.alter(...)
+      when String
+        build_context = scene! Window.default_scene
+        build_context.alter{ eval File.read scene }.alter(...)
+      when nil
+        scene!(Window.default_scene, ...)
       else
         set_scene scene
+        cene.build_context.alter(...)
       end
-      scene.build_context.alter(...)
     end
 
     # See #scene!.

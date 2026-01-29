@@ -1,43 +1,38 @@
-require 'kredki/setup'
+require_relative 'core'
+require_relative 'pads/service/service_inherited'
 
 module Kredki
+  module Pads
+    extend ServiceInherited
 
-  module Util
     class << self
+      attr_accessor :layout_map
 
-      def eqr a, b
-        a == b and (Rational === a) == (Rational === b)
-      end
-
-      def polarize left, right
-        both = []
-        right_only = right.reject{|it| both << it if left.include? it }
-        [left - both, both, right_only]
-      end
-
-      def uncover array
-        case array.size
-        when 0 then nil
-        when 1 then array.first
-        else array
-        end
-      end
-
-      def cover object
-        object.is_a?(Array) ? object : [object]
-      end
-
-      def sin01 value, scale = 1
-        (Math.sin(Math::PI * value / scale) * 0.5 + 0.5) * scale
+      def layout! id, layout
+        @layout_map[id] = layout
       end
   
-      def cos01 value, scale = 1
-        (Math.cos(Math::PI * value / scale) * 0.5 + 0.5) * scale
+      def layout param = nil
+        case param
+        in Layout
+          param
+        else
+          @layout_map[param] or raise "Unknown layout '#{param}'"
+        end
       end
     end
+
+    self.layout_map = {}
   end
+
+  require_relative "pads/layout/layout"
+  require_relative 'pads/service/event_queue'
+  require_relative 'pads/service/service'
+  require_relative 'pads/pad/pad'
+  require_relative 'pads/pad/sort_pad'
+  require_relative 'pads/pad/shape_pad'
+  require_relative 'pads/pad/rectangle_pad'
+  require_relative 'pads/window_scene'
 end
 
-require_relative 'core/kredki'
-
-load Kredki::Setup.config
+load Kredki::Setup.pads_config

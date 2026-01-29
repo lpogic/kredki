@@ -19,6 +19,16 @@ module Kredki
         @area.content
       end
 
+      # Find shape of the picture.
+      def find_shape ...
+        @area.find_shape(...)
+      end
+
+      # Traverse shape tree of the picture.
+      def each_shape ...
+        @area.each_shape(...)
+      end
+
       # Push the feature.
       def << arg
         case arg

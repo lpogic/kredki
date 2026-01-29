@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.version     = Kredki::VERSION
   s.summary     = "A drawing toolkit."
   s.description = <<~EOT
-    Create images, simulations, games and applications. All in Ruby. Have fun!
+    Vector graphics & GUI toolkit for Ruby. Easy to use and customize. For playing with vector graphics, simulations, simple games and applications.
   EOT
   s.authors     = ["Łukasz Pomietło"]
   s.email       = "oficjalnyadreslukasza@gmail.com"

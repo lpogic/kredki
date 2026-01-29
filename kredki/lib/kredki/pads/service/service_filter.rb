@@ -3,49 +3,49 @@ module Kredki
     # Module to include in service parents.
     module ServiceFilter
 
-      # Get descedants matching filters.
-      def each_fd *filters, reverse: false, &block
-        each_service deep: true, reverse:, filter: [*filters, block]
+      # Get each descedant matching filters.
+      def ed *filters, reverse: false, **na, &block
+        each_service deep: true, reverse:, filter: [*filters, na, block]
       end
 
-      # Get children matching filters.
-      def each_fc *filters, reverse: false, &block
-        each_service deep: false, reverse:, filter: [*filters, block]
+      # Get each child matching filters.
+      def ec *filters, reverse: false, **na, &block
+        each_service deep: false, reverse:, filter: [*filters, na, block]
       end
 
-      # Get ancestors matching filters.
-      def each_fa *filters, with_self: false, reverse: false, &block
-        lineage(with_self).then{|it| reverse ? it.reverse_each : it }.filter{|it| it =~ filters and it =~ block }
+      # Get each ancestor matching filters.
+      def ea *filters, with_self: false, reverse: false, **na, &block
+        lineage(with_self).then{|it| reverse ? it.reverse_each : it }.filter{|it| it =~ [*filters, na, block] }
       end
 
       # Find descedant.
-      def fd *filters, last: false, &block
-        each_fd(*filters, reverse: last, &block).first
+      def fd *filters, last: false, **na, &block
+        ed(*filters, **na, reverse: last, &block).first
       end
 
       # Find child.
-      def fc *filters, last: false, &block
-        each_fc(*filters, reverse: last, &block).first
+      def fc *filters, last: false, **na, &block
+        ec(*filters, **na, reverse: last, &block).first
       end
 
       # Find ancestor.
-      def fa *filters, with_self: false, last: false, &block
-        each_fa(*filters, with_self:, reverse: last, &block).first
+      def fa *filters, with_self: false, last: false, **na, &block
+        ea(*filters, **na, with_self:, reverse: last, &block).first
       end
 
-      # Get whether parent match filters.
-      def pa *filters, &block
-        parent&.is *filters, &block
+      # Get parent if matches filters.
+      def pa *filters, **na, &block
+        parent&.is *filters, **na, &block
       end
 
-      # Get whether match all filters.
-      def is *filters, &block
-        self =~ filters && self =~ block ? self : false
+      # Get self if matches filters.
+      def is *filters, **na, &block
+        return self if self =~ [*filters, na, block]
       end
 
-      # Get whether not match all filters.
-      def isnt *filters, &block
-        filters.all?{ self !~ filters } && (!block || self !~ block ? self : false)
+      # Get self if doesn't match filters.
+      def isnt *filters, **na, &block
+        return self if [*filters, *na.map{|k, v| {k => v} }, block].none?{|it| self =~ it }
       end
       
       # Iterate over service descedants.

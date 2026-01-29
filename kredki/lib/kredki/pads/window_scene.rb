@@ -77,6 +77,23 @@ module Kredki
           end
         end
 
+        plugin! :carry_focus_on_tab do
+          on_key_press :tab do |event|
+            next_pad = layer.keyboard_pad&.then do |p0|
+              each_pad(reverse: event.shift?, deep: true)
+                .lazy
+                .drop_while{|p1| p0 != p1 }
+                .drop(1)
+                .filter{|it| it.keyboardy? && it.show? }
+                .first
+            end || each_pad(reverse: event.shift?, deep: true)
+              .lazy
+              .filter{|it| it.keyboardy? && it.show? }
+              .first
+            next_pad.keyboard_request if next_pad
+          end
+        end
+
         layer!.keyboard_request
       end
 

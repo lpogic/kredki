@@ -47,7 +47,7 @@ module Kredki
             if it.total_ms < subject
               block.call it.total_ms, subject
             else
-              it.relase
+              it.release
               block.call subject, subject
             end
           end

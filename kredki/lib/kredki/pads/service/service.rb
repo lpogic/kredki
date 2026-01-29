@@ -18,7 +18,7 @@ module Kredki
         if tag.start_with? "$"
           eval "#{tag} = WeakRef.new self"
         end
-        if plugin = Kredki.plugin(tag)
+        if plugin = window&.plugin(tag)
           if set
             instance_exec &plugin
           else
@@ -94,7 +94,7 @@ module Kredki
 
       # Use plugin.
       def use! id, *a, **na
-        plugin = Kredki.plugin id
+        plugin = window.plugin id
         raise_ia id unless plugin
         instance_exec *a, **na, &plugin
       end
@@ -109,13 +109,19 @@ module Kredki
         when nil
           true
         when Symbol
-          !!@tags[filter]
+          if filter.end_with? "?"
+            respond_to? filter and send filter
+          else
+            !!@tags[filter]
+          end
         when Module, Proc
           filter === self
         when Integer
           pad_index == filter
         when Array
           filter.all?{|it| self =~ it }
+        when Hash
+          filter.all?{|key, value| respond_to? key and value === send(key) }
         else
           raise "Unsupported =~ (#{filter} : #{filter.class})"
         end

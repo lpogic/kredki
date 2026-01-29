@@ -19,11 +19,11 @@ module Kredki
       def update_selected_item item
         case item
         when :previous
-          items = each_fc(Item).to_a 
+          items = ec(Item).to_a 
           index = items.index{|it| it.keyboard_in? } || 1
           index > 0 ? update_selected_item(items[index - 1]) : items[index]
         when :next
-          items = each_fc(Item).to_a 
+          items = ec(Item).to_a 
           index = items.index{|it| it.keyboard_in? } || -1
           index < items.length - 1 ? update_selected_item(items[index + 1]) : items[index]
         else
