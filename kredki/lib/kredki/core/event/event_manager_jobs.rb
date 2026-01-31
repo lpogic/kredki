@@ -43,7 +43,7 @@ module Kredki
         end
       else
         self.loop do |it|
-          it.release if animation.step it.total_ms, loop, &block
+          it.release if subject.step it.total_ms, loop, &block
         end
       end
     end

@@ -1,7 +1,7 @@
 require 'kredki'
 
-# Basic animation sample.
+# Simple animation sample.
 
 animation! "#{Kredki.dir}/sample/stuff/1643-exploding-star.json", wh: 1r do
-  job.animate self, true
+  on_mouse_click.animate(self).after{ self.frame! 0 }
 end

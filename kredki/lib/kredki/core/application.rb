@@ -257,7 +257,7 @@ module Kredki
         abi = Pastele::UserEvent.new event_ptr
         window_event abi.window_id, TickEvent.new(abi)
       else # unsupported event
-        puts event_type.to_s 16
+        # puts event_type.to_s 16
         nil
       end
       event&.closed? ? 1 : 0

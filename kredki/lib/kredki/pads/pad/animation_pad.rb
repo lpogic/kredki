@@ -32,6 +32,14 @@ module Kredki
         @area.step(...)
       end
 
+      def frame! ...
+        @area.frame!(...)
+      end
+
+      def frame= param
+        send_ahp :frame!, param
+      end
+
       def frame
         @area.frame
       end
