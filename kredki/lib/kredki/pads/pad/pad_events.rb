@@ -282,17 +282,17 @@ module Kredki
         on_joystick_move do: reaction
       end
 
-      # Create and attach joystick hat(axes) move event reaction.
-      def on_joystick_move *axes, joystick: nil, early: false, always: false, do: nil, &block
+      # Create and attach joystick hat(hats) switch event reaction.
+      def on_joystick_switch *hats, joystick: nil, early: false, always: false, do: nil, &block
         j = Kredki.joystick joystick
-        indexes = j.axes axes
+        indexes = j.hats hats
         j = nil if joystick.nil?
-        @event_manager.joystick_manager JoystickAxisMoveEvent, j, indexes, block || binding.local_variable_get(:do), early, always
+        @event_manager.joystick_manager JoystickHatSwitchEvent, j, indexes, block || binding.local_variable_get(:do), early, always
       end
 
-      # See #on_joystick_move.
-      def on_joystick_move= reaction
-        on_joystick_move do: reaction
+      # See #on_joystick_switch.
+      def on_joystick_switch= reaction
+        on_joystick_switch do: reaction
       end
 
       # Create and attach file drop event reaction.

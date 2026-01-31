@@ -57,7 +57,7 @@ module Kredki
 
     # Get main parameter.
     def param
-      axis&.id
+      value
     end
 
     # Get binding input id.
@@ -71,8 +71,8 @@ module Kredki
     end
   end
 
-  # Event reported on joystick hat move.
-  class JoystickHatEvent < JoystickEvent
+  # Event reported on joystick hat switch.
+  class JoystickHatSwitchEvent < JoystickEvent
 
     # Get event hat.
     def hat
@@ -81,7 +81,7 @@ module Kredki
 
     # Get main parameter.
     def param
-      hat&.id
+      value
     end
 
     # Get binding input id.
@@ -89,9 +89,14 @@ module Kredki
       @source.hat
     end
 
-    # Get axis value.
-    def value
+    # Get binding hat value.
+    def input_value
       @source.value
+    end
+
+    # Get hat value.
+    def value
+      hat&.gear input_value
     end
   end
 end

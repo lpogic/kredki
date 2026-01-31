@@ -120,7 +120,7 @@ module Kredki
       @content = "TEXT"
       @font = Kredki.font
       @fill = Kredki.color
-      @h = 16
+      @h = Kredki.text_size
       Pastele.text_set_text @pointer, @content
       Pastele.text_set_font @pointer, @font.name
       Pastele.text_set_size @pointer, @h

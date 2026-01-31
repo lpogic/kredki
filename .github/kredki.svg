@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" xmlns:bx="https://boxy-svg.com">
+  <defs>
+    <bx:export>
+      <bx:file format="svg" path="kredki.svg"/>
+      <bx:file format="png" path="kredki.png"/>
+    </bx:export>
+  </defs>
+  <path id="wood-top" style="stroke-linecap: round; stroke-linejoin: round; fill: rgb(138, 160, 68); stroke-width: 2px;" d="M 440 270 L 350 270 L 120 40 L 200 40 L 440 270 Z"/>
+  <path id="wood-center" style="stroke-linecap: round; stroke-linejoin: round; fill: rgb(183, 215, 76); stroke-width: 2px;" d="M 270 350 L 350 270 L 120 40 L 40 120 L 270 350 Z"/>
+  <path id="wood-bottom" style="stroke-linecap: round; stroke-linejoin: round; fill: rgb(127, 151, 58); stroke-width: 2px;" d="M 270 440 L 40 200 L 40 120 L 270 350 L 270 440 Z"/>
+  <path id="ruby-head-center" style="stroke-linecap: round; stroke-linejoin: round; fill: rgb(255, 112, 139); stroke-width: 2px;" d="M 310 380 L 270 350 L 350 270 L 380 310 L 310 380 Z"/>
+  <path id="ruby-head-top" style="stroke-linecap: round; stroke-linejoin: round; fill: rgb(229, 98, 112); stroke-width: 2px;" d="M 380 310 L 440 270 L 350 270 L 380 310 Z"/>
+  <path id="ruby-head-bottom" style="stroke-linecap: round; stroke-linejoin: round; fill: rgb(222, 90, 115); stroke-width: 2px;" d="M 270 440 L 310 380 L 270 350 L 270 440 Z"/>
+  <path id="ruby-spike-top" style="stroke-linecap: round; stroke-linejoin: round; fill: rgb(198, 82, 102); stroke-width: 2px;" d="M 460 460 L 380 310 L 440 270 L 460 460 Z"/>
+  <path id="ruby-spike-center" style="stroke-linecap: round; stroke-linejoin: round; fill: rgb(240, 64, 99); stroke-width: 2px;" d="M 460 460 L 310 380 L 380 310 L 460 460 Z"/>
+  <path id="ruby-spike-bottom" style="stroke-linecap: round; stroke-linejoin: round; fill: rgb(184, 61, 88); stroke-width: 2px;" d="M 460 460 L 270 440 L 310 380 L 460 460 Z"/>
+</svg>

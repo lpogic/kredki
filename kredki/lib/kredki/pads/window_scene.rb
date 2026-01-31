@@ -67,6 +67,7 @@ module Kredki
         on_joystick_press do: method(:joystick_event)
         on_joystick_release do: method(:joystick_event)
         on_joystick_move do: method(:joystick_event)
+        on_joystick_switch do: method(:joystick_event)
 
         on_resize do
           w, h = *wh
@@ -77,7 +78,7 @@ module Kredki
           end
         end
 
-        plugin! :carry_focus_on_tab do
+        self[:carry_focus_on_tab] do
           on_key_press :tab do |event|
             next_pad = layer.keyboard_pad&.then do |p0|
               each_pad(reverse: event.shift?, deep: true)

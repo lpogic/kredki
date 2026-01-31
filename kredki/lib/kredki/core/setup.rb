@@ -161,6 +161,7 @@ module Kredki
     attr_accessor :config
     attr_accessor :unit_test_mode
 
+    attr_accessor :text_size
   end
 
   self.colors = {}
@@ -182,4 +183,5 @@ module Kredki
 
   self.engine = :sw
   self.config = "#{dir}/stuff/config/config.rb"
+  self.text_size = 16
 end

@@ -38,7 +38,7 @@ define :sample do |file|
       on_click do
         application.window! do 
           window.wh_drag!
-          window.use! :close_on_esc
+          window.alter window[:close_on_esc]
           begin
             eval "#{n}", nil, file
           rescue Exception => e

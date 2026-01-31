@@ -187,7 +187,7 @@ module Kredki
         application_event JoystickAxisMoveEvent.new(Kredki.opened_joysticks[abi_event.which], abi_event)
       when 0x602 # SDL_EVENT_JOYSTICK_HAT_MOTION
         abi_event = Pastele::JoyHatEvent.new event_ptr
-        application_event JoystickHatEvent.new(Kredki.opened_joysticks[abi_event.which], abi_event)
+        application_event JoystickHatSwitchEvent.new(Kredki.opened_joysticks[abi_event.which], abi_event)
       when 0x603 # SDL_EVENT_JOYSTICK_BUTTON_DOWN
         abi_event = Pastele::JoyButtonEvent.new event_ptr
         application_event JoystickButtonPressEvent.new(Kredki.opened_joysticks[abi_event.which], abi_event)
@@ -196,7 +196,6 @@ module Kredki
         application_event JoystickButtonReleaseEvent.new(Kredki.opened_joysticks[abi_event.which], abi_event)
       when 0x605 # SDL_EVENT_JOYSTICK_ADDED
         abi_event = Pastele::JoyDeviceEvent.new event_ptr
-        p abi_event.which
         joystick = (Kredki.joysticks.values - Kredki.opened_joysticks.values).max{ _1.match abi_event.which } || Joystick.new
         application_event JoystickConnectEvent.new(joystick, abi_event) do |event|
           unless event.closed?

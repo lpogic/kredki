@@ -140,6 +140,19 @@ module Kredki
       on_joystick_move do: reaction
     end
 
+    # Create and attach joystick hat(hats) switch event reaction.
+    def on_joystick_switch *hats, joystick: nil, do: nil, &block
+      j = Kredki.joystick joystick
+      indexes = j.hats hats
+      j = nil if joystick.nil?
+      @event_manager.joystick_manager JoystickHatSwitchEvent, j, indexes, block || binding.local_variable_get(:do)
+    end
+
+    # See #on_joystick_switch.
+    def on_joystick_switch= reaction
+      on_joystick_switch do: reaction
+    end
+
     # Create and attach drop begin event reaction.
     def on_drop_begin ...
       on(DropBeginEvent, ...)

@@ -17,10 +17,6 @@ else
         W.window.layer!(...)
       end
 
-      def plugin! ...
-        W.window.plugin!(...)
-      end
-
       def define ...
         def_delegator :W, Pads.define(...)
       end
@@ -35,7 +31,6 @@ else
     wh_drag!
     text_input!
     fill! 20, 70, 20
-    use! :exit_on_esc
-    use! :carry_focus_on_tab
+    alter self[:exit_on_esc, :carry_focus_on_tab]
   end
 end

@@ -80,7 +80,7 @@ module Kredki
 
         keyboardy!
         outline_w! 1
-        layout! :zcc
+        layout! :xcc
         wh! :fit
         suit! :gray
         m! 2

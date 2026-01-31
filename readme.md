@@ -100,7 +100,7 @@ puts decision # => yes/no/perhaps
 <img src="./.github/module.png">
 </td></tr></table>
 
-For more check out kredki/sample.
+For more check out [kredki/sample](./kredki/sample/).
 
 ## Updates:
 

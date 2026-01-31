@@ -54,6 +54,44 @@ module Kredki
       end
     end
 
+    # Joystick hat interface.
+    class Hat
+      # Get hat id.
+      def id
+        @id
+      end
+
+      # Get hat code.
+      def code
+        @code
+      end
+
+      # Set gear.
+      def gear! id, code
+        @gear_map[id] = @gearcode_map[code] = id
+      end
+
+      # Get gear.
+      def gear param
+        @gearcode_map[param] or @gear_map[param]
+      end
+      
+      # :section: LEVEL 2
+
+      def initialize id, code
+        @id = id
+        @code = code
+        @gear_map = {}
+        @gearcode_map = {}
+      end
+      
+      def ==(other)
+        Hat === other &&
+        @code == other.code &&
+        @id == other.id
+      end
+    end
+
     # Get button codes for input.
     def buttons input
       input.flatten.map{ button(_1).code }.uniq
@@ -62,6 +100,11 @@ module Kredki
     # Get axis codes for input.
     def axes input
       input.flatten.map{ axis(_1).code }.uniq
+    end
+
+    # Get hat codes for input.
+    def hats input
+      input.flatten.map{ hat(_1).code }.uniq
     end
 
     # Set button.
@@ -94,6 +137,21 @@ module Kredki
       end
     end
 
+    # Set hat.
+    def hat! id, code, &block
+      @hat_map[id] = @hatcode_map[code] = Hat.new(id, code).alter &block
+    end
+
+    # Get hat.
+    def hat param
+      case param
+      when Hat
+        param
+      else
+        @hatcode_map[param] or @hat_map[param]
+      end
+    end
+
     # Get whether button is pressed.
     def pressed? key
       return nil if !opened?
@@ -122,6 +180,8 @@ module Kredki
       @buttoncode_map = {}
       @axis_map = {}
       @axiscode_map = {}
+      @hat_map = {}
+      @hatcode_map = {}
       @device_id = nil
       if @name.nil?
         @name = @@next_name

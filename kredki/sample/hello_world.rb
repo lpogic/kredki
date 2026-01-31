@@ -10,4 +10,4 @@ button! do
   end
 end
 
-button! "Exit", on_click: proc{ application.return }
+button! "Exit", on_click: proc{ window.close }

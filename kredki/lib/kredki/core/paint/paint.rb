@@ -310,10 +310,18 @@ module Kredki
     end
 
     # Push the feature.
-    #
-    # This definition is for error detection purposes only and should be overridden in a derived class.
     def << feature
-      raise_ia feature
+      case feature
+      when Hash
+        alter **feature
+      when Array
+        alter *feature
+      when Proc
+        alter &feature
+      else
+        raise "Unsupported << (#{feature} : #{feature.class})"
+      end
+      self
     end
 
     # Get features.

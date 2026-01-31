@@ -18,12 +18,6 @@ module Kredki
         if tag.start_with? "$"
           eval "#{tag} = WeakRef.new self"
         end
-        if plugin = window&.plugin(tag)
-          if set
-            instance_exec &plugin
-          else
-          end
-        end
         true
       end
 
@@ -90,13 +84,6 @@ module Kredki
       def detach transfer = false
         @parent&.remove_service self
         @parent = nil
-      end
-
-      # Use plugin.
-      def use! id, *a, **na
-        plugin = window.plugin id
-        raise_ia id unless plugin
-        instance_exec *a, **na, &plugin
       end
 
       def on event_type, early: false, always: false, do: nil, &block

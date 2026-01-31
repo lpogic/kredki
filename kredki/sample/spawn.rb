@@ -1,7 +1,7 @@
 require 'kredki'
 
 define :spawn do |path, color|
-  window.use! :exit_on_esc
+  window.alter window[:exit_on_esc]
   window.title! path
   window.fill! color
 

@@ -53,10 +53,6 @@ KredkiProc = proc do
           W.window.layer!(...)
         end
 
-        def plugin! ...
-          W.window.plugin!(...)
-        end
-  
         def define ...
           def_delegator :W, Pads.define(...)
         end
@@ -72,8 +68,7 @@ KredkiProc = proc do
       text_input!
       fill! 20, 70, 20
       top!
-      use! :exit_on_esc
-      use! :carry_focus_on_tab
+      alter self[:exit_on_esc, :carry_focus_on_tab]
     end
 
     kredki_workspace = KredkiWorkSpace.new application, binding

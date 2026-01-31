@@ -174,9 +174,10 @@ module Kredki
     button! :y, 3
     button! :l, 4
     button! :r, 5
-    button! :b7, 6
-    button! :b8, 7
-    button! :b9, 8
+    button! :f1, 6
+    button! :f2, 7
+    button! :f3, 8
+    button! :f4, 9
     
     axis! :lx, 0
     axis! :ly, 1
@@ -185,6 +186,16 @@ module Kredki
     axis! :ry, 4
     axis! :rz, 5
 
-    # hat! :h, 0
+    hat! :hat, 0 do
+      gear! :c, 0
+      gear! :t, 1
+      gear! :r, 2
+      gear! :tr, 3
+      gear! :b, 4
+      gear! :br, 6
+      gear! :l, 8
+      gear! :bl, 12
+      gear! :tl, 9
+    end
   end
 end

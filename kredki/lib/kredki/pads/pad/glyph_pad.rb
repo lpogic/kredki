@@ -5,7 +5,6 @@ module Kredki
 
       # Set content.
       def content! content = @content
-        p content
         return send_ahp :content!, yield(self.content) if block_given?
         return if @content == content && content != :rand
         if @area.content! Kredki.glyph(content), @w == :layout && @h == :layout
@@ -57,6 +56,12 @@ module Kredki
         super
         @fill = nil
         @color = nil
+      end
+
+      def sketch
+        super
+
+        wh! Kredki.text_size
       end
 
       def set_color color
