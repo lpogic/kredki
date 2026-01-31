@@ -23,12 +23,8 @@ module Kredki
         text_edition @verse, true
       end
 
-      def behavior
-        super
-
-        on_mouse_scroll do |e|
-          @verse.scroll *window.relative_scroll(*e.xy)
-        end
+      def mouse_scroll event
+        @verse.scroll *window.relative_scroll(*event.xy)
       end
 
     end

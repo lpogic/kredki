@@ -219,6 +219,13 @@ module Kredki
       end
     end
 
+    def renew_paint paint, old_pointer, new_pointer
+      if @paints[paint]&.shown
+        Pastele.scene_add @pointer, new_pointer, old_pointer
+        Pastele.scene_remove @pointer, old_pointer
+      end
+    end
+
     def paint_shown paint, direct
       !!@paints[paint]&.shown && (direct || get_show)
     end

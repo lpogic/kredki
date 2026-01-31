@@ -47,7 +47,7 @@ module Kredki
   class JoystickButtonReleaseEvent < JoystickButtonEvent
   end
 
-  # Event reported on joystick axis change.
+  # Event reported on joystick axis move.
   class JoystickAxisMoveEvent < JoystickEvent
 
     # Get event axis.
@@ -63,6 +63,30 @@ module Kredki
     # Get binding input id.
     def input_id
       @source.axis
+    end
+
+    # Get axis value.
+    def value
+      @source.value
+    end
+  end
+
+  # Event reported on joystick hat move.
+  class JoystickHatEvent < JoystickEvent
+
+    # Get event hat.
+    def hat
+      @joystick.hat @source.hat
+    end
+
+    # Get main parameter.
+    def param
+      hat&.id
+    end
+
+    # Get binding input id.
+    def input_id
+      @source.hat
     end
 
     # Get axis value.

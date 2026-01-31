@@ -67,92 +67,6 @@ module Kredki
 
     def event event_type, event_ptr
       event = case event_type
-      when 0x300 # SDL_EVENT_KEY_DOWN
-        abi = Pastele::KeyboardEvent.new event_ptr
-        if keyboard = Kredki.keyboard
-          event = keyboard.key_press_event abi
-          window_event abi.window_id, event do |event|
-            @early_close_next_text_event = event.closed? && (32..122).include?(event.input_id)
-          end
-        end
-      when 0x301 # SDL_EVENT_KEY_UP
-        abi = Pastele::KeyboardEvent.new event_ptr
-        if keyboard = Kredki.keyboard
-          event = keyboard.key_release_event abi
-          window_event abi.window_id, event
-        end
-      when 0x400 # SDL_EVENT_MOUSE_MOTION
-        abi = Pastele::MouseMotionEvent.new event_ptr
-        if mouse = Kredki.mouse
-          event = mouse.pointer_move_event abi
-          if window = @windows[abi.window_id]
-            window.report event
-          end
-          event
-        end
-      when 0x401 # SDL_EVENT_MOUSE_BUTTON_DOWN
-        abi = Pastele::MouseButtonEvent.new event_ptr
-        if mouse = Kredki.mouse
-          event = mouse.button_press_event abi
-          if window = @windows[abi.window_id]
-            window.report event
-          end
-          event
-        end
-      when 0x402 # SDL_EVENT_MOUSE_BUTTON_UP
-        abi = Pastele::MouseButtonEvent.new event_ptr
-        if mouse = Kredki.mouse
-          event = mouse.button_release_event abi
-          if window = @windows[abi.window_id]
-            window.report event
-          end
-          event
-        end
-      when 0x403 # SDL_EVENT_MOUSE_WHEEL
-        abi = Pastele::MouseWheelEvent.new event_ptr
-        if mouse = Kredki.mouse
-          event = Kredki.mouse.wheel_scroll_event abi
-          window_event abi.window_id, event
-        end
-      when 0x303 # SDL_EVENT_TEXT_EDITING
-        abi = Pastele::TextInputEvent.new event_ptr
-        event = TextInputEvent.new event_ptr, abi
-        @early_close_next_text_event &&= event.close && false
-        window_event abi.window_id, event
-      when 0x1000 # SDL_EVENT_DROP_FILE
-        abi = Pastele::DropEvent.new event_ptr
-        @drop_data << DropData.new(
-          abi.source.then{|it| it.null? ? nil : it.to_s.force_encoding("utf-8") },
-          abi.data.to_s.force_encoding("utf-8"),
-          :file,
-        )
-        nil
-      when 0x1001 # SDL_EVENT_DROP_TEXT
-        abi = Pastele::DropEvent.new event_ptr
-        @drop_data << DropData.new(
-          abi.source.then{|it| it.null? ? nil : it.to_s.force_encoding("utf-8") },
-          abi.data.to_s.force_encoding("utf-8"),
-          :text,
-        )
-        nil
-      when 0x1002 # SDL_EVENT_DROP_BEGIN
-        @drop_data = []
-        abi = Pastele::DropEvent.new event_ptr
-        window_event abi.window_id, DropBeginEvent.new(abi)
-      when 0x1003 # SDL_EVENT_DROP_COMPLETE
-        abi = Pastele::DropEvent.new event_ptr
-        if @drop_data.empty?
-          window_event abi.window_id, DropCancelEvent.new(abi)
-        else
-          window_event abi.window_id, DropEvent.new(@drop_data, abi)
-        end
-      when 0x1004 # SDL_EVENT_DROP_POSITION
-        abi = Pastele::DropEvent.new event_ptr
-        event = MousePointerDropEvent.new Kredki.mouse, abi
-        if window = @windows[abi.window_id]
-          window.report event
-        end
-        event
       when 0x202
         abi = Pastele::WindowEvent.new event_ptr
         window_event abi.window_id, ShowEvent.new(abi)
@@ -216,18 +130,71 @@ module Kredki
       when 0x213
         abi = Pastele::WindowEvent.new event_ptr
         window_event abi.window_id, WindowDisplayChangeEvent.new(abi)
-      when 256
-        application_event ExitEvent.new(Pastele::QuitEvent.new event_ptr)
-      when 1539
-        abi_event = Pastele::JoyButtonEvent.new event_ptr
-        application_event JoystickButtonPressEvent.new(Kredki.opened_joysticks[abi_event.which], abi_event)
-      when 1540
-        abi_event = Pastele::JoyButtonEvent.new event_ptr
-        application_event JoystickButtonReleaseEvent.new(Kredki.opened_joysticks[abi_event.which], abi_event)
-      when 1536
+      when 0x300 # SDL_EVENT_KEY_DOWN
+        abi = Pastele::KeyboardEvent.new event_ptr
+        if keyboard = Kredki.keyboard
+          event = keyboard.key_press_event abi
+          window_event abi.window_id, event do |event|
+            @early_close_next_text_event = event.closed? && (32..122).include?(event.input_id)
+          end
+        end
+      when 0x301 # SDL_EVENT_KEY_UP
+        abi = Pastele::KeyboardEvent.new event_ptr
+        if keyboard = Kredki.keyboard
+          event = keyboard.key_release_event abi
+          window_event abi.window_id, event
+        end
+      when 0x400 # SDL_EVENT_MOUSE_MOTION
+        abi = Pastele::MouseMotionEvent.new event_ptr
+        if mouse = Kredki.mouse
+          event = mouse.pointer_move_event abi
+          if window = @windows[abi.window_id]
+            window.report event
+          end
+          event
+        end
+      when 0x401 # SDL_EVENT_MOUSE_BUTTON_DOWN
+        abi = Pastele::MouseButtonEvent.new event_ptr
+        if mouse = Kredki.mouse
+          event = mouse.button_press_event abi
+          if window = @windows[abi.window_id]
+            window.report event
+          end
+          event
+        end
+      when 0x402 # SDL_EVENT_MOUSE_BUTTON_UP
+        abi = Pastele::MouseButtonEvent.new event_ptr
+        if mouse = Kredki.mouse
+          event = mouse.button_release_event abi
+          if window = @windows[abi.window_id]
+            window.report event
+          end
+          event
+        end
+      when 0x403 # SDL_EVENT_MOUSE_WHEEL
+        abi = Pastele::MouseWheelEvent.new event_ptr
+        if mouse = Kredki.mouse
+          event = Kredki.mouse.wheel_scroll_event abi
+          window_event abi.window_id, event
+        end
+      when 0x303 # SDL_EVENT_TEXT_EDITING
+        abi = Pastele::TextInputEvent.new event_ptr
+        event = TextInputEvent.new event_ptr, abi
+        @early_close_next_text_event &&= event.close && false
+        window_event abi.window_id, event
+      when 0x600 # SDL_EVENT_JOYSTICK_AXIS_MOTION
         abi_event = Pastele::JoyAxisEvent.new event_ptr
         application_event JoystickAxisMoveEvent.new(Kredki.opened_joysticks[abi_event.which], abi_event)
-      when 1541
+      when 0x602 # SDL_EVENT_JOYSTICK_HAT_MOTION
+        abi_event = Pastele::JoyHatEvent.new event_ptr
+        application_event JoystickHatEvent.new(Kredki.opened_joysticks[abi_event.which], abi_event)
+      when 0x603 # SDL_EVENT_JOYSTICK_BUTTON_DOWN
+        abi_event = Pastele::JoyButtonEvent.new event_ptr
+        application_event JoystickButtonPressEvent.new(Kredki.opened_joysticks[abi_event.which], abi_event)
+      when 0x604 # SDL_EVENT_JOYSTICK_BUTTON_UP
+        abi_event = Pastele::JoyButtonEvent.new event_ptr
+        application_event JoystickButtonReleaseEvent.new(Kredki.opened_joysticks[abi_event.which], abi_event)
+      when 0x605 # SDL_EVENT_JOYSTICK_ADDED
         abi_event = Pastele::JoyDeviceEvent.new event_ptr
         p abi_event.which
         joystick = (Kredki.joysticks.values - Kredki.opened_joysticks.values).max{ _1.match abi_event.which } || Joystick.new
@@ -239,7 +206,7 @@ module Kredki
             event.close
           end
         end
-      when 1542
+      when 0x606 # SDL_EVENT_JOYSTICK_REMOVED
         abi_event = Pastele::JoyDeviceEvent.new event_ptr
         device_id = abi_event.which
         joystick = Kredki.opened_joysticks[device_id]
@@ -250,11 +217,47 @@ module Kredki
             event.close
           end
         end
+      when 0x1000 # SDL_EVENT_DROP_FILE
+        abi = Pastele::DropEvent.new event_ptr
+        @drop_data << DropData.new(
+          abi.source.then{|it| it.null? ? nil : it.to_s.force_encoding("utf-8") },
+          abi.data.to_s.force_encoding("utf-8"),
+          :file,
+        )
+        nil
+      when 0x1001 # SDL_EVENT_DROP_TEXT
+        abi = Pastele::DropEvent.new event_ptr
+        @drop_data << DropData.new(
+          abi.source.then{|it| it.null? ? nil : it.to_s.force_encoding("utf-8") },
+          abi.data.to_s.force_encoding("utf-8"),
+          :text,
+        )
+        nil
+      when 0x1002 # SDL_EVENT_DROP_BEGIN
+        @drop_data = []
+        abi = Pastele::DropEvent.new event_ptr
+        window_event abi.window_id, DropBeginEvent.new(abi)
+      when 0x1003 # SDL_EVENT_DROP_COMPLETE
+        abi = Pastele::DropEvent.new event_ptr
+        if @drop_data.empty?
+          window_event abi.window_id, DropCancelEvent.new(abi)
+        else
+          window_event abi.window_id, DropEvent.new(@drop_data, abi)
+        end
+      when 0x1004 # SDL_EVENT_DROP_POSITION
+        abi = Pastele::DropEvent.new event_ptr
+        event = MousePointerDropEvent.new Kredki.mouse, abi
+        if window = @windows[abi.window_id]
+          window.report event
+        end
+        event
+      when 256
+        application_event ExitEvent.new(Pastele::QuitEvent.new event_ptr)
       when 0x8001 # Tick Event
         abi = Pastele::UserEvent.new event_ptr
         window_event abi.window_id, TickEvent.new(abi)
       else # unsupported event
-        # puts event_type.to_s 16
+        puts event_type.to_s 16
         nil
       end
       event&.closed? ? 1 : 0

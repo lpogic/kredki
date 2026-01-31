@@ -162,6 +162,29 @@ module Kredki
         text_edition @verse, false
       end
 
+      def behavior
+        super
+
+        on_mouse_scroll do: method(:mouse_scroll)
+
+        on_mouse_press :scroll do |e|
+          drag! e.xy, :scroll
+          e.close
+        end
+
+        on_mouse_move do |e|
+          if e.drag? && e.button == :scroll
+            @verse.process_drag e
+            e.close
+          end
+        end
+      end
+
+      def mouse_scroll event
+        x, y = window.relative_scroll(*event.xy)
+        @verse.scroll x == 0 ? y : x, y
+      end
+
       def presence
         super
 

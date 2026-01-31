@@ -75,7 +75,7 @@ module Kredki
       when Button
         param
       else
-        @buttoncode_map[param] or @button_map[param] or raise "Unknown button #{param.inspect}"
+        @buttoncode_map[param] or @button_map[param]
       end
     end
 
@@ -90,20 +90,22 @@ module Kredki
       when Axis
         param
       else
-        @axiscode_map[param] or @axis_map[param] or raise "Unknown axis #{param.inspect}"
+        @axiscode_map[param] or @axis_map[param]
       end
     end
 
     # Get whether button is pressed.
     def pressed? key
       return nil if !opened?
-      Pastele.joystick_get_button_state(@device_id, button(key).code) != 0
+      button = button key
+      Pastele.joystick_get_button_state(@device_id, button.code) != 0 if button
     end
 
     # Get axis value.
     def value key
       return nil if !opened?
-      Pastele.joystick_get_axis_value(@device_id, axis(key).code)
+      axis = axis key
+      Pastele.joystick_get_axis_value @device_id, axis.code if axis
     end
 
     # Get whether joystick is opened.

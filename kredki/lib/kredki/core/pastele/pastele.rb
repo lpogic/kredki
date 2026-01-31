@@ -3,7 +3,7 @@ require 'fiddle/import'
 module Kredki
   module Pastele
     extend Fiddle::Importer
-    if Setup.unit_test_mode
+    if Kredki.unit_test_mode
       class << self
         alias_method :o_extern, :extern
 
@@ -29,14 +29,14 @@ module Kredki
 
     current_lib = nil
     begin
-      dlload (current_lib = Setup.sdl || raise("SDL shared library setup is missing"))
-      dlload (current_lib = Setup.thorvg || raise("ThorVG shared library setup is missing"))
-      dlload (current_lib = Setup.pastele || raise("Pastele shared library setup is missing"))
+      dlload (current_lib = Kredki.sdl || raise("SDL shared library setup is missing"))
+      dlload (current_lib = Kredki.thorvg || raise("ThorVG shared library setup is missing"))
+      dlload (current_lib = Kredki.pastele || raise("Pastele shared library setup is missing"))
 
     rescue LoadError
       raise LoadError, "Could not load #{current_lib}"
     rescue Fiddle::DLError
-      raise Fiddle::DLError, current_lib
+      raise Fiddle::DLError, "Could not load #{current_lib}"
     end
 
     UserEvent = struct [
@@ -169,6 +169,17 @@ module Kredki
       'uint8_t padding2', #unused
       'uint8_t padding3', #unused
       'int16_t value'
+    ]
+
+    JoyHatEvent = struct [
+      'uint32_t type',
+      'uint32_t reserved',
+      'uint64_t timestamp',
+      'uint32_t which',
+      'uint8_t hat',
+      'uint8_t value',
+      'uint8_t padding1', #unused
+      'uint8_t padding2', #unused
     ]
 
     Bounds = struct [

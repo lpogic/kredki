@@ -9,6 +9,7 @@ module Kredki
     def content! content, pull_size = false
       return content! yield @content if block_given?
       return if @content == content
+      renew if @content        
       Pastele.picture_load @pointer, content.to_s
       @content = content
       @ow, @oh = get_size
@@ -82,6 +83,14 @@ module Kredki
       @redraw_flag = true
       return super if pointer
       super Pastele.picture_new
+      ObjectSpace.define_finalizer(self, Picture.finalizer(@pointer))
+    end
+
+    def renew
+      pointer = Pastele.picture_new
+      @scene.renew_paint self, @pointer, pointer
+      Pastele.paint_delete @pointer
+      @pointer = pointer
       ObjectSpace.define_finalizer(self, Picture.finalizer(@pointer))
     end
 

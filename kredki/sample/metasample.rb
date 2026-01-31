@@ -30,7 +30,7 @@ end
 define :sample do |file|
   layout! :yss
 
-  n = notes! File.read(file), verse: [font: :courier_prime, size: 14], wh: 1r, 
+  n = notes! File.read(file), verse: [font: :martian_mono, size: 14], wh: 1r, 
     suit: Kredki.color([20, 70, 20])
   space! w: 1r, h: :fit, layout: :xec, mi: 10, m: 10 do
     button! "Back", on_click: proc{ window.shift{ list } }

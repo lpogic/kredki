@@ -4,6 +4,10 @@ module Kredki
 
     # Get name.
     def name
+      unless @loaded
+        @name = Font.load path
+        @loaded = true
+      end
       @name
     end
 
@@ -16,7 +20,8 @@ module Kredki
 
     def initialize path
       @path = path
-      @name = Font.load path
+      @loaded = false
+      @name = nil
     end
 
     class << self
@@ -34,8 +39,8 @@ module Kredki
 
       def unload font
         name = String === font ? font : font.name
-        font = loaded_fonts.delete name
-        Pastele.font_unload name if font
+        path = loaded_fonts.delete name
+        Pastele.font_unload name if path
       end
 
       def path_to_name path

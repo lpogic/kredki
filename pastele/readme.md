@@ -1,1 +1,3 @@
-This is a subproject that mixes ThorVG with SDL and provides an interface to FFI.
+# Pastele
+
+This is a subproject that mixes ThorVG with SDL and prepares for FFI.

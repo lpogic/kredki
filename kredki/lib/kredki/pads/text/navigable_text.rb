@@ -249,6 +249,23 @@ module Kredki
         end
       end
 
+      def process_drag e, speed = 1
+        w, h = swh
+
+        tw = fit_w
+        x0 = align_x tw, w
+        @sx0 = @scene.x if e.start? || !@sx0
+        sx = tw > w ? (@sx0 + (e.x - layer.pin_xy[0]) * speed).clamp(w - tw - x0..-x0) : @scene.x
+
+        size, space = verse_metrics h
+        th = (size + space) * @verses.size - space
+        y0 = align_y th, h
+        @sy0 = @scene.y if e.start? || !@sy0
+        sy = th > h ? (@sy0 + (e.y - layer.pin_xy[1]) * speed).clamp(h - th - y0..-y0) : @scene.y
+
+        @scene.xy! sx, sy
+      end
+
       def update_cursor
         total = -1
         @cursor.xy! align_x(@cursor.w * 0.5, sw), align_y(@cursor.h, sh)

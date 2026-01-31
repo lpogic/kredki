@@ -1,10 +1,10 @@
 # Kredki
 
-Vector graphics & GUI toolkit for Ruby. For creating images, simulations, simple games and applications. Easy to use and customize.
+Vector graphics & GUI toolkit for Ruby. For creating images, simulations, simple games and applications.
 
 ## How it works:
 
-The project is based on the [ThorVG](https://www.thorvg.org/) library for rendering and the [SDL](https://www.libsdl.org/) library for connecting to hardware. Main features:
+The project is based on the [ThorVG](https://www.thorvg.org/) library for rendering and the [SDL](https://www.libsdl.org/) library for connecting with hardware and host OS. Main features:
 - Binary files are included and loaded via FFI
 - Memory is managed automatically
 - Drawing is only triggered after scene changes
@@ -100,7 +100,7 @@ puts decision # => yes/no/perhaps
 <img src="./.github/module.png">
 </td></tr></table>
 
-For more samples go to kredki/sample. 'metasample.rb' is sample explorer at the same time.
+For more check out kredki/sample.
 
 ## Updates:
 
@@ -108,10 +108,8 @@ For more samples go to kredki/sample. 'metasample.rb' is sample explorer at the 
 
 ## Notes:
 
-- The source files used to generate the ThorVG binary are **not** original - the version used comes from this [fork](https://github.com/lpogic/thorvg/tree/thorvg-gui) that introduces some minor extensions.
-- This is a hobby project.
+- This project uses modified version of the [ThorVG](https://www.thorvg.org/) library source code available here: https://github.com/lpogic/thorvg/tree/thorvg-gui
 
 ## Contact
 
 - discord: https://discord.gg/NNrcXKgB
-- pomluk1996@gmail.com
