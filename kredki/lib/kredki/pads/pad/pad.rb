@@ -422,6 +422,25 @@ module Kredki
         @scene.mag
       end
 
+      # Set mouse cursor.
+      def mouse_cursor! mouse_cursor = @mouse_cursor
+        return send_ahp :mouse_cursor!, yield(self.mouse_cursor) if block_given?
+        return if @mouse_cursor == mouse_cursor
+        @mouse_cursor = mouse_cursor
+        #window.update_mouse_cursor
+        true
+      end
+
+      # See #mouse_cursor!.
+      def mouse_cursor= param
+        send_ahp :mouse_cursor!, param
+      end
+
+      # Get mouse_cursor.
+      def mouse_cursor
+        @mouse_cursor
+      end
+
       # [Create] and attach area and optionally clip area.
       def area! area = BlockShapeArea, clip: :auto, &block
         a = case area
@@ -715,6 +734,7 @@ module Kredki
         @w_limit = @h_limit = nil
         @rot = 0
         @mxs = @mxe = @mys = @mye = 0
+        @mouse_cursor = nil
         @pad_parent = nil
         @scene = Scene.new
         initialize_area

@@ -116,6 +116,25 @@ module Kredki
     def capture= param
       caupture! param
     end
+
+    # Set cursor.
+    def cursor! cursor = @cursor
+      return send_ahp :cursor!, yield(self.cursor) if block_given?
+      return if @cursor == cursor
+      @cursor = cursor
+      set_cursor cursor
+      true
+    end
+
+    # See #cursor!.
+    def cursor= param
+      send_ahp :cursor!, param
+    end
+
+    # Get cursor.
+    def cursor
+      @cursor
+    end
     
     # :section: LEVEL 2
 
@@ -124,6 +143,8 @@ module Kredki
       @buttoncode_map = {}
       @scroll_speed = 0.3
       @scroll_speed_alt = 0.06
+      @cursor = nil
+      @system_cursors = {}
     end
 
     def wheel_scroll_event pastele_event
@@ -140,6 +161,36 @@ module Kredki
 
     def button_release_event pastele_event
       MouseButtonReleaseEvent.new self, pastele_event
+    end
+
+    def set_cursor cursor
+      Pastele.mouse_set_cursor case cursor
+      when nil, :default then system_cursor 0
+      when :text then system_cursor 1
+      when :wait then system_cursor 2
+      when :crosshair then system_cursor 3
+      when :progress then system_cursor 4
+      when :resize_ssee, :resize_eess then system_cursor 5
+      when :resize_sees, :resize_esse then system_cursor 6
+      when :resize_x then system_cursor 7
+      when :resize_y then system_cursor 8
+      when :move then system_cursor 9
+      when :not_allowed then system_cursor 10
+      when :pointer then system_cursor 11
+      when :resize_ss then system_cursor 12
+      when :resize_ys then system_cursor 13
+      when :resize_es then system_cursor 14
+      when :resize_xe then system_cursor 15
+      when :resize_ee then system_cursor 16
+      when :resize_ye then system_cursor 17
+      when :resize_se then system_cursor 18
+      when :resize_xs then system_cursor 19
+      when :count then system_cursor 20
+      end
+    end
+
+    def system_cursor cursor
+      @system_cursors[cursor] ||= Pastele.mouse_create_system_cursor cursor
     end
   end
 end

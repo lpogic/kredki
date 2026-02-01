@@ -13,6 +13,8 @@ module Kredki
     extern 'uint32_t mouse_get_button_state(int index)'
     extern 'void mouse_get_cursor_position(Point* point)'
     extern 'void mouse_set_capture(int set)'
+    extern 'void* mouse_create_system_cursor(int cursor)'
+    extern 'void mouse_set_cursor(SDL_Cursor* cursor)'
     extern 'uint32_t joystick_open(int index)'
     extern 'uint8_t joystick_get_button_state(int device_id, int button_index)'
     extern 'int16_t joystick_get_axis_value(int device_id, int axis_index)'

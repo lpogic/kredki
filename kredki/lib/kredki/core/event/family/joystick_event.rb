@@ -96,7 +96,7 @@ module Kredki
 
     # Get hat value.
     def value
-      hat&.gear input_value
+      hat&.state input_value
     end
   end
 end

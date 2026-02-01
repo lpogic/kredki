@@ -11,26 +11,6 @@ module Kredki
       include Pads
       include ServiceFilter
 
-      # Set whether Pad is tagged with +tag+.
-      def tag! tag, set = true
-        return tag! tag, (yield(self.tag tag)) if block_given?
-        @tags[tag] = set
-        if tag.start_with? "$"
-          eval "#{tag} = WeakRef.new self"
-        end
-        true
-      end
-
-      # See #tag!.
-      def tag= param
-        send_ahp :tag!, param
-      end
-
-      # Get whether Pad is tagged with +tag+ _or_ all tags if +tag+ is +nil+.
-      def tag tag = nil
-        tag ? @tags[tag] : @tags.keys
-      end
-
       # Get ancestors.
       def lineage include_self = true
         Enumerator.new do |e|
@@ -124,6 +104,45 @@ module Kredki
         filters.all?{ self !~ filters } && (!block || self !~ block ? self : false)
       end
 
+      # Set whether Pad is tagged with +tag+.
+      def tag! tag, value = true
+        return if (c = self.tag tag) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+        if value
+          @tags[tag] = true
+          eval "#{tag} = WeakRef.new self" if tag.start_with? "$"
+        else
+          @tags.delete tag
+        end
+        true
+      end
+
+      # See #tag!.
+      def tag= param
+        send_ahp :tag!, param
+      end
+
+      # Get whether Pad is tagged with +tag+.
+      def tag tag
+        @tags[tag]
+      end
+
+      # See #tag.
+      def tag? tag
+        !!tag
+      end
+
+      # Get tags.
+      def tags
+        @tags.keys
+      end
+
+      # Create new job tree.
+      def job run = true, &block
+        job = AfterJob.new block, 0
+        job.run window if run
+        job
+      end
+
       # Push the feature.
       def << feature
         case feature
@@ -139,13 +158,6 @@ module Kredki
           raise "Unsupported << (#{feature} : #{feature.class})"
         end
         self
-      end
-
-      # Create new job tree.
-      def job run = true, &block
-        job = AfterJob.new block, 0
-        job.run window if run
-        job
       end
 
       # :section: LEVEL 2

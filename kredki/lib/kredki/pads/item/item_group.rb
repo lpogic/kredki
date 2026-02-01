@@ -7,7 +7,7 @@ module Kredki
 
       # Add new item.
       def item!(...)
-        new(YItem, ...)
+        new(YItem, :item!, ...)
       end
       
       # :section: LEVEL 2

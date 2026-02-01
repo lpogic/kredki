@@ -163,9 +163,6 @@ module Kredki
       def update_mouse_location event
         xy = event.xy
 
-        arrange
-        @mouse_pads, last_mouse_pads = [], @mouse_pads
-        point_pads *xy, @mouse_pads
         if @pin_data
           drag = @pin_data.drag || ((@pin_data.drag = layer_drag_check xy) && :start)
           if drag
@@ -177,6 +174,9 @@ module Kredki
           return event
         end
 
+        arrange
+        @mouse_pads, last_mouse_pads = [], @mouse_pads
+        point_pads *xy, @mouse_pads
         enter, stay, leave = *Util.polarize(@mouse_pads, last_mouse_pads)
         leave.reverse_each{|it| it.report MousePointerLeaveEvent.new(event), false }
         enter.reverse_each{|it| it.report MousePointerEnterEvent.new(event), false }
@@ -201,6 +201,14 @@ module Kredki
           mouse_pads.reverse_each{|it| it.report MousePointerLeaveEvent.new(nil, *xy), false }
         end
         @pin_data&.pad&.pin_dispose
+      end
+
+      def layer_mouse_cursor
+        if @pin_data
+          @pin_data.pad.mouse_cursor
+        else
+          @mouse_pads.reverse_each.find{|it| it.mouse_cursor }&.mouse_cursor
+        end
       end
 
       def mouse_press e

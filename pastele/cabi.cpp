@@ -44,6 +44,14 @@ CABI void mouse_set_capture(int set) {
     SDL_CaptureMouse(set);
 }
 
+CABI void* mouse_create_system_cursor(int cursor) {
+    return SDL_CreateSystemCursor((SDL_SystemCursor)cursor);
+}
+
+CABI void mouse_set_cursor(SDL_Cursor* cursor) {
+    SDL_SetCursor(cursor);
+}
+
 CABI uint32_t joystick_open(int index) {
     auto sdl_joystick = SDL_OpenJoystick(index);
     return SDL_GetJoystickID(sdl_joystick);

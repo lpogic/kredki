@@ -15,7 +15,7 @@ module Kredki
 
         # Add new item.
         def item!(...)
-          new(Item, w: 1r).alter(...)
+          new(Item, :item!, w: 1r).alter(...)
         end
       end
       

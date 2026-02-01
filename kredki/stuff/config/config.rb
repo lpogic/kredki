@@ -187,15 +187,15 @@ module Kredki
     axis! :rz, 5
 
     hat! :hat, 0 do
-      gear! :c, 0
-      gear! :t, 1
-      gear! :r, 2
-      gear! :tr, 3
-      gear! :b, 4
-      gear! :br, 6
-      gear! :l, 8
-      gear! :bl, 12
-      gear! :tl, 9
+      state! :c, 0
+      state! :t, 1
+      state! :r, 2
+      state! :tr, 3
+      state! :b, 4
+      state! :br, 6
+      state! :l, 8
+      state! :bl, 12
+      state! :tl, 9
     end
   end
 end

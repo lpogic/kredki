@@ -157,20 +157,27 @@ module Kredki
           event.target = nil
           event = layer.mouse_event event
           @event_queue.process
+          if event.is_a? MouseButtonReleaseEvent
+            layer.update_mouse_location event
+            @event_queue.process
+          end
         end
       end
 
       def update_mouse_location event = nil
         event ||= PositionEvent.new *window.mouse_xy
         xy = event.xy
+        cursor = nil
         @services.reverse_each do |layer|
           if event.closed?
             layer.clear_mouse_location xy
           else
             event = layer.update_mouse_location event
+            cursor ||= layer.layer_mouse_cursor
           end
           @event_queue.process
         end
+        Kredki.mouse.cursor! cursor
         @mouse_stale = false
       end
 

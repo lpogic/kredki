@@ -80,6 +80,8 @@ CABI uint16_t keyboard_get_mod_state(void);
 CABI uint32_t mouse_get_button_state(int index);
 CABI void mouse_get_cursor_position(Point* point);
 CABI void mouse_set_capture(int set);
+CABI void* mouse_create_system_cursor(int cursor);
+CABI void mouse_set_cursor(SDL_Cursor* cursor);
 
 CABI uint32_t joystick_open(int index);
 CABI uint8_t joystick_get_button_state(int device_id, int button_index);

@@ -9,17 +9,17 @@ module Kredki
     # Without block get value associated with key. If block given associate it with key.
     def [] key, *other_keys, &block
       if block
-        @hash[key] = block
+        @store[key] = block
       elsif !other_keys.empty?
-        @hash.fetch_values key, *other_keys
+        @store.fetch_values key, *other_keys
       else
-        @hash[key]
+        @store[key]
       end
     end
 
     # Associate value with key.
     def []= key, value
-      @hash[key] = value
+      @store[key] = value
     end
 
     # Shift from current scene to another.
@@ -364,7 +364,7 @@ module Kredki
 
       @jobs = {}
       @jobs_mutex = Thread::Mutex.new
-      @hash = {}
+      @store = {}
       @event_manager = WindowSceneEventManager.new
       @fill = rectangle! xy: 0
 

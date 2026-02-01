@@ -6,21 +6,27 @@ window.title! "Metasample"
 define :list do
   scroll! wh: 1r, layout: :zss do
     list! w: 1r, h: :fit, fill: :transparent do
+
+      go_sample = proc do |sample|
+        window.shift{ sample File.expand_path "#{Kredki.dir}/sample/#{sample}" }
+      end
+
       Dir["*.rb"].each_with_index do |file, index| 
-        item! "#{index + 1}. #{file}", subject: file, suit: Kredki.color([20, 70, 20])
+        item! "#{index + 1}. #{file}", subject: file, suit: Kredki.color([20, 70, 20]), mi: 5 do
+          glyph! :media_play, fill: :text, show: false, mouse_cursor: :pointer do
+            on_mouse_enter{ mag! 1.2 }
+            on_mouse_leave{ mag! 1.0 }
+            on_mouse_click{ run_sample File.read File.expand_path "#{Kredki.dir}/sample/#{file}" }
+          end
+          on_mouse_enter{ fd(:glyph!).show! }
+          on_mouse_leave{ fd(:glyph!).hide! }
+          on_mouse_click{ go_sample.call subject if layer.mouse_clicks == 2 }
+          on_key_press :enter do
+            go_sample.call subject
+          end
+        end
       end
 
-      go_sample = proc do |e|
-        window.shift{ sample File.expand_path "#{Kredki.dir}/sample/#{e.target.subject}" }
-      end
-
-      on_mouse_click do |e|
-        go_sample[e] if layer.mouse_clicks == 2
-      end
-
-      on_key_press :enter do |e|
-        go_sample[e]
-      end
     end
   end
 
@@ -35,19 +41,21 @@ define :sample do |file|
   space! w: 1r, h: :fit, layout: :xec, mi: 10, m: 10 do
     button! "Back", on_click: proc{ window.shift{ list } }
     button! "Run", suit: :orange do
-      on_click do
-        application.window! do 
-          window.wh_drag!
-          window.alter window[:close_on_esc]
-          begin
-            eval "#{n}", nil, file
-          rescue Exception => e
-            window.shift do
-              fill! :red
-              text! "#{e.class}"
-            end
-          end
-        end
+      on_click{ run_sample "#{n}" }
+    end
+  end
+end
+
+define :run_sample do |code|
+  application.window! do 
+    window.wh_drag!
+    window.alter window[:close_on_esc]
+    begin
+      eval code
+    rescue Exception => e
+      window.shift do
+        fill! :red
+        text! "#{e.class}"
       end
     end
   end

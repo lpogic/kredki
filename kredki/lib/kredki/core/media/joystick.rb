@@ -66,14 +66,14 @@ module Kredki
         @code
       end
 
-      # Set gear.
-      def gear! id, code
-        @gear_map[id] = @gearcode_map[code] = id
+      # Set state.
+      def state! id, code
+        @state_map[id] = @statecode_map[code] = id
       end
 
-      # Get gear.
-      def gear param
-        @gearcode_map[param] or @gear_map[param]
+      # Get state.
+      def state param
+        @statecode_map[param] or @state_map[param]
       end
       
       # :section: LEVEL 2
@@ -81,8 +81,8 @@ module Kredki
       def initialize id, code
         @id = id
         @code = code
-        @gear_map = {}
-        @gearcode_map = {}
+        @state_map = {}
+        @statecode_map = {}
       end
       
       def ==(other)
