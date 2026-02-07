@@ -43,6 +43,11 @@ module Kredki
         super
 
         @picked = nil
+      end
+
+      def sketch
+        super
+
         @note = new Note
         @arrow = @note.new Button, w: 20, h: 1r do
           outline_w! 0
@@ -56,10 +61,6 @@ module Kredki
             end
           end
         end
-      end
-
-      def sketch
-        super
 
         h! 24
         @note.wh! 1r

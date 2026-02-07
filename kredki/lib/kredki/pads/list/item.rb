@@ -65,13 +65,22 @@ module Kredki
 
         def repaint event = nil
           color = Kredki.color @suit
-          area.fill = selected? ? mouse_in? ? Kredki.color(:text_selection).lighten : :text_selection : mouse_in? ? color.lighten : color
-          if keyboard_in?
-            area.outline_w = 1
-            area.outline_fill = :outline_focus
+
+          if disabled?
+            opacity! 3/4r
+            area.fill! color
+            area.outline_w! 0
+            area.outline_fill! color
           else
-            area.outline_w = 0
-            area.outline_fill = color
+            opacity! 1r
+            area.fill! selected? ? mouse_in? ? Kredki.color(:text_selection).lighten : :text_selection : mouse_in? ? color.lighten : color
+            if keyboard_in?
+              area.outline_w! 1
+              area.outline_fill! :outline_focus
+            else
+              area.outline_w! 0
+              area.outline_fill! color
+            end
           end
         end
 

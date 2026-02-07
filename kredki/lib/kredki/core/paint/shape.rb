@@ -90,7 +90,14 @@ module Kredki
       return send_ahp :fill!, yield(self.fill) if block_given?
       fill = Util.uncover fill
       return if @fill == fill && fill != :rand
-      Pastele.shape_set_fill_color @pointer, *Kredki.color(fill)
+      case f = Kredki.fill fill
+      when Color
+        Pastele.shape_set_fill_color @pointer, *f
+      when LinearGradient
+        Pastele.shape_set_fill_linear_gradient @pointer, *f.ffi
+      when RadialGradient
+        Pastele.shape_set_fill_radial_gradient @pointer, *f.ffi
+      end
       @fill = fill
       update
     end
@@ -154,7 +161,14 @@ module Kredki
       return send_ahp :outline_fill!, yield(self.outline_fill) if block_given?
       outline_fill = Util.uncover outline_fill
       return if @outline_fill == outline_fill && outline_fill != :rand
-      Pastele.shape_set_stroke_color @pointer, *Kredki.color(outline_fill)
+      case f = Kredki.fill outline_fill
+      when Color
+        Pastele.shape_set_stroke_color @pointer, *f
+      when LinearGradient
+        Pastele.shape_set_stroke_linear_gradient @pointer, *f.ffi
+      when RadialGradient
+        Pastele.shape_set_stroke_radial_gradient @pointer, *f.ffi
+      end
       @outline_fill = outline_fill
       update
     end

@@ -56,6 +56,10 @@ module Kredki
           layout! :xsc
           
         end
+
+        def repaint event = nil
+          opacity! disabled? ? 3/4r : 1r
+        end
       end
     end
   end

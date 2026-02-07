@@ -4,6 +4,18 @@ module Kredki
     class Slide < RectanglePad
 
       class EditEvent < Event
+        def initialize value, ...
+          super(...)
+          @value = value
+        end
+
+        def value
+          @value
+        end
+
+        def param
+          value
+        end
       end
 
       class ChangeEvent < Event
@@ -99,7 +111,14 @@ module Kredki
 
       def repaint event = nil
         color = Kredki.color @suit
-        handle.area.fill = mouse_in? ? color.lighten : color.darken
+
+        if disabled?
+          opacity! 3/4r
+          handle.area.fill! color.darken
+        else
+          opacity! 1r
+          handle.area.fill! mouse_in? ? color.lighten : color.darken
+        end
       end
 
       def behavior
@@ -107,7 +126,8 @@ module Kredki
 
         on_mouse_scroll do |e|
           jump = Kredki.keyboard.alt? ? Kredki.mouse.scroll_speed_alt : Kredki.mouse.scroll_speed
-          value!{|it| (it - jump * e.xory).clamp(0..1) } and report EditEvent.new e
+          v = (@value - jump * e.xy.max{|it| it.abs }).clamp(0..1)
+          report EditEvent.new(v, e)
           e.close
         end
 
@@ -116,6 +136,14 @@ module Kredki
             process_drag e
             e.close
           end
+        end
+
+        on_edit early: true do |e|
+          e.close if disabled?
+        end
+
+        on_edit do |e|
+          value! e.value
         end
 
         @handle.on_mouse_release do |e|
@@ -140,7 +168,7 @@ module Kredki
         @c0 = @handle.sx if e.start?
         start_x = layer.pin_xy[0]
         x = [[0, @c0 + (e.x - start_x) * speed].max, max_x].min
-        value! 1.0 * x / max_x and report EditEvent.new e if max_x > 0
+        report EditEvent.new(1.0 * x / max_x, e) if max_x > 0
       end
 
       def sketch
@@ -178,7 +206,7 @@ module Kredki
         @c0 = @handle.sy if e.start?
         start_y = layer.pin_xy[1]
         y = [[0, @c0 + (e.y - start_y) * speed].max, max_y].min
-        value! 1.0 * y / max_y and report EditEvent.new e
+        report EditEvent.new(1.0 * y / max_y, e) if max_y > 0
       end
 
       def sketch

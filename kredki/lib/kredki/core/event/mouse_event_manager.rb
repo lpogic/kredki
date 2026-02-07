@@ -9,7 +9,7 @@ module Kredki
     end
 
     def report event
-      id = event.input_id and @managers[id]&.report event
+      id = event.code and @managers[id]&.report event
       @managers[nil]&.report event
     end
 

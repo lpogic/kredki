@@ -1,9 +1,19 @@
 require 'kredki'
 
+# Sample to run samples.
+
 window.wh! 800, 400
 window.title! "Metasample"
 
 define :list do
+  layout! :yss
+
+  space! layout: :xcc, m: 8, h: :fit do
+    text! "Click "
+    glyph! :media_play, fill: :text
+    text! " to run the example or double-click on a line to view the code."
+  end
+
   scroll! wh: 1r, layout: :zss do
     list! w: 1r, h: :fit, fill: :transparent do
 
@@ -49,7 +59,7 @@ end
 define :run_sample do |code|
   application.window! do 
     window.wh_drag!
-    window.alter window[:close_on_esc]
+    window.close_on_esc!
     begin
       eval code
     rescue Exception => e

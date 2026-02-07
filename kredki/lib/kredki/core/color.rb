@@ -43,6 +43,11 @@ module Kredki
       Color.new (@r + r).clamp(0, 255), (@g + g).clamp(0, 255), (@b + b).clamp(0, 255), @a
     end
 
+    # Get textual representation.
+    def to_s
+      "##{ to_a.map{|it| it.to_s(16).rjust(2, "0") }.join }"
+    end
+
     # :section: LEVEL 2
 
     def initialize r, g, b, a = 255
@@ -64,12 +69,20 @@ module Kredki
       end
     end
 
+    def to_rgb
+      [@r, @g, @b]
+    end
+
+    def to_rgba
+      [@r, @g, @b, @a]
+    end
+
     def to_a mode = :rgba
       case mode
       when :rgb
-        [@r, @g, @b]
+        to_rgb
       else
-        [@r, @g, @b, @a]
+        to_rgba
       end
     end
 

@@ -13,8 +13,8 @@ module Kredki
       key&.id
     end
 
-    # Get binding key id.
-    def input_id
+    # Get binding code.
+    def code
       @source.sym
     end
 

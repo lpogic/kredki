@@ -42,9 +42,9 @@ module Kredki
         @source.param
       end
 
-      # Get binding button id.
-      def input_id
-        @source.input_id
+      # Get binding button code.
+      def code
+        @source.code
       end
 
       # Get position along X axis.
@@ -80,9 +80,9 @@ module Kredki
         @source&.param
       end
 
-      # Get binding key id.
-      def input_id
-        @source&.input_id
+      # Get binding key code.
+      def code
+        @source&.code
       end
 
       # :section: LEVEL 2

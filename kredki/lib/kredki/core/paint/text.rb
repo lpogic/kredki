@@ -73,7 +73,14 @@ module Kredki
       return send_ahp :fill!, yield(self.fill) if block_given?
       fill = Util.uncover fill
       return if @fill == fill && fill != :rand
-      Pastele.text_set_fill_color @pointer, *Kredki.color(fill).to_a(:rgb)
+      case f = Kredki.fill fill
+      when Color
+        Pastele.text_set_fill_color @pointer, *f.to_rgb
+      when LinearGradient
+        Pastele.text_set_fill_linear_gradient @pointer, *f.ffi
+      when RadialGradient
+        Pastele.text_set_fill_radial_gradient @pointer, *f.ffi
+      end
       @fill = fill
       update
     end
@@ -86,6 +93,64 @@ module Kredki
     # Get fill color.
     def fill
       @fill
+    end
+
+    # Set outline features.
+    def outline! *a, **na
+      a.map do |it|
+        case it
+        when Hash
+          outline! **it
+        when Numeric
+          outline_w! it
+        else
+          send_ahp :outline_fill!, it
+        end
+      end.any? | send_branch(:outline, na)
+    end
+    
+    # See #outline!.
+    def outline= param
+      send_ahp :outline!, param
+    end
+
+    # Set outline fill.
+    def outline_fill! *outline_fill
+      return send_ahp :outline_fill!, yield(self.outline_fill) if block_given?
+      outline_fill = Util.uncover outline_fill
+      return if @outline_fill == outline_fill && outline_fill != :rand
+      update_outline outline_fill, @outline_w
+      @outline_fill = outline_fill
+      update
+    end
+
+    # See #outline_fill!.
+    def outline_fill= param
+      send_ahp :outline_fill!, param
+    end
+
+    # Get outline fill.
+    def outline_fill
+      @outline_fill
+    end
+
+    # Set outline width.
+    def outline_w! outline_w = @outline_w
+      return outline_w! yield @outline_w if block_given?
+      return if @outline_w == outline_w
+      update_outline @outline_fill, outline_w
+      @outline_w = outline_w
+      update
+    end
+
+    # See #outline_w!.
+    def outline_w= param
+      send_ahp :outline_w!, param
+    end
+
+    # Get outline width.
+    def outline_w
+      @outline_w
     end
 
     # Get +string+ width rendered with +@font+ and +@height+ up to character at +index+. 
@@ -120,6 +185,8 @@ module Kredki
       @content = "TEXT"
       @font = Kredki.font
       @fill = Kredki.color
+      @outline_fill = Kredki.color
+      @outline_w = 0
       @h = Kredki.text_size
       Pastele.text_set_text @pointer, @content
       Pastele.text_set_font @pointer, @font.name
@@ -140,6 +207,11 @@ module Kredki
       @w = substring_width
       update_transform
       update
+    end
+
+    def update_outline color, width
+      c = Kredki.color color
+      Pastele.text_set_outline @pointer, width, *c.to_rgb
     end
 
   end

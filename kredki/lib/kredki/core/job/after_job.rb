@@ -1,5 +1,5 @@
 module Kredki
-  # Job executed after given delay.
+  # Job executed after 0 or more milisecond delay.
   class AfterJob < Job
 
     # Run job.
@@ -25,6 +25,10 @@ module Kredki
       @block = block
       @delay = delay
       @run_ms = 0
+    end
+
+    def inspect
+      "#{self.class}:#{object_id} #{@block}"
     end
 
     def tick ms

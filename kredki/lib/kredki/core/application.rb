@@ -117,7 +117,8 @@ module Kredki
         abi = Pastele::WindowEvent.new event_ptr
         window_event abi.window_id, WindowCloseEvent.new(abi) do |event|
           unless event.closed?
-            @windows[abi.window_id]&.close
+            window = @windows[abi.window_id]
+            remove_window window if window
             event.close
           end
         end
@@ -135,7 +136,7 @@ module Kredki
         if keyboard = Kredki.keyboard
           event = keyboard.key_press_event abi
           window_event abi.window_id, event do |event|
-            @early_close_next_text_event = event.closed? && (32..122).include?(event.input_id)
+            @early_close_next_text_event = event.closed? && (32..122).include?(event.code)
           end
         end
       when 0x301 # SDL_EVENT_KEY_UP
@@ -255,6 +256,9 @@ module Kredki
       when 0x8001 # Tick Event
         abi = Pastele::UserEvent.new event_ptr
         window_event abi.window_id, TickEvent.new(abi)
+      when 0x8007 # Tick Event
+        abi = Pastele::UserEvent.new event_ptr
+        window_event abi.window_id, TickEvent.new(abi)
       else # unsupported event
         # puts event_type.to_s 16
         nil
@@ -277,6 +281,7 @@ module Kredki
     end
 
     def remove_window window
+      window.hide!
       window_id = Pastele.application_erase_window(@pointer, window.pointer)
       @window_threads.delete(window_id)&.kill
       @windows.delete window_id

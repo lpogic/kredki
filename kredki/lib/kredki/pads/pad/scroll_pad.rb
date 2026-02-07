@@ -19,13 +19,8 @@ module Kredki
       def behavior
         super
         p0 = self
-        
-        @yslide.on_edit do |e|
-          layer&.break_layout
-          e.close
-        end
 
-        @xslide.on_edit do |e|
+        on Slide::EditEvent do |e|
           layer&.break_layout
           e.close
         end

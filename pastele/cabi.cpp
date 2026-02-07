@@ -10,8 +10,17 @@
 using namespace std;
 using namespace tvg;
 
-extern "C" {
+void fill_set_color_stops_and_spread(Fill* self, const uint8_t* colors, const float* offsets, uint32_t cnt, int spread) {
+    Fill::ColorStop* stops = new Fill::ColorStop[cnt];
+    for(uint32_t i = 0; i < cnt; ++i) {
+        stops[i] = { offsets[i], colors[i * 4], colors[i * 4 + 1],  colors[i * 4 + 2],  colors[i * 4 + 3] };
+    }
+    self->colorStops(stops, cnt);
+    self->spread((FillSpread)spread);
+    delete [] stops;
+}
 
+extern "C" {
 
 CABI void clipboard_set_text(char* text) {
     SDL_SetClipboardText(text);
@@ -19,6 +28,17 @@ CABI void clipboard_set_text(char* text) {
 
 CABI char* clipboard_get_text(void) {
     return SDL_GetClipboardText(); // caller should free it
+}
+
+CABI void clipboard_get_mime_types(void(*consumer)(char*)) {
+    char** mimeTypes = SDL_GetClipboardMimeTypes(NULL);
+    if(!mimeTypes) {
+        return;
+    }
+    for(int i = 0; mimeTypes[i]; ++i) {
+        consumer(mimeTypes[i]);
+    }
+    SDL_free(mimeTypes);
 }
 
 CABI uint8_t keyboard_get_key_state(int keycode) {
@@ -95,7 +115,6 @@ CABI void application_exit(pastele::Application* self) {
     self->exit();
 }
 
-
 CABI void* window_new_sw(int width, int height) {
     return new pastele::SwWindow(width, height);
 }
@@ -106,6 +125,10 @@ CABI void* window_new_gl(int width, int height) {
 
 CABI void window_delete(pastele::Window* self) {
     self->planDelete();
+}
+
+CABI void window_close(pastele::Window* self) {
+    self->planClose();
 }
 
 CABI void window_update(pastele::Window* self) {
@@ -249,9 +272,9 @@ CABI void window_get_display_bounds(pastele::Window* self, Bounds* bounds) {
     bounds->h = (float)rect.h;
 }
 
-/************************************************************************/
-/* Engine API                                                           */
-/************************************************************************/
+CABI void window_get_pixel_color(pastele::Window* self, int x, int y, IntPoint* rg, IntPoint* ba) {
+    SDL_ReadSurfacePixel(SDL_GetWindowSurface(self->sdl_window), x, y, (uint8_t*)&rg->x, (uint8_t*)&rg->y, (uint8_t*)&ba->x, (uint8_t*)&ba->y);
+}
 
 CABI int thorvg_engine_init(int engine_method, int threads)
 {
@@ -282,10 +305,6 @@ CABI void sdl_init(int joystick_enabled) {
 CABI int sdl_get_ticks() {
     return (int)SDL_GetTicks();
 }
-
-// /************************************************************************/
-// /* Paint API                                                            */
-// /************************************************************************/
 
 CABI void paint_delete(Paint* self)
 {
@@ -343,11 +362,6 @@ CABI void paint_accessor_traverse(Paint* self, int(*callback)(const tvg::Paint* 
 CABI int paint_get_type(Paint* self) {
     return (int)self->type();
 }
-
-
-/************************************************************************/
-/* Shape API                                                            */
-/************************************************************************/
 
 CABI void* shape_new()
 {
@@ -479,26 +493,19 @@ CABI void shape_set_stroke_color(Shape* self, uint8_t r, uint8_t g, uint8_t b, u
     self->strokeFill(r, g, b, a);
 }
 
-// CABI int tvg_shape_set_stroke_linear_gradient(Shape* self, Tvg_Gradient* gradient)
-// {
-//     if (!self) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) self->strokeFill(unique_ptr<LinearGradient>((LinearGradient*)(gradient)));
-// }
+CABI void shape_set_stroke_linear_gradient(Shape* self, float x, float y, float ex, float ey, const uint8_t* colors, const float* offsets, uint32_t cnt, int spread) {
+    auto gradient = LinearGradient::gen();
+    fill_set_color_stops_and_spread(gradient, colors, offsets, cnt, spread);
+    gradient->linear(x, y, ex, ey);
+    self->strokeFill(gradient);
+}
 
-
-// CABI int tvg_shape_set_stroke_radial_gradient(Shape* self, Tvg_Gradient* gradient)
-// {
-//     if (!self) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) self->strokeFill(unique_ptr<RadialGradient>((RadialGradient*)(gradient)));
-// }
-
-
-// CABI int tvg_shape_get_stroke_gradient(const Shape* self, Tvg_Gradient** gradient)
-// {
-//    if (!self || !gradient) return TVG_RESULT_INVALID_ARGUMENT;
-//    *gradient = (Tvg_Gradient*)(reinterpret_cast<const Shape*>(self)->strokeFill());
-//    return TVG_RESULT_SUCCESS;
-// }
+CABI void shape_set_stroke_radial_gradient(Shape* self, float cx, float cy, float r, float fx, float fy, float fr, const uint8_t* colors, const float* offsets, uint32_t cnt, int spread) {
+    auto gradient = RadialGradient::gen();
+    fill_set_color_stops_and_spread(gradient, colors, offsets, cnt, spread);
+    gradient->radial(cx, cy, r, fx, fy, fr);
+    self->strokeFill(gradient);
+}
 
 CABI void shape_set_stroke_dash(Shape* self, const float* dashPattern, uint32_t cnt, float offset) {
     self->strokeDash(dashPattern, cnt);
@@ -536,30 +543,23 @@ CABI void shape_set_paint_order(Shape* self, int strokeFirst) {
     self->order(strokeFirst);
 }
 
-// CABI int tvg_shape_set_linear_gradient(Tvg_Paint* paint, Tvg_Gradient* gradient)
-// {
-//     if (!paint) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) reinterpret_cast<Shape*>(paint)->fill(unique_ptr<LinearGradient>((LinearGradient*)(gradient)));
-// }
+CABI void shape_set_fill(Shape* self, Fill* fill) {
+    self->fill(fill);
+}
 
+CABI void shape_set_fill_linear_gradient(Shape* self, float x, float y, float ex, float ey, const uint8_t* colors, const float* offsets, uint32_t cnt, int spread) {
+    auto gradient = LinearGradient::gen();
+    fill_set_color_stops_and_spread(gradient, colors, offsets, cnt, spread);
+    gradient->linear(x, y, ex, ey);
+    self->fill(gradient);
+}
 
-// CABI int tvg_shape_set_radial_gradient(Tvg_Paint* paint, Tvg_Gradient* gradient)
-// {
-//     if (!paint) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) reinterpret_cast<Shape*>(paint)->fill(unique_ptr<RadialGradient>((RadialGradient*)(gradient)));
-// }
-
-
-// CABI int tvg_shape_get_gradient(const Tvg_Paint* paint, Tvg_Gradient** gradient)
-// {
-//    if (!paint || !gradient) return TVG_RESULT_INVALID_ARGUMENT;
-//    *gradient = (Tvg_Gradient*)(reinterpret_cast<const Shape*>(paint)->fill());
-//    return TVG_RESULT_SUCCESS;
-// }
-
-// /************************************************************************/
-// /* Picture API                                                          */
-// /************************************************************************/
+CABI void shape_set_fill_radial_gradient(Shape* self, float cx, float cy, float r, float fx, float fy, float fr, const uint8_t* colors, const float* offsets, uint32_t cnt, int spread) {
+    auto gradient = RadialGradient::gen();
+    fill_set_color_stops_and_spread(gradient, colors, offsets, cnt, spread);
+    gradient->radial(cx, cy, r, fx, fy, fr);
+    self->fill(gradient);
+}
 
 CABI Picture* picture_new(void) {
     auto self = Picture::gen();
@@ -586,122 +586,6 @@ CABI void* picture_accessor_get(Picture* self, const char* id) {
     return (void*)self->paint(tvg::Accessor::id(id));
 }
 
-
-// /************************************************************************/
-// /* Gradient API                                                         */
-// /************************************************************************/
-
-// CABI Tvg_Gradient* tvg_linear_gradient_new()
-// {
-//     return (Tvg_Gradient*)LinearGradient::gen().release();
-// }
-
-
-// CABI Tvg_Gradient* tvg_radial_gradient_new()
-// {
-//     return (Tvg_Gradient*)RadialGradient::gen().release();
-// }
-
-
-// CABI Tvg_Gradient* tvg_gradient_duplicate(Tvg_Gradient* grad)
-// {
-//     if (!grad) return nullptr;
-//     return (Tvg_Gradient*) reinterpret_cast<Fill*>(grad)->duplicate();
-// }
-
-
-// CABI int tvg_gradient_del(Tvg_Gradient* grad)
-// {
-//     if (!grad) return TVG_RESULT_INVALID_ARGUMENT;
-//     delete(reinterpret_cast<Fill*>(grad));
-//     return TVG_RESULT_SUCCESS;
-// }
-
-
-// CABI int tvg_linear_gradient_set(Tvg_Gradient* grad, float x1, float y1, float x2, float y2)
-// {
-//     if (!grad) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) reinterpret_cast<LinearGradient*>(grad)->linear(x1, y1, x2, y2);
-// }
-
-
-// CABI int tvg_linear_gradient_get(Tvg_Gradient* grad, float* x1, float* y1, float* x2, float* y2)
-// {
-//     if (!grad) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) reinterpret_cast<LinearGradient*>(grad)->linear(x1, y1, x2, y2);
-// }
-
-
-// CABI int tvg_radial_gradient_set(Tvg_Gradient* grad, float cx, float cy, float radius)
-// {
-//     if (!grad) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) reinterpret_cast<RadialGradient*>(grad)->radial(cx, cy, radius);
-// }
-
-
-// CABI int tvg_radial_gradient_get(Tvg_Gradient* grad, float* cx, float* cy, float* radius)
-// {
-//     if (!grad) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) reinterpret_cast<RadialGradient*>(grad)->radial(cx, cy, radius);
-// }
-
-
-// CABI int tvg_gradient_set_color_stops(Tvg_Gradient* grad, const Tvg_Color_Stop* color_stop, uint32_t cnt)
-// {
-//     if (!grad) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) reinterpret_cast<Fill*>(grad)->colorStops(reinterpret_cast<const Fill::ColorStop*>(color_stop), cnt);
-// }
-
-
-// CABI int tvg_gradient_get_color_stops(const Tvg_Gradient* grad, const Tvg_Color_Stop** color_stop, uint32_t* cnt)
-// {
-//     if (!grad || !color_stop || !cnt) return TVG_RESULT_INVALID_ARGUMENT;
-//     *cnt = reinterpret_cast<const Fill*>(grad)->colorStops(reinterpret_cast<const Fill::ColorStop**>(color_stop));
-//     return TVG_RESULT_SUCCESS;
-// }
-
-
-// CABI int tvg_gradient_set_spread(Tvg_Gradient* grad, const Tvg_Stroke_Fill spread)
-// {
-//     if (!grad) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) reinterpret_cast<Fill*>(grad)->spread((FillSpread)spread);
-// }
-
-
-// CABI int tvg_gradient_get_spread(const Tvg_Gradient* grad, Tvg_Stroke_Fill* spread)
-// {
-//     if (!grad || !spread) return TVG_RESULT_INVALID_ARGUMENT;
-//     *spread = (Tvg_Stroke_Fill) reinterpret_cast<const Fill*>(grad)->spread();
-//     return TVG_RESULT_SUCCESS;
-// }
-
-
-// CABI int tvg_gradient_set_transform(Tvg_Gradient* grad, const Tvg_Matrix* m)
-// {
-//     if (!grad || !m) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) reinterpret_cast<Fill*>(grad)->transform(*(reinterpret_cast<const Matrix*>(m)));
-// }
-
-
-// CABI int tvg_gradient_get_transform(const Tvg_Gradient* grad, Tvg_Matrix* m)
-// {
-//     if (!grad || !m) return TVG_RESULT_INVALID_ARGUMENT;
-//     *reinterpret_cast<Matrix*>(m) = reinterpret_cast<Fill*>(const_cast<Tvg_Gradient*>(grad))->transform();
-//     return TVG_RESULT_SUCCESS;
-// }
-
-
-// CABI int tvg_gradient_get_identifier(const Tvg_Gradient* grad, Tvg_Identifier* identifier)
-// {
-//     if (!grad || !identifier) return TVG_RESULT_INVALID_ARGUMENT;
-//     *identifier = static_cast<Tvg_Identifier>(reinterpret_cast<const Fill*>(grad)->identifier());
-//     return TVG_RESULT_SUCCESS;
-// }
-
-/************************************************************************/
-/* Scene API                                                            */
-/************************************************************************/
-
 CABI void* scene_new()
 {
     auto self = Scene::gen();
@@ -727,9 +611,29 @@ CABI void scene_remove(Scene* self, Paint* paint) {
     self->remove(paint);
 }
 
-// /************************************************************************/
-// /* Text API                                                            */
-// /************************************************************************/
+CABI void scene_clear_effects(Scene* self) {
+    self->add(SceneEffect::Clear);
+}
+
+CABI void scene_add_gaussian_blur(Scene* self, double sigma, int direction, int border, int quality) {
+    self->add(SceneEffect::GaussianBlur, sigma, direction, border, quality);
+}
+
+CABI void scene_add_drop_shadow(Scene* self, int r, int g, int b, int a, double angle, double distance, double blurSigma, int quality) {
+    self->add(SceneEffect::DropShadow, r, g, b, a, angle, distance, blurSigma, quality);
+}
+
+CABI void scene_add_fill(Scene* self, int r, int g, int b, int a) {
+    self->add(SceneEffect::Fill, r, g, b, a);
+}
+
+CABI void scene_add_tint(Scene* self, int br, int bg, int bb, int wr, int wg, int wb, double intensity) {
+    self->add(SceneEffect::Tint, br, bg, bb, wr, wg, wb, intensity);
+}
+
+CABI void scene_add_tritone(Scene* self, int sr, int sg, int sb, int mr, int mg, int mb, int hr, int hg, int hb, int blend) {
+    self->add(SceneEffect::Tint, sr, sg, sb, mr, mg, mb, hr, hg, hb, blend);
+}
 
 CABI void* text_new(void) {
     auto self = Text::gen();
@@ -759,6 +663,28 @@ CABI void text_set_text(Text* self, const char* text) {
     self->text(text);
 }
 
+CABI void text_set_fill_color(Text* self, uint8_t r, uint8_t g, uint8_t b) {
+    self->fill(r, g, b);
+}
+
+CABI void text_set_fill_linear_gradient(Text* self, float x, float y, float ex, float ey, const uint8_t* colors, const float* offsets, uint32_t cnt, int spread) {
+    auto gradient = LinearGradient::gen();
+    fill_set_color_stops_and_spread(gradient, colors, offsets, cnt, spread);
+    gradient->linear(x, y, ex, ey);
+    self->fill(gradient);
+}
+
+CABI void text_set_fill_radial_gradient(Text* self, float cx, float cy, float r, float fx, float fy, float fr, const uint8_t* colors, const float* offsets, uint32_t cnt, int spread) {
+    auto gradient = RadialGradient::gen();
+    fill_set_color_stops_and_spread(gradient, colors, offsets, cnt, spread);
+    gradient->radial(cx, cy, r, fx, fy, fr);
+    self->fill(gradient);
+}
+
+CABI void text_set_outline(Text* self, float width, uint8_t r, uint8_t g, uint8_t b) {
+    self->outline(width, r, g, b);
+}
+
 CABI float text_get_text_width(Text* self, const char* text, int indexLimit) {
     float width;
     self->measure(text, 1, -1, indexLimit, &width, nullptr);
@@ -771,25 +697,6 @@ CABI int text_nearest_character_index(Text* self, const char* text, float widthR
     return index;
 }
 
-CABI void text_set_fill_color(Text* self, uint8_t r, uint8_t g, uint8_t b) {
-    self->fill(r, g, b);
-}
-
-
-// CABI int tvg_text_set_linear_gradient(Tvg_Paint* paint, Tvg_Gradient* gradient)
-// {
-//     if (!paint) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) reinterpret_cast<Text*>(paint)->fill(unique_ptr<LinearGradient>((LinearGradient*)(gradient)));
-// }
-
-
-// CABI int tvg_text_set_radial_gradient(Tvg_Paint* paint, Tvg_Gradient* gradient)
-// {
-//     if (!paint) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) reinterpret_cast<Text*>(paint)->fill(unique_ptr<RadialGradient>((RadialGradient*)(gradient)));
-// }
-
-
 CABI int font_load(const char* path)
 {
     return (int) Text::load(path);
@@ -799,43 +706,6 @@ CABI int font_unload(const char* path)
 {
     return (int) Text::unload(path);
 }
-
-
-// /************************************************************************/
-// /* Saver API                                                            */
-// /************************************************************************/
-
-// CABI Tvg_Saver* tvg_saver_new()
-// {
-//     return (Tvg_Saver*) Saver::gen().release();
-// }
-
-
-// CABI int tvg_saver_save(Tvg_Saver* saver, Tvg_Paint* paint, const char* path, uint32_t quality)
-// {
-//     if (!saver || !paint || !path) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) reinterpret_cast<Saver*>(saver)->save(unique_ptr<Paint>((Paint*)paint), path, quality);
-// }
-
-
-// CABI int tvg_saver_sync(Tvg_Saver* saver)
-// {
-//     if (!saver) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) reinterpret_cast<Saver*>(saver)->sync();
-// }
-
-
-// CABI int tvg_saver_del(Tvg_Saver* saver)
-// {
-//     if (!saver) return TVG_RESULT_INVALID_ARGUMENT;
-//     delete(reinterpret_cast<Saver*>(saver));
-//     return TVG_RESULT_SUCCESS;
-// }
-
-
-// /************************************************************************/
-// /* Animation API                                                        */
-// /************************************************************************/
 
 CABI Animation* animation_new(void) {
     return Animation::gen();
@@ -849,13 +719,6 @@ CABI Paint* animation_get_picture(Animation* self) {
     return self->picture();
 }
 
-// CABI int tvg_animation_get_frame(Tvg_Animation* animation, float* no)
-// {
-//     if (!animation || !no) return TVG_RESULT_INVALID_ARGUMENT;
-//     *no = reinterpret_cast<Animation*>(animation)->curFrame();
-//     return TVG_RESULT_SUCCESS;
-// }
-
 CABI float animation_get_total_frames(Animation* self) {
     return self->totalFrame();
 }
@@ -868,12 +731,6 @@ CABI void animation_set_segment(Animation* self, float begin, float end) {
     self->segment(begin, end);
 }
 
-// CABI int tvg_animation_get_segment(Tvg_Animation* animation, float* start, float* end)
-// {
-//     if (!animation) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) reinterpret_cast<Animation*>(animation)->segment(start, end);
-// }
-
 CABI void animation_delete(Animation* self) {
     union SDL_Event event;
     event.type = USEREVENT_DELETEANIMATION;
@@ -884,60 +741,5 @@ CABI void animation_delete(Animation* self) {
     SDL_PushEvent(&event);
 }
 
-
-// /************************************************************************/
-// /* Lottie Animation API                                                 */
-// /************************************************************************/
-
-// CABI Tvg_Animation* tvg_lottie_animation_new()
-// {
-// #ifdef THORVG_LOTTIE_LOADER_SUPPORT
-//     return (Tvg_Animation*) LottieAnimation::gen().release();
-// #endif
-//     return nullptr;
-// }
-
-
-// CABI int tvg_lottie_animation_override(Tvg_Animation* animation, const char* slot)
-// {
-// #ifdef THORVG_LOTTIE_LOADER_SUPPORT
-//     if (!animation) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) reinterpret_cast<LottieAnimation*>(animation)->override(slot);
-// #endif
-//     return TVG_RESULT_NOT_SUPPORTED;
-// }
-
-
-// CABI int tvg_lottie_animation_set_marker(Tvg_Animation* animation, const char* marker)
-// {
-// #ifdef THORVG_LOTTIE_LOADER_SUPPORT
-//     if (!animation) return TVG_RESULT_INVALID_ARGUMENT;
-//     return (int) reinterpret_cast<LottieAnimation*>(animation)->segment(marker);
-// #endif
-//     return TVG_RESULT_NOT_SUPPORTED;
-// }
-
-
-// CABI int tvg_lottie_animation_get_markers_cnt(Tvg_Animation* animation, uint32_t* cnt)
-// {
-// #ifdef THORVG_LOTTIE_LOADER_SUPPORT
-//     if (!animation || !cnt) return TVG_RESULT_INVALID_ARGUMENT;
-//     *cnt = reinterpret_cast<LottieAnimation*>(animation)->markersCnt();
-//     return TVG_RESULT_SUCCESS;
-// #endif
-//     return TVG_RESULT_NOT_SUPPORTED;
-// }
-
-
-// CABI int tvg_lottie_animation_get_marker(Tvg_Animation* animation, uint32_t ifx, const char** name)
-// {
-// #ifdef THORVG_LOTTIE_LOADER_SUPPORT
-//     if (!animation || !name) return TVG_RESULT_INVALID_ARGUMENT;
-//     *name = reinterpret_cast<LottieAnimation*>(animation)->marker(ifx);
-//     if (!(*name)) return TVG_RESULT_INVALID_ARGUMENT;
-//     return TVG_RESULT_SUCCESS;
-// #endif
-//     return TVG_RESULT_NOT_SUPPORTED;
-// }
 
 }

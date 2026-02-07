@@ -44,6 +44,14 @@ module Kredki
     glyph! file[..-17].tr("-", "_").to_sym, "#{base}/#{file}"
   end
 
+  class Wolfglyphs
+    class << self
+      def info 
+        "XD"
+      end
+    end
+  end
+
   clipboard!
   keyboard! do
     key! :escape, 27

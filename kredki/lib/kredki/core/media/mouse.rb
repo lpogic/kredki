@@ -1,7 +1,7 @@
 module Kredki
-  # Mouse device interface.
+  # Mouse device model.
   class Mouse
-    # Mouse button interface.
+    # Mouse button model.
     class Button
       
       # Get button id.
@@ -10,27 +10,27 @@ module Kredki
       end
 
       # Get button code.
-      def buttoncode
-        @buttoncode
+      def code
+        @code
       end
 
       # :section: LEVEL 2
 
-      def initialize id, buttoncode
+      def initialize id, code
         @id = id
-        @buttoncode = buttoncode
+        @code = code
       end
   
       def ==(other)
         Button === other &&
-        @buttoncode == other.buttoncode &&
+        @code == other.code &&
         @id == other.id
       end
     end
 
     # Get button codes.
     def indexes input
-      input.map{ button(_1).buttoncode }.uniq
+      input.map{ button(_1).code }.uniq
     end
 
     # Set wheel speed.
@@ -85,7 +85,8 @@ module Kredki
 
     # Get whether button is pressed.
     def pressed? id = :primary
-      Pastele.mouse_get_button_state(button(id).buttoncode) != 0
+      b = button id
+      Pastele.mouse_get_button_state(b.code) != 0 if b
     end
 
     # Get pointer position along X axis.

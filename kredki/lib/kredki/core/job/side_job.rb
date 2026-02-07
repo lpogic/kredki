@@ -20,7 +20,7 @@ module Kredki
     # Report some partial result.
     def report &block
       @host.job &block
-      nil # creating job tree in SideJob is not thread safe - do it in AfterJob block
+      nil # creating job tree in SideJob is not thread safe - nil returned to prevent such pattern
     end
 
     # Cancel job and all subjobs.
@@ -38,6 +38,10 @@ module Kredki
       super()
       @block = block
       @threat = nil
+    end
+
+    def inspect
+      "#{self.class}:#{object_id} #{@block}"
     end
 
     def tick ms

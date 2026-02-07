@@ -33,8 +33,8 @@ module Kredki
       button&.id
     end
 
-    # Get binding input id.
-    def input_id
+    # Get binding code.
+    def code
       @source.button
     end
   end
@@ -61,7 +61,7 @@ module Kredki
     end
 
     # Get binding input id.
-    def input_id
+    def code
       @source.axis
     end
 
@@ -84,8 +84,8 @@ module Kredki
       value
     end
 
-    # Get binding input id.
-    def input_id
+    # Get binding code.
+    def code
       @source.hat
     end
 

@@ -46,12 +46,12 @@ module Kredki
       nil
     end
     
-    # Get whether event is closed.
+    # Get whether event is closed. Closed events are processed only by reactions with always = +true+.
     def closed?
       @closed
     end
 
-    # Close event.
+    # Close event. Closed events are processed only by reactions with always = +true+.
     def close
       @closed = true
     end

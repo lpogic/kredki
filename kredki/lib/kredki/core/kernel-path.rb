@@ -64,4 +64,20 @@ module Enumerable
   def each_alter ...
     each{|it| it.alter(...) }
   end
+
+  def each_alter_kw ...
+    each{|it| it.alter_kw(...) }
+  end
+end
+
+class TrueClass
+  def not
+    false
+  end
+end
+
+class FalseClass
+  def not
+    true
+  end
 end

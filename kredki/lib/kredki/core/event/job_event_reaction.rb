@@ -25,11 +25,15 @@ module Kredki
     def call event = nil
       return if !@always && event&.closed?
       event&.reaction = self
-      @job.call event
+      begin
+        @job.call event
+      rescue => e
+        raise inspect
+      end
     end
 
     def inspect
-      "#{self.class}:#{object_id} #{@job}"
+      "#{self.class}:#{object_id} #{@job.inspect}"
     end
   end
 end

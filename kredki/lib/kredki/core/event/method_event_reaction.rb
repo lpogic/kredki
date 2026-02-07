@@ -25,7 +25,11 @@ module Kredki
     def call event = nil
       return if !@always && event&.closed?
       event&.reaction = self
-      @method.call event
+      begin
+        @method.call event
+      rescue => e
+        raise inspect
+      end
     end
 
     def inspect

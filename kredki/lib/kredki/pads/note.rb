@@ -97,11 +97,6 @@ module Kredki
         @verse.verse_layout
       end
 
-      # Get content after applying edit event.
-      def content_after_edit e
-        @verse.content_after_edit e
-      end
-
       # Push the feature.
       def << feature
         case feature
@@ -135,7 +130,7 @@ module Kredki
       def initialize
         super
       
-        initialize_verse
+        @verse = nil
       end
 
       attr :verse
@@ -146,6 +141,8 @@ module Kredki
 
       def sketch
         super
+
+        initialize_verse
 
         layout! NoteLayout.new(:start, :center)
         mousy!
@@ -178,6 +175,10 @@ module Kredki
             e.close
           end
         end
+
+        on_edit early: true do |e|
+          e.close if disabled?
+        end
       end
 
       def mouse_scroll event
@@ -200,8 +201,18 @@ module Kredki
       def repaint event = nil
         color = Kredki.color @suit
         kb_top = keyboard_top?
-        area.fill = kb_top ? color.darken : mouse_in? ? color.lighten : color
-        area.outline_fill = kb_top ? :outline_focus : color
+
+        if disabled?
+          opacity! 3/4r
+          mouse_cursor! nil
+          area.fill! color
+          area.outline_fill! color
+        else
+          opacity! 1r
+          mouse_cursor! :text
+          area.fill! kb_top ? color.darken : mouse_in? ? color.lighten : color
+          area.outline_fill! kb_top ? :outline_focus : color
+        end
         verse.selection.each_paint{|it| it.fill! kb_top ? :text_selection : :text_selection_inactive }
       end
     end

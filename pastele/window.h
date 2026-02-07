@@ -76,6 +76,7 @@ class Window
     bool update(tvg::Canvas* canvas);
     bool paintDelete(tvg::Paint* paint);
     void planDelete(void);
+    void planClose(void);
     void planUpdate(void);
     void setNeedResize();
     void paintToUpdate(tvg::Paint* paint);

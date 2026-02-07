@@ -24,6 +24,23 @@ module Kredki
         Pads.define(...)
       end
 
+      def carry_focus_on_tab!
+        on_key_press :tab do |event|
+          next_pad = layer.keyboard_pad&.then do |p0|
+            each_pad(reverse: event.shift?, deep: true)
+              .lazy
+              .drop_while{|p1| p0 != p1 }
+              .drop(1)
+              .filter{|it| it.keyboardy? && !it.disabled? && it.show? }
+              .first
+          end || each_pad(reverse: event.shift?, deep: true)
+            .lazy
+            .filter{|it| it.keyboardy? && !it.disabled? && it.show? }
+            .first
+          next_pad&.keyboard_request
+        end
+      end
+
       # :section: LEVEL 2
 
       class PinData
@@ -78,12 +95,12 @@ module Kredki
         super
         
         on_key_press early: true do |e|
-          @pressed_keys[e.param || e.input_id] = true
+          @pressed_keys[e.param || e.code] = true
         end
 
         on_key_release early: true do |e|
-          if @pressed_keys[e.param || e.input_id]
-            @pressed_keys[e.param || e.input_id] = false
+          if @pressed_keys[e.param || e.code]
+            @pressed_keys[e.param || e.code] = false
             keyboard_event KeyClickEvent.new e
           end
         end

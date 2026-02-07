@@ -6,6 +6,8 @@ require_relative 'media/mouse'
 require_relative 'media/joystick'
 require_relative 'color'
 require_relative 'font'
+require_relative 'linear_gradient'
+require_relative 'radial_gradient'
 
 module Kredki
   class << self
@@ -117,6 +119,17 @@ module Kredki
         @colors[param] or raise "Unknown color #{param}"
       end
     end
+
+    # Get fill.
+    def fill param
+      case param
+      when LinearGradient, RadialGradient
+        param
+      else
+        color param
+      end
+    end
+        
 
     # Set glyph.
     def glyph! key, path

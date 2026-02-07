@@ -82,6 +82,7 @@ module Kredki
         when :any
         else raise_ia shift
         end
+        true
       end
 
       # Get whether left shift is pressed.

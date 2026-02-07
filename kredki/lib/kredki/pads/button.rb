@@ -58,6 +58,7 @@ module Kredki
       def << arg
         case arg
         when String
+          subject! arg
           (fc TextPad or default_text) << arg
         else
           super
@@ -102,8 +103,17 @@ module Kredki
 
       def repaint event = nil
         color = Kredki.color @suit
-        area.fill = pressed? ? color.darken : mouse_in? ? color.lighten : color
-        area.outline_fill = keyboard_in? ? :outline_focus : color.darken
+        if disabled?
+          opacity! 3/4r
+          mouse_cursor! nil
+          area.fill! color
+          area.outline_fill! color.darken
+        else
+          opacity! 1r
+          mouse_cursor! :pointer
+          area.fill! pressed? ? color.darken : mouse_in? ? color.lighten : color
+          area.outline_fill! keyboard_in? ? :outline_focus : color.darken
+        end
       end
 
       def behavior
@@ -130,6 +140,10 @@ module Kredki
         on_key_release :space do |e|
           pressed = pin_top?(:primary) || ( keyboard_in? && Kredki.keyboard.pressed?(:enter) )
           report ButtonClickEvent.new e if !pressed && pressed!(false, e)
+        end
+
+        on_click early: true do |e|
+          e.close if disabled?
         end
       end
 

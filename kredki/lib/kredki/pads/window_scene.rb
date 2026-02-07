@@ -10,8 +10,8 @@ module Kredki
       # Add new layer.
       def layer! klass = Layer, *a, **na, &b
         layer = klass.new
-        layer.sketch_service
         put_pad layer
+        layer.sketch_service
         layer.alter *a, **na, &b
         layer
       end
@@ -78,28 +78,17 @@ module Kredki
           end
         end
 
-        self[:carry_focus_on_tab] do
-          on_key_press :tab do |event|
-            next_pad = layer.keyboard_pad&.then do |p0|
-              each_pad(reverse: event.shift?, deep: true)
-                .lazy
-                .drop_while{|p1| p0 != p1 }
-                .drop(1)
-                .filter{|it| it.keyboardy? && it.show? }
-                .first
-            end || each_pad(reverse: event.shift?, deep: true)
-              .lazy
-              .filter{|it| it.keyboardy? && it.show? }
-              .first
-            next_pad.keyboard_request if next_pad
-          end
-        end
-
         layer!.keyboard_request
       end
 
+      attr_accessor :mouse_stale
+
       def event_queue
         @event_queue
+      end
+
+      def layer
+        @services.last
       end
 
       def pad_parent

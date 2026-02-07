@@ -19,8 +19,8 @@ module Kredki
       @device.button @source.button
     end
 
-    # Get input id.
-    def input_id
+    # Get binding code.
+    def code
       @source.button
     end
 
@@ -51,7 +51,7 @@ module Kredki
 
   # Event reported on mouse button release.
   class MouseButtonReleaseEvent < MouseButtonEvent
-    # Get whether it is drag move.
+    # Get whether it is release after drag move.
     def drag
       @drag
     end
@@ -182,19 +182,9 @@ module Kredki
       [@source.x, @source.y]
     end
 
-    # Get scroll value along X axis or Y if X is 0.
-    def xory
-      x == 0 ? y : x
-    end
-
-    # Get scroll value along Y axis or X if Y is 0.
-    def yorx
-      y == 0 ? x : y
-    end
-
     # Get main parameter
     def param
-      yorx
+      xy
     end
   end
 end

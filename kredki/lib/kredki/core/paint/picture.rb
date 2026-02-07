@@ -9,8 +9,10 @@ module Kredki
     def content! content, pull_size = false
       return content! yield @content if block_given?
       return if @content == content
-      renew if @content        
-      Pastele.picture_load @pointer, content.to_s
+      renew if @content
+      c = content.to_s
+      raise "File #{c} not found." unless File.exist? c
+      Pastele.picture_load @pointer, c
       @content = content
       @ow, @oh = get_size
       if pull_size

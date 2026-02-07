@@ -50,6 +50,17 @@ module Kredki
         m! 2
       end
 
+      def repaint event = nil
+        color = Kredki.color @suit
+        if disabled?
+          area.fill! color
+          area.outline_fill! color.darken
+        else
+          area.fill! pressed? ? color.darken : mouse_in? ? color.lighten : color
+          area.outline_fill! keyboard_in? ? :outline_focus : color.darken
+        end
+      end
+
     end
   end
 end

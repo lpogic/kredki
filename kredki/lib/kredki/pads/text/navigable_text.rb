@@ -44,19 +44,6 @@ module Kredki
         layer&.break_layout
       end
 
-      # Get text after applying edit event.
-      def content_after_edit e
-        estr = e.string
-        s = content.to_s
-        s = if s == ""
-          estr
-        elsif e.selection_max < s.length
-          s[...e.selection_min] + estr + s[e.selection_max..]
-        else
-          s[...e.selection_min] + estr
-        end
-      end
-
       # :section: LEVEL 2
 
       attr :selection_min, :selection_max, :cursor

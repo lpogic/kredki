@@ -39,8 +39,8 @@ module Kredki
           @source.button
         end
     
-        def input_id
-          @source.input_id
+        def code
+          @source.code
         end
     
         def param

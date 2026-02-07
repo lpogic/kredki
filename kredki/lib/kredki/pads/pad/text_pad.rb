@@ -46,6 +46,61 @@ module Kredki
         @area.fill
       end
 
+      # Set outline features.
+      def outline! *a, **na
+        a.map do |it|
+          case it
+          when Hash
+            outline! **it
+          when Numeric
+            outline_w! it
+          else
+            send_ahp :outline_fill!, it
+          end
+        end.any? | send_branch(:outline, na)
+      end
+      
+      # See #outline!.
+      def outline= param
+        send_ahp :outline!, param
+      end
+
+      # Set outline fill.
+      def outline_fill! *outline_fill
+        return send_ahp :outline_fill!, yield(self.outline_fill) if block_given?
+        return unless @area.outline_fill! *outline_fill
+        @verses.each{|it| it.outline_fill! *outline_fill }
+        true
+      end
+
+      # See #outline_fill!.
+      def outline_fill= param
+        send_ahp :outline_fill!, param
+      end
+
+      # Get outline fill.
+      def outline_fill
+        @area.fill
+      end
+
+      # Set outline width.
+      def outline_w! outline_w = @outline_w
+        return send_ahp :outline_w!, yield(self.outline_w) if block_given?
+        return unless @area.outline_w! *outline_w
+        @verses.each{|it| it.outline_w! *outline_w }
+        true
+      end
+
+      # See #outline_w!.
+      def outline_w= param
+        send_ahp :outline_w!, param
+      end
+
+      # Get outline width.
+      def outline_w
+        @area.fill
+      end
+
       # Set verse features.
       def verse! *a, **na
         a.map do |it|

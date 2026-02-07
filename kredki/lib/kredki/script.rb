@@ -31,6 +31,7 @@ else
     wh_drag!
     text_input!
     fill! 20, 70, 20
-    alter self[:exit_on_esc, :carry_focus_on_tab]
+    exit_on_esc!
   end
+  W.carry_focus_on_tab!
 end

@@ -13,27 +13,33 @@ module Kredki
 
   # Event reported on resize.
   class ResizeEvent < PasteleEvent
-    
-    def initialize w, h, ...
-      super(...)
-      @w = w
-      @h = h
-    end
 
+    # Get width.
     def w
       @w
     end
 
+    # Get height.
     def h
       @h
     end
 
+    # Get width and height.
     def wh
       [@w, @h]
     end
 
+    # Get main parameter.
     def param
       wh
+    end
+    
+    # :section: LEVEL 2
+
+    def initialize w, h, ...
+      super(...)
+      @w = w
+      @h = h
     end
   end
 

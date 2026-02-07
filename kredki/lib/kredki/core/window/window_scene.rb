@@ -342,6 +342,11 @@ module Kredki
       @scene.to_png filepath
     end
 
+    # Get pixel color.
+    def pixel_color x, y
+      @scene.pixel_color x, y
+    end
+
     # Create new job.
     def job run = true, &block
       job = AfterJob.new block, 0
@@ -380,17 +385,17 @@ module Kredki
       on_resize{|it| @fill.wh = it.wh }
       @fill.wh = *wh
       fill! 20, 70, 20
+    end
 
-      self[:exit_on_esc] do
-        on_key_press :escape do |event|
-          application.return
-        end
+    def exit_on_esc!
+      on_key_press :escape do |event|
+        application.return
       end
-    
-      self[:close_on_esc] do
-        on_key_press :escape do |event|
-          window.close
-        end
+    end
+
+    def close_on_esc!
+      on_key_press :escape do |event|
+        window.close
       end
     end
 

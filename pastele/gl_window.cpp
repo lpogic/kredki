@@ -4,7 +4,7 @@ namespace pastele {
 
 GlWindow::GlWindow(uint32_t width, uint32_t height) : Window()
 {
-    sdl_window = SDL_CreateWindow("Titless", width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
+    sdl_window = SDL_CreateWindow("Kredki", width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
     context = SDL_GL_CreateContext(sdl_window);
     this->initialize();
 }

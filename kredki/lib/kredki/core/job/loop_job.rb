@@ -47,6 +47,10 @@ module Kredki
       @ms = nil
     end
 
+    def inspect
+      "#{self.class}:#{object_id} #{@block}"
+    end
+
     def tick ms
       dms = ms - @next_ms
       if dms >= 0

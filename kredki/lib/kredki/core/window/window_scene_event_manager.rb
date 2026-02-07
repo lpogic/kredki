@@ -18,18 +18,18 @@ module Kredki
       reaction ? manager.attach(reaction, always:) : manager
     end
 
-    def keyboard_manager event_type, keycodes, reaction, always = false
-      manager = (@managers[event_type] ||= KeyboardEventManager.new)[*keycodes]
+    def keyboard_manager event_type, codes, reaction, always = false
+      manager = (@managers[event_type] ||= KeyboardEventManager.new)[*codes]
       reaction ? manager.attach(reaction, always:) : manager
     end
 
-    def mouse_manager event_type, buttoncodes, reaction, always = false
-      manager = (@managers[event_type] ||= MouseEventManager.new)[*buttoncodes]
+    def mouse_manager event_type, codes, reaction, always = false
+      manager = (@managers[event_type] ||= MouseEventManager.new)[*codes]
       reaction ? manager.attach(reaction, always:) : manager
     end
     
-    def joystick_manager event_type, joystick, indexes, reaction, always = false
-      manager = (@managers[event_type] ||= JoystickEventManager.new)[joystick, indexes]
+    def joystick_manager event_type, joystick, codes, reaction, always = false
+      manager = (@managers[event_type] ||= JoystickEventManager.new)[joystick, codes]
       reaction ? manager.attach(reaction, always:) : manager
     end
 

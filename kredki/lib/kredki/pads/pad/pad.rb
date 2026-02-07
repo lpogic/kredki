@@ -422,12 +422,32 @@ module Kredki
         @scene.mag
       end
 
+      # Set opacity.
+      def opacity! opacity = @opacity
+        return opacity! yield @opacity if block_given?
+        return if @opacity == opacity
+        @opacity = opacity
+        opacity *= 255 if opacity.is_a? Rational
+        @scene.opacity! opacity
+      end
+
+      # See #opacity!.
+      def opacity= param
+        send_ahp :opacity!, param
+      end
+
+      # Get opacity.
+      def opacity
+        @opacity
+      end
+
       # Set mouse cursor.
       def mouse_cursor! mouse_cursor = @mouse_cursor
         return send_ahp :mouse_cursor!, yield(self.mouse_cursor) if block_given?
         return if @mouse_cursor == mouse_cursor
         @mouse_cursor = mouse_cursor
-        #window.update_mouse_cursor
+        p self if !window
+        window.mouse_stale = true
         true
       end
 
@@ -675,6 +695,29 @@ module Kredki
       def mousy?
         !!mousy
       end
+
+      # Set whether is disabled.
+      def disabled! value = true
+        return if (c = disabled) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+        @disabled = value
+        repaint
+        true
+      end
+
+      # See #disabled!.
+      def disabled= value
+        disabled! value
+      end
+      
+      # Get whether is disabled.
+      def disabled
+        @disabled
+      end
+
+      # See #disabled.
+      def disabled?
+        !!disabled || pad_lineage(false).any?{|it| it.disabled }
+      end
       
       # Begin drag.
       def drag! start_xy = nil, button = nil
@@ -733,6 +776,7 @@ module Kredki
         @w = @h = :layout
         @w_limit = @h_limit = nil
         @rot = 0
+        @opacity = 255
         @mxs = @mxe = @mys = @mye = 0
         @mouse_cursor = nil
         @pad_parent = nil
@@ -764,6 +808,9 @@ module Kredki
 
       def presence
         @clip_scene.clip! @clip_area
+      end
+
+      def repaint event = nil
       end
 
       def behavior

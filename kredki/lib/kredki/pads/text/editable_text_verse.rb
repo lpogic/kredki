@@ -7,23 +7,28 @@ module Kredki
       # :section: LEVEL 2
 
       def paste pasted
-        report TextEdition::EditEvent.new @selection_min, @selection_max, pasted, :paste
+        new_content = content_after_edit pasted, @selection_min, @selection_max
+        report TextEdition::EditEvent.new @selection_min, @selection_max, new_content, pasted, :paste
       end
 
       def backspace
         if selection?
-          report TextEdition::EditEvent.new @selection_min, @selection_max, "", :backspace
+          new_content = content_after_edit "", @selection_min, @selection_max
+          report TextEdition::EditEvent.new @selection_min, @selection_max, new_content, "", :backspace
         elsif @cursor_position > 0
-          report TextEdition::EditEvent.new @cursor_position - 1, @cursor_position, "", :backspace
+          new_content = content_after_edit "", @cursor_position - 1, @cursor_position
+          report TextEdition::EditEvent.new @cursor_position - 1, @cursor_position, new_content, "", :backspace
         end
       end
 
       def delete
         length = content.length
         if selection?
-          report TextEdition::EditEvent.new @selection_min, @selection_max, "", :delete
+          new_content = content_after_edit "", @selection_min, @selection_max
+          report TextEdition::EditEvent.new @selection_min, @selection_max, new_content, "", :delete
         elsif @cursor_position < length
-          report TextEdition::EditEvent.new @cursor_position, @cursor_position + 1, "", :delete
+          new_content = content_after_edit "", @cursor_position, @cursor_position + 1
+          report TextEdition::EditEvent.new @cursor_position, @cursor_position + 1, new_content, "", :delete
         elsif length > 0
           backspace
         end
@@ -54,6 +59,17 @@ module Kredki
         if @cursor_position != cursor_position && @selection_min == @selection_max
           @selection_min = @selection_max = @cursor_position = cursor_position
           layer&.break_layout
+        end
+      end
+
+      def content_after_edit string, from, to
+        s = content.to_s
+        s = if s == ""
+          string
+        elsif to < s.length
+          s[...from] + string + s[to..]
+        else
+          s[...from] + string
         end
       end
     end

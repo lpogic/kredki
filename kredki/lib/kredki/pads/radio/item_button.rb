@@ -100,8 +100,13 @@ module Kredki
 
         def repaint event = nil
           color = Kredki.color @suit
-          area.fill = pin_top? ? color.darken : mouse_in? ? color.lighten : color
-          area.outline_fill = keyboard_in? ? :outline_focus : color.darken
+          if disabled?
+            area.fill! color
+            area.outline_fill! color.darken
+          else
+            area.fill! pin_top? ? color.darken : mouse_in? ? color.lighten : color
+            area.outline_fill! keyboard_in? ? :outline_focus : color.darken
+          end
         end
 
         def behavior
@@ -112,7 +117,7 @@ module Kredki
           end
 
           on_change early: true do |e|
-            e.close unless checked! e.value
+            e.close if disabled? || checked!(e.value).not
           end
 
           on_key_press do |e|

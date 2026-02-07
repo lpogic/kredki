@@ -385,10 +385,9 @@ module Kredki
       self
     end
 
-    # Hide window and free its memory.
+    # Request window close.
     def close
-      hide!
-      @application&.remove_window self
+      Pastele.window_close @pointer
     end
 
     def display_wh
@@ -400,6 +399,14 @@ module Kredki
     # Save window as PNG image.
     def to_png filepath
       Pastele.window_surface_to_png @pointer, File.expand_path(filepath)
+    end
+
+    # Get pixel color.
+    def pixel_color x, y
+      rg = Pastele::IntPoint.malloc Fiddle::RUBY_FREE
+      ba = Pastele::IntPoint.malloc Fiddle::RUBY_FREE
+      Pastele.window_get_pixel_color @pointer, x, y, rg, ba
+      Kredki.color [rg.x, rg.y, ba.x, ba.y]
     end
 
     # :section: LEVEL 2

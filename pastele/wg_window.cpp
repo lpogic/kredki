@@ -5,7 +5,7 @@ namespace pastele {
 #ifdef THORVG_WG_RASTER_SUPPORT
 
 WgWindow::WgWindow(uint32_t width, uint32_t height) : Window() {
-    sdl_window = SDL_CreateWindow("Titless", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_HIDDEN);
+    sdl_window = SDL_CreateWindow("Kredki", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_HIDDEN);
 
     //Here we create our WebGPU surface from the window!
     SDL_SysWMinfo windowWMInfo;

@@ -92,7 +92,13 @@ module Kredki
 
       def repaint event = nil
         color = Kredki.color @suit
-        area.fill = pin_in? ? color.darken : keyboard_in? ? color.lighten : color
+        if disabled?
+          opacity! 3/4r
+          area.fill! color
+        else
+          opacity! 1r
+          area.fill! pin_in? ? color.darken : keyboard_in? ? color.lighten : color
+        end
       end
 
       def behavior
@@ -105,6 +111,10 @@ module Kredki
         on_key :space, :enter do |e|
           report PickEvent.new e
           e.close
+        end
+
+        on_pick do |e|
+          e.close if disabled?
         end
       end
 

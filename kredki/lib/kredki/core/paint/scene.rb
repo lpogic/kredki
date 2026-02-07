@@ -96,6 +96,46 @@ module Kredki
       new_animation(...)
     end
 
+    def clear_effects!
+      Pastele.scene_clear_effects @pointer
+      update
+    end
+
+    def gaussian_blur! sigma, direction = :both, border = :wrap, quality = 100
+      direction = case direction
+      when :both, 0 then 0
+      when :x, 1 then 1
+      when :y, 2 then 2
+      else raise_ia direction
+      end
+      border = case border
+      when :duplicate, 0 then 0
+      when :wrap, 1 then 1
+      end
+      Pastele.scene_add_gaussian_blur @pointer, sigma, direction, border, quality
+      update
+    end
+
+    def drop_shadow! color:, angle: 120, distance: 10, blur: 5, quality: 100
+      Pastele.scene_add_drop_shadow @pointer, *Kredki.color(color).to_rgba, angle, distance, blur, quality
+      update
+    end
+
+    def fill! *a
+      Pastele.scene_add_fill @pointer, *Kredki.color(a.uncover).to_rgba
+      update
+    end
+
+    def tint! black:, white:, intensity: 100.0
+      Pastele.scene_add_tint @pointer, *Kredki.color(black).to_rgb, *Kredki.color(white).to_rgb, intensity
+      update
+    end
+
+    def tritone! shadow:, midtone:, highlight:, blend: 255
+      Pastele.scene_add_tritone @pointer, *Kredki.color(shadow).to_rgb, *Kredki.color(midtone).to_rgb, *Kredki.color(highlight).to_rgb, blend
+      update
+    end
+
     # Detach all paints.
     def clear!
       Pastele.scene_remove @pointer, nil

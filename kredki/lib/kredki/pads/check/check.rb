@@ -45,19 +45,25 @@ module Kredki
       def initialize
         super
 
-        @button = new CheckButton do
-          on_click do
-            checked! :not
-          end
-        end
+        @button = nil
       end
 
       def sketch
         super
 
+        @button = new CheckButton do
+          on_click do
+            checked! :not
+          end
+        end
+
         h! :fit
         mi! 8
         layout! :xsc
+      end
+
+      def repaint event = nil
+        opacity! disabled? ? 3/4r : 1r
       end
 
     end

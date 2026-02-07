@@ -190,8 +190,8 @@ module Kredki
 
       def new klass, *a, at: nil, **na, &b
         service = klass.new
-        service.sketch_service
         push_service service, at if at != false
+        service.sketch_service
         service.alter *a, **na, &b
         service
       end

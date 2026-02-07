@@ -60,6 +60,7 @@ module Kredki
       end
     end
 
+    # Push job after.
     def << job
       after job
     end

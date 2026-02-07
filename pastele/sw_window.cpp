@@ -4,7 +4,7 @@ namespace pastele {
 
 SwWindow::SwWindow(uint32_t width, uint32_t height) : Window()
 {
-    sdl_window = SDL_CreateWindow("Titless", width, height, SDL_WINDOW_HIDDEN);
+    sdl_window = SDL_CreateWindow("Kredki", width, height, SDL_WINDOW_HIDDEN);
     this->initialize();
 }
 

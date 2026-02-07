@@ -12,6 +12,16 @@ void Window::planDelete(void) {
     SDL_PushEvent(&event);
 }
 
+void Window::planClose(void) {
+    union SDL_Event event;
+    event.type = SDL_EVENT_WINDOW_CLOSE_REQUESTED;
+    SDL_WindowEvent windowEvent;
+    windowEvent.type = SDL_EVENT_WINDOW_CLOSE_REQUESTED;
+    windowEvent.windowID = SDL_GetWindowID(sdl_window);
+    event.window = windowEvent;
+    SDL_PushEvent(&event);
+}
+
 void Window::planUpdate(void) {
     union SDL_Event event;
     event.type = USEREVENT_UPDATEWINDOW;

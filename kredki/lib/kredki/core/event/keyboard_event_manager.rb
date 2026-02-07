@@ -1,7 +1,7 @@
 require_relative 'composite_event_manager'
 
 module Kredki
-  # Manage keyboard event managerseactions.
+  # Manage keyboard event managers.
   class KeyboardEventManager
 
     # :section: LEVEL 2
@@ -11,7 +11,7 @@ module Kredki
     end
 
     def report event
-      @managers[event.input_id]&.report event
+      @managers[event.code]&.report event
       @managers[nil]&.report event
     end
 
