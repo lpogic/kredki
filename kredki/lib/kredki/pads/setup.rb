@@ -26,5 +26,12 @@ module Kredki
 
     self.layout_map = {}
     self.config = "#{Kredki.dir}/stuff/config/pads_config.rb"
+
+    Auto = :auto
+    Fit = :fit
+    Ratio = :ratio
+    Start = :start
+    Center = :center
+    End = :end
   end
 end

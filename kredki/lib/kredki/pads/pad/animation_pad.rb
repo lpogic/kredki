@@ -52,7 +52,7 @@ module Kredki
 
       def min_wv m
         case @w
-        when :ratio
+        when Ratio
           get_h * @area.picture.aspect_ratio
         else super
         end
@@ -60,7 +60,7 @@ module Kredki
 
       def min_wl limit, m
         case limit
-        when :ratio
+        when Ratio
           get_h * @area.picture.aspect_ratio
         else super
         end
@@ -68,7 +68,7 @@ module Kredki
 
       def get_wv w, tw, h
         case w
-        when :ratio
+        when Ratio
           if @ratio
             h ||= @area.picture.wh_origin[1]
           else
@@ -83,7 +83,7 @@ module Kredki
 
       def min_hv m
         case @h
-        when :ratio
+        when Ratio
           get_w / @area.picture.aspect_ratio
         else super
         end
@@ -91,7 +91,7 @@ module Kredki
 
       def min_hl limit, m
         case limit
-        when :ratio
+        when Ratio
           get_w / @area.picture.aspect_ratio
         else super
         end
@@ -99,7 +99,7 @@ module Kredki
 
       def get_hv h, th, w
         case h
-        when :ratio
+        when Ratio
           if @ratio
             w ||= @area.picture.wh_origin[0]
           else

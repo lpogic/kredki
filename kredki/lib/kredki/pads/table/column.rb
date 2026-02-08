@@ -54,7 +54,7 @@ module Kredki
         # :section: LEVEL 2
 
         def initialize
-          @w = :layout
+          @w = Auto
           @limit = nil
         end
       end

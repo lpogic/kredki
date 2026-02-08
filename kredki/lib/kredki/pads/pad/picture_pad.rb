@@ -6,7 +6,7 @@ module Kredki
       # Set picture content.
       def content! content = @area.content
         return send_ahp :content!, yield(self.content) if block_given?
-        @area.content! content, @w == :layout && @h == :layout
+        @area.content! content, @w == Auto && @h == Auto
       end
       
       # See #content!.
@@ -47,7 +47,7 @@ module Kredki
 
       def min_wv m
         case @w
-        when :ratio
+        when Ratio
           get_h * @area.aspect_ratio
         else super
         end
@@ -55,7 +55,7 @@ module Kredki
 
       def min_wl limit, m
         case limit
-        when :ratio
+        when Ratio
           get_h * @area.aspect_ratio
         else super
         end
@@ -63,7 +63,7 @@ module Kredki
 
       def get_wv w, tw, h
         case w
-        when :ratio
+        when Ratio
           if @ratio
             h ||= @area.wh_origin[1]
           else
@@ -78,7 +78,7 @@ module Kredki
 
       def min_hv m
         case @h
-        when :ratio
+        when Ratio
           get_w / @area.aspect_ratio
         else super
         end
@@ -86,7 +86,7 @@ module Kredki
 
       def min_hl limit, m
         case limit
-        when :ratio
+        when Ratio
           get_w / @area.aspect_ratio
         else super
         end
@@ -94,7 +94,7 @@ module Kredki
 
       def get_hv h, th, w
         case h
-        when :ratio
+        when Ratio
           if @ratio
             w ||= @area.wh_origin[0]
           else

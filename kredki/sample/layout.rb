@@ -19,7 +19,7 @@ window.layer! do
 
     on_click do
       layouts.rotate!
-      fd(TextPad) << button_text_input(layouts.first)
+      d?(TextPad) << button_text_input(layouts.first)
       l.layout! layouts.first
     end
   end

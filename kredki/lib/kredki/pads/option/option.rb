@@ -53,7 +53,7 @@ module Kredki
           outline_w! 0
           keyboardy! false
           new RectanglePad, mousy: false, keyboardy: false, fill: 0, wh: 1r do
-            outline! fill: :text, w: 3, cap: :round
+            outline! fill: :text, w: 2, cap: :round
             area! do |w, h|
               xy! w * 0.2, h * 0.35
               line! w * 0.5, h * 0.65
@@ -99,7 +99,7 @@ module Kredki
 
         on_pick do |e|
           @dropdown.unload
-          content = e.target.fd(TextPad).content
+          content = e.target.d?(TextPad).content
           @note.content! content
           @note.verse.set_cursor content.to_s.length
         end

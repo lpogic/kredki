@@ -34,7 +34,7 @@ module Kredki
       def << feature
         case feature
         when String
-          (fc Label or new Label) << feature
+          (c? Label or new Label) << feature
         else
           super
         end
@@ -57,7 +57,7 @@ module Kredki
           end
         end
 
-        h! :fit
+        h! Fit
         mi! 8
         layout! :xsc
       end

@@ -121,12 +121,12 @@ module Kredki
           end
 
           on_key_press do |e|
-            fa(Group).key e, self
+            a?(Group).key e, self
           end
         end
 
         def update_checked checked
-          fa(Group)&.set_checked self, checked or set_checked checked
+          a?(Group)&.set_checked self, checked or set_checked checked
         end
 
         def set_checked checked

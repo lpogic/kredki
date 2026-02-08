@@ -124,7 +124,7 @@ module Kredki
 
         @cursor_position = @selection_min = @selection_max = 0
         @selection = @scene.scene!
-        @cursor = @scene.rectangle! fill: :text, w: 2, show: false
+        @cursor = @scene.rectangle! fill: :text, w: 1, show: false
       end
 
       def mouse_press e

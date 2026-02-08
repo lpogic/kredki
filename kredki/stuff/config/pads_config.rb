@@ -37,12 +37,6 @@ module Kredki
   color! :text, 255, 255, 255, 255
 
   module Pads
-    layout! nil, Layout::Align.new(:center, :center)
-    [:start, :center, :end].repeated_permutation 2 do |it|
-      layout! "x#{it[0].to_s[0]}#{it[1].to_s[0]}".to_sym, Layout::XWay.new(*it)
-      layout! "y#{it[0].to_s[0]}#{it[1].to_s[0]}".to_sym, Layout::YWay.new(*it)
-      layout! "z#{it[0].to_s[0]}#{it[1].to_s[0]}".to_sym, Layout::Align.new(*it)
-    end
 
     define :rectangle!, RectanglePad
     def ellipse! ...
@@ -83,6 +77,27 @@ module Kredki
     define :context!, Context::Menu
     define :toolbar!, Toolbar::Pad
 
+    layout! nil, Layout::Align.new(Center, Center)
+    [Start, Center, End].repeated_permutation 2 do |a, b|
+      x = "x#{a.to_s[0]}#{b.to_s[0]}".to_sym
+      y = "y#{a.to_s[0]}#{b.to_s[0]}".to_sym
+      z = "z#{a.to_s[0]}#{b.to_s[0]}".to_sym
+      layout! x, Layout::XWay.new(a, b)
+      layout! y, Layout::YWay.new(a, b)
+      layout! z, Layout::Align.new(a, b)
+
+      eval <<~RUBY
+        def #{x}! *a, **na, &b
+          new SpacePad, __method__, *a, layout: :#{x}, **na, &b
+        end
+        def #{y}! *a, **na, &b
+          new SpacePad, __method__, *a, layout: :#{y}, **na, &b
+        end
+        def #{z}! *a, **na, &b
+          new SpacePad, __method__, *a, layout: :#{z}, **na, &b
+        end
+      RUBY
+    end
   end#Pads
 
   Window.default_scene = Pads::WindowScene

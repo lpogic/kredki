@@ -9,7 +9,7 @@ module Kredki
         super
         
         # this component creation order is intentional; @corner existence is checked in put_pad
-        corner = new RectanglePad, layoutic: false, fill: :gray, wh: 10, xy: :end
+        corner = new RectanglePad, layoutic: false, fill: :gray, wh: 10, xy: End
         @xslide = new HorizontalSlide, layoutic: false, h: 10
         @yslide = new VerticalSlide, layoutic: false, w: 10
         @corner = corner
@@ -147,8 +147,8 @@ module Kredki
           end
           
           ps.each do |p1|
-            px = p1.x == :layout ? p1.sx + pad_x : p1.sx
-            py = p1.y == :layout ? p1.sy + pad_y : p1.sy
+            px = p1.x == Auto ? p1.sx + pad_x : p1.sx
+            py = p1.y == Auto ? p1.sy + pad_y : p1.sy
             p1.set_xy px, py
           end
           if @corner.show = xscroll && yscroll

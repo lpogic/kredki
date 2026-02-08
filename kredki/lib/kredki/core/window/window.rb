@@ -118,11 +118,11 @@ module Kredki
     def xy! x = 0, y = x
       return send_ahp :xy!, yield(self.xy) if block_given?
       x = case x
-      when :start
+      when Start
         0
-      when :center
+      when Center
         (display_wh[0] - wh[0]) * 0.5
-      when :end
+      when End
         display_wh[0] - wh[0]
       when Numeric
         x
@@ -130,11 +130,11 @@ module Kredki
       end
 
       y = case y
-      when :start
+      when Start
         0
-      when :center
+      when Center
         (display_wh[1] - wh[1]) * 0.5
-      when :end
+      when End
         display_wh[1] - wh[1]
       when Numeric
         y

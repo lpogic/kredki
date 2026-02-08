@@ -326,7 +326,7 @@ module Kredki
           @mye = mye
           layer&.break_layout
           true
-        end | send_branch(:margin, na)
+        end | send_branch(:m, na, "")
       end
 
       # See #m!.
@@ -739,9 +739,25 @@ module Kredki
 
       # Attach +pad+ do self.
       def put! pad, *a, at: nil, **na, &b
-        pad.pad_detach
-        pad.set_pad_parent self, at
-        pad.alter(*a, **na, &b)
+        case pad 
+        when String
+          pad_mode = pad.start_with? "\xe1"
+          pad.split("\x1e").each do |part|
+            if pad_mode
+              id = part.to_i
+              c?{|c| c.object_id == id }&.then{|it| put! it }
+              pad_mode = false
+            else
+              new TextPad, part
+              pad_mode = true
+            end
+          end
+        else
+          at = nil if at == self
+          pad.pad_detach
+          pad.set_pad_parent self, at
+          pad.alter(*a, **na, &b)
+        end
       end
 
       # Attach self to +parent+.
@@ -772,8 +788,8 @@ module Kredki
 
       def initialize
         super
-        @x = @y = :layout
-        @w = @h = :layout
+        @x = @y = Auto
+        @w = @h = Auto
         @w_limit = @h_limit = nil
         @rot = 0
         @opacity = 255
@@ -787,6 +803,10 @@ module Kredki
         @pads = []
         @layout = nil
         @pads_layout = Pads.layout
+      end
+
+      def to_s
+        "\x1e#{object_id}\x1e"
       end
 
       def initialize_area
@@ -982,13 +1002,13 @@ module Kredki
           @x[pclw, sw]
         when Range
           ax + @x.begin
-        when :start
+        when Start
           0
-        when :center
+        when Center
           (pclw - sw) * 0.5
-        when :end
+        when End
           pclw - sw
-        when :layout
+        when Auto
           ax
         when Numeric
           @x
@@ -1004,13 +1024,13 @@ module Kredki
           @y[pch, sh]
         when Range
           ay + @y.begin
-        when :start
+        when Start
           0
-        when :center
+        when Center
           (pch - sh) * 0.5
-        when :end
+        when End
           pch - sh
-        when :layout
+        when Auto
           ay
         when Numeric
           @y
@@ -1053,9 +1073,9 @@ module Kredki
         w = case @w
         when Rational, Proc
           m
-        when :fit
+        when Fit
           fit_w
-        when :layout
+        when Auto
           @area.w
         when :h
           get_h
@@ -1068,9 +1088,9 @@ module Kredki
 
       def min_wl limit, m
         case limit
-        when :fit
+        when Fit
           fit_w
-        when :layout
+        when Auto
           @area.w
         when Numeric
           limit < 0 ? m : limit
@@ -1109,9 +1129,9 @@ module Kredki
           @pad_parent.get_wr self, w, tw || @pad_parent.get_w
         when Proc
           w[tw || @pad_parent.get_w]
-        when :fit
+        when Fit
           fit_w
-        when :layout
+        when Auto
           @area.w
         when :h
           h || get_h
@@ -1137,9 +1157,9 @@ module Kredki
         case @h
         when Rational, Proc
           m
-        when :fit
+        when Fit
           fit_h
-        when :layout
+        when Auto
           @area.h
         when :w
           get_w
@@ -1152,9 +1172,9 @@ module Kredki
 
       def min_hl limit, m
         case limit
-        when :fit
+        when Fit
           fit_h
-        when :layout
+        when Auto
           @area.h
         when Numeric
           limit < 0 ? m : limit
@@ -1193,9 +1213,9 @@ module Kredki
           @pad_parent.get_hr self, h, th || @pad_parent.get_h
         when Proc
           h[th || @pad_parent.get_h]
-        when :fit
+        when Fit
           fit_h
-        when :layout
+        when Auto
           @area.h
         when :w
           w || get_w
@@ -1274,7 +1294,7 @@ module Kredki
       end
 
       def check_mouse_in pad
-        fa Pad, with_self: true do |it|
+        a? Pad, with_self: true do |it|
           pad == it
         end
       end
@@ -1320,7 +1340,7 @@ module Kredki
 
       def c_set_parent at
         return if @pad_parent
-        set_pad_parent @parent.is(Pad) || @parent.fa(Pad), at
+        set_pad_parent @parent.is(Pad) || @parent.a?(Pad), at
       end
 
       def set_pad_parent pad_parent, at

@@ -107,11 +107,6 @@ module Kredki
         end
       end
 
-      # Convert to string.
-      def to_s
-        content
-      end
-
       # :section: LEVEL 2
 
       class NoteLayout < Layout::XWay
@@ -144,13 +139,13 @@ module Kredki
 
         initialize_verse
 
-        layout! NoteLayout.new(:start, :center)
+        layout! NoteLayout.new(Start, Center)
         mousy!
         keyboardy!
         outline_w! 1
         m! 2
         suit! :gray
-        h! :fit
+        h! Fit
 
         sketch_verse
       end

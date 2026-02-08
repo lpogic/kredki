@@ -24,7 +24,7 @@ module Kredki
 
       # Get Kredki::Pads::Layer ancestor.
       def layer
-        is Layer or fa Layer
+        is Layer or a? Layer
       end
 
       # Get Kredki::WindowScene ancestor.
@@ -94,22 +94,11 @@ module Kredki
         end
       end
 
-      # Get whether match all filters.
-      def is *filters, &block
-        self =~ filters && self =~ block ? self : false
-      end
-
-      # Get whether not match all filter.
-      def isnt *filters, &block
-        filters.all?{ self !~ filters } && (!block || self !~ block ? self : false)
-      end
-
       # Set whether Pad is tagged with +tag+.
       def tag! tag, value = true
         return if (c = self.tag tag) == (value = block_given? ? yield(c) : value == :not ? !c : value)
         if value
           @tags[tag] = true
-          eval "#{tag} = WeakRef.new self" if tag.start_with? "$"
         else
           @tags.delete tag
         end
@@ -147,7 +136,10 @@ module Kredki
       def << feature
         case feature
         when Symbol
+          to_send = feature.end_with?("!") && @tags.size > 0 # skip type tag
           tag! feature
+          eval "#{feature} = WeakRef.new self" if feature.start_with? "$"
+          send feature if to_send
         when Hash
           alter **feature
         when Array

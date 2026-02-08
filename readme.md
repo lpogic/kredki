@@ -78,7 +78,7 @@ require 'kredki/module' # embedded mode
 decision = Kredki.run do
   layout! :ycc
   
-  space! w: 100, layout: :ysc do
+  ysc! w: 100 do
     radio! do
       item! "yes", checked: true
       item! "no"
@@ -87,7 +87,7 @@ decision = Kredki.run do
     space! wh: 5
     button! "Submit", w: 1r do
       on_click do
-        application.return fd(:item!, :checked?).subject
+        application.return d?(:item!, :checked?).subject
       end
     end
   end

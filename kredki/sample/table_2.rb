@@ -2,11 +2,10 @@ require 'kredki'
 
 table! w: 3/4r do
   fill! :black
-  m! 2
-  column! 1r, limit: :fit..;
+  m! 1, i: 1
+  column! 1r, limit: Fit..;
   column! 2r
   column! 100
-  gap! 2
 
   c = {fill: :black}
 

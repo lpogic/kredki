@@ -14,7 +14,7 @@ module Kredki
         def sketch
           super
 
-          wh! 1r, :fit
+          wh! 1r, Fit
           fill! false
         end
 

@@ -7,6 +7,7 @@ task :run => "sketch/sketch.rb"
 task :run do
   $LOAD_PATH << File.expand_path(".")
   $LOAD_PATH << File.expand_path("kredki/lib")
+  $0 = "sketch/sketch.rb"
   require_relative "sketch/sketch"
 end
 
@@ -21,28 +22,14 @@ file "sketch/sketch.rb" => "sketch" do |it|
 end
 
 task :sample, [:path] do |task, args|
-  if args[:path] == "*"
-    chdir "kredki/sample"
-    Dir["*.rb"].all? do |sample|
-      print "Next sample: \"#{sample}\".     S - skip, E - exit, else - continue: "
-      case $stdin.gets.chomp
-      when 'e', 'E'
-        false
-      when 's', 'S'
-        true
-      else
-        system "rake sample[#{sample}]"
-        true
-      end
-    end
-  else
-    $LOAD_PATH << File.expand_path(".")
-    $LOAD_PATH << File.expand_path("kredki/lib")
-    chdir "kredki/sample"
-    sample = "kredki/sample/#{args[:path] || "metasample"}"
-    puts "Running: #{sample}"
-    require_relative sample
-  end
+  $LOAD_PATH << File.expand_path(".")
+  $LOAD_PATH << File.expand_path("kredki/lib")
+  chdir "kredki/sample"
+  $0 = args[:path] || "metasample"
+  $0 += ".rb" unless $0.end_with? ".rb"
+  sample = "kredki/sample/#$0"
+  puts "Running: #{sample}"
+  require_relative sample
 end
 
 require 'rdoc/task'

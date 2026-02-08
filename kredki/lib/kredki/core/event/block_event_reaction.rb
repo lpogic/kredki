@@ -27,7 +27,7 @@ module Kredki
       event&.reaction = self
       begin
         @block.call event
-      rescue e
+      rescue => e
         raise inspect
       end
     end

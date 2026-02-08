@@ -19,11 +19,17 @@ module Kredki
           load_common x, y
         end
 
+        def sketch
+          super
+
+          fill! 10, 10, 10, 60
+        end
+
         def behavior
           super
 
           on Item::PickEvent do |e|
-            if e.target.fd Item
+            if e.target.d? Item
               e.close
             else
               parent.report e

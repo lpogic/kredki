@@ -34,15 +34,14 @@ end
 define :car! do |*a, body: :blue, rim: :gray, tire: :black, **na, &b|
   space! **na do
     car_body! fill: body, wh: 1r
-    wheel! x: 1/4r, y: :end, wh: 1/2r, rim:, tire:;
-    wheel! x: 3/4r, y: :end, wh: 1/2r, rim:, tire:;
+    wheel! x: 1/4r, y: End, wh: 1/2r, rim:, tire:;
+    wheel! x: 3/4r, y: End, wh: 1/2r, rim:, tire:;
   end.alter &b
 end
 
 # Now we can use car!
 
-space! wh: 2/3r do
-  layout! :yss
+ycc! wh: 2/3r do
   mi! 60
   car! wh: 1r, rim: :green, body: :orange
   car! wh: 1r, mag: -1, rim: :red, body: :gray

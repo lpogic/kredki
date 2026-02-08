@@ -12,8 +12,8 @@ module Kredki
 
         # Create/Update dropdown layer.
         def dropdown! ...
-          fc SecondaryLayer or begin
-            fc(:end_icon).scenic!
+          c? SecondaryLayer or begin
+            c?(:end_icon).scenic!
             new SecondaryLayer
           end.alter(...)
         end
@@ -25,7 +25,7 @@ module Kredki
           
           new SpacePad, h: 1r, w: :h
           new TextPad, "", mousy: false
-          new RectanglePad, :end_icon, mousy: false, keyboardy: false, fill: 0, x: :end, h: 1r, w: :h do
+          new RectanglePad, :end_icon, mousy: false, keyboardy: false, fill: 0, x: End, h: 1r, w: :h do
             outline! fill: :text, w: 2, cap: :round
             area! do |w, h|
               xy! w * 0.5, h * 0.35
@@ -40,9 +40,9 @@ module Kredki
           super
 
           on_key_press :right do |e|
-            fc(SecondaryLayer)&.then do |it|
+            c?(SecondaryLayer)&.then do |it|
               it.load self unless it.loaded?
-              it.fd(Item)&.keyboard_request and e.close
+              it.d?(Item)&.keyboard_request and e.close
             end
           end
 
@@ -50,7 +50,7 @@ module Kredki
 
         def mouse_enter e
           super
-          fd(SecondaryLayer)&.then{|it| it.update_keyboard_pad nil if it.loaded? }
+          d?(SecondaryLayer)&.then{|it| it.update_keyboard_pad nil if it.loaded? }
         end
         
       end#Item

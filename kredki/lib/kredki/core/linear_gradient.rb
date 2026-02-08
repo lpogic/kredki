@@ -11,6 +11,10 @@ module Kredki
       @spread = spread
     end
 
+    def self.[](...)
+      self.new(...)
+    end
+
     # :section: LEVEL 2
 
     def inspect

@@ -19,7 +19,7 @@ module Kredki
             else
               [h, 0, pad.get_hv(limit, pclh, nil), 0]
             end
-          when :layout
+          when Auto
             case limit
             when nil
               [1r, 0, Float::INFINITY, 0]
@@ -49,11 +49,11 @@ module Kredki
 
         def arrange_pads pads, sh, clw, clh, space
           cy = case @y
-          when :start
+          when Start
             0
-          when :center
+          when Center
             (clh - sh) * 0.5
-          when :end
+          when End
             clh - sh
           when Rational 
             clh * @y

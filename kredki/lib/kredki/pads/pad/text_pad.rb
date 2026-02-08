@@ -197,7 +197,7 @@ module Kredki
       def sketch
         super
 
-        wh! :fit
+        wh! Fit
         verse_layout! :ysc
         verse_size! 20
         content! "TEXT"

@@ -13,7 +13,7 @@ module Kredki
 
         def selected_up_to pad
           bound = 0
-          ed(Item).each_alter do
+          each_d(Item).each_alter do
             bound += 1 if self == pad
             bound += 1 if keyboard_in?
             selected! if bound > 0

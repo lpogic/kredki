@@ -12,70 +12,72 @@ module Kredki
         def row
           {
             w: 1r,
-            h: :fit,
+            h: Fit,
             layout: @column_layout
           }
         end
 
         # Add new row.
         def row! ...
-          new(Row, row, ...)
+          new(Row, :row!, row, ...)
         end
 
-        # Add new scroll rows.
-        def scroll_rows! ...
-          new(ScrollRows, layout: :yss, mi: mi).alter(...)
-        end
-
-        # Set gap between columns.
-        def gap_col! gap_col = @column_layout.space
-          return send_ahp :gap_col!, yield(self.gap_col) if block_given?
-          if @column_layout.space! gap_col
+        # Set X inner margin.
+        def mxi! ...
+          if @column_layout.space!(...)
             layer&.break_layout
             true
           end
         end
 
-        # See #gap_col!.
-        def gap_col= param
-          send_ahp :gap_col!, param
+        # See #mxi!.
+        def mxi= param
+          send_ahp :mxi!, param
         end
 
-        # Get gap between columns.
-        def gap_col
+        # Get X inner margin.
+        def mxi
           @column_layout.space
         end
 
-        # Set gap between rows.
-        def gap_row! gap_row = @rowumn_layout.space
-          return send_ahp :gap_row!, yield(self.gap_row) if block_given?
-          mi! gap_row
+        # Set Y inner margin.
+        def myi! myi = @mi
+          return myi! yield @mi if block_given?
+          return if Util.eqr @mi, myi
+          @mi = myi
+          layer&.break_layout
+          true
         end
 
-        # See #gap_row!.
-        def gap_row= param
-          send_ahp :gap_row!, param
+        # See #myi!.
+        def myi= param
+          send_ahp :myi!, param
         end
 
-        # Get gap between rowumns.
-        def gap_row
-          mi
+        # Get Y inner margin.
+        def myi
+          @mi
         end
 
-        # Set gap between columns and rows.
-        def gap! gap_col = @column_layout.space, gap_row = gap_col
-          return send_ahp :gap!, yield(self.gap) if block_given?
-          gap_col!(gap_col) | gap_row!(gap_row)
+        # Set inner margin.
+        def mi! mxi = @column_layout.space, myi = mxi
+          return mi! yield(self.mi) if block_given?
+          mxi!(mxi) | myi!(myi)
         end
 
-        # See #gap!.
-        def gap= param
-          send_ahp :gap!, param
+        # See #mi!.
+        def mi= param
+          send_ahp :mi!, param
         end
 
-        # Get gap between columns and rows.
-        def gap
-          [gap_col, gap_row]
+        # Get inner margin.
+        def mi
+          myi
+        end
+
+        # Add new scroll rows.
+        def scroll_rows! ...
+          new(ScrollRows, :scroll_rows!, layout: :yss, mi: myi).alter(...)
         end
 
         # :section: LEVEL 2
@@ -91,7 +93,7 @@ module Kredki
 
           fill! false
           layout! :yss
-          h! :fit
+          h! Fit
         end
 
         def arrange

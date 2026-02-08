@@ -29,7 +29,7 @@ module Kredki
           keyboardy!
           fill! :gray
           layout! :yss
-          h! :fit
+          h! Fit
 
           @item_group = new ItemGroup
         end
@@ -45,12 +45,12 @@ module Kredki
             elsif kb.ctrl?
               item.selected! :not
             else
-              ed(Item).each_alter{|it| selected! it == item }
+              each_d(Item).each_alter{|it| selected! it == item }
             end
           end
 
           on_focus_leave do
-            ed(Item).each_alter selected: false
+            each_d(Item).each_alter selected: false
           end
         end
 

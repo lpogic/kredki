@@ -32,6 +32,7 @@ else
     text_input!
     fill! 20, 70, 20
     exit_on_esc!
+    title! $0
   end
   W.carry_focus_on_tab!
 end

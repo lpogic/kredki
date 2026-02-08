@@ -25,7 +25,7 @@ module Kredki
           super
           
           on Item::PickEvent do |e|
-            if e.target.fd Item
+            if e.target.d? Item
               e.close
             else
               parent.report e

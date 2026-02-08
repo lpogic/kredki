@@ -362,6 +362,35 @@ module Kredki
       keyboard.shift? ? [y * jump, x * jump] : [x * jump, y * jump]
     end
 
+    def exit_on_esc!
+      on_key_press :escape do |event|
+        application.return
+      end
+    end
+
+    def close_on_esc!
+      on_key_press :escape do |event|
+        window.close
+      end
+    end
+
+    # Push the feature.
+    def << feature
+      case feature
+      when Symbol
+        send feature if feature.end_with? "!"
+      when Hash
+        alter **feature
+      when Array
+        alter *feature
+      when Proc
+        alter &feature
+      else
+        raise "Unsupported << (#{feature} : #{feature.class})"
+      end
+      self
+    end
+
     # :section: LEVEL 2
 
     def initialize
@@ -385,18 +414,6 @@ module Kredki
       on_resize{|it| @fill.wh = it.wh }
       @fill.wh = *wh
       fill! 20, 70, 20
-    end
-
-    def exit_on_esc!
-      on_key_press :escape do |event|
-        application.return
-      end
-    end
-
-    def close_on_esc!
-      on_key_press :escape do |event|
-        window.close
-      end
     end
 
     def translate x, y, target = nil

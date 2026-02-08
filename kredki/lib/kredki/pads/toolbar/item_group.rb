@@ -8,13 +8,13 @@ module Kredki
 
         # Add menu item.
         def item! *a, **na, &b
-          new Item, :item!, *a, w: :fit, **na, &b
+          new Item, :item!, *a, w: Fit, **na, &b
         end
 
         # :section: LEVEL 2
 
         def mouse_enter pad
-          pad.keyboard_request if parent.keyboard_in? && fd(Item){|it| it.keyboard_in? } != pad
+          pad.keyboard_request if parent.keyboard_in? && d?(Item){|it| it.keyboard_in? } != pad
         end
       end
     end

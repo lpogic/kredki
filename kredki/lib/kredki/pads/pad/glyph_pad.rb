@@ -7,7 +7,7 @@ module Kredki
       def content! content = @content
         return send_ahp :content!, yield(self.content) if block_given?
         return if @content == content && content != :rand
-        if @area.content! Kredki.glyph(content), @w == :layout && @h == :layout
+        if @area.content! Kredki.glyph(content), @w == Auto && @h == Auto
           set_color @color if @color
         end
         @content = content
@@ -43,7 +43,7 @@ module Kredki
       def << arg
         case arg
         when Symbol
-          content! arg if arg =~ /^[a-z_]+$/
+          content! arg if arg =~ /^[a-z_0-9]+$/
           super
         else
           super

@@ -53,7 +53,7 @@ module Kredki
       def << feature
         case feature
         when String
-          fc(TextPad)&.alter feature or new TextPad, feature, mousy: false
+          c?(TextPad)&.alter feature or new TextPad, feature, mousy: false
           subject! feature
           self
         else
@@ -73,7 +73,7 @@ module Kredki
         layout! :xsc
         suit! :gray
         h! 24
-        w! :fit
+        w! Fit
       end
 
       def presence

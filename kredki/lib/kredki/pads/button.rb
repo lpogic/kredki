@@ -59,7 +59,7 @@ module Kredki
         case arg
         when String
           subject! arg
-          (fc TextPad or default_text) << arg
+          (c? TextPad or default_text) << arg
         else
           super
         end
@@ -82,7 +82,7 @@ module Kredki
         keyboardy!
         outline_w! 1
         layout! :xcc
-        wh! :fit
+        wh! Fit
         suit! :gray
         m! 2
       end
@@ -150,7 +150,7 @@ module Kredki
       def default_text
         new TextPad, "Button" do
           mousy! false
-          h! :fit
+          h! Fit
           verse_size! 20
           verse_layout! :ycc
         end

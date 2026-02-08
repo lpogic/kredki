@@ -99,13 +99,13 @@ module Kredki
 
             @parent_events.push = parent.on_mouse_click :secondary do |e|
               @context_layer.load *e.xy
-              @context_layer.fd(Item)&.keyboard_request
+              @context_layer.d?(Item)&.keyboard_request
               e.close
             end
       
             @parent_events.push = parent.on_key :context do |e|
               @context_layer.load *parent.translate(parent.sx / 2, parent.sy / 2)
-              @context_layer.fd(Item)&.keyboard_request
+              @context_layer.d?(Item)&.keyboard_request
               e.close
             end
           end

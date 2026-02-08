@@ -30,7 +30,7 @@ class PadGalleryTest < Kredki::Test
     space! layout: :xss, m: 10, mi: 10 do
       space! layout: :yss, mi: 10 do
         note! w: 1r
-        list! w: 1r, h: :fit do
+        list! w: 1r, h: Fit do
           item! "First"
           item! "Second"
           item! "Third"
@@ -51,7 +51,7 @@ class PadGalleryTest < Kredki::Test
             end
           end
         end
-        scroll! wh: [1r, limit: :fit] do
+        scroll! wh: [1r, limit: Fit] do
           picture! "#{Kredki.dir}/sample/stuff/test.png"
         end
       end
@@ -71,7 +71,7 @@ class PadGalleryTest < Kredki::Test
           item! "Radio 2"
           item! "Radio 3"
         end
-        animation! "#{Kredki.dir}/sample/stuff/1643-exploding-star.json", wh: [1r, limit: :ratio], x: :center do
+        animation! "#{Kredki.dir}/sample/stuff/1643-exploding-star.json", wh: [1r, limit: :ratio], x: Center do
           job.animate self, true
         end
       end

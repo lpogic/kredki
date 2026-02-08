@@ -17,11 +17,17 @@ module Kredki
           load_common x, y
         end
 
+        def sketch
+          super
+
+          fill! 10, 10, 10, 60
+        end
+
         def behavior
           super
 
           on Item::PickEvent, early: true do |e|
-            if e.target.fd Item
+            if e.target.d? Item
               e.close
             else
               pad_detach

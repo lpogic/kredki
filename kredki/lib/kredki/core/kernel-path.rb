@@ -43,8 +43,8 @@ class Object
     end
   end
 
-  def send_branch root, branches
-    branches.count{ send_ahp "#{root}_#{_1}!", _2 }.nonzero?
+  def send_branch root, branches, separator = "_"
+    branches.count{ send_ahp "#{root}#{separator}#{_1}!", _2 }.nonzero?
   end
 end
 

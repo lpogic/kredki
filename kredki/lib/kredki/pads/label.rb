@@ -65,8 +65,8 @@ module Kredki
       def sketch
         super
 
-        wh! :fit, 24
-        for! proc{|it| it.pa&.fc{|it| it.keyboardy? } }
+        wh! Fit, 24
+        for! proc{|it| it.p?&.c?{|it| it.keyboardy? } }
         keyboardy! false
         area.fill! false
 

@@ -16,7 +16,7 @@ module Kredki
         super
 
         @scroll = new ScrollPad, layout: :yss
-        @pad = @scroll.new RectanglePad, fill: :gray, layout: :yss, h: :fit
+        @pad = @scroll.new RectanglePad, fill: :gray, layout: :yss, h: Fit
         @item_group = @pad.new ItemGroup
       end
 
@@ -53,7 +53,7 @@ module Kredki
         end
 
         note.window.push_layer self
-        @pad.fd(Item)&.keyboard_request
+        @pad.d?(Item)&.keyboard_request
       end
 
       def unload
