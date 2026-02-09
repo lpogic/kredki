@@ -396,6 +396,8 @@ module Kredki
     def initialize
       super
 
+      @last_xy = nil
+
       @jobs = {}
       @jobs_mutex = Thread::Mutex.new
       @store = {}
@@ -412,7 +414,24 @@ module Kredki
 
     def sketch
       on_resize{|it| @fill.wh = it.wh }
+      on_move{|it| @last_xy = it.xy }
+      on_expose do |it|
+        w = it.source.data1 
+        if w != -1
+          h = it.source.data2
+          if w == @fill.w && h == @fill.h
+            it.close
+          else
+            @scene.report ResizeEvent.new(w, h, it)
+          end
+          xy = @scene.xy
+          @scene.report MoveEvent.new(*xy, it) if xy != @last_xy
+          @scene.report TickEvent.new it
+        end
+      end
+
       @fill.wh = *wh
+      @last_xy = xy
       fill! 20, 70, 20
     end
 

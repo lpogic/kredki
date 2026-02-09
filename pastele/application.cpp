@@ -16,8 +16,34 @@ void Application::eraseWindow(Window* window) {
     windows.erase(window);
 }
 
+bool Application::watcher(SDL_Event* event){
+    if(event->type == SDL_EVENT_WINDOW_EXPOSED){
+        if(event->window.data1 == 1) {
+            for(auto window : windows) {
+                if(SDL_GetWindowID(window->sdl_window) == event->window.windowID) {
+                    SDL_GetWindowSize(window->sdl_window, &event->window.data1, &event->window.data2);
+                    if(!eventHandler(event->type, event)) {
+                        window->setNeedResize();
+                    }
+                    window->sync();
+                    break;
+                }
+            }
+            return false;
+        } else {
+            event->window.data1 = -1;
+        }
+        
+    }
+    return true;
+}
+
 void Application::run() {
     SDL_Event event;
+
+    SDL_AddEventWatch([](void *userdata, SDL_Event* event) -> bool {
+        return ((Application*)userdata)->watcher(event);
+    }, this);
 
     running = true;
     while (running) {
@@ -28,6 +54,9 @@ void Application::run() {
                     event.user.timestamp = SDL_GetTicksNS();
                     eventHandler(event.type, &event);
                     window->sync();
+                    event.type = USEREVENT_UPDATECOMPLETEWINDOW;
+                    event.user.timestamp = SDL_GetTicksNS();
+                    eventHandler(event.type, &event);
                     break;
                 }
                 case USEREVENT_DELETEWINDOW: {

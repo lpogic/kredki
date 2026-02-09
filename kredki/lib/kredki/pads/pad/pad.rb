@@ -446,7 +446,6 @@ module Kredki
         return send_ahp :mouse_cursor!, yield(self.mouse_cursor) if block_given?
         return if @mouse_cursor == mouse_cursor
         @mouse_cursor = mouse_cursor
-        p self if !window
         window.mouse_stale = true
         true
       end

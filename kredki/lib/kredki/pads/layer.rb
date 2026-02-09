@@ -172,8 +172,12 @@ module Kredki
       end
 
       def mouse_event e
-        e.drag = @pin_data&.drag if e.is_a? MouseButtonReleaseEvent
-        mouse_pad&.report e
+        if e.is_a? MouseButtonReleaseEvent
+          e.drag = @pin_data&.drag
+          layer.update_mouse_location e
+        else
+          mouse_pad&.report e
+        end
         e
       end
 

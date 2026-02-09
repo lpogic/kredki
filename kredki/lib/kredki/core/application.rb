@@ -56,7 +56,6 @@ module Kredki
       @event_callback = Fiddle::Closure::BlockCaller.new(Fiddle::TYPE_INT, [Fiddle::TYPE_INT, Fiddle::TYPE_VOIDP], &method(:event))
       Pastele.application_set_event_handler @pointer, @event_callback
       @windows = {}
-      @window_threads = {}
       @early_close_next_text_event = false
       @drop_data = nil
     end
@@ -78,7 +77,7 @@ module Kredki
         window_event abi.window_id, WindowExposeEvent.new(abi)
       when 0x205
         abi = Pastele::WindowEvent.new event_ptr
-        window_event abi.window_id, MoveEvent.new(abi)
+        window_event abi.window_id, MoveEvent.new(abi.data1, abi.data2, abi)
       when 0x206
         abi = Pastele::WindowEvent.new event_ptr
         window_event abi.window_id, ResizeEvent.new(abi.data1, abi.data2, abi)
@@ -149,27 +148,19 @@ module Kredki
         abi = Pastele::MouseMotionEvent.new event_ptr
         if mouse = Kredki.mouse
           event = mouse.pointer_move_event abi
-          if window = @windows[abi.window_id]
-            window.report event
-          end
-          event
+          window_event abi.window_id, event
         end
       when 0x401 # SDL_EVENT_MOUSE_BUTTON_DOWN
         abi = Pastele::MouseButtonEvent.new event_ptr
         if mouse = Kredki.mouse
           event = mouse.button_press_event abi
-          if window = @windows[abi.window_id]
-            window.report event
-          end
-          event
+          window_event abi.window_id, event
         end
       when 0x402 # SDL_EVENT_MOUSE_BUTTON_UP
         abi = Pastele::MouseButtonEvent.new event_ptr
         if mouse = Kredki.mouse
           event = mouse.button_release_event abi
-          if window = @windows[abi.window_id]
-            window.report event
-          end
+          window_event abi.window_id, event
           event
         end
       when 0x403 # SDL_EVENT_MOUSE_WHEEL
@@ -247,18 +238,18 @@ module Kredki
       when 0x1004 # SDL_EVENT_DROP_POSITION
         abi = Pastele::DropEvent.new event_ptr
         event = MousePointerDropEvent.new Kredki.mouse, abi
-        if window = @windows[abi.window_id]
-          window.report event
-        end
-        event
+        window_event abi.window_id, event
       when 256
         application_event ExitEvent.new(Pastele::QuitEvent.new event_ptr)
-      when 0x8001 # Tick Event
+      when 0x8001 # USEREVENT_UPDATEWINDOW
         abi = Pastele::UserEvent.new event_ptr
         window_event abi.window_id, TickEvent.new(abi)
-      when 0x8007 # Tick Event
+      when 0x8007 # Close window Event
         abi = Pastele::UserEvent.new event_ptr
         window_event abi.window_id, TickEvent.new(abi)
+      when 0x8008 # USEREVENT_UPDATECOMPLETEWINDOW
+        abi = Pastele::UserEvent.new event_ptr
+        window_event abi.window_id, UpdateCompleteEvent.new(abi)
       else # unsupported event
         # puts event_type.to_s 16
         nil
@@ -270,22 +261,15 @@ module Kredki
       window_id = Pastele.application_insert_window @pointer, window.pointer
       @windows[window_id] = window
       @main_window ||= window
-      window.application = self
-      @window_threads[window_id] = Thread.new do
-        loop do
-          sleep 0.02
-          Pastele.window_update window.pointer
-        end
-      end
+      window.attach! self
       window
     end
 
     def remove_window window
       window.hide!
       window_id = Pastele.application_erase_window(@pointer, window.pointer)
-      @window_threads.delete(window_id)&.kill
       @windows.delete window_id
-      window.application = nil
+      window.detach!
       if @windows.empty?
         exit
       else

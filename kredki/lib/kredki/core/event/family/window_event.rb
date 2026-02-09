@@ -9,6 +9,34 @@ module Kredki
 
   # Event reported on move.
   class MoveEvent < PasteleEvent
+
+    # Get X position.
+    def x
+      @x
+    end
+
+    # Get Y position.
+    def y
+      @y
+    end
+
+    # Get X and Y position.
+    def xy
+      [@x, @y]
+    end
+
+    # Get main parameter.
+    def param
+      xy
+    end
+    
+    # :section: LEVEL 2
+
+    def initialize x, y, ...
+      super(...)
+      @x = x
+      @y = y
+    end
   end
 
   # Event reported on resize.

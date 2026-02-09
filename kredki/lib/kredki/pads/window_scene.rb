@@ -69,16 +69,18 @@ module Kredki
         on_joystick_move do: method(:joystick_event)
         on_joystick_switch do: method(:joystick_event)
 
-        on_resize do
-          w, h = *wh
-          @services.each do |it|
-            it.set_xy 0, 0
-            it.set_size w, h
-            it.wh! w, h
-          end
-        end
+        on_resize{ resize *wh }
+        on_expose{ resize *wh }
 
         layer!.keyboard_request
+      end
+
+      def resize w, h
+        @services.each do |it|
+          it.set_xy 0, 0
+          it.set_size w, h
+          it.wh! w, h
+        end
       end
 
       attr_accessor :mouse_stale
@@ -146,10 +148,6 @@ module Kredki
           event.target = nil
           event = layer.mouse_event event
           @event_queue.process
-          if event.is_a? MouseButtonReleaseEvent
-            layer.update_mouse_location event
-            @event_queue.process
-          end
         end
       end
 

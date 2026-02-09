@@ -390,10 +390,29 @@ module Kredki
       Pastele.window_close @pointer
     end
 
+    # Get display width and height.
     def display_wh
       bounds = Pastele::Bounds.malloc(Fiddle::RUBY_FREE)
       Pastele.window_get_display_bounds @pointer, bounds
       [bounds.w, bounds.h]
+    end
+
+    # Set update rate.
+    def update_rate! update_rate = @update_rate
+      return update_rate! yield(@update_rate) if block_given?
+      return if @update_rate == update_rate
+      @update_rate = update_rate
+      true
+    end
+
+    # See #update_rate!.
+    def update_rate= param
+      send_ahp :update_rate!, param
+    end
+
+    # Get update rate.
+    def update_rate
+      @update_rate
     end
 
     # Save window as PNG image.
@@ -421,6 +440,10 @@ module Kredki
         raise_ia engine
       end
       @application = nil
+      @update_thread = nil
+      @update_queue = Thread::Queue.new
+      @update_timestamp = 0
+      @update_rate = 60
       @scene = nil
       @mouse_in = nil
       ObjectSpace.define_finalizer(self, Window.finalizer(@pointer))
@@ -435,12 +458,43 @@ module Kredki
     def self.finalizer pointer
       proc{ Pastele.window_delete pointer }
     end
-
-    attr_accessor :application
+    
     attr :pointer
 
-    def report ...
-      @scene.report(...)
+    def attach! application
+      @application = application
+      @update_thread = Thread.new do
+        loop do
+          Pastele.window_update window.pointer
+          sleep @update_queue.pop
+        end
+      end
+    end
+
+    def detach!
+      @application = nil
+      @update_thread&.kill
+      @update_thread = nil
+    end
+
+    def application
+      @application
+    end
+
+    def update_complete event
+      delay = (event.timestamp - @update_timestamp) / 1000000000.0
+      rate_delay = 1.0 / @update_rate
+      @update_queue << (delay - rate_delay > rate_delay ? rate_delay : 2 * rate_delay - delay)
+      @update_timestamp = event.timestamp
+    end
+
+    def report event, ...
+      case event
+      when UpdateCompleteEvent
+        update_complete event
+      else
+        @scene.report(event, ...)
+      end
     end
 
     def update_paint paint

@@ -14,7 +14,8 @@
 #define USEREVENT_DELETETEXT (SDL_EVENT_USER + 5)
 #define USEREVENT_DELETEANIMATION (SDL_EVENT_USER + 6)
 #define USEREVENT_CLOSEWINDOW (SDL_EVENT_USER + 7)
-#define USEREVENT_S_COUNT 8
+#define USEREVENT_UPDATECOMPLETEWINDOW (SDL_EVENT_USER + 8)
+#define USEREVENT_S_COUNT 9
 
 namespace pastele {
 
@@ -29,6 +30,7 @@ class Application
     public:
 
     void setEventHandler(int(*eventHandler)(int, SDL_Event*));
+    bool watcher(SDL_Event* event);
     void insertWindow(Window* window);
     void eraseWindow(Window* window);
     void run();
