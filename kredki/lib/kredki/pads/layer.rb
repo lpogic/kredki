@@ -173,8 +173,7 @@ module Kredki
 
       def mouse_event e
         if e.is_a? MouseButtonReleaseEvent
-          e.drag = @pin_data&.drag
-          layer.update_mouse_location e
+          layer_mouse_release e
         else
           mouse_pad&.report e
         end
@@ -201,7 +200,28 @@ module Kredki
         enter, stay, leave = *Util.polarize(@mouse_pads, last_mouse_pads)
         leave.reverse_each{|it| it.report MousePointerLeaveEvent.new(event), false }
         enter.reverse_each{|it| it.report MousePointerEnterEvent.new(event), false }
+        
         @mouse_pads.last&.report event
+        event
+      end
+
+      def layer_mouse_release event
+        xy = event.xy
+
+        arrange
+        @mouse_pads, last_mouse_pads = [], @mouse_pads
+        point_pads *xy, @mouse_pads
+        enter, stay, leave = *Util.polarize(@mouse_pads, last_mouse_pads)
+        leave.reverse_each{|it| it.report MousePointerLeaveEvent.new(event), false }
+        enter.reverse_each{|it| it.report MousePointerEnterEvent.new(event), false }
+
+        if @pin_data
+          event.drag = @pin_data.drag
+          @pin_data.pad.report event
+        else
+          @mouse_pads.last&.report event
+        end
+        
         event
       end
 

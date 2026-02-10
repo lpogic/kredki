@@ -11,7 +11,7 @@ module Kredki
         super
 
         h! 64
-        verse_size! 20
+        verse_size! Kredki.text_size
         verse_layout! :yss
       end
 

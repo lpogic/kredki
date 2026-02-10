@@ -31,9 +31,9 @@ require 'kredki/pads/toolbar/pad'
 
 module Kredki
 
-  color! :outline_focus, 0, 142, 182, 255
-  color! :text_selection, 70, 80, 122, 255
-  color! :text_selection_inactive, 70, 80, 112, 155
+  color! :outline_focus, 255, 255, 255, 255
+  color! :text_selection, 80, 90, 122, 255
+  color! :text_selection_inactive, 70, 80, 92, 155
   color! :text, 255, 255, 255, 255
 
   module Pads

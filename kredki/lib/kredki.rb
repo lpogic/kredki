@@ -1,6 +1,8 @@
+run_at_exit = !defined?(Kredki::Pastele) && !defined?(IRB)
+
 require_relative 'kredki/script'
 
-unless defined? IRB
+if run_at_exit
   at_exit do
     window.show!
     application.run

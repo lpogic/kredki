@@ -6,6 +6,16 @@ module Kredki
   class ShapeArea < Shape
     include Area
 
+    # Set outline width.
+    def outline_w! outline_w = @outline_w
+      return outline_w! yield @outline_w if block_given?
+      return if @outline_w == outline_w
+      Pastele.shape_set_stroke_width @pointer, outline_w.to_f
+      @outline_w = outline_w
+      @redraw_flag = true
+      update
+    end
+
     # Push the feature.
     def << feature
       case feature

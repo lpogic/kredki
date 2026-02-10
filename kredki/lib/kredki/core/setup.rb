@@ -196,5 +196,5 @@ module Kredki
 
   self.engine = :sw
   self.config = "#{dir}/stuff/config/config.rb"
-  self.text_size = 16
+  self.text_size = 20
 end

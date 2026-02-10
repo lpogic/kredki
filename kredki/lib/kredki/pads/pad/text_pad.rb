@@ -199,7 +199,7 @@ module Kredki
 
         wh! Fit
         verse_layout! :ysc
-        verse_size! 20
+        verse_size! Kredki.text_size
         content! "TEXT"
       end
 

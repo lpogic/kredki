@@ -990,7 +990,7 @@ module Kredki
       end
 
       def set_xy x, y
-        @scene.xy! x, y
+        @scene.xy! x.floor, y.floor
       end
 
       def get_x pclw, sw, ax
@@ -1040,9 +1040,9 @@ module Kredki
       def set_size w, h
         mx = @mxs + @mxe
         my = @mys + @mye
-        @area.wh! w, h
+        @area.wh! w.floor, h.floor
         @scene.pivot_xy! w * 0.5, h * 0.5
-        @clip_area.wh! w - mx, h - my
+        @clip_area.wh! (w - mx).floor, (h - my).floor
       end
 
       def layout_pads
@@ -1226,8 +1226,8 @@ module Kredki
       end
 
       def set_margin
-        x = @mxs
-        y = @mys
+        x = @mxs.floor
+        y = @mys.floor
         @clip_scene.xy! x, y
         @clip_area.xy! x, y
       end

@@ -32,7 +32,7 @@ module Kredki
   color! :gray, 111, 111, 111, 255
   color! :light_gray, 211, 211, 211, 255
   color! :dark_gray, 88, 88, 88, 255
-  color! :yellow, 150, 150, 0, 255
+  color! :yellow, 170, 170, 0, 255
   color! :orange, "#f06000"
   color! :pink, 200, 50, 100, 255
 

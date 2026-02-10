@@ -131,7 +131,7 @@ module Kredki
       attr :verse
 
       def initialize_verse
-        @verse = new EditableTextVerse, "", w: 1r, mousy: false, verse_size: 20
+        @verse = new EditableTextVerse, "", w: 1r, mousy: false, verse_size: Kredki.text_size
       end
 
       def sketch

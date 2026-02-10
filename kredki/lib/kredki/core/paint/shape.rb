@@ -42,6 +42,9 @@ module Kredki
       # The rectangle is placed at crayon position.
       def rectangle! w, h = w, corner_ss = 0, corner_es = corner_ss, corner_se = corner_ss, corner_ee = corner_ss
         Pastele.shape_append_round_rect @shape.pointer, @x - w * 0.5, @y - h * 0.5, w, h, corner_ss, corner_es, corner_se, corner_ee
+        # wr = w.floor
+        # hr = h.floor
+        # Pastele.shape_append_round_rect @shape.pointer, (@x.floor - wr * 0.5).floor + 0.5, (@y.floor - hr * 0.5).floor + 0.5, wr, hr, corner_ss, corner_es, corner_se, corner_ee
         @shape.update if @autoupdate
         self
       end

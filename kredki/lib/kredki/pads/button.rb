@@ -151,7 +151,7 @@ module Kredki
         new TextPad, "Button" do
           mousy! false
           h! Fit
-          verse_size! 20
+          verse_size! Kredki.text_size
           verse_layout! :ycc
         end
       end

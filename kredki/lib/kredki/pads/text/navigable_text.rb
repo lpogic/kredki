@@ -204,7 +204,7 @@ module Kredki
           @verses.each do |v|
             v.h! size
             x = align_x v.w, w
-            v.xy! x, y
+            v.xy! x.floor, y.floor
             y += size + space
           end
         end
@@ -232,7 +232,7 @@ module Kredki
             th > h ? (@scene.y + y * h).clamp(h - th - y0..-y0) : @scene.y
           end
 
-          @scene.xy! sx, sy
+          @scene.xy! sx.floor, sy.floor
         end
       end
 
@@ -250,17 +250,17 @@ module Kredki
         @sy0 = @scene.y if e.start? || !@sy0
         sy = th > h ? (@sy0 + (e.y - layer.pin_xy[1]) * speed).clamp(h - th - y0..-y0) : @scene.y
 
-        @scene.xy! sx, sy
+        @scene.xy! sx.floor, sy.floor
       end
 
       def update_cursor
         total = -1
-        @cursor.xy! align_x(@cursor.w * 0.5, sw), align_y(@cursor.h, sh)
+        @cursor.xy! align_x(@cursor.w * 0.5, sw).floor, align_y(@cursor.h, sh).floor
         @verses.each do |verse|
           total += 1
           if @cursor_position <= total + verse.content.length
             x = verse.substring_width @cursor_position - total
-            @cursor.xy! x + verse.x - @cursor.w * 0.5, verse.y
+            @cursor.xy! (x + verse.x - @cursor.w * 0.5).floor, verse.y.floor
             break
           end
           total += verse.content.length
