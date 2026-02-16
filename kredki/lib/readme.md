@@ -3,7 +3,7 @@ What's here:
 - `kredki/core` - core source code; drawing features, basic event processing, job api
 - `kredki/pads` - pads module source code; advanced event processing, gui elements
 - `kredki/core.rb` - core only run mode (no gui)
-- `kredki/hide.rb` - script run mode but don't display window on start
+- `kredki/hide.rb` - default run mode but don't display window on start
 - `kredki/irb.rb` - interactive session run mode
 - `kredki/module.rb` - core + pads run mode without including module at top level
 - `kredki/script.rb` - core + pads run mode with including module at top level

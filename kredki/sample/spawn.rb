@@ -1,6 +1,6 @@
 require 'kredki'
 
-define :spawn do |path, color|
+define :spawn_action do |path, color|
   window.alter :exit_on_esc!
   window.title! path
   window.fill! color
@@ -8,11 +8,11 @@ define :spawn do |path, color|
   i = 0
   button! "Spawn #{path}.#{i}" do
     on_click do
-      application.window!{ spawn "#{path}.#{i}", color.tune(0, -10, 10) }
+      app.open{ spawn_action "#{path}.#{i}", color.tune(0, -10, 10) }
       i += 1
       alter "Spawn #{path}.#{i}"
     end
   end
 end
 
-spawn "", Kredki.color(window.fill)
+spawn_action "", Kredki.color(window.fill)

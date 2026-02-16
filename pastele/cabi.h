@@ -30,7 +30,7 @@ typedef struct {
 CABI int thorvg_engine_init(int engine_method, int threads);
 CABI int thorvg_engine_term(int engine_method);
 CABI void sdl_init(int joystick_enabled);
-CABI int sdl_get_ticks();
+CABI uint64_t sdl_get_ticks();
 
 CABI void clipboard_set_text(char* text);
 CABI char* clipboard_get_text(void);
@@ -61,7 +61,8 @@ CABI void* window_new_sw(int width, int height);
 CABI void* window_new_gl(int width, int height);
 CABI void window_delete(pastele::Window* self);
 CABI void window_close(pastele::Window* self);
-CABI void window_update(pastele::Window* self);
+CABI void window_update_request(pastele::Window* self);
+CABI void window_update(pastele::Window* self, int needResize);
 CABI void window_show(pastele::Window* self);
 CABI void window_hide(pastele::Window* self);
 CABI void window_set_scene(pastele::Window* self, tvg::Scene* scene);

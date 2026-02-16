@@ -158,7 +158,7 @@ module Kredki
     end
 
     # Set width and height. 
-    def wh! w = 400, h = w, **na
+    def wh! w = 400, h = w, **ka
       return send_ahp :wh!, yield(self.wh) if block_given?
       w = case w
       when Rational
@@ -177,7 +177,7 @@ module Kredki
       end
       
       Pastele.window_set_size @pointer, w, h
-      na.each{ send_ahp "wh_#{_1}!", _2 }
+      ka.each{ send_ahp "wh_#{_1}!", _2 }
       report ResizeEvent.new w, h
       true
     end
@@ -352,21 +352,26 @@ module Kredki
     end
 
     # Set and build current scene.
-    def scene! scene = nil, ...
+    def scene! scene = nil, *a, **ka, &b
       case scene
       when Class
         scene = scene.new
         set_scene scene
         scene.sketch
-        scene.build_context.alter(...)
+        scene.alter(*a, **ka).build_context.alter(&b)
       when String
-        build_context = scene! Window.default_scene
-        build_context.alter{ eval File.read scene }.alter(...)
+        bc = scene! Window.default_scene
+        bc.alter{ eval File.read scene }
+        bc.window.alter *a, **ka
+        bc.alter &b
       when nil
-        scene!(Window.default_scene, ...)
-      else
+        scene!(Window.default_scene, *a, **ka, &b)
+      when WindowScene
+        raise ""
         set_scene scene
-        cene.build_context.alter(...)
+        scene.alter(*a, **ka).build_context.alter(&b)
+      else # switch or other
+        scene! Window.default_scene, scene, *a, **ka, &b
       end
     end
 
@@ -398,21 +403,21 @@ module Kredki
     end
 
     # Set update rate.
-    def update_rate! update_rate = @update_rate
-      return update_rate! yield(@update_rate) if block_given?
-      return if @update_rate == update_rate
-      @update_rate = update_rate
+    def fps_limit! fps_limit = @fps_limit
+      return fps_limit! yield(@fps_limit) if block_given?
+      return if @fps_limit == fps_limit
+      @fps_limit = fps_limit
       true
     end
 
-    # See #update_rate!.
-    def update_rate= param
-      send_ahp :update_rate!, param
+    # See #fps_limit!.
+    def fps_limit= param
+      send_ahp :fps_limit!, param
     end
 
     # Get update rate.
-    def update_rate
-      @update_rate
+    def fps_limit
+      @fps_limit
     end
 
     # Save window as PNG image.
@@ -439,11 +444,12 @@ module Kredki
       else
         raise_ia engine
       end
-      @application = nil
+      @app = nil
       @update_thread = nil
       @update_queue = Thread::Queue.new
       @update_timestamp = 0
-      @update_rate = 60
+      @fps_limit = 60
+      @expose_timestamp = 0
       @scene = nil
       @mouse_in = nil
       ObjectSpace.define_finalizer(self, Window.finalizer(@pointer))
@@ -451,49 +457,65 @@ module Kredki
 
     class << self
       attr_accessor :default_scene
+
+      def finalizer pointer
+        proc{ Pastele.window_delete pointer }
+      end
     end
 
     self.default_scene = WindowScene
-
-    def self.finalizer pointer
-      proc{ Pastele.window_delete pointer }
-    end
     
     attr :pointer
 
-    def attach! application
-      @application = application
+    def attach! app
+      @app = app
       @update_thread = Thread.new do
         loop do
-          Pastele.window_update window.pointer
-          sleep @update_queue.pop
+          Pastele.window_update_request window.pointer
+          @update_queue.pop&.then{|it| sleep it }
         end
       end
     end
 
     def detach!
-      @application = nil
+      @app = nil
       @update_thread&.kill
       @update_thread = nil
     end
 
-    def application
-      @application
+    def app
+      @app
     end
 
     def update_complete event
-      delay = (event.timestamp - @update_timestamp) / 1000000000.0
-      rate_delay = 1.0 / @update_rate
-      @update_queue << (delay - rate_delay > rate_delay ? rate_delay : 2 * rate_delay - delay)
+      @update_queue << if @fps_limit
+        update_delay (event.timestamp - @update_timestamp) / 1000000000.0, 1.0 / @fps_limit
+      end
       @update_timestamp = event.timestamp
+    end
+
+    def update_delay last, target
+      e = 3 * target - 2 * last
+      e < 0 ? target : e
     end
 
     def report event, ...
       case event
       when UpdateCompleteEvent
         update_complete event
+      when WindowExposeEvent
+        update = if @fps_limit
+          delay = (event.timestamp - @expose_timestamp) / 1000000000.0
+          rate_delay = 1.0 / @fps_limit
+          delay >= rate_delay
+        else true end
+        if update
+          @expose_timestamp = event.timestamp
+          @scene&.report(event, ...)
+          Pastele.window_update @pointer, 1
+        end
       else
-        @scene.report(event, ...)
+        @scene&.report(event, ...)
       end
     end
 
@@ -506,14 +528,15 @@ module Kredki
     end
 
     def set_scene scene, &block
-      scene.scene = self
-      Pastele.window_set_scene @pointer, scene.pointer
-      update_paint scene
+      scene&.scene&.scene! nil
+      scene&.scene = self
+      Pastele.window_set_scene @pointer, scene&.pointer
+      update_paint scene if scene
       @scene = scene
     end
 
     def paint_shown scene, direct
-      @scene == scene && !!@application
+      @scene == scene && !!@app
     end
 
     def set_mouse_in set

@@ -7,7 +7,7 @@ module Kredki
       cancel
       @host = host
       @event = event || RunEvent.new(nil, nil, self)
-      @run_ms = @host.application.ms + @delay
+      @run_ms = @host.app.ms + @delay
       @host.put_job self
     end
 

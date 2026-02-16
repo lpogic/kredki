@@ -5,8 +5,8 @@ module Kredki
       class Item < List::Item
 
         # Add new item.
-        def item! *a, **na, &b
-          parent.item! *a, w: 1r, at: pad_index + 1, level: level + 1, **na, &b
+        def item! *a, **ka, &b
+          parent.item! *a, w: 1r, at: pad_index + 1, level: level + 1, **ka, &b
           dir!
         end
 

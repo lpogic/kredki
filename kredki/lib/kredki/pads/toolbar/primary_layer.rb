@@ -53,13 +53,14 @@ module Kredki
             @parent_events = []
 
 
-            @parent_events.push = parent.on_focus_enter do |e|
+            parent.on_focus_enter do |e|
               load parent
-            end
+            end.then{|it| @parent_events << it }
 
-            @parent_events.push = parent.on_focus_leave do |e|
+            parent.on_focus_leave do |e|
               unload if loaded?
-            end
+            end.then{|it| @parent_events << it }
+            
           end
         end
       end#PrimaryLayer

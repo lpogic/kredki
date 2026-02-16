@@ -8,8 +8,8 @@ module Kredki
       class Pad < RectanglePad
 
         # Add new item.
-        def item! *a, **na, &b
-          @item_group.item! *a, w: 1r, **na, &b
+        def item! *a, **ka, &b
+          @item_group.item! *a, w: 1r, **ka, &b
         end
 
         # Create and attach pick event reaction.

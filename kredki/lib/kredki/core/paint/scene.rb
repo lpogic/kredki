@@ -183,12 +183,12 @@ module Kredki
       proc{ Pastele.scene_delete pointer }
     end
 
-    def new_paint klass, *a, show: true, at: nil, **na, &b
-      put_paint(klass.new, show, at).paint.alter(*a, **na, &b)
+    def new_paint klass, *a, show: true, at: nil, **ka, &b
+      put_paint(klass.new, show, at).paint.alter(*a, **ka, &b)
     end
 
-    def new_animation *a, show: true, at: nil, **na, &b
-      Animation.new.attach(self, show, at).alter(*a, **na, &b)
+    def new_animation *a, show: true, at: nil, **ka, &b
+      Animation.new.attach(self, show, at).alter(*a, **ka, &b)
     end
 
     def each_paint &b

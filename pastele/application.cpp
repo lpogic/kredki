@@ -19,21 +19,9 @@ void Application::eraseWindow(Window* window) {
 bool Application::watcher(SDL_Event* event){
     if(event->type == SDL_EVENT_WINDOW_EXPOSED){
         if(event->window.data1 == 1) {
-            for(auto window : windows) {
-                if(SDL_GetWindowID(window->sdl_window) == event->window.windowID) {
-                    SDL_GetWindowSize(window->sdl_window, &event->window.data1, &event->window.data2);
-                    if(!eventHandler(event->type, event)) {
-                        window->setNeedResize();
-                    }
-                    window->sync();
-                    break;
-                }
-            }
+            eventHandler(event->type, event);
             return false;
-        } else {
-            event->window.data1 = -1;
-        }
-        
+        }       
     }
     return true;
 }

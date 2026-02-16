@@ -4,21 +4,21 @@ require_relative 'module'
 if defined? IRB
   require_relative 'irb'
 else
-  W = Kredki.application!.window! show: false
+  MainLayer = Kredki.app.open show: false
   module Kredki
     module Extend
       extend Forwardable
 
-      (W.methods - Object.instance_methods).each do |it|
-          def_delegator :W, it
+      (MainLayer.methods - Object.instance_methods).each do |it|
+          def_delegator :MainLayer, it
       end
 
       def layer! ...
-        W.window.layer!(...)
+        MainLayer.window.layer!(...)
       end
 
       def define ...
-        def_delegator :W, Pads.define(...)
+        def_delegator :MainLayer, Pads.define(...)
       end
     end
   end
@@ -34,5 +34,5 @@ else
     exit_on_esc!
     title! $0
   end
-  W.carry_focus_on_tab!
+  MainLayer.carry_focus_on_tab!
 end

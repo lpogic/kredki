@@ -38,7 +38,7 @@ module Kredki
           clh = pad.clh
           sp = pad.layout_pads.map{|it| get_span it, it.w, it.w_limit, clw }
           measurement, sw = spans sp, clw, pad.mi || 0
- 
+          
           pad.layout_pads.zip measurement do |p1, m|
             ph = p1.get_h clh, m
             p1.set_size m, ph

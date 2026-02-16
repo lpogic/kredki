@@ -36,7 +36,7 @@ module Kredki
   color! :orange, "#f06000"
   color! :pink, 200, 50, 100, 255
 
-  font! :maven_pro, "#{dir}/stuff/font/MavenPro-Regular.ttf"
+  font! :maven_pro, "#{dir}/stuff/font/MavenPro-Medium.ttf"
   font! :martian_mono, "#{dir}/stuff/font/MartianMono-StdRg.ttf"
 
   clipboard!

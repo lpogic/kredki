@@ -47,7 +47,7 @@ module Kredki
       end
 
       # Set outline features.
-      def outline! *a, **na
+      def outline! *a, **ka
         a.map do |it|
           case it
           when Hash
@@ -57,7 +57,7 @@ module Kredki
           else
             send_ahp :outline_fill!, it
           end
-        end.any? | send_branch(:outline, na)
+        end.any? | send_branch(:outline, ka)
       end
       
       # See #outline!.
@@ -102,7 +102,7 @@ module Kredki
       end
 
       # Set verse features.
-      def verse! *a, **na
+      def verse! *a, **ka
         a.map do |it|
           case it
           when Hash
@@ -112,7 +112,7 @@ module Kredki
           else
             verse_layout! it
           end
-        end.any? | send_branch(:verse, na)
+        end.any? | send_branch(:verse, ka)
       end
 
       # See #verse!.

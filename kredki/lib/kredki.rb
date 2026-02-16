@@ -5,6 +5,6 @@ require_relative 'kredki/script'
 if run_at_exit
   at_exit do
     window.show!
-    application.run
+    app.run
   end
 end

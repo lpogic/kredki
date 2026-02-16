@@ -287,13 +287,13 @@ module Kredki
       end
 
       # Set corner.
-      def corner! corner = @area.corner_ss, clip_corner = :auto, **na
+      def corner! corner = @area.corner_ss, clip_corner = :auto, **ka
         return send_ahp :corner!, yield(self.corner) if block_given?
         corner_ss!(corner, clip_corner) | 
         corner_es!(corner, clip_corner) |
         corner_se!(corner, clip_corner) |
         corner_ee!(corner, clip_corner) |
-        send_branch(:corner, na)
+        send_branch(:corner, ka)
       end
       
       # See #corner!.

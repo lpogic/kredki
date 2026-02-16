@@ -1,3 +1,5 @@
+# External resources and licenses
+
 ## SDL https://www.libsdl.org/
 
 Files: `dll/SDL3.dll`, `so/libSDL3.so`

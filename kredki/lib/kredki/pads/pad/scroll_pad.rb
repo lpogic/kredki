@@ -88,7 +88,7 @@ module Kredki
       end
 
       def arranged_pads
-        pads.take_while{|it| it != @xslide }
+        pads.take_while{|it| it != @corner }
       end
 
       def clw
@@ -149,7 +149,7 @@ module Kredki
           ps.each do |p1|
             px = p1.x == Auto ? p1.sx + pad_x : p1.sx
             py = p1.y == Auto ? p1.sy + pad_y : p1.sy
-            p1.set_xy px, py
+            p1.set_xy px.ceil, py.ceil
           end
           if @corner.show = xscroll && yscroll
             @corner.set_xy w - ow, h - oh

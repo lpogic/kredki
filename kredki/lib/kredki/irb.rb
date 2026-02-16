@@ -1,9 +1,9 @@
 require 'irb'
 
 class KredkiWorkSpace < IRB::WorkSpace
-  def initialize application, ...
+  def initialize app, ...
     super(...)
-    @application = application
+    @app = app
     @mutex = Thread::Mutex.new
     @convar = Thread::ConditionVariable.new
     @cmd = nil
@@ -25,7 +25,7 @@ class KredkiWorkSpace < IRB::WorkSpace
     @mutex.synchronize do
       if @cmd
         if @cmd == [:exit]
-          @application.return
+          @app.return
         else
           @cmd = oeval *@cmd
         end
@@ -39,22 +39,22 @@ KredkiProc = proc do
   mutex = Thread::Mutex.new
   convar = Thread::ConditionVariable.new
   Thread.new do
-    application = Kredki.application!
-    W = application.window! show: false
+    app = Kredki.app
+    MainLayer = app.open show: false
     module Kredki
       module Extend
         extend Forwardable
 
-        (W.methods - Object.instance_methods).each do |it|
-            def_delegator :W, it
+        (MainLayer.methods - Object.instance_methods).each do |it|
+            def_delegator :MainLayer, it
         end
   
         def layer! ...
-          W.window.layer!(...)
+          MainLayer.window.layer!(...)
         end
 
         def define ...
-          def_delegator :W, Pads.define(...)
+          def_delegator :MainLayer, Pads.define(...)
         end
       end
     end
@@ -70,15 +70,15 @@ KredkiProc = proc do
       top!
       exit_on_esc!
     end
-    W.carry_focus_on_tab!
+    MainLayer.carry_focus_on_tab!
 
-    kredki_workspace = KredkiWorkSpace.new application, binding
+    kredki_workspace = KredkiWorkSpace.new app, binding
     IRB.CurrentContext.replace_workspace kredki_workspace
     IRB.conf[:AT_EXIT] << proc{ kredki_workspace.evaluate :exit }
     job.loop{ kredki_workspace.release }
     mutex.synchronize{ convar.signal }
     window.show!
-    application.run
+    app.run
   end
 
   mutex.synchronize{ convar.wait mutex }

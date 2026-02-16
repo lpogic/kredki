@@ -7,8 +7,8 @@ module Kredki
       class ItemGroup < Pads::ItemGroup
 
         # Add menu item.
-        def item! *a, **na, &b
-          new Item, :item!, *a, w: Fit, **na, &b
+        def item! *a, **ka, &b
+          new Item, :item!, *a, w: Fit, **ka, &b
         end
 
         # :section: LEVEL 2

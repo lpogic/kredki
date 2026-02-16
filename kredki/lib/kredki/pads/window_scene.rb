@@ -8,11 +8,11 @@ module Kredki
       include ServiceFilter
       
       # Add new layer.
-      def layer! klass = Layer, *a, **na, &b
+      def layer! klass = Layer, *a, **ka, &b
         layer = klass.new
         put_pad layer
         layer.sketch_service
-        layer.alter *a, **na, &b
+        layer.alter *a, **ka, &b
         layer
       end
 
@@ -25,6 +25,8 @@ module Kredki
           filter === self
         when Array
           filter.all?{|it| self =~ it }
+        when Hash
+          filter.all?{|key, value| respond_to? key and value === send(key) }
         else
           raise "Unsupported =~ (#{filter} : #{filter.class})"
         end
@@ -69,13 +71,12 @@ module Kredki
         on_joystick_move do: method(:joystick_event)
         on_joystick_switch do: method(:joystick_event)
 
-        on_resize{ resize *wh }
-        on_expose{ resize *wh }
-
         layer!.keyboard_request
       end
 
-      def resize w, h
+      def resize_event event
+        super
+        w, h = event.wh
         @services.each do |it|
           it.set_xy 0, 0
           it.set_size w, h
@@ -205,10 +206,10 @@ module Kredki
         layer
       end
 
-      # def remove_service layer, transfer = false
-      #   @services.delete layer
-      #   @mouse_stale = true
-      # end
+      def remove_service layer, transfer = false
+        @services.delete layer
+        @mouse_stale = true
+      end
 
       def remove_pad pad, transfer = false
         @services.delete pad

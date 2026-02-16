@@ -39,20 +39,21 @@ module Kredki
             @parent_events&.each{ _1.detach }
             @parent_events = []
 
-            @parent_events.push = parent.on_focus_enter do |e|
+            parent.on_focus_enter do |e|
               load parent
-            end
+            end.then{|it| @parent_events << it }
 
-            @parent_events.push = parent.on_focus_leave do |e|
+            parent.on_focus_leave do |e|
               unload if loaded?
-            end
+            end.then{|it| @parent_events << it }
             
-            @parent_events.push = on_key_press :left do |e|
+            on_key_press :left do |e|
               if loaded?
                 unload
                 e.close
               end
-            end
+            end.then{ @parent_events << it }
+
           end
         end
 

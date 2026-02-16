@@ -84,13 +84,13 @@ module Kredki
       end
 
       # Set width.
-      def w! w = @w, **na
+      def w! w = @w, **ka
         return w! yield self.w if block_given?
         unless Util.eqr @w, w
           @w = w
           layer&.break_layout
           true
-        end | na.count{ send_ahp "w_#{_1}!", _2 }.nonzero?
+        end | ka.count{ send_ahp "w_#{_1}!", _2 }.nonzero?
       end
 
       # See #w!.
@@ -104,13 +104,13 @@ module Kredki
       end
       
       # Set height.
-      def h! h = @h, **na
+      def h! h = @h, **ka
         return h! yield self.h if block_given?
         unless Util.eqr @h, h
           @h = h
           layer&.break_layout
           true
-        end | na.count{ send_ahp "h_#{_1}!", _2 }.nonzero?
+        end | ka.count{ send_ahp "h_#{_1}!", _2 }.nonzero?
       end
 
       # See #h!.
@@ -124,14 +124,14 @@ module Kredki
       end
 
       # Set width and height.
-      def wh! w = @w, h = w, **na
+      def wh! w = @w, h = w, **ka
         return send_ahp :wh!, yield(self.wh) if block_given?
         if @w != w || @h != h
           @w = w
           @h = h
           layer&.break_layout
           true
-        end | na.count{ send_ahp "wh_#{_1}!", _2 }.nonzero?
+        end | ka.count{ send_ahp "wh_#{_1}!", _2 }.nonzero?
       end
 
       # See #wh!.
@@ -317,7 +317,7 @@ module Kredki
       end
 
       # Set X and Y start and X and Y end margin.
-      def m! mxs = @mxs, mys = mxs, mxe = mxs, mye = mys, **na
+      def m! mxs = @mxs, mys = mxs, mxe = mxs, mye = mys, **ka
         return send_ahp :m!, yield(self.m) if block_given?
         unless (Util.eqr @mxs, mxs) && (Util.eqr @mxe, mxe) && (Util.eqr @mys, mys) && (Util.eqr @mye, mye)
           @mxs = mxs
@@ -326,7 +326,7 @@ module Kredki
           @mye = mye
           layer&.break_layout
           true
-        end | send_branch(:m, na, "")
+        end | send_branch(:m, ka, "")
       end
 
       # See #m!.
@@ -471,7 +471,7 @@ module Kredki
           area
         end
         unless @area == a
-          a.alter_kw **@area
+          a.alter? **@area
           a.attach @scene, true, @area
           @area.detach
           @area = a
@@ -501,7 +501,7 @@ module Kredki
       def clip_area! area = nil, &block
         a = Class === area ? area.new(&block) : area
         return if @clip_area == a
-        a.alter_kw **@clip_area
+        a.alter? **@clip_area
         @clip_scene.clip! a
         @clip_area = a
         true
@@ -737,7 +737,7 @@ module Kredki
       end
 
       # Attach +pad+ do self.
-      def put! pad, *a, at: nil, **na, &b
+      def put! pad, *a, at: nil, **ka, &b
         case pad 
         when String
           pad_mode = pad.start_with? "\xe1"
@@ -753,16 +753,15 @@ module Kredki
           end
         else
           at = nil if at == self
-          pad.pad_detach
-          pad.set_pad_parent self, at
-          pad.alter(*a, **na, &b)
+          pad.attach self, at: at
+          pad.alter(*a, **ka, &b)
         end
       end
 
       # Attach self to +parent+.
-      def attach parent
+      def attach parent, at: nil
         super
-        parent&.find(:<, Pad)&.put_pad self
+        # parent&.sd?(Pad)&.put_pad self, at
       end
 
       # Detach from containing Pad.
@@ -937,7 +936,7 @@ module Kredki
       def pad_lineage include_self = true
         Enumerator.new do |e|
           pad = include_self ? self : pad_parent
-          while pad&.isnt WindowScene
+          while pad && !pad.s?(WindowScene)
             e << pad
             pad = pad.pad_parent
           end
@@ -983,7 +982,7 @@ module Kredki
 
       def remove_pad pad, transfer
         removed = @pads.delete pad
-        if removed && !transfer
+        if removed
           layer&.break_layout
         end
         removed
@@ -1339,7 +1338,7 @@ module Kredki
 
       def c_set_parent at
         return if @pad_parent
-        set_pad_parent @parent.is(Pad) || @parent.a?(Pad), at
+        set_pad_parent @parent.sa?(Pad), at
       end
 
       def set_pad_parent pad_parent, at

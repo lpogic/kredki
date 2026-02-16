@@ -4,7 +4,7 @@ require 'kredki'
 
 window.wh! 800, 400
 
-define :list do
+define :list_action do
   layout! :yss
 
   pad! layout: :xcc, fill: [10, 50, 10], m: 8, h: Fit, w: 1r do
@@ -15,15 +15,15 @@ define :list do
     list! w: 1r, h: Fit, fill: :transparent do
 
       go_sample = proc do |sample|
-        window.shift{ sample File.expand_path "#{Kredki.dir}/sample/#{sample}" }
+        window.shift{ sample_code_action File.expand_path "#{Kredki.dir}/sample/#{sample}" }
       end
 
       Dir["*.rb"].each_with_index do |file, index| 
-        item! "#{index + 1}. #{file}", subject: file, suit: [20, 70, 20], mi: 5 do
+        item! "#{index + 1}. #{file}", subject: file, suit: [20, 70, 20], m: [xs: 3, i: 5] do
           glyph! :media_play, fill: :text, show: false, mouse_cursor: :pointer do
             on_mouse_enter{ mag! 1.2 }
             on_mouse_leave{ mag! 1.0 }
-            on_mouse_click{ run_sample file, File.read(File.expand_path "#{Kredki.dir}/sample/#{file}") }
+            on_mouse_click{ run_sample_action file, File.read(File.expand_path "#{Kredki.dir}/sample/#{file}") }
           end
           on_mouse_enter{ d?(:glyph!).show! }
           on_mouse_leave{ d?(:glyph!).hide! }
@@ -40,7 +40,7 @@ define :list do
   d?(Item).keyboard_request
 end
 
-define :sample do |file|
+define :sample_code_action do |file|
   layout! :yss
 
   n = notes! File.read(file), verse: [font: :martian_mono, size: 14], wh: 1r, 
@@ -48,14 +48,13 @@ define :sample do |file|
   xec! w: 1r, h: Fit, mi: 10, m: 10 do
     button! "Back", on_click: proc{ window.shift{ list } }
     button! "Run", suit: :orange do
-      on_click{ run_sample file, "#{n.content}" }
+      on_click{ run_sample_action file, "#{n.content}" }
     end
   end
 end
 
-define :run_sample do |file, code|
-  application.window! do 
-    window.alter :wh_drag!, :close_on_esc!, title: file
+define :run_sample_action do |file, code|
+  app.open :wh_drag!, :close_on_esc!, title: file do
     begin
       eval code
     rescue Exception => e
@@ -67,4 +66,4 @@ define :run_sample do |file, code|
   end
 end
 
-window.shift{ list }
+window.shift{ list_action }

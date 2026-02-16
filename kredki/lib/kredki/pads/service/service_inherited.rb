@@ -19,12 +19,12 @@ module Kredki
           xx
         when nil
           if block.parameters.empty?
-            define_method name do |*a, **na, &b|
-              instance_exec(&block).alter *a, **na, &b
+            define_method name do |*a, **ka, &b|
+              instance_exec(&block).alter *a, **ka, &b
             end
           else
-            define_method name do |*a, **na, &b|
-              instance_exec(*a, **na, &block).alter &b
+            define_method name do |*a, **ka, &b|
+              instance_exec(*a, **ka, &block).alter &b
             end
           end
         else raise_ia klass

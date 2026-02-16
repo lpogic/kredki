@@ -1,10 +1,17 @@
 module Kredki
   class Application
     
+    # Run application event loop.
+    def run
+      @run_ms = Kredki.ms
+      Pastele.application_run @pointer
+      @result
+    end
+
     # Create new window.
-    def window! *a, engine: :sw, show: true, **na, &b
+    def open *a, engine: :sw, show: true, **ka, &b
       w = Window.new engine: engine
-      s = put_window(w).scene!(*a, **na, &b)
+      s = put_window(w).scene!(*a, **ka, &b)
       w.show! if show
       s
     end
@@ -14,17 +21,7 @@ module Kredki
       (key ? @windows[key] : @main_window)&.then{|it| it.scene }
     end
 
-    # Start event loop.
-    def run
-      @run_ms = Kredki.ms
-      Pastele.application_run @pointer
-      @result
-    end
-
-    def run_ms
-      @run_ms
-    end
-
+    # Get milliseconds since run.
     def ms
       Kredki.ms - (@run_ms || 0)
     end
@@ -64,6 +61,10 @@ module Kredki
       proc{ Pastele.application_delete pointer }
     end
 
+    def run_ms
+      @run_ms
+    end
+
     def event event_type, event_ptr
       event = case event_type
       when 0x202
@@ -74,7 +75,7 @@ module Kredki
         window_event abi.window_id, HideEvent.new(abi)
       when 0x204
         abi = Pastele::WindowEvent.new event_ptr
-        window_event abi.window_id, WindowExposeEvent.new(abi)
+        application_event WindowExposeEvent.new(abi)
       when 0x205
         abi = Pastele::WindowEvent.new event_ptr
         window_event abi.window_id, MoveEvent.new(abi.data1, abi.data2, abi)

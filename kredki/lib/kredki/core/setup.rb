@@ -18,18 +18,15 @@ module Kredki
     end
  
     # Start application loop.
-    def run scene = nil, *a, **na, &block
-      if !@application
-        application!.window! scene, *a, **na, &block
-      else
-        @application.window.scene! scene, *a, **na, &block
-      end
-      @application.run
+    def run scene = nil, *a, **ka, &block
+      a = app
+      a.open scene, *a, **ka, &block
+      a.run
     end
 
     # Milliseconds since SDL was initialized.
     def ms
-      Pastele.sdl_get_ticks
+      Pastele.sdl_get_ticks * 0.000001
     end
     
     # Set clipboard model.
@@ -43,9 +40,9 @@ module Kredki
     end
 
     # Set keyboard model.
-    def keyboard! keyboard = nil, **na, &b
+    def keyboard! keyboard = nil, **ka, &b
       @keyboard = keyboard || Keyboard.new
-      @keyboard.alter **na, &b
+      @keyboard.alter **ka, &b
     end
 
     # Get keyboard model.
@@ -54,9 +51,9 @@ module Kredki
     end
 
     # Set mouse model.
-    def mouse! mouse = nil, **na, &b
+    def mouse! mouse = nil, **ka, &b
       @mouse = mouse || Mouse.new
-      @mouse.alter **na, &b
+      @mouse.alter **ka, &b
     end
 
     # Get mouse model.
@@ -65,8 +62,8 @@ module Kredki
     end
 
     # Set joystick model.
-    def joystick! key = nil, joystick = nil, **na, &b
-      (@joysticks[key] = joystick || Joystick.new).alter **na, &b
+    def joystick! key = nil, joystick = nil, **ka, &b
+      (@joysticks[key] = joystick || Joystick.new).alter **ka, &b
     end
 
     # Get joystick model.
@@ -150,20 +147,20 @@ module Kredki
 
     # :section: LEVEL 2
 
-    attr :application
+    attr :app
     attr_accessor :joysticks
     attr_accessor :opened_joysticks
     attr_accessor :fonts
     attr_accessor :colors
     attr_accessor :glyphs
 
-    def application!
-      if !@application
+    def app
+      if !@app
         Pastele.thorvg_engine_init 2, 4
         Pastele.sdl_init joystick ? 1 : 0
-        @application = Application.new
+        @app = Application.new
       end
-      @application
+      @app
     end
 
     attr_accessor :sdl

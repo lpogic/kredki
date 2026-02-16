@@ -46,8 +46,8 @@ module Kredki
         end
       end
     end
-    def shape! *a, **na, &b
-      new ShapePad, __method__, *a, **na do
+    def shape! *a, **ka, &b
+      new ShapePad, __method__, *a, **ka do
         area! &b
       end
     end
@@ -57,8 +57,8 @@ module Kredki
     define :scroll!, ScrollPad
     define :picture!, PicturePad
     define :animation!, AnimationPad
-    def text! *a, **na, &b
-      new NavigableTextPad, __method__, *a, keyboardy: true, **na, &b
+    def text! *a, **ka, &b
+      new NavigableTextPad, __method__, *a, keyboardy: true, **ka, &b
     end
     define :glyph!, GlyphPad
     define :xslide!, HorizontalSlide
@@ -87,14 +87,14 @@ module Kredki
       layout! z, Layout::Align.new(a, b)
 
       eval <<~RUBY
-        def #{x}! *a, **na, &b
-          new SpacePad, __method__, *a, layout: :#{x}, **na, &b
+        def #{x}! *a, **ka, &b
+          new SpacePad, __method__, *a, layout: :#{x}, **ka, &b
         end
-        def #{y}! *a, **na, &b
-          new SpacePad, __method__, *a, layout: :#{y}, **na, &b
+        def #{y}! *a, **ka, &b
+          new SpacePad, __method__, *a, layout: :#{y}, **ka, &b
         end
-        def #{z}! *a, **na, &b
-          new SpacePad, __method__, *a, layout: :#{z}, **na, &b
+        def #{z}! *a, **ka, &b
+          new SpacePad, __method__, *a, layout: :#{z}, **ka, &b
         end
       RUBY
     end

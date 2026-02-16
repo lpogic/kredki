@@ -15,7 +15,7 @@ module Kredki
       def lineage include_self = true
         Enumerator.new do |e|
           c = include_self ? self : parent
-          while c && c.isnt(WindowScene)
+          while c && !c.s?(WindowScene)
             e << c
             c = c.parent
           end
@@ -24,7 +24,7 @@ module Kredki
 
       # Get Kredki::Pads::Layer ancestor.
       def layer
-        is Layer or a? Layer
+        sa? Layer
       end
 
       # Get Kredki::WindowScene ancestor.
@@ -33,8 +33,8 @@ module Kredki
       end
 
       # Get Kredki::Application ancestor.
-      def application
-        window&.application
+      def app
+        window&.app
       end
 
       # Get whether +grand+ contains self.
@@ -53,11 +53,11 @@ module Kredki
       end
 
       # Attach self to +parent+.
-      def attach parent
+      def attach parent, at: nil
         return if @parent == parent
         raise "LOOP" if parent.lineage.find{ _1 == self }
         detach true if @parent
-        parent&.push_service self
+        parent&.push_service self, at: at
       end
 
       # Detach self.
@@ -81,10 +81,14 @@ module Kredki
           else
             !!@tags[filter]
           end
+        when Service
+          filter == self
         when Module, Proc
           filter === self
         when Integer
           pad_index == filter
+        when WeakRef
+          self =~ filter.__getobj__
         when Array
           filter.all?{|it| self =~ it }
         when Hash
@@ -180,11 +184,11 @@ module Kredki
         @services.map{|it| [it, it.service_tree] }.to_h
       end
 
-      def new klass, *a, at: nil, **na, &b
+      def new klass, *a, at: nil, **ka, &b
         service = klass.new
         push_service service, at if at != false
         service.sketch_service
-        service.alter *a, **na, &b
+        service.alter *a, **ka, &b
         service
       end
 

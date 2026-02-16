@@ -45,7 +45,7 @@ class HelloTest < Kredki::Test
       space! wh: 5
       button! "Submit", w: 1r do
         on_click do
-          application.return d?(:item!, :checked?).subject
+          app.return d?(:item!, :checked?).subject
         end
       end
     end

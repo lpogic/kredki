@@ -22,7 +22,7 @@ void Window::planClose(void) {
     SDL_PushEvent(&event);
 }
 
-void Window::planUpdate(void) {
+void Window::updateRequest(void) {
     union SDL_Event event;
     event.type = USEREVENT_UPDATEWINDOW;
     SDL_UserEvent userEvent;
@@ -46,6 +46,7 @@ void Window::sync(void) {
     if (needResize) {
         resize();
         needResize = false;
+        needDraw = true;
     }
 
     if(update(canvas)) {

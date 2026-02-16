@@ -1,6 +1,6 @@
-# Kredki
+# :crayon::crayon::crayon: Kredki :crayon::crayon::crayon:
 
-Vector graphics & GUI toolkit for Ruby. For creating images, simulations, simple games and applications.
+Vector graphics & GUI toolkit for [Ruby](https://www.ruby-lang.org/) Ruby. For creating images, simulations, simple games and applications.
 
 ## How it works:
 
@@ -87,7 +87,7 @@ decision = Kredki.run do
     space! wh: 5
     button! "Submit", w: 1r do
       on_click do
-        application.return d?(:item!, :checked?).subject
+        app.return d?(:item!, :checked?).subject
       end
     end
   end
@@ -104,12 +104,9 @@ For more check out [kredki/sample](./kredki/sample/).
 
 ## Updates:
 
-- empty
-
-## Notes:
-
-- This project uses modified version of the [ThorVG](https://www.thorvg.org/) library source code available here: https://github.com/lpogic/thorvg/tree/thorvg-gui
+- Work in progress
 
 ## Contact
 
 - discord: https://discord.gg/NNrcXKgB
+- mail: oficjalnyadreslukasza@gmail.com

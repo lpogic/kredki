@@ -7,10 +7,8 @@ class Object
     raise "Invalid state #{state.inspect}."
   end
 
-  def alter *arg, **narg, &block
-    arg.each do |a|
-      send :<<, a
-    end
+  def alter *arg, **karg, &block
+    arg.each{|it| self << it }
     narg.each do |k, v|
       if k =~ /^\w+$/
         send "#{k}=", v
@@ -22,7 +20,7 @@ class Object
     self
   end
 
-  def alter_kw skip_unresponding = true, **kw
+  def alter? skip_unresponding = true, **kw
     kw.each do |keyword, value|
       keyword = "#{keyword}=" if keyword =~ /^\w+$/
       send keyword, value if !skip_unresponding || respond_to?(keyword)
@@ -56,17 +54,13 @@ class Symbol
   end
 end
 
-class Array
-  alias_method :push=, :push
-end
-
 module Enumerable
   def each_alter ...
     each{|it| it.alter(...) }
   end
 
-  def each_alter_kw ...
-    each{|it| it.alter_kw(...) }
+  def each_alter? ...
+    each{|it| it.alter?(...) }
   end
 end
 

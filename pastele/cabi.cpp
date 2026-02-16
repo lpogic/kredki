@@ -131,8 +131,15 @@ CABI void window_close(pastele::Window* self) {
     self->planClose();
 }
 
-CABI void window_update(pastele::Window* self) {
-    self->planUpdate();
+CABI void window_update_request(pastele::Window* self) {
+    self->updateRequest();
+}
+
+CABI void window_update(pastele::Window* self, int needResize) {
+    if(needResize) {
+        self->setNeedResize();
+    }
+    self->sync();
 }
 
 CABI void window_show(pastele::Window* self) {
@@ -302,8 +309,8 @@ CABI void sdl_init(int joystick_enabled) {
     SDL_RegisterEvents(USEREVENT_S_COUNT);
 }
 
-CABI int sdl_get_ticks() {
-    return (int)SDL_GetTicks();
+CABI uint64_t sdl_get_ticks() {
+    return SDL_GetTicksNS();
 }
 
 CABI void paint_delete(Paint* self)

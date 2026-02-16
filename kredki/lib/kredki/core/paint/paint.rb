@@ -118,14 +118,14 @@ module Kredki
     end
 
     # Set magnification factor along X and Y axes.
-    def mag! mag_x = @mag_x, mag_y = mag_x, **na
+    def mag! mag_x = @mag_x, mag_y = mag_x, **ka
       return send_ahp :mag!, yield(self.mag) if block_given?
       unless @mag_x == mag_x && @mag_y == mag_y
         @mag_x = mag_x
         @mag_y = mag_y
         update_transform
         update
-      end | send_branch(:mag, na)
+      end | send_branch(:mag, ka)
     end
 
     # See #mag!.

@@ -33,8 +33,8 @@ module Kredki
     end
 
     # Get Kredki::Application ancestor.
-    def application
-      @scene&.application
+    def app
+      @scene&.app
     end
 
     # Set background fill.
@@ -337,6 +337,21 @@ module Kredki
       !!mouse_capture
     end
 
+    # Set update rate.
+    def fps_limit! ...
+      @scene.fps_limit!(...)
+    end
+
+    # See #fps_limit!.
+    def fps_limit= param
+      send_ahp :fps_limit!, param
+    end
+
+    # Get update rate.
+    def fps_limit
+      @scene.fps_limit
+    end
+
     # Save window as PNG image.
     def to_png filepath
       @scene.to_png filepath
@@ -364,7 +379,7 @@ module Kredki
 
     def exit_on_esc!
       on_key_press :escape do |event|
-        application.return
+        app.return
       end
     end
 
@@ -385,6 +400,8 @@ module Kredki
         alter *feature
       when Proc
         alter &feature
+      when Class, String, WindowScene
+        shift feature
       else
         raise "Unsupported << (#{feature} : #{feature.class})"
       end
@@ -413,26 +430,29 @@ module Kredki
     end
 
     def sketch
-      on_resize{|it| @fill.wh = it.wh }
-      on_move{|it| @last_xy = it.xy }
-      on_expose do |it|
-        w = it.source.data1 
-        if w != -1
-          h = it.source.data2
-          if w == @fill.w && h == @fill.h
-            it.close
-          else
-            @scene.report ResizeEvent.new(w, h, it)
-          end
-          xy = @scene.xy
-          @scene.report MoveEvent.new(*xy, it) if xy != @last_xy
-          @scene.report TickEvent.new it
-        end
-      end
+      on_resize do: method(:resize_event)
+      on_move do: method(:move_event)
+      on_expose do: method(:expose_event)
 
       @fill.wh = *wh
       @last_xy = xy
       fill! 20, 70, 20
+    end
+
+    def resize_event event
+      @fill.wh = event.wh
+    end
+
+    def move_event event
+      @last_xy = event.xy
+    end
+
+    def expose_event event
+      wh = @scene.wh
+      @scene.report ResizeEvent.new(w, h, event) if wh != @fill.wh
+      xy = @scene.xy
+      @scene.report MoveEvent.new(*xy, event) if xy != @last_xy
+      @scene.report TickEvent.new event
     end
 
     def translate x, y, target = nil
@@ -451,7 +471,7 @@ module Kredki
 
     def put_job job
       @jobs_mutex.synchronize do
-        @jobs[job] = nil
+        @jobs[job] = 1
       end
     end
 
@@ -470,7 +490,7 @@ module Kredki
     end
 
     def tick event
-      ms = event.timestamp / 1_000_000 - application.run_ms
+      ms = event.timestamp * 0.000001 - app.run_ms
       jobs = {**@jobs}
       jobs.each_key{|it| remove_job it unless it.tick ms }
     end
