@@ -19,12 +19,6 @@ module Kredki
           load_common x, y
         end
 
-        def sketch
-          super
-
-          fill! 10, 10, 10, 60
-        end
-
         def behavior
           super
 

@@ -18,7 +18,7 @@ module Kredki
 
         # See #space!.
         def space= param
-          send_ahp :space!, param
+          send_bundle :space!, param
         end
 
         # Get space between columns.

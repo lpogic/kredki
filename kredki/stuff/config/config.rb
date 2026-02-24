@@ -158,8 +158,8 @@ module Kredki
     button! :secondary, 3
     button! :scroll, 2
   
-    scroll_speed! 0.3
-    scroll_speed_alt! 0.06
+    scroll_speed! 1.0
+    scroll_speed_alt! 0.5
   end
 
   joystick! do

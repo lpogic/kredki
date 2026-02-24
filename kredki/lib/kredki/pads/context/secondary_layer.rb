@@ -36,7 +36,7 @@ module Kredki
 
         def set_parent parent, at = nil
           if super
-            @parent_events&.each{ _1.detach }
+            @parent_events&.each{|it| it.detach }
             @parent_events = []
 
             parent.on_focus_enter do |e|
@@ -53,11 +53,10 @@ module Kredki
                 e.close
               end
             end.then{ @parent_events << it }
-
           end
         end
 
-        def grand_pad_detach
+        def grand_detach
           super
           unload if loaded?
         end

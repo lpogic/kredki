@@ -21,7 +21,7 @@ module Kredki
 
       # Set suit.
       def suit! *suit
-        return send_ahp :suit!, yield(self.suit) if block_given?
+        return send_bundle :suit!, yield(self.suit) if block_given?
         suit = Util.uncover suit
         return if @suit == suit && suit != :rand
         @suit = suit
@@ -31,7 +31,7 @@ module Kredki
 
       # See #suit!.
       def suit= param
-        send_ahp :suit!, param
+        send_bundle :suit!, param
       end
 
       # Get suit.
@@ -53,8 +53,8 @@ module Kredki
       def << feature
         case feature
         when String
-          c?(TextPad)&.alter feature or new TextPad, feature, mousy: false
           subject! feature
+          c?(TextPad)&.alter feature or default_text feature
           self
         else
           super
@@ -124,6 +124,10 @@ module Kredki
 
       def min_w
         fit_w
+      end
+
+      def default_text text
+        new TextPad, text, mousy: false
       end
     end
   end

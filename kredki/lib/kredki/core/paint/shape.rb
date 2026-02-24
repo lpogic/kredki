@@ -90,7 +90,7 @@ module Kredki
 
     # Set fill.
     def fill! *fill
-      return send_ahp :fill!, yield(self.fill) if block_given?
+      return send_bundle :fill!, yield(self.fill) if block_given?
       fill = Util.uncover fill
       return if @fill == fill && fill != :rand
       case f = Kredki.fill fill
@@ -107,7 +107,7 @@ module Kredki
 
     # See #fill!.
     def fill= param
-      send_ahp :fill!, param
+      send_bundle :fill!, param
     end
 
     # Get fill.
@@ -132,7 +132,7 @@ module Kredki
 
     # See #fill_rule!.
     def fill_rule= param
-      send_ahp :fill_rule!, param
+      send_bundle :fill_rule!, param
     end
 
     # Get fill rule.
@@ -149,19 +149,19 @@ module Kredki
         when Numeric
           outline_w! it
         else
-          send_ahp :outline_fill!, it
+          send_bundle :outline_fill!, it
         end
       end.any? | send_branch(:outline, ka)
     end
     
     # See #outline!.
     def outline= param
-      send_ahp :outline!, param
+      send_bundle :outline!, param
     end
 
     # Set outline fill.
     def outline_fill! *outline_fill
-      return send_ahp :outline_fill!, yield(self.outline_fill) if block_given?
+      return send_bundle :outline_fill!, yield(self.outline_fill) if block_given?
       outline_fill = Util.uncover outline_fill
       return if @outline_fill == outline_fill && outline_fill != :rand
       case f = Kredki.fill outline_fill
@@ -178,7 +178,7 @@ module Kredki
 
     # See #outline_fill!.
     def outline_fill= param
-      send_ahp :outline_fill!, param
+      send_bundle :outline_fill!, param
     end
 
     # Get outline fill.
@@ -197,7 +197,7 @@ module Kredki
 
     # See #outline_w!.
     def outline_w= param
-      send_ahp :outline_w!, param
+      send_bundle :outline_w!, param
     end
 
     # Get outline width.
@@ -223,7 +223,7 @@ module Kredki
 
     # See #outline_cap!.
     def outline_cap= param
-      send_ahp :outline_cap!, param
+      send_bundle :outline_cap!, param
     end
 
     # Get outline path ending method.
@@ -255,7 +255,7 @@ module Kredki
 
     # See #outline_join!.
     def outline_join= param
-      send_ahp :outline_join!, param
+      send_bundle :outline_join!, param
     end
 
     # Get outline path connection method.
@@ -265,7 +265,7 @@ module Kredki
 
     # Set outline dash pattern.
     def outline_pattern! *outline_pattern
-      return send_ahp :outline_pattern!, yield(self.outline_pattern) if block_given?
+      return send_bundle :outline_pattern!, yield(self.outline_pattern) if block_given?
       return if @outline_pattern == outline_pattern
       Pastele.shape_set_stroke_dash @pointer, Fiddle::Pointer[outline_pattern.pack "f*"], outline_pattern.length, 0
       @outline_pattern = outline_pattern
@@ -274,7 +274,7 @@ module Kredki
 
     # See #outline_pattern!.
     def outline_pattern= param
-      send_ahp :outline_pattern!, param
+      send_bundle :outline_pattern!, param
     end
 
     # Get outline dash pattern.
@@ -284,7 +284,7 @@ module Kredki
 
     # Set whether outline is drawn behind the fill.
     def outline_behind! value = true
-      return if (c = outline_behind) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+      return if (c = outline_behind) == (value = block_given? ? yield(c) : value == Not ? !c : value)
       Pastele.shape_set_paint_order @pointer, value ? 1 : 0
       @outline_behind = value
       true
@@ -307,7 +307,7 @@ module Kredki
 
     # Set outline displayed part.
     def outline_trim! *outline_trim
-      return send_ahp :outline_trim!, yield(self.outline_trim) if block_given?
+      return send_bundle :outline_trim!, yield(self.outline_trim) if block_given?
       outline_trim = Util.uncover outline_trim
       return if @outline_trim == outline_trim
       start, finish, simultaneous = *OutlineTrim[outline_trim].to_a
@@ -318,7 +318,7 @@ module Kredki
 
     # See #outline_trim!.
     def outline_trim= param
-      send_ahp :outline_trim!, param
+      send_bundle :outline_trim!, param
     end
 
     # Get outline displayed part.

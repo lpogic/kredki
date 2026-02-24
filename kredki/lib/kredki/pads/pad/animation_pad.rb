@@ -10,7 +10,7 @@ module Kredki
 
       # See #content!.
       def content= param
-        send_ahp :content!, param
+        send_bundle :content!, param
       end
 
       # Get animation content.
@@ -37,7 +37,7 @@ module Kredki
       end
 
       def frame= param
-        send_ahp :frame!, param
+        send_bundle :frame!, param
       end
 
       def frame

@@ -9,7 +9,7 @@ module Kredki
 
       # Set selector for click event target.
       def for! new_for = @for
-        return send_ahp :for!, yield(self.for) if block_given?
+        return send_bundle :for!, yield(self.for) if block_given?
         return if @for == new_for
         @for = new_for
         true
@@ -17,7 +17,7 @@ module Kredki
 
       # See #for!.
       def for= param
-        send_ahp :for!, param
+        send_bundle :for!, param
       end
 
       # Get selector for click event target.
@@ -27,13 +27,13 @@ module Kredki
 
       # Set text content.
       def text! text = @text.content
-        return send_ahp :text!, yield(self.text) if block_given?
+        return send_bundle :text!, yield(self.text) if block_given?
         @text.content! text
       end
       
       # See #text!.
       def text= param
-        send_ahp :text!, param
+        send_bundle :text!, param
       end
 
       # Get text content.

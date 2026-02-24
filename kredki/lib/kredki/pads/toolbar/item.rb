@@ -17,7 +17,7 @@ module Kredki
 
         # See #dropdown!.
         def dropdown= param
-          send_ahp :dropdown!, param
+          send_bundle :dropdown!, param
         end
 
         # Get dropdown.
@@ -27,14 +27,14 @@ module Kredki
 
         # Set whether is directory.
         def dir! value = true, set_icon = true, &block
-          return if (c = dir) == (value = block ? block[c] : value == :not ? !c : value)
+          return if (c = dir) == (value = block ? block[c] : value == Not ? !c : value)
           @dir = value
           true
         end
 
         # See #dir!.
         def dir= param
-          send_ahp :dir!, param
+          send_bundle :dir!, param
         end
 
         # Get whether is directory.

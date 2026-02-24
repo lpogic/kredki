@@ -5,13 +5,13 @@ module Kredki
 
       # Set picture content.
       def content! content = @area.content
-        return send_ahp :content!, yield(self.content) if block_given?
+        return send_bundle :content!, yield(self.content) if block_given?
         @area.content! content, @w == Auto && @h == Auto
       end
       
       # See #content!.
       def content= param
-        send_ahp :content!, param
+        send_bundle :content!, param
       end
 
       # Get picture content.

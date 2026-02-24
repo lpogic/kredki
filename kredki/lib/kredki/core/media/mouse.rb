@@ -108,7 +108,7 @@ module Kredki
 
     # Set whether capture mode is on.
     def capture! value = true
-      return if (c = capture) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+      return if (c = capture) == (value = block_given? ? yield(c) : value == Not ? !c : value)
       Pastele.mouse_set_capture capture ? 1 : 0
       true
     end
@@ -120,7 +120,7 @@ module Kredki
 
     # Set cursor.
     def cursor! cursor = @cursor
-      return send_ahp :cursor!, yield(self.cursor) if block_given?
+      return send_bundle :cursor!, yield(self.cursor) if block_given?
       return if @cursor == cursor
       @cursor = cursor
       set_cursor cursor
@@ -129,7 +129,7 @@ module Kredki
 
     # See #cursor!.
     def cursor= param
-      send_ahp :cursor!, param
+      send_bundle :cursor!, param
     end
 
     # Get cursor.

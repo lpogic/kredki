@@ -13,7 +13,7 @@ module Kredki
 
     # See #content!.
     def content= param
-      send_ahp :content!, param
+      send_bundle :content!, param
     end
 
     # Get content.
@@ -142,7 +142,7 @@ module Kredki
 
     # See #frame!.
     def frame= param
-      send_ahp :frame!, param
+      send_bundle :frame!, param
     end
 
     # Get current animation frame ms.
@@ -175,7 +175,7 @@ module Kredki
     #
     # Containing Kredki::Scene and all lower level Scenes must be shown for the Paint to be displayed on the screen.
     def show! value = true
-      return if (c = show) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+      return if (c = show) == (value = block_given? ? yield(c) : value == Not ? !c : value)
       set_show value
       true
     end

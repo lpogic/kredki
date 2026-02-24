@@ -31,7 +31,7 @@ module Kredki
 
     # Set whether the window has an outline.
     def outline! value = true
-      return if (c = outline) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+      return if (c = outline) == (value = block_given? ? yield(c) : value == Not ? !c : value)
       Pastele.window_set_bordered @pointer, value ? 1 : 0
       true
     end
@@ -53,7 +53,7 @@ module Kredki
 
     # Set whether fullscreen mode is on.
     def fullscreen! value = true
-      return if (c = fullscreen) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+      return if (c = fullscreen) == (value = block_given? ? yield(c) : value == Not ? !c : value)
       Pastele.window_set_fullscreen @pointer, value ? 1 : 0
       true
     end
@@ -75,7 +75,7 @@ module Kredki
 
     # Set whether text input mode is on.
     def text_input! value = true
-      return if (c = text_input) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+      return if (c = text_input) == (value = block_given? ? yield(c) : value == Not ? !c : value)
       Pastele.window_set_text_input @pointer, value ? 1 : 0
       true
     end
@@ -116,7 +116,7 @@ module Kredki
 
     # Set position along X and Y axes.
     def xy! x = 0, y = x
-      return send_ahp :xy!, yield(self.xy) if block_given?
+      return send_bundle :xy!, yield(self.xy) if block_given?
       x = case x
       when Start
         0
@@ -147,7 +147,7 @@ module Kredki
 
     # See #xy!.
     def xy= param
-      send_ahp :xy!, param
+      send_bundle :xy!, param
     end
     
     # Get position along X and Y axes.
@@ -159,7 +159,7 @@ module Kredki
 
     # Set width and height. 
     def wh! w = 400, h = w, **ka
-      return send_ahp :wh!, yield(self.wh) if block_given?
+      return send_bundle :wh!, yield(self.wh) if block_given?
       w = case w
       when Rational
         display_wh[0] * w
@@ -177,14 +177,14 @@ module Kredki
       end
       
       Pastele.window_set_size @pointer, w, h
-      ka.each{ send_ahp "wh_#{_1}!", _2 }
+      ka.each{ send_bundle "wh_#{_1}!", _2 }
       report ResizeEvent.new w, h
       true
     end
 
     # See #wh!.
     def wh= param
-      send_ahp :wh!, param
+      send_bundle :wh!, param
     end
 
     # Get width and height.
@@ -196,7 +196,7 @@ module Kredki
 
     # Set width and height limit. 
     def wh_limit! w, h = w
-      return send_ahp :wh_limit!, yield(self.wh_limit) if block_given?
+      return send_bundle :wh_limit!, yield(self.wh_limit) if block_given?
       w_min, w_max = parse_limit w
       h_min, h_max = parse_limit h
       Pastele.window_set_minimum_size @pointer, w_min, h_min
@@ -206,7 +206,7 @@ module Kredki
 
     # See #wh_limit!.
     def wh_limit= param
-      send_ahp :wh_limit!, param
+      send_bundle :wh_limit!, param
     end
 
     # Get width and height limit.
@@ -220,7 +220,7 @@ module Kredki
 
     # Set whether a window width and height can be customized by dragging its border.
     def wh_drag! value = true
-      return if (c = wh_drag) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+      return if (c = wh_drag) == (value = block_given? ? yield(c) : value == Not ? !c : value)
       Pastele.window_set_resizable @pointer, value ? 1 : 0
       true
     end
@@ -260,7 +260,7 @@ module Kredki
 
     # Set whether window is always in the foreground.
     def top! value = true
-      return if (c = top) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+      return if (c = top) == (value = block_given? ? yield(c) : value == Not ? !c : value)
       Pastele.window_set_always_on_top @pointer, value ? 1 : 0
       true
     end
@@ -289,7 +289,7 @@ module Kredki
 
     # Set whether mouse pointer is confined to the window.
     def mouse_grab! value = true
-      return if (c = mouse_grab) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+      return if (c = mouse_grab) == (value = block_given? ? yield(c) : value == Not ? !c : value)
       Pastele.window_set_mouse_mouse_grab @pointer, value ? 1 : 0
       true
     end
@@ -311,7 +311,7 @@ module Kredki
 
     # Set whether relative mouse mode is on.
     def mouse_relative! value = true
-      return if (c = relative) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+      return if (c = relative) == (value = block_given? ? yield(c) : value == Not ? !c : value)
       Pastele.window_set_mouse_relative_mode @pointer, value ? 1 : 0
       true
     end
@@ -377,7 +377,7 @@ module Kredki
 
     # See #scene!.
     def scene= param
-      send_ahp :scene!, param
+      send_bundle :scene!, param
     end
 
     # Get current scene.
@@ -412,7 +412,7 @@ module Kredki
 
     # See #fps_limit!.
     def fps_limit= param
-      send_ahp :fps_limit!, param
+      send_bundle :fps_limit!, param
     end
 
     # Get update rate.

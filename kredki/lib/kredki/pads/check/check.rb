@@ -53,7 +53,7 @@ module Kredki
 
         @button = new CheckButton do
           on_click do
-            checked! :not
+            checked! Not
           end
         end
 

@@ -5,7 +5,7 @@ module Kredki
 
       # Set content.
       def content! content = @content
-        return send_ahp :content!, yield(self.content) if block_given?
+        return send_bundle :content!, yield(self.content) if block_given?
         return if @content == content && content != :rand
         if @area.content! Kredki.glyph(content), @w == Auto && @h == Auto
           set_color @color if @color
@@ -21,7 +21,7 @@ module Kredki
 
       # Set fill.
       def fill! *fill
-        return send_ahp :fill!, yield(self.fill) if block_given?
+        return send_bundle :fill!, yield(self.fill) if block_given?
         fill = Util.uncover fill
         return if @fill == fill && fill != :rand
         set_color Kredki.color fill
@@ -31,7 +31,7 @@ module Kredki
 
       # See #fill!.
       def fill= param
-        send_ahp :fill!, param
+        send_bundle :fill!, param
       end
 
       # Get fill.

@@ -13,7 +13,7 @@ module Kredki
 
       # Set whether is pressed.
       def pressed! value = true, event = nil
-        return if (c = pressed) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+        return if (c = pressed) == (value = block_given? ? yield(c) : value == Not ? !c : value)
         @pressed = value
         report (@pressed ? ButtonPressEvent.new(event) : ButtonReleaseEvent.new(event)) if event
         true
@@ -21,7 +21,7 @@ module Kredki
 
       # See #pressed!.
       def pressed= param
-        send_ahp :pressed!, param
+        send_bundle :pressed!, param
       end
 
       # Get whether is pressed.
@@ -36,7 +36,7 @@ module Kredki
 
       # Set suit.
       def suit! *suit
-        return send_ahp :suit!, yield(self.suit) if block_given?
+        return send_bundle :suit!, yield(self.suit) if block_given?
         suit = Util.uncover suit
         return if @suit == suit && suit != :rand
         @suit = suit
@@ -46,7 +46,7 @@ module Kredki
 
       # See #suit!.
       def suit= param
-        send_ahp :suit!, param
+        send_bundle :suit!, param
       end
 
       # Get suit.
@@ -55,11 +55,11 @@ module Kredki
       end
 
       # Push the feature.
-      def << arg
-        case arg
+      def << feature
+        case feature
         when String
-          subject! arg
-          (c? TextPad or default_text) << arg
+          subject! feature
+          c?(TextPad)&.alter feature or default_text feature
         else
           super
         end
@@ -147,8 +147,8 @@ module Kredki
         end
       end
 
-      def default_text
-        new TextPad, "Button" do
+      def default_text feature
+        new TextPad, feature do
           mousy! false
           h! Fit
           verse_size! Kredki.text_size

@@ -27,7 +27,7 @@ module Kredki
 
     # See #content!.
     def content= param
-      send_ahp :content!, param
+      send_bundle :content!, param
     end
 
     # Get content.

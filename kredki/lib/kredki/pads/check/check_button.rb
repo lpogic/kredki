@@ -5,7 +5,7 @@ module Kredki
 
       # Set whether is checked.
       def checked! value = true
-        return if (c = checked) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+        return if (c = checked) == (value = block_given? ? yield(c) : value == Not ? !c : value)
         @check.show! value
         @checked = value
         true
@@ -13,7 +13,7 @@ module Kredki
 
       # See #checked!.
       def checked= param
-        send_ahp :checked!, param
+        send_bundle :checked!, param
       end
 
       # Get whether is checked.

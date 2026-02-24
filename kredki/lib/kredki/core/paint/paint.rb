@@ -13,7 +13,7 @@ module Kredki
     
     # See #x!.
     def x= param
-      send_ahp :x!, param
+      send_bundle :x!, param
     end
 
     # Get position along the X axis.
@@ -32,7 +32,7 @@ module Kredki
 
     # See #y!.
     def y= param
-      send_ahp :y!, param
+      send_bundle :y!, param
     end
 
     # Get position along the X axis.
@@ -42,7 +42,7 @@ module Kredki
 
     # Set position along X and Y axes.
     def xy! x = @x, y = x
-      return send_ahp :xy!, yield(self.xy) if block_given?
+      return send_bundle :xy!, yield(self.xy) if block_given?
       return if @x == x && @y == y
       @x = x
       @y = y
@@ -52,7 +52,7 @@ module Kredki
     
     # See #xy!.
     def xy= param
-      send_ahp :xy!, param
+      send_bundle :xy!, param
     end
 
     # Get position along X and Y axes.
@@ -71,7 +71,7 @@ module Kredki
 
     # See #rot!.
     def rot= param
-      send_ahp :rot!, param
+      send_bundle :rot!, param
     end
 
     # Get rotation angle around the pivot point.
@@ -90,7 +90,7 @@ module Kredki
 
     # See #mag_x!.
     def mag_x= param
-      send_ahp :mag_x!, param
+      send_bundle :mag_x!, param
     end
 
     # Get magnification factor along the X axis.
@@ -109,7 +109,7 @@ module Kredki
 
     # See #mag_y!.
     def mag_y= param
-      send_ahp :mag_y!, param
+      send_bundle :mag_y!, param
     end
 
     # Get magnification factor along the Y axis.
@@ -119,7 +119,7 @@ module Kredki
 
     # Set magnification factor along X and Y axes.
     def mag! mag_x = @mag_x, mag_y = mag_x, **ka
-      return send_ahp :mag!, yield(self.mag) if block_given?
+      return send_bundle :mag!, yield(self.mag) if block_given?
       unless @mag_x == mag_x && @mag_y == mag_y
         @mag_x = mag_x
         @mag_y = mag_y
@@ -130,7 +130,7 @@ module Kredki
 
     # See #mag!.
     def mag= param
-      send_ahp :mag!, param
+      send_bundle :mag!, param
     end
 
     # Get magnification factor along X and Y axes.
@@ -149,7 +149,7 @@ module Kredki
 
     # See #opacity!.
     def opacity= param
-      send_ahp :opacity!, param
+      send_bundle :opacity!, param
     end
 
     # Get opacity degree.
@@ -187,7 +187,7 @@ module Kredki
 
     # See #blend!.
     def blend= param
-      send_ahp :blend!, param
+      send_bundle :blend!, param
     end
 
     # Get color blending method.
@@ -213,7 +213,7 @@ module Kredki
 
     # Set color masking method with +target+.
     def mask! mask = @mask, target = nil
-      return send_ahp :mask!, yield(@mask, @mask_target) if block_given?
+      return send_bundle :mask!, yield(@mask, @mask_target) if block_given?
       return if @mask == mask && @mask_target == target
       @mask_target&.unset_masking
       target&.set_masking self
@@ -225,7 +225,7 @@ module Kredki
 
     # See #mask!.
     def mask= param
-      send_ahp :mask!, param
+      send_bundle :mask!, param
     end
 
     # Get color masking method.
@@ -237,7 +237,7 @@ module Kredki
     #
     # Containing Kredki::Scene and all lower level Scenes must be shown for the Paint to be displayed on the screen.
     def show! value = true
-      return if (c = show) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+      return if (c = show) == (value = block_given? ? yield(c) : value == Not ? !c : value)
       set_show value
       true
     end
@@ -271,7 +271,7 @@ module Kredki
 
     # See #clip!.
     def clip= param
-      send_ahp :clip!, param
+      send_bundle :clip!, param
     end
 
     # Get the Kredki::Shape used as the Paint clipping path.

@@ -42,10 +42,10 @@ module Kredki
             source = it.source
             if source.is_a? KeyEvent
               if source.key.id == :enter
-                item.open! :not
+                item.open! Not
               else
                 if source.shift?
-                  item.select! :not
+                  item.select! Not
                 else
                   each_d(Item).each_alter{|it| selected! it == item }
                 end
@@ -54,15 +54,15 @@ module Kredki
               kb = Kredki.keyboard
               if kb.shift?
                 if kb.ctrl?
-                  item.open! :not
+                  item.open! Not
                 else
                   item.selected!
                 end
               elsif kb.ctrl?
-                item.selected! :not
+                item.selected! Not
               else
                 each_d(Item).each_alter{|it| selected! it == item }
-                item.open! :not
+                item.open! Not
               end
             end
           end

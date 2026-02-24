@@ -8,7 +8,7 @@ module Kredki
         end
       end
 
-      # Define API method.
+      # Define common Pads method.
       def define name, klass = nil, &block
         case klass
         when Class

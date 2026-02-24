@@ -32,7 +32,7 @@ module Kredki
 
         # See #mxi!.
         def mxi= param
-          send_ahp :mxi!, param
+          send_bundle :mxi!, param
         end
 
         # Get X inner margin.
@@ -51,7 +51,7 @@ module Kredki
 
         # See #myi!.
         def myi= param
-          send_ahp :myi!, param
+          send_bundle :myi!, param
         end
 
         # Get Y inner margin.
@@ -67,7 +67,7 @@ module Kredki
 
         # See #mi!.
         def mi= param
-          send_ahp :mi!, param
+          send_bundle :mi!, param
         end
 
         # Get inner margin.

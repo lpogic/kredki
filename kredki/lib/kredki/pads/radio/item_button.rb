@@ -6,7 +6,7 @@ module Kredki
 
         # Set suit.
         def suit! *suit
-          return send_ahp :suit!, yield(self.suit) if block_given?
+          return send_bundle :suit!, yield(self.suit) if block_given?
           suit = Util.uncover suit
           return if @suit == suit && suit != :rand
           @suit = suit
@@ -16,7 +16,7 @@ module Kredki
 
         # See #suit!.
         def suit= param
-          send_ahp :suit!, param
+          send_bundle :suit!, param
         end
 
         # Get suit.
@@ -26,13 +26,13 @@ module Kredki
         
         # Set whether is checked.
         def checked! value = true
-          return if (c = checked) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+          return if (c = checked) == (value = block_given? ? yield(c) : value == Not ? !c : value)
           update_checked value
         end
 
         # See #checked!.
         def checked= param
-          send_ahp :checked!, param
+          send_bundle :checked!, param
         end
 
         # Get whether is checked.

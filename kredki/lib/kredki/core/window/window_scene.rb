@@ -44,7 +44,7 @@ module Kredki
 
     # See #fill!.
     def fill= param
-      send_ahp :fill!, param
+      send_bundle :fill!, param
     end
 
     # Get background fill.
@@ -92,7 +92,7 @@ module Kredki
 
     # See #outline!.
     def outline= value
-      send_ahp :outline!, value
+      send_bundle :outline!, value
     end
     
     # Get whether the window has an outline.
@@ -112,7 +112,7 @@ module Kredki
 
     # See #fullscreen!.
     def fullscreen= value
-      send_ahp :fullscreen!, value
+      send_bundle :fullscreen!, value
     end
     
     # Get whether fullscreen mode is on.
@@ -132,7 +132,7 @@ module Kredki
 
     # See #text_input!.
     def text_input= value
-      send_ahp :text_input!, value
+      send_bundle :text_input!, value
     end
     
     # Get whether text input mode is on.
@@ -152,7 +152,7 @@ module Kredki
 
     # See #opacity!.
     def opacity= param
-      send_ahp :opacity!, param
+      send_bundle :opacity!, param
     end
 
     # Get opacity.
@@ -167,7 +167,7 @@ module Kredki
 
     # See #xy!.
     def xy= param
-      send_ahp :xy!, param
+      send_bundle :xy!, param
     end
     
     # Get position along X and Y axes.
@@ -182,7 +182,7 @@ module Kredki
 
     # See #wh!.
     def wh= param
-      send_ahp :wh!, param
+      send_bundle :wh!, param
     end
 
     # Get width and height.
@@ -207,7 +207,7 @@ module Kredki
 
     # See #wh_limit!.
     def wh_limit= param
-      send_ahp :wh_limit!, param
+      send_bundle :wh_limit!, param
     end
 
     # Get width and height limit.
@@ -222,7 +222,7 @@ module Kredki
 
     # See #wh_drag!.
     def wh_drag= param
-      send_ahp :wh_drag!, param
+      send_bundle :wh_drag!, param
     end
 
     # Get whether a window width and height can be customized by dragging its border.
@@ -242,7 +242,7 @@ module Kredki
 
     # See #title!.
     def title= param
-      send_ahp :title!, param
+      send_bundle :title!, param
     end
 
     # Get title.
@@ -257,7 +257,7 @@ module Kredki
 
     # See #top!.
     def top= param
-      send_ahp :top!, param
+      send_bundle :top!, param
     end
 
     # Get whether window is always in the foreground.
@@ -284,7 +284,7 @@ module Kredki
 
     # See #mouse_grab!.
     def mouse_grab= param
-      send_ahp :mouse_grab!, value
+      send_bundle :mouse_grab!, value
     end
     
     # Get whether mouse pointer is confined to the window.
@@ -304,7 +304,7 @@ module Kredki
 
     # See #mouse_relative!.
     def mouse_relative= param
-      send_ahp :mouse_relative!, value
+      send_bundle :mouse_relative!, value
     end
     
     # Get whether relative mouse mode is on.
@@ -344,7 +344,7 @@ module Kredki
 
     # See #fps_limit!.
     def fps_limit= param
-      send_ahp :fps_limit!, param
+      send_bundle :fps_limit!, param
     end
 
     # Get update rate.

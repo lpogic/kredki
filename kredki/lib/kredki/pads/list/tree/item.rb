@@ -12,7 +12,7 @@ module Kredki
 
         # Set whether is opened.
         def open! value = true, &block
-          return if (c = open) == (value = block ? block[c] : value == :not ? !c : value)
+          return if (c = open) == (value = block ? block[c] : value == Not ? !c : value)
           @open = value
           parent.update_show
           true
@@ -20,7 +20,7 @@ module Kredki
 
         # See #open!.
         def open= param
-          send_ahp :open!, param
+          send_bundle :open!, param
         end
 
         # Get whether is opened.
@@ -35,14 +35,14 @@ module Kredki
 
         # Set whether is directory.
         def dir! value = true, set_icon = true, &block
-          return if (c = dir) == (value = block ? block[c] : value == :not ? !c : value)
+          return if (c = dir) == (value = block ? block[c] : value == Not ? !c : value)
           @dir = value
           true
         end
 
         # See #dir!.
         def dir= param
-          send_ahp :dir!, param
+          send_bundle :dir!, param
         end
 
         # Get whether is directory.
@@ -65,7 +65,7 @@ module Kredki
 
         # See #level!.
         def level= param
-          send_ahp :level!, param
+          send_bundle :level!, param
         end
         
         # Get level

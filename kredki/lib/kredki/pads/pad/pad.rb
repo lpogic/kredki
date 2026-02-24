@@ -8,7 +8,7 @@ module Kredki
 
       # Set subject.
       def subject! subject = @subject
-        return send_ahp :subject!, yield(self.subject) if block_given?
+        return send_bundle :subject!, yield(self.subject) if block_given?
         return if @subject == subject
         @subject = subject
         set_subject subject
@@ -17,7 +17,7 @@ module Kredki
 
       # See #subject!.
       def subject= param
-        send_ahp :subject!, param
+        send_bundle :subject!, param
       end
 
       # Get subject.
@@ -36,7 +36,7 @@ module Kredki
       
       # See #x!.
       def x= param
-        send_ahp :x!, param
+        send_bundle :x!, param
       end
 
       # Get position along the X axis.
@@ -55,7 +55,7 @@ module Kredki
 
       # See #y!.
       def y= param
-        send_ahp :y!, param
+        send_bundle :y!, param
       end
 
       # Get position along the X axis.
@@ -65,7 +65,7 @@ module Kredki
 
       # Set position along X and Y axes.
       def xy! x = @x, y = x
-        return send_ahp :xy!, yield(self.xy) if block_given?
+        return send_bundle :xy!, yield(self.xy) if block_given?
         return if (Util.eqr @y, y) && (Util.eqr @x, x)
         @x = x
         @y = y
@@ -75,7 +75,7 @@ module Kredki
       
       # See #xy!.
       def xy= param
-        send_ahp :xy!, param
+        send_bundle :xy!, param
       end
 
       # Get position along X and Y axes.
@@ -90,12 +90,12 @@ module Kredki
           @w = w
           layer&.break_layout
           true
-        end | ka.count{ send_ahp "w_#{_1}!", _2 }.nonzero?
+        end | ka.count{ send_bundle "w_#{_1}!", _2 }.nonzero?
       end
 
       # See #w!.
       def w= param
-        send_ahp :w!, param
+        send_bundle :w!, param
       end
 
       # Get width.
@@ -110,12 +110,12 @@ module Kredki
           @h = h
           layer&.break_layout
           true
-        end | ka.count{ send_ahp "h_#{_1}!", _2 }.nonzero?
+        end | ka.count{ send_bundle "h_#{_1}!", _2 }.nonzero?
       end
 
       # See #h!.
       def h= param
-        send_ahp :h!, param
+        send_bundle :h!, param
       end
 
       # Get height.
@@ -125,18 +125,18 @@ module Kredki
 
       # Set width and height.
       def wh! w = @w, h = w, **ka
-        return send_ahp :wh!, yield(self.wh) if block_given?
+        return send_bundle :wh!, yield(self.wh) if block_given?
         if @w != w || @h != h
           @w = w
           @h = h
           layer&.break_layout
           true
-        end | ka.count{ send_ahp "wh_#{_1}!", _2 }.nonzero?
+        end | ka.count{ send_bundle "wh_#{_1}!", _2 }.nonzero?
       end
 
       # See #wh!.
       def wh= param
-        send_ahp :wh!, param
+        send_bundle :wh!, param
       end
       
       # Get width and height.
@@ -186,13 +186,13 @@ module Kredki
 
       # Set width and height limit.
       def wh_limit! w = @w_limit, h = w
-        return send_ahp :wh_limit!, yield(self.wh_limit) if block_given?
+        return send_bundle :wh_limit!, yield(self.wh_limit) if block_given?
         w_limit!(w) | h_limit!(h)
       end
 
       # See #wh_limit!.
       def wh_limit= param
-        send_ahp :wh_limit!, param
+        send_bundle :wh_limit!, param
       end
 
       # Get width and height limit.
@@ -211,7 +211,7 @@ module Kredki
 
       # See #mxs!.
       def mxs= param
-        send_ahp :mxs!, param
+        send_bundle :mxs!, param
       end
 
       # Get X start margin.
@@ -230,7 +230,7 @@ module Kredki
 
       # See #mxe!.
       def mxe= param
-        send_ahp :mxe!, param
+        send_bundle :mxe!, param
       end
 
       # Get X end margin.
@@ -249,7 +249,7 @@ module Kredki
 
       # See #mys!.
       def mys= param
-        send_ahp :mys!, param
+        send_bundle :mys!, param
       end
 
       # Get Y start margin.
@@ -268,7 +268,7 @@ module Kredki
 
       # See #mye!.
       def mye= param
-        send_ahp :mye!, param
+        send_bundle :mye!, param
       end
 
       # Get Y end margin.
@@ -278,7 +278,7 @@ module Kredki
 
       # Set X start and X end margin.
       def mx! mt = @mxs, mh = mt
-        return send_ahp :mx!, yield(self.mx) if block_given?
+        return send_bundle :mx!, yield(self.mx) if block_given?
         return if (Util.eqr @mxs, mt) && (Util.eqr @mxe, mh)
         @mxs = mt
         @mxe = mh
@@ -288,7 +288,7 @@ module Kredki
 
       # See #mx!.
       def mx= param
-        send_ahp :mx!, param
+        send_bundle :mx!, param
       end
 
       # Get X start and X end margin.
@@ -298,7 +298,7 @@ module Kredki
 
       # Set Y start and X end margin.
       def my! mys = @mys, mye = mys
-        return send_ahp :my!, yield(self.my) if block_given?
+        return send_bundle :my!, yield(self.my) if block_given?
         return if (Util.eqr @mys, mys) && (Util.eqr @mye, mye)
         @mys = mys
         @mye = mye
@@ -308,7 +308,7 @@ module Kredki
 
       # See #my!.
       def my= param
-        send_ahp :my!, param
+        send_bundle :my!, param
       end
 
       # Get Y start and Y end margin.
@@ -318,7 +318,7 @@ module Kredki
 
       # Set X and Y start and X and Y end margin.
       def m! mxs = @mxs, mys = mxs, mxe = mxs, mye = mys, **ka
-        return send_ahp :m!, yield(self.m) if block_given?
+        return send_bundle :m!, yield(self.m) if block_given?
         unless (Util.eqr @mxs, mxs) && (Util.eqr @mxe, mxe) && (Util.eqr @mys, mys) && (Util.eqr @mye, mye)
           @mxs = mxs
           @mxe = mxe
@@ -331,7 +331,7 @@ module Kredki
 
       # See #m!.
       def m= param
-        send_ahp :m!, param
+        send_bundle :m!, param
       end
 
       # Get X and Y start and X and Y end margin.
@@ -350,7 +350,7 @@ module Kredki
 
       # See #mi!.
       def mi= param
-        send_ahp :mi!, param
+        send_bundle :mi!, param
       end
 
       # Get inner margin.
@@ -369,7 +369,7 @@ module Kredki
 
       # See #rot!.
       def rot= param
-        send_ahp :rot!, param
+        send_bundle :rot!, param
       end
 
       # Get rotation angle around the pivot point.
@@ -433,7 +433,7 @@ module Kredki
 
       # See #opacity!.
       def opacity= param
-        send_ahp :opacity!, param
+        send_bundle :opacity!, param
       end
 
       # Get opacity.
@@ -443,7 +443,7 @@ module Kredki
 
       # Set mouse cursor.
       def mouse_cursor! mouse_cursor = @mouse_cursor
-        return send_ahp :mouse_cursor!, yield(self.mouse_cursor) if block_given?
+        return send_bundle :mouse_cursor!, yield(self.mouse_cursor) if block_given?
         return if @mouse_cursor == mouse_cursor
         @mouse_cursor = mouse_cursor
         window.mouse_stale = true
@@ -452,7 +452,7 @@ module Kredki
 
       # See #mouse_cursor!.
       def mouse_cursor= param
-        send_ahp :mouse_cursor!, param
+        send_bundle :mouse_cursor!, param
       end
 
       # Get mouse_cursor.
@@ -471,7 +471,7 @@ module Kredki
           area
         end
         unless @area == a
-          a.alter? **@area
+          a.alter **@area, filter_keywords: true
           a.attach @scene, true, @area
           @area.detach
           @area = a
@@ -489,7 +489,7 @@ module Kredki
 
       # See #area!.
       def area= param
-        send_ahp :area!, param
+        send_bundle :area!, param
       end
 
       # Get area.
@@ -501,7 +501,7 @@ module Kredki
       def clip_area! area = nil, &block
         a = Class === area ? area.new(&block) : area
         return if @clip_area == a
-        a.alter? **@clip_area
+        a.alter **@clip_area, filter_keywords: true
         @clip_scene.clip! a
         @clip_area = a
         true
@@ -509,7 +509,7 @@ module Kredki
 
       # See #clip_area!.
       def clip_area= param
-        send_ahp :clip_area!, param
+        send_bundle :clip_area!, param
       end
 
       # Get clip_area.
@@ -531,7 +531,7 @@ module Kredki
 
       # See #layout!.
       def layout= param
-        send_ahp :layout!, param
+        send_bundle :layout!, param
       end
 
       # Get layout.
@@ -543,7 +543,7 @@ module Kredki
       #
       # All ancestors must be shown for the Paint to be displayed on the screen.
       def show! value = true
-        return if (c = show) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+        return if (c = show) == (value = block_given? ? yield(c) : value == Not ? !c : value)
         set_show value
         true
       end
@@ -570,7 +570,7 @@ module Kredki
 
       # Set whether Pad is layout part.
       def layoutic! value = true
-        return if (c = layoutic) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+        return if (c = layoutic) == (value = block_given? ? yield(c) : value == Not ? !c : value)
         layer&.break_layout
         @layoutic = value
         true
@@ -595,7 +595,7 @@ module Kredki
       #
       # All ancestors must be shown for the Paint to be displayed on the screen.
       def scenic! value = true
-        return if (c = scenic) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+        return if (c = scenic) == (value = block_given? ? yield(c) : value == Not ? !c : value)
         set_scenic value
         true
       end
@@ -653,7 +653,7 @@ module Kredki
 
       # Set whether Pad can be direct keyboard events target.
       def keyboardy! value = true
-        return if (c = keyboardy) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+        return if (c = keyboardy) == (value = block_given? ? yield(c) : value == Not ? !c : value)
         @keyboardy = value
         true
       end
@@ -675,7 +675,7 @@ module Kredki
       
       # Set whether Pad can be direct mouse events target.
       def mousy! value = true
-        return if (c = mousy) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+        return if (c = mousy) == (value = block_given? ? yield(c) : value == Not ? !c : value)
         @mousy = value
         true
       end
@@ -697,7 +697,7 @@ module Kredki
 
       # Set whether is disabled.
       def disabled! value = true
-        return if (c = disabled) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+        return if (c = disabled) == (value = block_given? ? yield(c) : value == Not ? !c : value)
         @disabled = value
         repaint
         true
@@ -747,7 +747,7 @@ module Kredki
               c?{|c| c.object_id == id }&.then{|it| put! it }
               pad_mode = false
             else
-              new TextPad, part
+              default_text part
               pad_mode = true
             end
           end
@@ -764,7 +764,7 @@ module Kredki
         # parent&.sd?(Pad)&.put_pad self, at
       end
 
-      # Detach from containing Pad.
+      # Detach from parents.
       def detach transfer = false
         super
         pad_detach transfer
@@ -956,7 +956,7 @@ module Kredki
         if @pad_parent
           @pad_parent.remove_pad self, transfer
           @pad_parent = nil
-          grand_pad_detach
+          grand_detach
         end
       end
 
@@ -1292,9 +1292,7 @@ module Kredki
       end
 
       def check_mouse_in pad
-        a? Pad, with_self: true do |it|
-          pad == it
-        end
+        sa? pad
       end
 
       def pin_request xy = nil, button = nil, drag = false
@@ -1344,6 +1342,10 @@ module Kredki
       def set_pad_parent pad_parent, at
         @pad_parent = pad_parent
         @pad_parent&.put_pad self, at
+      end
+
+      def default_text text
+        new TextPad, text
       end
     end
   end

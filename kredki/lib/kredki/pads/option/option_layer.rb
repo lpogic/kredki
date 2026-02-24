@@ -15,7 +15,9 @@ module Kredki
       def sketch
         super
 
-        @scroll = new ScrollPad, layout: :yss
+        @scroll = new ScrollPad, layout: :yss do
+          scene.drop_shadow! color: :black
+        end
         @pad = @scroll.new RectanglePad, fill: :gray, layout: :yss, h: Fit
         @item_group = @pad.new ItemGroup
       end

@@ -10,7 +10,7 @@ module Kredki
 
       # See #fill!.
       def fill= param
-        send_ahp :fill!, param
+        send_bundle :fill!, param
       end
 
       # Get fill.
@@ -25,7 +25,7 @@ module Kredki
 
       # See #outline!.
       def outline= param
-        send_ahp :outline!, param
+        send_bundle :outline!, param
       end
 
       # Set outline width.
@@ -35,7 +35,7 @@ module Kredki
 
       # See #outline_w!.
       def outline_w= param
-        send_ahp :outline_w!, param
+        send_bundle :outline_w!, param
       end
 
       # Get outline width.
@@ -50,7 +50,7 @@ module Kredki
 
       # See #outline_fill!.
       def outline_fill= param
-        send_ahp :outline_fill!, param
+        send_bundle :outline_fill!, param
       end
 
       # Get outline fill.
@@ -65,7 +65,7 @@ module Kredki
 
       # See #outline_join!.
       def outline_join= param
-        send_ahp :outline_join!, param
+        send_bundle :outline_join!, param
       end
 
       # Get outline join.
@@ -80,7 +80,7 @@ module Kredki
 
       # See #outline_cap!.
       def outline_cap= param
-        send_ahp :outline_cap!, param
+        send_bundle :outline_cap!, param
       end
 
       # Get outline cap.
@@ -95,7 +95,7 @@ module Kredki
 
       # See #outline_pattern!.
       def outline_pattern= param
-        send_ahp :outline_pattern!, param
+        send_bundle :outline_pattern!, param
       end
 
       # Get outline dash pattern.
@@ -110,7 +110,7 @@ module Kredki
 
       # See #outline_trim!.
       def outline_trim= param
-        send_ahp :outline_trim!, param
+        send_bundle :outline_trim!, param
       end
 
       # Get outline trim.
@@ -125,7 +125,7 @@ module Kredki
 
       # See #outline_behind!.
       def outline_behind= param
-        send_ahp :outline_behind!, param
+        send_bundle :outline_behind!, param
       end
 
       # Get whether outline is behind fill.

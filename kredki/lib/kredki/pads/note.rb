@@ -8,13 +8,13 @@ module Kredki
 
       # Set text content.
       def content! string = ""
-        return send_ahp :content!, yield(self.content) if block_given?
+        return send_bundle :content!, yield(self.content) if block_given?
         @verse.content! string
       end
 
       # See #content!.
       def content= param
-        send_ahp :content!, param
+        send_bundle :content!, param
       end
       
       # Get text content.
@@ -24,7 +24,7 @@ module Kredki
 
       # Set suit.
       def suit! *suit
-        return send_ahp :suit!, yield(self.suit) if block_given?
+        return send_bundle :suit!, yield(self.suit) if block_given?
         suit = Util.uncover suit
         return if @suit == suit && suit != :rand
         @suit = suit
@@ -34,7 +34,7 @@ module Kredki
 
       # See #suit!.
       def suit= param
-        send_ahp :suit!, param
+        send_bundle :suit!, param
       end
 
       # Get suit.
@@ -49,7 +49,7 @@ module Kredki
 
       # See #verse!.
       def verse= param
-        send_ahp :verse!, param
+        send_bundle :verse!, param
       end
       
       # Set verse size.
@@ -59,7 +59,7 @@ module Kredki
 
       # See #verse_size!.
       def verse_size= param
-        send_ahp :verse_size!, param
+        send_bundle :verse_size!, param
       end
 
       # Get verse size.
@@ -74,7 +74,7 @@ module Kredki
 
       # See #verse_font!.
       def verse_font= param
-        send_ahp :verse_font!, param
+        send_bundle :verse_font!, param
       end
 
       # Get verse font.
@@ -89,7 +89,7 @@ module Kredki
 
       # See #verse_layout!.
       def verse_layout= param
-        send_ahp :verse_layout!, param
+        send_bundle :verse_layout!, param
       end
 
       # Get verse layout.

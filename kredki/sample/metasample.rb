@@ -46,7 +46,7 @@ define :sample_code_action do |file|
   n = notes! File.read(file), verse: [font: :martian_mono, size: 14], wh: 1r, 
     suit: [20, 70, 20]
   xec! w: 1r, h: Fit, mi: 10, m: 10 do
-    button! "Back", on_click: proc{ window.shift{ list } }
+    button! "Back", on_click: proc{ window.shift{ list_action } }
     button! "Run", suit: :orange do
       on_click{ run_sample_action file, "#{n.content}" }
     end

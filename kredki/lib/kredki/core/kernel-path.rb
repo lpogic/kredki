@@ -7,28 +7,17 @@ class Object
     raise "Invalid state #{state.inspect}."
   end
 
-  def alter *arg, **karg, &block
-    arg.each{|it| self << it }
-    narg.each do |k, v|
-      if k =~ /^\w+$/
-        send "#{k}=", v
-      else
-        send k, v
-      end
+  def alter *a, filter_keywords: false, **ka, &block
+    a.each{|it| self << it }
+    ka.each do |k, a|
+      k = "#{k}=" if k =~ /^\w+$/
+      send k, a if !filter_keywords || self.respond_to?(k)
     end
     instance_exec self, &block if block
     self
   end
 
-  def alter? skip_unresponding = true, **kw
-    kw.each do |keyword, value|
-      keyword = "#{keyword}=" if keyword =~ /^\w+$/
-      send keyword, value if !skip_unresponding || respond_to?(keyword)
-    end
-    self
-  end
-
-  def send_ahp method, param
+  def send_bundle method, param
     if Array === param
       if Hash === param.last
         *a, h = param
@@ -42,7 +31,7 @@ class Object
   end
 
   def send_branch root, branches, separator = "_"
-    branches.count{ send_ahp "#{root}#{separator}#{_1}!", _2 }.nonzero?
+    branches.count{ send_bundle "#{root}#{separator}#{_1}!", _2 }.nonzero?
   end
 end
 
@@ -57,10 +46,6 @@ end
 module Enumerable
   def each_alter ...
     each{|it| it.alter(...) }
-  end
-
-  def each_alter? ...
-    each{|it| it.alter?(...) }
   end
 end
 

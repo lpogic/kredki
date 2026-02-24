@@ -38,8 +38,8 @@ module Kredki
             else
               [0, 0]
             end
-            if @xslide.value!{|it| (it - xo * w / @lw).clamp(0..1) } | 
-              @yslide.value!{|it| (it - yo * h / @lh).clamp(0..1) }
+            if @xslide.value!{|it| (it - 0.3 * xo * w / @lw).clamp(0..1) } | 
+              @yslide.value!{|it| (it - 0.3 * yo * h / @lh).clamp(0..1) }
             then
               e.close
             end

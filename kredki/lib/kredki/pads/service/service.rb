@@ -54,8 +54,7 @@ module Kredki
 
       # Attach self to +parent+.
       def attach parent, at: nil
-        return if @parent == parent
-        raise "LOOP" if parent.lineage.find{ _1 == self }
+        raise "service loop detected" if a? self
         detach true if @parent
         parent&.push_service self, at: at
       end
@@ -100,7 +99,7 @@ module Kredki
 
       # Set whether Pad is tagged with +tag+.
       def tag! tag, value = true
-        return if (c = self.tag tag) == (value = block_given? ? yield(c) : value == :not ? !c : value)
+        return if (c = self.tag tag) == (value = block_given? ? yield(c) : value == Not ? !c : value)
         if value
           @tags[tag] = true
         else
@@ -111,7 +110,7 @@ module Kredki
 
       # See #tag!.
       def tag= param
-        send_ahp :tag!, param
+        send_bundle :tag!, param
       end
 
       # Get whether Pad is tagged with +tag+.
@@ -225,10 +224,10 @@ module Kredki
         @services.each{|it| it.set_parent self }
       end
 
-      def grand_pad_detach
-        @services.each{ _1.grand_pad_detach }
+      def grand_detach
+        @services.each{ _1.grand_detach }
       end
-
+      
       def report event, path = false, instant = false
         event.target ||= self
         event_queue = window&.event_queue

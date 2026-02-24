@@ -5,7 +5,7 @@ module Kredki
 
       # Set content.
       def content! content = @content
-        return send_ahp :content!, yield(self.content) if block_given?
+        return send_bundle :content!, yield(self.content) if block_given?
         return if @content == content
         @content = content
         font = @verses.first&.font || Kredki.font
@@ -20,7 +20,7 @@ module Kredki
 
       # See #content!.
       def content= param
-        send_ahp :content!, param
+        send_bundle :content!, param
       end
 
       # Get content.
@@ -30,7 +30,7 @@ module Kredki
 
       # Set fill.
       def fill! *fill
-        return send_ahp :fill!, yield(self.fill) if block_given?
+        return send_bundle :fill!, yield(self.fill) if block_given?
         return unless @area.fill! *fill
         @verses.each{|it| it.fill! *fill }
         true
@@ -38,7 +38,7 @@ module Kredki
       
       # See #fill!.
       def fill= param
-        send_ahp :fill!, param
+        send_bundle :fill!, param
       end
 
       # Get fill.
@@ -55,19 +55,19 @@ module Kredki
           when Numeric
             outline_w! it
           else
-            send_ahp :outline_fill!, it
+            send_bundle :outline_fill!, it
           end
         end.any? | send_branch(:outline, ka)
       end
       
       # See #outline!.
       def outline= param
-        send_ahp :outline!, param
+        send_bundle :outline!, param
       end
 
       # Set outline fill.
       def outline_fill! *outline_fill
-        return send_ahp :outline_fill!, yield(self.outline_fill) if block_given?
+        return send_bundle :outline_fill!, yield(self.outline_fill) if block_given?
         return unless @area.outline_fill! *outline_fill
         @verses.each{|it| it.outline_fill! *outline_fill }
         true
@@ -75,7 +75,7 @@ module Kredki
 
       # See #outline_fill!.
       def outline_fill= param
-        send_ahp :outline_fill!, param
+        send_bundle :outline_fill!, param
       end
 
       # Get outline fill.
@@ -85,7 +85,7 @@ module Kredki
 
       # Set outline width.
       def outline_w! outline_w = @outline_w
-        return send_ahp :outline_w!, yield(self.outline_w) if block_given?
+        return send_bundle :outline_w!, yield(self.outline_w) if block_given?
         return unless @area.outline_w! *outline_w
         @verses.each{|it| it.outline_w! *outline_w }
         true
@@ -93,7 +93,7 @@ module Kredki
 
       # See #outline_w!.
       def outline_w= param
-        send_ahp :outline_w!, param
+        send_bundle :outline_w!, param
       end
 
       # Get outline width.
@@ -117,12 +117,12 @@ module Kredki
 
       # See #verse!.
       def verse= param
-        send_ahp :verse!, param
+        send_bundle :verse!, param
       end
 
       # Set verse layout.
       def verse_layout! layout = nil
-        return send_ahp :verse_layout!, yield(self.verse_layout) if block_given?
+        return send_bundle :verse_layout!, yield(self.verse_layout) if block_given?
         return if @verse_layout == layout
         @verse_layout = layout
         arrange_verses
@@ -130,7 +130,7 @@ module Kredki
 
       # See #verse_layout!.
       def verse_layout= param
-        send_ahp :verse_layout!, param
+        send_bundle :verse_layout!, param
       end
 
       # Get verse layout.
@@ -140,7 +140,7 @@ module Kredki
 
       # Set space between verses.
       def verse_space! verse_space = @verse_space
-        return send_ahp :verse_space!, yield(self.verse_space) if block_given?
+        return send_bundle :verse_space!, yield(self.verse_space) if block_given?
         return if @verse_space == verse_space
         @verse_space = verse_space
         layer&.break_layout
@@ -149,17 +149,17 @@ module Kredki
       
       # See #verse_space!.
       def verse_space= param
-        send_ahp :verse_space!, param
+        send_bundle :verse_space!, param
       end
       
-      # Get spece between verses.
+      # Get space between verses.
       def verse_space
         @verse_space || 0
       end
 
       # Set verse size.
       def verse_size! verse_size = @verse_size
-        return send_ahp :verse_size!, yield(self.verse_size) if block_given?
+        return send_bundle :verse_size!, yield(self.verse_size) if block_given?
         return if @verse_size == verse_size
         @verse_size = verse_size
         arrange_verses
@@ -167,7 +167,7 @@ module Kredki
 
       # See #verse_size!.
       def verse_size= param
-        send_ahp :verse_size!, param
+        send_bundle :verse_size!, param
       end
 
       # Get verse size.

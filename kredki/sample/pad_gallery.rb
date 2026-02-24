@@ -55,7 +55,7 @@ xss! m: 10, mi: 10 do
     notes! w: 1r
     option! w: 1r do
       item! "Red"
-      item! "Green"
+      item! "Green", disabled: true
       item! "Blue"
       item! "test", subject: :test
       item! "1234", subject: 1234
@@ -68,7 +68,7 @@ xss! m: 10, mi: 10 do
       item! "Radio 3"
     end
     exploding_star = "#{Kredki.dir}/sample/stuff/1643-exploding-star.json"
-    animation! exploding_star, wh: [1r, limit: :ratio], x: Center do
+    animation! exploding_star, wh: [1r, limit: Ratio], x: Center do
       job.animate self, true
     end
   end

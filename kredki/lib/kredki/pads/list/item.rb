@@ -6,7 +6,7 @@ module Kredki
 
         # Set whether is selected.
         def selected! value = true, &block
-          return if (c = selected) == (value = block ? block[c] : value == :not ? !c : value)
+          return if (c = selected) == (value = block ? block[c] : value == Not ? !c : value)
           @selected = value
           repaint
           true
@@ -14,7 +14,7 @@ module Kredki
 
         # See #selected!.
         def selected= param
-          send_ahp :selected!, param
+          send_bundle :selected!, param
         end
 
         # Get whether is selecteded.
@@ -29,7 +29,7 @@ module Kredki
 
         # Set suit.
         def suit! *suit
-          return send_ahp :suit!, yield(self.suit) if block_given?
+          return send_bundle :suit!, yield(self.suit) if block_given?
           suit = Util.uncover suit
           return if @suit == suit && suit != :rand
           @suit = suit
@@ -39,7 +39,7 @@ module Kredki
 
         # See #suit!.
         def suit= param
-          send_ahp :suit!, param
+          send_bundle :suit!, param
         end
 
         # Get suit.

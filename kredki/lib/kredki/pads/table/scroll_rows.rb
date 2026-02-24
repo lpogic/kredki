@@ -6,7 +6,7 @@ module Kredki
 
         # Add new row.
         def row! ...
-          put! parent.row!().alter(...)
+          put! parent.row!(...)
         end
 
         # :section: LEVEL 2

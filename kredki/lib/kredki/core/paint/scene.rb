@@ -14,7 +14,7 @@ module Kredki
 
     # See #pivot_x!.
     def pivot_x= param
-      send_ahp :pivot_x!, param
+      send_bundle :pivot_x!, param
     end
 
     # Get pivot point position along the X axis.
@@ -33,7 +33,7 @@ module Kredki
 
     # See #pivot_y!.
     def pivot_y= param
-      send_ahp :pivot_y!, param
+      send_bundle :pivot_y!, param
     end
 
     # Get pivot point position along the Y axis.
@@ -43,7 +43,7 @@ module Kredki
 
     # Set pivot point position along X and Y axes.
     def pivot_xy! pivot_x = @pivot_x, pivot_y = pivot_x
-      return send_ahp :pivot_xy!, yield(self.pivot_xy) if block_given?
+      return send_bundle :pivot_xy!, yield(self.pivot_xy) if block_given?
       return if @pivot_x == pivot_x && @pivot_y == pivot_y
       @pivot_x = pivot_x
       @pivot_y = pivot_y
@@ -53,7 +53,7 @@ module Kredki
 
     # See #pivot_xy!.
     def pivot_xy= param
-      send_ahp :pivot_xy!, param
+      send_bundle :pivot_xy!, param
     end
 
     # Get pivot point position along X and Y axes.
@@ -116,7 +116,7 @@ module Kredki
       update
     end
 
-    def drop_shadow! color:, angle: 120, distance: 10, blur: 5, quality: 100
+    def drop_shadow! color:, angle: 135, distance: 10, blur: 5, quality: 100
       Pastele.scene_add_drop_shadow @pointer, *Kredki.color(color).to_rgba, angle, distance, blur, quality
       update
     end

@@ -43,7 +43,7 @@ module Kredki
             if kb.shift?
               item.selected!
             elsif kb.ctrl?
-              item.selected! :not
+              item.selected! Not
             else
               each_d(Item).each_alter{|it| selected! it == item }
             end

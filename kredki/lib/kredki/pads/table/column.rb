@@ -6,7 +6,7 @@ module Kredki
 
         # Set width.
         def w! w = @w
-          return send_ahp :w!, yield(self.w) if block_given?
+          return send_bundle :w!, yield(self.w) if block_given?
           return if @w == w
           @w = w
           true
@@ -14,7 +14,7 @@ module Kredki
 
         # See #w!.
         def w= param
-          send_ahp :w!, param
+          send_bundle :w!, param
         end
 
         # Get width.
@@ -24,7 +24,7 @@ module Kredki
 
         # Set width limit.
         def limit! limit = @limit
-          return send_ahp :limit!, yield(self.limit) if block_given?
+          return send_bundle :limit!, yield(self.limit) if block_given?
           return if @limit == limit
           @limit = limit
           true
@@ -32,7 +32,7 @@ module Kredki
 
         # See #limit!.
         def limit= param
-          send_ahp :limit!, param
+          send_bundle :limit!, param
         end
 
         # Get width limit.

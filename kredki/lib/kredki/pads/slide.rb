@@ -23,7 +23,7 @@ module Kredki
 
       # Set value.
       def value! value = @value
-        return send_ahp :value!, yield(self.value) if block_given?
+        return send_bundle :value!, yield(self.value) if block_given?
         return if @value == value
         @value = value
         layer&.break_layout
@@ -31,7 +31,7 @@ module Kredki
 
       # See #value!.
       def value= param
-        send_ahp :value!, param
+        send_bundle :value!, param
       end
 
       # Get value.
@@ -41,7 +41,7 @@ module Kredki
 
       # Set suit.
       def suit! *suit
-        return send_ahp :suit!, yield(self.suit) if block_given?
+        return send_bundle :suit!, yield(self.suit) if block_given?
         suit = Util.uncover suit
         return if @suit == suit && suit != :rand
         @suit = suit
@@ -51,7 +51,7 @@ module Kredki
 
       # See #suit!.
       def suit= param
-        send_ahp :suit!, param
+        send_bundle :suit!, param
       end
 
       # Get suit.

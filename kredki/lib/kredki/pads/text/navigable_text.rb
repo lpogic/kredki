@@ -13,13 +13,13 @@ module Kredki
 
       # Set font.
       def font! font = @verses.first.font
-        return send_ahp :font!, yield(self.font) if block_given?
+        return send_bundle :font!, yield(self.font) if block_given?
         @verses.count{ _1.font! font }.nonzero?
       end
       
       # See #font!.
       def font= param
-        send_ahp :font!, param
+        send_bundle :font!, param
       end
 
       # Get font
@@ -220,7 +220,7 @@ module Kredki
           else
             tw = fit_w
             x0 = align_x tw, w
-            tw > w ? (@scene.x + x * w).clamp(w - tw - x0..-x0) : @scene.x
+            tw > w ? (@scene.x + x).clamp(w - tw - x0..-x0) : @scene.x
           end
 
           sy = if y == 0
@@ -229,7 +229,7 @@ module Kredki
             size, space = verse_metrics h
             th = (size + space) * @verses.size - space
             y0 = align_y th, h
-            th > h ? (@scene.y + y * h).clamp(h - th - y0..-y0) : @scene.y
+            th > h ? (@scene.y + y).clamp(h - th - y0..-y0) : @scene.y
           end
 
           @scene.xy! sx.floor, sy.floor

@@ -12,7 +12,7 @@ module Kredki
 
     # See #w!.
     def w= param
-      send_ahp :w!, param
+      send_bundle :w!, param
     end
 
     # Get width.
@@ -31,7 +31,7 @@ module Kredki
 
     # See #h!.
     def h= param
-      send_ahp :h!, param
+      send_bundle :h!, param
     end
 
     # Get height.
@@ -41,7 +41,7 @@ module Kredki
 
     # Set width and height.
     def wh! w = @w, h = w
-      return send_ahp :wh!, yield(self.wh) if block_given?
+      return send_bundle :wh!, yield(self.wh) if block_given?
       return if @w == w && @h == h
       @w = w
       @h = h
@@ -51,7 +51,7 @@ module Kredki
 
     # See #wh!.
     def wh= param
-      send_ahp :wh!, param
+      send_bundle :wh!, param
     end
     
     # Get width and height.

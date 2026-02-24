@@ -46,7 +46,7 @@ module Kredki
 
         # See #w!.
         def w= param
-          send_ahp :w!, param
+          send_bundle :w!, param
         end
 
         # Get primary pad width.
@@ -61,7 +61,7 @@ module Kredki
 
         # See #h!.
         def h= param
-          send_ahp :h!, param
+          send_bundle :h!, param
         end
 
         # Get primary pad height.
@@ -76,7 +76,7 @@ module Kredki
 
         # See #wh!.
         def wh= param
-          send_ahp :wh!, param
+          send_bundle :wh!, param
         end
 
         # Get primary pad width and height.

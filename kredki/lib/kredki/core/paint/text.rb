@@ -12,7 +12,7 @@ module Kredki
 
     # See #content!.
     def content= param
-      send_ahp :content!, param
+      send_bundle :content!, param
     end
 
     # Get content.
@@ -36,7 +36,7 @@ module Kredki
 
     # See #h!.
     def h= param
-      send_ahp :h!, param
+      send_bundle :h!, param
     end
 
     # Get height.
@@ -60,7 +60,7 @@ module Kredki
 
     # See #font!.
     def font= param
-      send_ahp :font!, param
+      send_bundle :font!, param
     end
 
     # Get font.
@@ -70,7 +70,7 @@ module Kredki
 
     # Set fill color.
     def fill! *fill
-      return send_ahp :fill!, yield(self.fill) if block_given?
+      return send_bundle :fill!, yield(self.fill) if block_given?
       fill = Util.uncover fill
       return if @fill == fill && fill != :rand
       case f = Kredki.fill fill
@@ -87,7 +87,7 @@ module Kredki
 
     # See #fill!.
     def fill= param
-      send_ahp :fill!, param
+      send_bundle :fill!, param
     end
 
     # Get fill color.
@@ -104,19 +104,19 @@ module Kredki
         when Numeric
           outline_w! it
         else
-          send_ahp :outline_fill!, it
+          send_bundle :outline_fill!, it
         end
       end.any? | send_branch(:outline, ka)
     end
     
     # See #outline!.
     def outline= param
-      send_ahp :outline!, param
+      send_bundle :outline!, param
     end
 
     # Set outline fill.
     def outline_fill! *outline_fill
-      return send_ahp :outline_fill!, yield(self.outline_fill) if block_given?
+      return send_bundle :outline_fill!, yield(self.outline_fill) if block_given?
       outline_fill = Util.uncover outline_fill
       return if @outline_fill == outline_fill && outline_fill != :rand
       update_outline outline_fill, @outline_w
@@ -126,7 +126,7 @@ module Kredki
 
     # See #outline_fill!.
     def outline_fill= param
-      send_ahp :outline_fill!, param
+      send_bundle :outline_fill!, param
     end
 
     # Get outline fill.
@@ -145,7 +145,7 @@ module Kredki
 
     # See #outline_w!.
     def outline_w= param
-      send_ahp :outline_w!, param
+      send_bundle :outline_w!, param
     end
 
     # Get outline width.

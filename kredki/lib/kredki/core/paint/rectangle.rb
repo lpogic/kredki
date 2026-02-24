@@ -14,7 +14,7 @@ module Kredki
 
     # See #corner_ss!.
     def corner_ss= param
-      send_ahp :corner_ss!, param
+      send_bundle :corner_ss!, param
     end
 
     # Get X start Y start corner.
@@ -33,7 +33,7 @@ module Kredki
 
     # See #corner_se!.
     def corner_se= param
-      send_ahp :corner_se!, param
+      send_bundle :corner_se!, param
     end
 
     # Get X start Y end corner.
@@ -52,7 +52,7 @@ module Kredki
 
     # See #corner_es!.
     def corner_es= param
-      send_ahp :corner_es!, param
+      send_bundle :corner_es!, param
     end
 
     # Get X end Y start corner.
@@ -71,7 +71,7 @@ module Kredki
 
     # See #corner_ee!.
     def corner_ee= param
-      send_ahp :corner_ee!, param
+      send_bundle :corner_ee!, param
     end
 
     # Get X end Y end corner.
@@ -81,7 +81,7 @@ module Kredki
 
     # Set X start corners.
     def corner_xs! corner_ss = @corner_ss, corner_se = corner_ss
-      return send_ahp :corner_xs!, yield(self.corner_xs) if block_given?
+      return send_bundle :corner_xs!, yield(self.corner_xs) if block_given?
       return if @corner_ss == corner_ss && @corner_se == corner_se
       @corner_ss = corner_ss
       @corner_se = corner_se
@@ -91,7 +91,7 @@ module Kredki
 
     # See #corner_xs!.
     def corner_xs= param
-      send_ahp :corner_xs!, param
+      send_bundle :corner_xs!, param
     end
 
     # Get X start corners.
@@ -101,7 +101,7 @@ module Kredki
 
     # Set X end corners.
     def corner_xe! corner_es = @corner_es, corner_ee = corner_es
-      return send_ahp :corner_xe!, yield(self.corner_xe) if block_given?
+      return send_bundle :corner_xe!, yield(self.corner_xe) if block_given?
       return if @corner_es == corner_es && @corner_ee == corner_ee
       @corner_es = corner_es
       @corner_ee = corner_ee
@@ -111,7 +111,7 @@ module Kredki
 
     # See #corner_xe!.
     def corner_xe= param
-      send_ahp :corner_xe!, param
+      send_bundle :corner_xe!, param
     end
 
     # Get X end corners.
@@ -122,7 +122,7 @@ module Kredki
 
     # Set Y start corners.
     def corner_ys! corner_ss = @corner_ss, corner_es = corner_ss
-      return send_ahp :corner_ys!, yield(self.corner_ys) if block_given?
+      return send_bundle :corner_ys!, yield(self.corner_ys) if block_given?
       return if @corner_ss == corner_ss && @corner_es == corner_es
       @corner_ss = corner_ss
       @corner_es = corner_es
@@ -132,7 +132,7 @@ module Kredki
     
     # See #corner_ys!.
     def corner_ys= param
-      send_ahp :corner_ys!, param
+      send_bundle :corner_ys!, param
     end
 
     # Get Y start corners.
@@ -142,7 +142,7 @@ module Kredki
 
     # Set Y end corners.
     def corner_ye! corner_se = @corner_se, corner_ee = corner_se
-      return send_ahp :corner_ye!, yield(self.corner_ye) if block_given?
+      return send_bundle :corner_ye!, yield(self.corner_ye) if block_given?
       return if @corner_se == corner_se && @corner_ee == corner_ee
       @corner_se = corner_se
       @corner_ee = corner_ee
@@ -152,7 +152,7 @@ module Kredki
     
     # See #corner_ye!.
     def corner_ye= param
-      send_ahp :corner_ye!, param
+      send_bundle :corner_ye!, param
     end
 
     # Get Y end corners.
@@ -162,7 +162,7 @@ module Kredki
     
     # Set corners.
     def corner! corner_ss = @corner_ss, corner_es = corner_ss, corner_se = corner_ss, corner_ee = corner_es
-      return send_ahp :corner!, yield(self.corner) if block_given?
+      return send_bundle :corner!, yield(self.corner) if block_given?
       return if @corner_ss == corner_ss && @corner_es == corner_es && @corner_se == corner_se && @corner_ee == corner_ee
       @corner_ss = corner_ss
       @corner_es = corner_es
@@ -174,7 +174,7 @@ module Kredki
 
     # See #corner!.
     def corner= param
-      send_ahp :corner!, param
+      send_bundle :corner!, param
     end
     
     # Get corners.
