@@ -74,9 +74,7 @@ end
 ```RUBY
 require 'kredki/module' # embedded mode
 
-decision = Kredki.run do
-  layout! :ycc
-  
+decision = Kredki.app do
   ysc! size_x: 100 do
     radio! do
       item! "yes", checked: true
@@ -84,12 +82,10 @@ decision = Kredki.run do
       item! "perhaps"
     end
     space! size: 5
-    button! "Submit", size_x: 1r do
-      on_click do
-        app.return find_upper(:item!, :checked?).subject
-      end
-    end
+    button! "Submit", :$btn, size_x: 1r
   end
+
+  $btn.on_click{ app.return find_upper(:item!, :checked?).subject }
 end
 
 puts decision # => yes/no/perhaps

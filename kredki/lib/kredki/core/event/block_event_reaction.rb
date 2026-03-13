@@ -28,7 +28,12 @@ module Kredki
       begin
         @block.call event
       rescue => e
-        raise inspect
+        res = Kredki.app.rescue
+        if res
+          res.call e, event
+        else
+          raise inspect
+        end
       end
     end
 

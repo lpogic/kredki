@@ -29,6 +29,8 @@ bool Application::watcher(SDL_Event* event){
 void Application::run() {
     SDL_Event event;
 
+    SDL_FlushEvents(SDL_EVENT_FIRST, SDL_EVENT_POLL_SENTINEL);
+
     SDL_AddEventWatch([](void *userdata, SDL_Event* event) -> bool {
         return ((Application*)userdata)->watcher(event);
     }, this);

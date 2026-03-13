@@ -15,7 +15,7 @@ How to use run selected mode:
 ```
 require 'kredki/module'
 
-Kredki.run do
+Kredki.app do
   text! "Hello"
 end
 ```

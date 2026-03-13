@@ -5,6 +5,7 @@ module Kredki
     def run
       @run_ms = Kredki.ms
       Pastele.application_run @pointer
+      Kredki.clear_app
       @result
     end
 
@@ -29,7 +30,14 @@ module Kredki
     # Break event loop.
     def return result = nil
       @result = result
+      @windows.each_value{|it| remove_window it, false }
       Pastele.application_exit @pointer
+    end
+
+    # General event exception handler.
+    def rescue &block
+      @rescue = block if block
+      @rescue
     end
 
     # :section: LEVEL 2
@@ -52,6 +60,7 @@ module Kredki
 
       @event_callback = Fiddle::Closure::BlockCaller.new(Fiddle::TYPE_INT, [Fiddle::TYPE_INT, Fiddle::TYPE_VOIDP], &method(:event))
       Pastele.application_set_event_handler @pointer, @event_callback
+      @rescue = nil
       @windows = {}
       @early_close_next_text_event = false
       @drop_data = nil
@@ -266,13 +275,13 @@ module Kredki
       window
     end
 
-    def remove_window window
+    def remove_window window, last_exit = true
       window.hide!
       window_id = Pastele.application_erase_window(@pointer, window.pointer)
       @windows.delete window_id
       window.detach!
-      if @windows.empty?
-        exit
+      if last_exit && @windows.empty?
+        self.return
       else
         @main_window = @windows.values.first if @main_window == window
       end

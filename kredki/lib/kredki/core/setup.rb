@@ -18,11 +18,19 @@ module Kredki
       File.expand_path "../../../..", __FILE__
     end
  
-    # Start application loop.
-    def run scene = nil, *a, **ka, &block
-      a = app
-      a.open scene, *a, **ka, &block
-      a.run
+    # Run the app or get the app if it is already running.
+    def app scene = nil, *a, **ka, &block
+      if !@init
+        Pastele.thorvg_engine_init 2, 4
+        Pastele.sdl_init joystick ? 1 : 0
+        @init = true
+      end
+      @app = Application.new if !@app
+      if scene || block
+        @app.open scene, *a, **ka, &block
+        return @app.run
+      end
+      @app
     end
 
     # Milliseconds since SDL was initialized.
@@ -148,21 +156,15 @@ module Kredki
 
     # :section: LEVEL 2
 
-    attr :app
+    def clear_app
+      @app = nil
+    end
+
     attr_accessor :joysticks
     attr_accessor :opened_joysticks
     attr_accessor :fonts
     attr_accessor :colors
     attr_accessor :glyphs
-
-    def app
-      if !@app
-        Pastele.thorvg_engine_init 2, 4
-        Pastele.sdl_init joystick ? 1 : 0
-        @app = Application.new
-      end
-      @app
-    end
 
     attr_accessor :sdl
     attr_accessor :thorvg
