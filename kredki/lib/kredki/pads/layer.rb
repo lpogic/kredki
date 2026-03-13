@@ -27,13 +27,13 @@ module Kredki
       def carry_focus_on_tab!
         on_key_press :tab do |event|
           next_pad = layer.keyboard_pad&.then do |p0|
-            each_pad(reverse: event.shift?, deep: true)
+            upper_pad_iterator(reverse: event.shift?, deep: true)
               .lazy
               .drop_while{|p1| p0 != p1 }
               .drop(1)
               .filter{|it| it.keyboardy? && !it.disabled? && it.show? }
               .first
-          end || each_pad(reverse: event.shift?, deep: true)
+          end || upper_pad_iterator(reverse: event.shift?, deep: true)
             .lazy
             .filter{|it| it.keyboardy? && !it.disabled? && it.show? }
             .first
@@ -147,7 +147,7 @@ module Kredki
           @keyboard_pads.each{|pad| pad.report FocusLeaveEvent.new, false }
           @keyboard_pads = []
         else
-          keyboard_pads = keyboard_pad.pad_lineage.to_a.reverse
+          keyboard_pads = keyboard_pad.lower_pad_iterator.to_a.reverse
           enter, no_change, leave = *Util.polarize(keyboard_pads, @keyboard_pads)
           @keyboard_pads = keyboard_pads
           leave.reverse_each{|it| it.report FocusLeaveEvent.new, false }
@@ -318,14 +318,14 @@ module Kredki
         bxy = @pin_data&.xy and @pin_data.pad.drag_check bxy, xy
       end
 
-      def set_parent parent, at = nil
-        return if @parent == parent
-        @parent = parent
+      def set_lower lower, at = nil
+        return if @lower == lower
+        @lower = lower
       end
 
-      def set_pad_parent parent
-        return if @pad_parent == parent
-        @pad_parent = parent
+      def pad_attach pad
+        return if @lower_pad == pad
+        @lower_pad = pad
       end
     end
   end

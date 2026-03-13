@@ -72,7 +72,7 @@ module Kredki
 
       def translated_xy xy
         lx, ly = window.translate *xy, @entry
-        @exit.translate lx * @exit.sw / @entry.sw, ly * @exit.sh / @entry.sh
+        @exit.translate lx * @exit.area_size_x / @entry.area_size_x, ly * @exit.area_size_y / @entry.area_size_y
       end
 
       def update_mouse_location event

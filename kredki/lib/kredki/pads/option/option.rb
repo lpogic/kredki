@@ -13,12 +13,12 @@ module Kredki
 
       # Add new item.
       def item! ...
-        dropdown!.item!(w: 1r).alter(...)
+        dropdown!.item!(size_x: 1r).alter(...)
       end
 
       # Create/Update dropdown.
       def dropdown! ...
-        @dropdown ||= new OptionLayer
+        @dropdown ||= put OptionLayer
         @dropdown.alter(...)
       end
 
@@ -48,22 +48,22 @@ module Kredki
       def sketch
         super
 
-        @note = new Note
-        @arrow = @note.new Button, w: 20, h: 1r do
+        @note = put Note
+        @arrow = @note.put Button, size: [20, 1r] do
           outline_w! 0
           keyboardy! false
-          new RectanglePad, mousy: false, keyboardy: false, fill: 0, wh: 1r do
+          put RectanglePad, mousy: false, keyboardy: false, fill: 0, size: 1r do
             outline! fill: :text, w: 2, cap: :round
-            area! do |w, h|
-              xy! w * 0.2, h * 0.35
-              line! w * 0.5, h * 0.65
-              line! w * 0.8, h * 0.35
+            area! do |sx, sy|
+              xy! sx * 0.2, sy * 0.35
+              line! sx * 0.5, sy * 0.65
+              line! sx * 0.8, sy * 0.35
             end
           end
         end
 
-        h! 24
-        @note.wh! 1r
+        size_y! 24
+        @note.size! 1r
         dropdown!
       end
 
@@ -99,9 +99,9 @@ module Kredki
 
         on_pick do |e|
           @dropdown.unload
-          content = e.target.d?(TextPad).content
-          @note.content! content
-          @note.verse.set_cursor content.to_s.length
+          subject = e.target.find_upper(TextPad).subject
+          @note.text! subject
+          @note.verse.set_cursor subject.to_s.length
         end
 
         @dropdown.on_key :escape do |it|

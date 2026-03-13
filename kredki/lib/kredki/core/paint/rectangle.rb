@@ -191,7 +191,7 @@ module Kredki
     end
 
     def redraw
-      draw!(true, @w * 0.5 , @h * 0.5).rectangle! @w - @outline_w, @h - @outline_w, @corner_ss, @corner_es, @corner_se, @corner_ee
+      draw!(true, @size_x * 0.5 , @size_y * 0.5).rectangle! @size_x - @outline_w, @size_y - @outline_w, @corner_ss, @corner_es, @corner_se, @corner_ee
     end
 
     def set_outline_w ...

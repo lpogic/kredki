@@ -8,57 +8,63 @@ module Kredki
 
         # :section: LEVEL 2
 
-        def get_span pad, w, limit, pclw
-          case w
+        def get_span pad, size_x, limit, lower_clip_size_x
+          case size_x
           when Rational
             case limit
             when nil
-              [w, 0, Float::INFINITY, 0]
+              [size_x, 0, Float::INFINITY, 0]
             when Range
-              [w, wv = limit.begin&.then{|it| pad.get_wv(it, pclw, nil) } || 0, limit.end&.then{|it| pad.get_wv(it, pclw, nil) } || Float::INFINITY, wv]
+              sxv = limit.begin&.then{|it| pad.get_size_x_value it, lower_clip_size_x, nil } || 0
+              limit_sxv = limit.end&.then{|it| pad.get_size_x_value it, lower_clip_size_x, nil } || Float::INFINITY
+              [size_x, sxv, limit_sxv, sxv]
             else
-              [w, 0, pad.get_wv(limit, pclw, nil), 0]
+              limit_sxv = pad.get_size_x_value limit, lower_clip_size_x, nil
+              [size_x, 0, limit_sxv, 0]
             end
           when Auto
             case limit
             when nil
               [1r, 0, Float::INFINITY, 0]
             when Range
-              [1r, wv = limit.begin&.then{|it| pad.get_wv(it, pclw, nil) } || 0, limit.end&.then{|it| pad.get_wv(it, pclw, nil) } || Float::INFINITY, wv]
+              sxv = limit.begin&.then{|it| pad.get_size_x_value it, lower_clip_size_x, nil } || 0
+              limit_sxv = limit.end&.then{|it| pad.get_size_x_value it, lower_clip_size_x, nil } || Float::INFINITY
+              [1r, sxv, limit_sxv, sxv]
             else
-              [1r, 0, pad.get_wv(limit, pclw, nil), 0]
+              limit_sxv = pad.get_size_x_value limit, lower_clip_size_x, nil
+              [1r, 0, limit_sxv, 0]
             end
           else
-              [0, wv = pad.get_wl(w, limit, pclw), wv, wv]
+            sxv = pad.get_size_x_limited size_x, limit, lower_clip_size_x
+            [0, sxv, sxv, sxv]
           end
         end
 
         def arrange pad
-          clw = pad.clw
-          clh = pad.clh
-          sp = pad.layout_pads.map{|it| get_span it, it.w, it.w_limit, clw }
-          measurement, sw = spans sp, clw, pad.mi || 0
+          csx, csy = pad.clip_size
+          sp = pad.layout_pads.map{|it| get_span it, it.size_x, it.size_x_limit, csx }
+          measurement, sx = spans sp, csx, pad.spacer || 0
           
           pad.layout_pads.zip measurement do |p1, m|
-            ph = p1.get_h clh, m
-            p1.set_size m, ph
+            psy = p1.get_size_y csy, m
+            p1.set_size m, psy
           end
 
-          arrange_pads pad.arranged_pads, sw, clw, clh, pad.mi || 0
+          arrange_pads pad.arranged_pads, sx, csx, csy, pad.spacer || 0
         end
 
-        def arrange_pads pads, sw, clw, clh, space
+        def arrange_pads pads, sx, csx, csy, spacer
           cx = case @x
           when Start
             0
           when Center
-            (clw - sw) * 0.5
+            (csx - sx) * 0.5
           when End
-            clw - sw
+            csx - sx
           when Rational 
-            clw * @x
+            csx * @x
           when Proc
-            @x[clw, sw]
+            @x[csx, sx]
           when Numeric
             @x
           else raise_ia @x
@@ -67,44 +73,43 @@ module Kredki
           
           pads.each do |p1|
             if p1.layoutic?
-              pw, ph, px, py = arrange_layoutic p1, clw, clh, cx
-              cx += pw + space
+              psx, psy, px, py = arrange_layoutic p1, csx, csy, cx
+              cx += psx + spacer
               lx = [lx, px].min
               ly = [ly, py].min
-              lxm = [lxm, px + pw].max
-              lym = [lym, py + ph].max
+              lxm = [lxm, px + psx].max
+              lym = [lym, py + psy].max
             else
-              arrange_non_layoutic p1, clw, clh
+              arrange_non_layoutic p1, csx, csy
             end
           end
 
           [lx, ly, lxm - lx, lym - ly]
         end
 
-        def arrange_layoutic pad, clw, clh, cx
-          pw = pad.sw
-          ph = pad.sh
-          px = pad.get_x clw, pw, cx
-          py = pad.get_y clh, ph, (get_y @y, clh, ph)
+        def arrange_layoutic pad, csx, csy, cx
+          psx, psy = pad.area_size
+          px = pad.get_x csx, psx, cx
+          py = pad.get_y csy, psy, (get_y @y, csy, psy)
           pad.set_xy px, py
           pad.set_margin
           pad.arrange
-          [pw, ph, px, py]
+          [psx, psy, px, py]
         end
 
-        def fit_w pad
-          space = pad.mi || 0
-          pad.layout_pads.map{|p1| p1.min_w }.reduce{ _1 + space + _2 } || 0
+        def fit_size_x pad
+          spacer = pad.spacer || 0
+          pad.layout_pads.map{|p1| p1.min_size_x }.reduce{ _1 + spacer + _2 } || 0
         end
 
-        def get_wr p0, p0w, p1, r
+        def get_size_x_rational p0, psx, p1, r
           index = p0.layout_pads.find_index{|it| it == p1 }
           if index
-            sp = p0.layout_pads.map{|it| get_span it, it.w, it.w_limit, p0w }
-            measurement, sw = spans sp, p0w, p0.mi || 0
+            sp = p0.layout_pads.map{|it| get_span it, it.size_x, it.size_x_limit, psx }
+            measurement, sx = spans sp, psx, p0.spacer || 0
             measurement[index]
           else
-            r * p0w
+            r * psx
           end
         end
 

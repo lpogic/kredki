@@ -1,149 +1,14 @@
 module Kredki
   module Pads
     # Pad with rectangle area.
-    class RectanglePad < Pad
-
-      # Set fill.
-      def fill! ...
-        @area.fill!(...)
-      end
-
-      # See #fill!.
-      def fill= param
-        send_bundle :fill!, param
-      end
-
-      # Get fill.
-      def fill
-        @area.fill
-      end
-
-      # Set outline.
-      def outline! ...
-        @area.outline!(...)
-      end
-
-      # See #outline!.
-      def outline= param
-        send_bundle :outline!, param
-      end
-
-      # Set outline width.
-      def outline_w! ...
-        @area.outline_w!(...)
-      end
-
-      # See #outline_w!.
-      def outline_w= param
-        send_bundle :outline_w!, param
-      end
-
-      # Get outline width.
-      def outline_w
-        @area.outline_w
-      end
-
-      # Set outline fill.
-      def outline_fill! ...
-        @area.outline_fill!(...)
-      end
-
-      # See #outline_fill!.
-      def outline_fill= param
-        send_bundle :outline_fill!, param
-      end
-
-      # Get outline fill.
-      def outline_fill
-        @area.outline_fill
-      end
-      
-      # Set outline join.
-      def outline_join! ...
-        @area.outline_join!(...)
-      end
-
-      # See #outline_join!.
-      def outline_join= param
-        send_bundle :outline_join!, param
-      end
-
-      # Get outline join.
-      def outline_join
-        @area.outline_join
-      end
-
-      # Set outline cap.
-      def outline_cap! ...
-        @area.outline_cap!(...)
-      end
-
-      # See #outline_cap!.
-      def outline_cap= param
-        send_bundle :outline_cap!, param
-      end
-
-      # Get outline cap.
-      def outline_cap
-        @area.outline_cap
-      end
-
-      # Set outline dash pattern.
-      def outline_pattern! ...
-        @area.outline_pattern!(...)
-      end
-
-      # See #outline_pattern!.
-      def outline_pattern= param
-        send_bundle :outline_pattern!, param
-      end
-
-      # Get outline dash pattern.
-      def outline_pattern
-        @area.outline_pattern
-      end
-
-      # Set outline trim.
-      def outline_trim! ...
-        @area.outline_trim!(...)
-      end
-
-      # See #outline_trim!.
-      def outline_trim= param
-        send_bundle :outline_trim!, param
-      end
-
-      # Get outline trim.
-      def outline_trim
-        @area.outline_trim
-      end
-
-      # Set whether outline is behind fill.
-      def outline_behind! ...
-        @area.outline_behind!(...)
-      end
-
-      # See #outline_behind!.
-      def outline_behind= param
-        send_bundle :outline_behind!, param
-      end
-
-      # Get whether outline is behind fill.
-      def outline_behind
-        @area.outline_behind
-      end
-
-      # See #outline_behind.
-      def outline_behind?
-        @area.outline_behind?
-      end
+    class RectanglePad < ShapePad
 
       # Set X start Y start corner.
       def corner_ss! corner_ss = @area.corner_ss, clip_corner = :auto
         return send_bundle :corner_ss!, yield(self.corner_ss) if block_given?
         @area.corner_ss!(corner_ss) | 
         if clip_corner == :auto
-          @clip_area.corner_ss! corner_ss - (@mxs + @mys) * 0.5
+          @clip_area.corner_ss! corner_ss - (@margin_xs + @margin_ys) * 0.5
         elsif clip_corner
           @clip_area.corner_ss! clip_corner
         end
@@ -164,7 +29,7 @@ module Kredki
         return send_bundle :corner_es!, yield(self.corner_es) if block_given?
         @area.corner_es!(corner_es) | 
         if clip_corner == :auto
-          @clip_area.corner_es! corner_es - (@mxe + @mys) * 0.5
+          @clip_area.corner_es! corner_es - (@margin_xe + @margin_ys) * 0.5
         elsif clip_corner
           @clip_area.corner_es! clip_corner
         end
@@ -185,7 +50,7 @@ module Kredki
         return send_bundle :corner_se!, yield(self.corner_se) if block_given?
         @area.corner_se!(corner_se) | 
         if clip_corner == :auto
-          @clip_area.corner_se! corner_se - (@mxs + @mye) * 0.5
+          @clip_area.corner_se! corner_se - (@margin_xs + @margin_ye) * 0.5
         elsif clip_corner
           @clip_area.corner_se! clip_corner
         end
@@ -206,7 +71,7 @@ module Kredki
         return send_bundle :corner_ee!, yield(self.corner_ee) if block_given?
         @area.corner_ee!(corner_ee) | 
         if clip_corner == :auto
-          @clip_area.corner_ee! corner_ee - (@mxe + @mye) * 0.5
+          @clip_area.corner_ee! corner_ee - (@margin_xe + @margin_ye) * 0.5
         elsif clip_corner
           @clip_area.corner_ee! clip_corner
         end

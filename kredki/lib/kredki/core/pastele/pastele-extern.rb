@@ -67,7 +67,7 @@ module Kredki
     extern 'void window_get_display_bounds(pastele::Window* self, Bounds* bounds)'
     extern 'void window_get_pixel_color(pastele::Window* self, int x, int y, IntPoint* rg, IntPoint* ba)'
     extern 'void paint_delete(Paint* self)'
-    extern 'void paint_set_transform(Paint* self, float pivot_x, float pivot_y, float x, float y, float a, float mag_x, float fy)'
+    extern 'void paint_set_transform(Paint* self, float pivot_x, float pivot_y, float x, float y, float a, float zoom_x, float fy)'
     extern 'void paint_set_opacity(Paint* self, uint8_t opacity)'
     extern 'void paint_get_bounds(Paint* self, Bounds* bounds)'
     extern 'void paint_set_clip(Paint* self, Shape* clipper)'

@@ -194,11 +194,13 @@ module Kredki
     end
   end
 
-  # Thewolfkit
+  # Thewolfkit glyphs
+
+  # Alternative dynamic loading:
   # base = "#{dir}/stuff/glyph"
   # Dir["*.svg", base: base].each do |file|
   #   glyph! file[..-17].tr("-", "_").to_sym, "#{base}/#{file}"
-  #   puts "glyph! :#{file[..-17].tr("-", "_").to_sym}, \"\#{dir}/stuff/glyph/#{file}\""
+  #   # puts "glyph! :#{file[..-17].tr("-", "_")}, \"\#{dir}/stuff/glyph/#{file}\""
   # end
 
   glyph! :alert_circle, "#{dir}/stuff/glyph/alert-circle-svgrepo-com.svg"

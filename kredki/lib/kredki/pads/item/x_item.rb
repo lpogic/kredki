@@ -8,12 +8,12 @@ module Kredki
         super
 
         on_key_press :left do |e|
-          parent.update_selected_item(:previous)&.roi!
+          lower.update_selected_item(:previous)&.roi!
           e.close
         end
 
         on_key_press :right do |e|
-          parent.update_selected_item(:next)&.roi!
+          lower.update_selected_item(:next)&.roi!
           e.close
         end
       end

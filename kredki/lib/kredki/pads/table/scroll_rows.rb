@@ -1,12 +1,38 @@
 module Kredki
   module Pads
     module Table
+
+      class ScrollCell < Cell
+        def fit_size_x
+          fit = super
+          if lower_pad.pads.last == self
+            yslide = find_lower(ScrollRows)&.yslide
+            fit += yslide.get_size_x + lower_pad.margin_xe if yslide.scenic?
+          end
+          fit
+        end
+
+        def set_size x, y
+          if lower_pad.pads.last == self
+            yslide = find_lower(ScrollRows)&.yslide
+            return super(x - yslide.get_size_x - lower_pad.margin_xe, y) if yslide.scenic?
+          end
+          super
+        end
+      end
+
+      class ScrollRow < Row
+        def cell! ...
+          put(ScrollCell, :cell!, ...)
+        end
+      end
+
       # Scrolled table row set.
       class ScrollRows < ScrollPad
 
         # Add new row.
         def row! ...
-          put! parent.row!(...)
+          put(ScrollRow, :row!, lower.row, ...)
         end
 
         # :section: LEVEL 2
@@ -14,7 +40,8 @@ module Kredki
         def sketch
           super
 
-          w! 1r
+          size_x! 1r
+          layout! :yss
         end
         
       end

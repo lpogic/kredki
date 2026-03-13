@@ -83,343 +83,342 @@ module Kredki
         [@x, @y]
       end
 
-      # Set width.
-      def w! w = @w, **ka
-        return w! yield self.w if block_given?
-        unless Util.eqr @w, w
-          @w = w
+      # Set size in the X axis.
+      def size_x! size_x = @size_x, **ka
+        return size_x! yield self.size_x if block_given?
+        unless Util.eqr @size_x, size_x
+          @size_x = size_x
           layer&.break_layout
           true
-        end | ka.count{ send_bundle "w_#{_1}!", _2 }.nonzero?
+        end | send_branch(:size_x, ka)
       end
 
-      # See #w!.
-      def w= param
-        send_bundle :w!, param
+      # See #size_x!.
+      def size_x= param
+        send_bundle :size_x!, param
       end
 
-      # Get width.
-      def w
-        @w
+      # Get size in the X axis.
+      def size_x
+        @size_x
       end
       
-      # Set height.
-      def h! h = @h, **ka
-        return h! yield self.h if block_given?
-        unless Util.eqr @h, h
-          @h = h
+      # Set size in the Y axis.
+      def size_y! size_y = @size_y, **ka
+        return size_y! yield self.size_y if block_given?
+        unless Util.eqr @size_y, size_y
+          @size_y = size_y
           layer&.break_layout
           true
-        end | ka.count{ send_bundle "h_#{_1}!", _2 }.nonzero?
+        end | send_branch(:size_y, ka)
       end
 
-      # See #h!.
-      def h= param
-        send_bundle :h!, param
+      # See #size_y!.
+      def size_y= param
+        send_bundle :size_y!, param
       end
 
-      # Get height.
-      def h
-        @h
+      # Get size in the Y axis.
+      def size_y
+        @size_y
       end
 
-      # Set width and height.
-      def wh! w = @w, h = w, **ka
-        return send_bundle :wh!, yield(self.wh) if block_given?
-        if @w != w || @h != h
-          @w = w
-          @h = h
+      # Set size.
+      def size! size_x = @size_x, size_y = size_x, **ka
+        return send_bundle :size!, yield(self.size) if block_given?
+        if @size_x != size_x || @size_y != size_y
+          @size_x = size_x
+          @size_y = size_y
           layer&.break_layout
           true
-        end | ka.count{ send_bundle "wh_#{_1}!", _2 }.nonzero?
+        end | send_branch(:size, ka)
       end
 
-      # See #wh!.
-      def wh= param
-        send_bundle :wh!, param
+      # See #size!.
+      def size= param
+        send_bundle :size!, param
       end
       
-      # Get width and height.
-      def wh
-        [@w, @h]
+      # Get size.
+      def size
+        [@size_x, @size_y]
       end
 
-      # Set width limit.
-      def w_limit! w_limit = @w_limit
-        return w_limit! yield self.w_limit if block_given?
-        raise_ia w_limit, "Rational limit disabled." if Rational === w_limit
-        return if @w_limit = w_limit
-        @w_limit = w_limit
+      # Set size limit in the X axis.
+      def size_x_limit! size_x_limit = @size_x_limit
+        return size_x_limit! yield self.size_x_limit if block_given?
+        raise_ia size_x_limit, "Rational limit disabled." if Rational === size_x_limit
+        return if @size_x_limit = size_x_limit
+        @size_x_limit = size_x_limit
         layer&.break_layout
         true
       end
 
-      # See #w_limit!.
-      def w_limit= param
-        w_limit! param
+      # See #size_x_limit!.
+      def size_x_limit= param
+        size_x_limit! param
       end
 
-      # Get width limit.
-      def w_limit
-        @w_limit
+      # Get size limit in the X axis.
+      def size_x_limit
+        @size_x_limit
       end
       
-      # Set height limit.
-      def h_limit! h_limit = @h_limit
-        return h_limit! yield self.h_limit if block_given?
-        raise_ia h_limit, "Rational limit disabled." if Rational === h_limit
-        return if @h_limit = h_limit
-        @h_limit = h_limit
+      # Set size limit in the Y axis.
+      def size_y_limit! size_y_limit = @size_y_limit
+        return size_y_limit! yield self.size_y_limit if block_given?
+        raise_ia size_y_limit, "Rational limit disabled." if Rational === size_y_limit
+        return if @size_y_limit = size_y_limit
+        @size_y_limit = size_y_limit
         layer&.break_layout
         true
       end
 
-      # See #h_limit!.
-      def h_limit= param
-        h_limit! param
+      # See #size_y_limit!.
+      def size_y_limit= param
+        size_y_limit! param
       end
 
-      # Get height limit.
-      def h_limit
-        @h_limit
+      # Get size limit in the Y axis.
+      def size_y_limit
+        @size_y_limit
       end
 
-      # Set width and height limit.
-      def wh_limit! w = @w_limit, h = w
-        return send_bundle :wh_limit!, yield(self.wh_limit) if block_given?
-        w_limit!(w) | h_limit!(h)
+      # Set size limit.
+      def size_limit! x_limit = @x_limit, y_limit = x_limit
+        return send_bundle :size_limit!, yield(self.size_limit) if block_given?
+        size_x_limit!(x_limit) | size_y_limit!(y_limit)
       end
 
-      # See #wh_limit!.
-      def wh_limit= param
-        send_bundle :wh_limit!, param
+      # See #size_limit!.
+      def size_limit= param
+        send_bundle :size_limit!, param
       end
 
-      # Get width and height limit.
-      def wh_limit
+      # Get size limit.
+      def size_limit
         [@w_limit, @h_limit]
       end
 
       # Set X start margin.
-      def mxs! m = @mxs
-        return mxs! yield @mxs if block_given?
-        return if Util.eqr @mxs, m
-        @mxs = m
+      def margin_xs! m = @margin_xs
+        return margin_xs! yield @margin_xs if block_given?
+        return if Util.eqr @margin_xs, m
+        @margin_xs = m
         layer&.break_layout
         true
       end
 
-      # See #mxs!.
-      def mxs= param
-        send_bundle :mxs!, param
+      # See #margin_xs!.
+      def margin_xs= param
+        send_bundle :margin_xs!, param
       end
 
       # Get X start margin.
-      def mxs
-        @mxs
+      def margin_xs
+        @margin_xs
       end
 
       # Set X end margin.
-      def mxe! m = @mxe
-        return mxe! yield @mxe if block_given?
-        return if Util.eqr @mxe, m
-        @mxe = m
+      def margin_xe! m = @margin_xe
+        return margin_xe! yield @margin_xe if block_given?
+        return if Util.eqr @margin_xe, m
+        @margin_xe = m
         layer&.break_layout
         true
       end
 
-      # See #mxe!.
-      def mxe= param
-        send_bundle :mxe!, param
+      # See #margin_xe!.
+      def margin_xe= param
+        send_bundle :margin_xe!, param
       end
 
       # Get X end margin.
-      def mxe
-        @mxe
+      def margin_xe
+        @margin_xe
       end
 
       # Set Y start margin.
-      def mys! m = @mys
-        return mys! yield @mys if block_given?
-        return if Util.eqr @mys, m
-        @mys = m
+      def margin_ys! m = @margin_ys
+        return margin_ys! yield @margin_ys if block_given?
+        return if Util.eqr @margin_ys, m
+        @margin_ys = m
         layer&.break_layout
         true
       end
 
-      # See #mys!.
-      def mys= param
-        send_bundle :mys!, param
+      # See #margin_ys!.
+      def margin_ys= param
+        send_bundle :margin_ys!, param
       end
 
       # Get Y start margin.
-      def mys
-        @mys
+      def margin_ys
+        @margin_ys
       end
 
       # Set Y end margin.
-      def mye! m = @mye
-        return mye! yield @mye if block_given?
-        return if Util.eqr @mye, m
-        @mye = m
+      def margin_ye! m = @margin_ye
+        return margin_ye! yield @margin_ye if block_given?
+        return if Util.eqr @margin_ye, m
+        @margin_ye = m
         layer&.break_layout
         true
       end
 
-      # See #mye!.
-      def mye= param
-        send_bundle :mye!, param
+      # See #margin_ye!.
+      def margin_ye= param
+        send_bundle :margin_ye!, param
       end
 
       # Get Y end margin.
-      def mye
-        @mye
+      def margin_ye
+        @margin_ye
       end
 
       # Set X start and X end margin.
-      def mx! mt = @mxs, mh = mt
-        return send_bundle :mx!, yield(self.mx) if block_given?
-        return if (Util.eqr @mxs, mt) && (Util.eqr @mxe, mh)
-        @mxs = mt
-        @mxe = mh
+      def margin_x! mxs = @margin_xs, mxe = mxs
+        return send_bundle :margin_x!, yield(self.margin_x) if block_given?
+        return if (Util.eqr @margin_xs, mxs) && (Util.eqr @margin_xe, mxe)
+        @margin_xs = mxs
+        @margin_xe = mxe
         layer&.break_layout
         true
       end
 
-      # See #mx!.
-      def mx= param
-        send_bundle :mx!, param
+      # See #margin_x!.
+      def margin_x= param
+        send_bundle :margin_x!, param
       end
 
       # Get X start and X end margin.
-      def mx
-        [@mxs, @mxe]
+      def margin_x
+        [@margin_xs, @margin_xe]
       end
 
       # Set Y start and X end margin.
-      def my! mys = @mys, mye = mys
-        return send_bundle :my!, yield(self.my) if block_given?
-        return if (Util.eqr @mys, mys) && (Util.eqr @mye, mye)
-        @mys = mys
-        @mye = mye
+      def margin_y! margin_ys = @margin_ys, margin_ye = margin_ys
+        return send_bundle :margin_y!, yield(self.margin_y) if block_given?
+        return if (Util.eqr @margin_ys, margin_ys) && (Util.eqr @margin_ye, margin_ye)
+        @margin_ys = margin_ys
+        @margin_ye = margin_ye
         layer&.break_layout
         true
       end
 
-      # See #my!.
-      def my= param
-        send_bundle :my!, param
+      # See #margin_y!.
+      def margin_y= param
+        send_bundle :margin_y!, param
       end
 
       # Get Y start and Y end margin.
-      def my
-        [@mys, @mye]
+      def margin_y
+        [@margin_ys, @margin_ye]
       end
 
       # Set X and Y start and X and Y end margin.
-      def m! mxs = @mxs, mys = mxs, mxe = mxs, mye = mys, **ka
+      def margin! margin_xs = @margin_xs, margin_ys = margin_xs, margin_xe = margin_xs, margin_ye = margin_ys, **ka
         return send_bundle :m!, yield(self.m) if block_given?
-        unless (Util.eqr @mxs, mxs) && (Util.eqr @mxe, mxe) && (Util.eqr @mys, mys) && (Util.eqr @mye, mye)
-          @mxs = mxs
-          @mxe = mxe
-          @mys = mys
-          @mye = mye
+        unless (Util.eqr @margin_xs, margin_xs) && (Util.eqr @margin_xe, margin_xe) && (Util.eqr @margin_ys, margin_ys) && (Util.eqr @margin_ye, margin_ye)
+          @margin_xs = margin_xs
+          @margin_xe = margin_xe
+          @margin_ys = margin_ys
+          @margin_ye = margin_ye
           layer&.break_layout
           true
-        end | send_branch(:m, ka, "")
+        end | send_branch(:margin, ka)
       end
 
-      # See #m!.
-      def m= param
-        send_bundle :m!, param
+      # See #margin!.
+      def margin= param
+        send_bundle :margin!, param
       end
 
       # Get X and Y start and X and Y end margin.
-      def m
-        [@mxs, @mys, @mxe, @mye]
+      def margin
+        [@margin_xs, @margin_ys, @margin_xe, @margin_ye]
       end
 
-      # Set inner margin.
-      def mi! mi = @mi
-        return mi! yield @mi if block_given?
-        return if Util.eqr @mi, mi
-        @mi = mi
+      # Set layout spacer.
+      def spacer! spacer = @spacer
+        return spacer! yield @spacer if block_given?
+        return if Util.eqr @spacer, spacer
+        @spacer = spacer
         layer&.break_layout
         true
       end
 
-      # See #mi!.
-      def mi= param
-        send_bundle :mi!, param
+      # See #spacer!.
+      def spacer= param
+        send_bundle :spacer!, param
       end
 
       # Get inner margin.
-      def mi
-        @mi
+      def spacer
+        @spacer
       end
 
-      # Set rotation angle around the pivot point.
-      def rot! rot = @rot
-        return rot! yield @rot if block_given?
-        return if @rot == rot
-        @rot = rot
-        rot *= Math::PI * 2 if rot.is_a? Rational
-        @scene.rot! rot
+      # Set turn around the pivot point.
+      def turn! turn = @turn
+        return turn! yield @turn if block_given?
+        return if @turn == turn
+        @turn = turn
+        @scene.turn! turn
       end
 
-      # See #rot!.
-      def rot= param
-        send_bundle :rot!, param
+      # See #turn!.
+      def turn= param
+        send_bundle :turn!, param
       end
 
-      # Get rotation angle around the pivot point.
-      def rot
-        @rot
+      # Get turn around the pivot point.
+      def turn
+        @turn
       end
 
-      # Set magnification factor along the X axis.
-      def mag_x! ...
-        @scene.mag_x!(...)
+      # Set zoom in the X axis.
+      def zoom_x! ...
+        @scene.zoom_x!(...)
       end
 
-      # See #mag_x!.
-      def mag_x= value
-        @scene.mag_x = value
+      # See #zoom_x!.
+      def zoom_x= value
+        @scene.zoom_x = value
       end
 
-      # Get magnification factor along the X axis.
-      def mag_x
-        @scene.mag_x
+      # Get zoom in the X axis.
+      def zoom_x
+        @scene.zoom_x
       end
 
-      # Set magnification factor along the Y axis.
-      def mag_y! ...
-        @scene.mag_y!(...)
+      # Set zoom in the Y axis.
+      def zoom_y! ...
+        @scene.zoom_y!(...)
       end
 
-      # See #mag_y!.
-      def mag_y= value
-        @scene.mag_y = value
+      # See #zoom_y!.
+      def zoom_y= value
+        @scene.zoom_y = value
       end
 
-      # Get magnification factor along the Y axis.
-      def mag_y
-        @scene.mag_y
+      # Get zoom in the Y axis.
+      def zoom_y
+        @scene.zoom_y
       end
 
-      # Set magnification factor along X and Y axes.
-      def mag! ...
-        @scene.mag!(...)
+      # Set zoom in X and Y axes.
+      def zoom! ...
+        @scene.zoom!(...)
       end
 
-      # See #mag!.
-      def mag= value
-        @scene.mag = value
+      # See #zoom!.
+      def zoom= value
+        @scene.zoom = value
       end
 
-      # Get magnification factor along X and Y axes.
-      def mag
-        @scene.mag
+      # Get zoom in X and Y axes.
+      def zoom
+        @scene.zoom
       end
 
       # Set opacity.
@@ -623,7 +622,6 @@ module Kredki
       # Get whether mouse pointer is over Pad.
       def mouse_in?
         layer&.layer_check_mouse_in self or false
-        # layer&.mouse_pad&.pad_lineage&.any?{ _1 == self } || false
       end
 
       # Get whether mouse pointer is directly over Pad.
@@ -633,7 +631,7 @@ module Kredki
 
       # Get whether keyboard events are reaching Pad.
       def keyboard_in?
-        layer&.keyboard_pad&.pad_lineage&.any?{ _1 == self } || false
+        layer&.keyboard_pad&.lower_pad_iterator&.any?{ _1 == self } || false
       end
 
       # Get whether keyboard events are reaching Pad direcly.
@@ -715,15 +713,14 @@ module Kredki
 
       # See #disabled.
       def disabled?
-        !!disabled || pad_lineage(false).any?{|it| it.disabled }
+        !!disabled || find_lower(Pad){|it| it.disabled }
       end
       
       # Begin drag.
       def drag! start_xy = nil, button = nil
         mouse_xy = window.mouse_xy
         pin_request start_xy || mouse_xy, button, true
-        event = MousePointerDragEvent.new Kredki.mouse, PositionEvent.new(*mouse_xy)
-        event.start = true
+        event = MousePointerDragEvent.new(Kredki.mouse, PositionEvent.new(*mouse_xy)).alter button: button, start: true
         report event
       end
 
@@ -736,35 +733,31 @@ module Kredki
         layer&.break_layout unless pads.empty?
       end
 
-      # Attach +pad+ do self.
-      def put! pad, *a, at: nil, **ka, &b
-        case pad 
+      # Put subject.
+      def put subject, *a, at: nil, **ka, &b
+        case subject 
         when String
-          pad_mode = pad.start_with? "\xe1"
-          pad.split("\x1e").each do |part|
+          pad_mode = subject.start_with? "\xe1"
+          subject.split("\x1e").each do |part|
             if pad_mode
               id = part.to_i
-              c?{|c| c.object_id == id }&.then{|it| put! it }
+              pad = find{|c| c.object_id == id }
+              put pad if pad
               pad_mode = false
             else
               default_text part
               pad_mode = true
             end
           end
-        else
+        when Service
           at = nil if at == self
-          pad.attach self, at: at
-          pad.alter(*a, **ka, &b)
+          subject.attach self, at: at
+          subject.alter *a, **ka, &b
+        else super
         end
       end
 
-      # Attach self to +parent+.
-      def attach parent, at: nil
-        super
-        # parent&.sd?(Pad)&.put_pad self, at
-      end
-
-      # Detach from parents.
+      # Detach from lower.
       def detach transfer = false
         super
         pad_detach transfer
@@ -774,9 +767,9 @@ module Kredki
       def << feature
         case feature
         when Pad
-          put! feature
+          put feature
         when String
-          new TextPad, feature
+          put TextPad, feature
         else
           super
         end
@@ -787,13 +780,13 @@ module Kredki
       def initialize
         super
         @x = @y = Auto
-        @w = @h = Auto
-        @w_limit = @h_limit = nil
-        @rot = 0
+        @size_x = @size_y = Auto
+        @size_x_limit = @size_y_limit = nil
+        @turn = 0
         @opacity = 255
-        @mxs = @mxe = @mys = @mye = 0
+        @margin_xs = @margin_xe = @margin_ys = @margin_ye = 0
         @mouse_cursor = nil
-        @pad_parent = nil
+        @lower_pad = nil
         @scene = Scene.new
         initialize_area
         @clip_scene = @scene.scene!
@@ -890,16 +883,16 @@ module Kredki
         [sx, sy]
       end
 
-      def sw
-        @area.w
+      def area_size_x
+        @area.size_x
       end
 
-      def sh
-        @area.h
+      def area_size_y
+        @area.size_y
       end
 
-      def swh
-        @area.wh
+      def area_size
+        [area_size_x, area_size_y]
       end
 
       def cx
@@ -914,37 +907,37 @@ module Kredki
         [cx, cy]
       end
       
-      def clw
-        @clip_area.w
+      def clip_size_x
+        @clip_area.size_x
       end
 
-      def clh
-        @clip_area.h
+      def clip_size_y
+        @clip_area.size_y
       end
 
-      def clwh
-        @clip_area.wh
+      def clip_size
+        [clip_size_x, clip_size_y]
       end
 
-      attr :pad_parent, :clip_scene, :pads
+      attr :lower_pad, :clip_scene, :pads
 
       def scene &block
         @scene.alter &block if block
         @scene
       end
 
-      def pad_lineage include_self = true
+      def lower_pad_iterator include_self = true
         Enumerator.new do |e|
-          pad = include_self ? self : pad_parent
-          while pad && !pad.s?(WindowScene)
+          pad = include_self ? self : lower_pad
+          while pad && !pad.is(WindowScene)
             e << pad
-            pad = pad.pad_parent
+            pad = pad.lower_pad
           end
         end
       end
 
       def in_pad? pad
-        pad_lineage.include? pad
+        lower_pad_iterator.include? pad
       end
 
       def include_pad? pad
@@ -953,15 +946,15 @@ module Kredki
 
       def pad_detach transfer = false
         @scene.detach
-        if @pad_parent
-          @pad_parent.remove_pad self, transfer
-          @pad_parent = nil
+        if @lower_pad
+          @lower_pad.remove_pad self, transfer
+          @lower_pad = nil
           grand_detach
         end
       end
 
       def pad_index
-        pad_parent&.pads.index self
+        lower_pad&.pads.index self
       end
 
       def put_pad pad, at = nil
@@ -992,20 +985,20 @@ module Kredki
         @scene.xy! x.floor, y.floor
       end
 
-      def get_x pclw, sw, ax
+      def get_x clip_size, size, ax
         case @x
         when Rational
-          @x * pclw - sw * 0.5
+          @x * clip_size - size * 0.5
         when Proc
-          @x[pclw, sw]
+          @x[clip_size, size]
         when Range
           ax + @x.begin
         when Start
           0
         when Center
-          (pclw - sw) * 0.5
+          (clip_size - size) * 0.5
         when End
-          pclw - sw
+          clip_size - size
         when Auto
           ax
         when Numeric
@@ -1014,20 +1007,20 @@ module Kredki
         end
       end
 
-      def get_y pch, sh, ay
+      def get_y clip_size, size, ay
         case @y
         when Rational
-          @y * pch - sh * 0.5
+          @y * clip_size - size * 0.5
         when Proc
-          @y[pch, sh]
+          @y[clip_size, size]
         when Range
           ay + @y.begin
         when Start
           0
         when Center
-          (pch - sh) * 0.5
+          (clip_size - size) * 0.5
         when End
-          pch - sh
+          clip_size - size
         when Auto
           ay
         when Numeric
@@ -1036,12 +1029,12 @@ module Kredki
         end
       end
 
-      def set_size w, h
-        mx = @mxs + @mxe
-        my = @mys + @mye
-        @area.wh! w.floor, h.floor
-        @scene.pivot_xy! w * 0.5, h * 0.5
-        @clip_area.wh! (w - mx).floor, (h - my).floor
+      def set_size x, y
+        margin_x = @margin_xs + @margin_xe
+        margin_y = @margin_ys + @margin_ye
+        @area.size! x.floor, y.floor
+        @scene.pivot_xy! x * 0.5, y * 0.5
+        @clip_area.size! (x - margin_x).floor, (y - margin_y).floor
       end
 
       def layout_pads
@@ -1056,177 +1049,177 @@ module Kredki
         @pads_layout.arrange self
       end
 
-      def fit_w
-        @mxs + @mxe + @pads_layout.fit_w(self)
+      def fit_size_x
+        @margin_xs + @margin_xe + @pads_layout.fit_size_x(self)
       end
 
-      def min_w
-        m = @mxs + @mxe
-        mw = min_wv(m)
-        mw = [mw, min_wl(@w_limit, m)].max if @w_limit
-        mw
+      def min_size_x
+        margin = @margin_xs + @margin_xe
+        value = min_size_x_value margin
+        value = [value, min_size_x_limit(@size_x_limit, margin)].max if @size_x_limit
+        value
       end
 
-      def min_wv m
-        w = case @w
+      def min_size_x_value margin
+        size_x = case @size_x
         when Rational, Proc
-          m
+          margin
         when Fit
-          fit_w
+          fit_size_x
         when Auto
-          @area.w
-        when :h
-          get_h
+          @area.size_x
+        when :y
+          get_size_y
         when Numeric
-          @w < 0 ? m : @w
+          @size_x < 0 ? margin : @size_x
         else
-          raise_is @w
+          raise_is @size_x
         end
       end
 
-      def min_wl limit, m
+      def min_size_x_limit limit, margin
         case limit
         when Fit
-          fit_w
+          fit_size_x
         when Auto
-          @area.w
+          @area.size_x
         when Numeric
-          limit < 0 ? m : limit
+          limit < 0 ? margin : limit
         when Range
-          min_wl limit.begin, m
+          min_size_x_limit limit.begin, margin
         else
-          m
+          margin
         end
       end
 
-      def get_w tw = nil, h = nil
-        get_wl @w, @w_limit, tw, h
+      def get_size_x reference_size_x = nil, size_y = nil
+        get_size_x_limited @size_x, @size_x_limit, reference_size_x, size_y
       end
 
-      def get_wl w, l, tw, h = nil
-        cw = get_wv w, tw, h
-        case l
+      def get_size_x_limited size_x, limit, reference_size_x, size_y = nil
+        value = get_size_x_value size_x, reference_size_x, size_y
+        case limit
         when nil
-          cw
+          value
         when Range
-          cw = [cw, get_wv(l.begin, tw, h)].max if l.begin
-          cw = [cw, get_wv(l.end, tw, h)].min if l.end
-          cw
+          value = [value, get_size_x_value(limit.begin, reference_size_x, size_y)].max if limit.begin
+          value = [value, get_size_x_value(limit.end, reference_size_x, size_y)].min if limit.end
+          value
         else
-          [cw, get_wv(l, tw, h)].min
+          [value, get_size_x_value(limit, reference_size_x, size_y)].min
         end
       end
 
-      def get_wr pad, r, tw
-        @pads_layout.get_wr self, tw, pad, r
+      def get_size_x_rational pad, rational, reference_size_x
+        @pads_layout.get_size_x_rational self, reference_size_x, pad, rational
       end
 
-      def get_wv w, tw, h
-        case w
+      def get_size_x_value size_x, reference_size_x, size_y
+        case size_x
         when Rational
-          @pad_parent.get_wr self, w, tw || @pad_parent.get_w
+          @lower_pad.get_size_x_rational self, size_x, reference_size_x || @lower_pad.get_size_x
         when Proc
-          w[tw || @pad_parent.get_w]
+          size_x[reference_size_x || @lower_pad.get_size_x]
         when Fit
-          fit_w
+          fit_size_x
         when Auto
-          @area.w
-        when :h
-          h || get_h
+          @area.size_x
+        when :y
+          size_y || get_size_y
         when Numeric
-          w < 0 ? (tw || @pad_parent.get_w) + w : w
+          size_x < 0 ? (reference_size_x || @lower_pad.get_size_x) + size_x : size_x
         else
-          raise_ia w
+          raise_ia size_x
         end
       end
 
-      def fit_h
-        @mys + @mye + @pads_layout.fit_h(self)
+      def fit_size_y
+        @margin_ys + @margin_ye + @pads_layout.fit_size_y(self)
       end
 
-      def min_h
-        m = @mys + @mye
-        mh = min_hv(m)
-        mh = [mh, min_hl(@h_limit, m)].max if @h_limit
-        mh
+      def min_size_y
+        margin = @margin_ys + @margin_ye
+        value = min_size_y_value margin
+        value = [value, min_size_y_limit(@size_y_limit, margin)].max if @size_y_limit
+        value
       end
 
-      def min_hv m
-        case @h
+      def min_size_y_value margin
+        case @size_y
         when Rational, Proc
-          m
+          margin
         when Fit
-          fit_h
+          fit_size_y
         when Auto
-          @area.h
-        when :w
-          get_w
+          @area.size_y
+        when :x
+          get_size_x
         when Numeric
-          @h < 0 ? m : @h
+          @size_y < 0 ? margin : @size_y
         else
-          raise_is @h
+          raise_is @size_y
         end
       end
 
-      def min_hl limit, m
+      def min_size_y_limit limit, margin
         case limit
         when Fit
-          fit_h
+          fit_size_y
         when Auto
-          @area.h
+          @area.size_y
         when Numeric
-          limit < 0 ? m : limit
+          limit < 0 ? margin : limit
         when Range
-          min_hl limit.begin, m
+          min_size_y_limit limit.begin, margin
         else
-          m
+          margin
         end
       end
 
-      def get_h th = nil, w = nil
-        get_hl @h, @h_limit, th, w
+      def get_size_y reference_size_y = nil, size_x = nil
+        get_size_y_limited @size_y, @size_y_limit, reference_size_y, size_x
       end
 
-      def get_hl h, l, th, w = nil
-        ch = get_hv h, th, w
-        case l
+      def get_size_y_limited size_y, limit, reference_size_y, size_x = nil
+        value = get_size_y_value size_y, reference_size_y, size_x
+        case limit
         when nil
-          ch
+          value
         when Range
-          ch = [ch, get_hv(l.begin, th, w)].max if l.begin
-          ch = [ch, get_hv(l.end, th, w)].min if l.end
-          ch
+          value = [value, get_size_y_value(limit.begin, reference_size_y, size_x)].max if limit.begin
+          value = [value, get_size_y_value(limit.end, reference_size_y, size_x)].min if limit.end
+          value
         else
-          [ch, get_hv(l, th, w)].min
+          [value, get_size_y_value(limit, reference_size_y, size_x)].min
         end
       end
 
-      def get_hr pad, r, th
-        @pads_layout.get_hr self, th, pad, r
+      def get_size_y_rational pad, rational, reference_size_y
+        @pads_layout.get_size_y_rational self, reference_size_y, pad, rational
       end
 
-      def get_hv h, th, w
-        case h
+      def get_size_y_value size_y, reference_size_y, size_x
+        case size_y
         when Rational
-          @pad_parent.get_hr self, h, th || @pad_parent.get_h
+          @lower_pad.get_size_y_rational self, size_y, reference_size_y || @lower_pad.get_size_y
         when Proc
-          h[th || @pad_parent.get_h]
+          size_y[reference_size_y || @lower_pad.get_size_y]
         when Fit
-          fit_h
+          fit_size_y
         when Auto
-          @area.h
+          @area.size_y
         when :w
-          w || get_w
+          size_x || get_size_x
         when Numeric
-          h < 0 ? (th || @pad_parent.get_h) + h : h
+          size_y < 0 ? (reference_size_y || @lower_pad.get_size_y) + size_y : size_y
         else
-          raise_ia h
+          raise_ia size_y
         end
       end
 
       def set_margin
-        x = @mxs.floor
-        y = @mys.floor
+        x = @margin_xs.floor
+        y = @margin_ys.floor
         @clip_scene.xy! x, y
         @clip_area.xy! x, y
       end
@@ -1292,7 +1285,7 @@ module Kredki
       end
 
       def check_mouse_in pad
-        sa? pad
+        is pad or find_lower pad
       end
 
       def pin_request xy = nil, button = nil, drag = false
@@ -1308,22 +1301,19 @@ module Kredki
       end
 
       def roi! x = 0, y = 0
-        report ROIEvent.new *swh, x, y
+        report ROIEvent.new *area_size, x, y
       end
 
       def translate x = 0, y = 0, target = nil
+        lower = lower_pad
         case target
         when self
         when nil
-          if pa = pad_parent
-            return pa.translate x + sx, y + sy, false
-          end
+          return lower.translate x + sx, y + sy, false if lower
         when false
-          if pa = pad_parent
-            return pa.translate x + sx + cx, y + sy + cy, false
-          end
+          return lower.translate x + sx + cx, y + sy + cy, false if lower
         else
-          xy = pad_parent.translate x + sx + cx, y + sy + cy
+          xy = lower.translate x + sx + cx, y + sy + cy
           xy = target.translate -xy[0], -xy[1]
           return [-xy[0], -xy[1]]
         end
@@ -1331,21 +1321,22 @@ module Kredki
       end
 
       def report event, path = true, instant = false
-        super(event, path == true ? pad_lineage.to_a.reverse : path, instant)
+        super(event, path == true ? lower_pad_iterator.to_a.reverse : path, instant)
       end
 
-      def c_set_parent at
-        return if @pad_parent
-        set_pad_parent @parent.sa?(Pad), at
+      def c_set_lower at
+        return if @lower_pad
+        pad = @lower.is(Pad) || @lower.find_lower(Pad)
+        pad_attach pad, at
       end
 
-      def set_pad_parent pad_parent, at
-        @pad_parent = pad_parent
-        @pad_parent&.put_pad self, at
+      def pad_attach lower, at
+        @lower_pad = lower
+        @lower_pad&.put_pad self, at
       end
 
       def default_text text
-        new TextPad, text
+        put TextPad, text
       end
     end
   end

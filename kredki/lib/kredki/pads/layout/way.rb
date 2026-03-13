@@ -82,12 +82,12 @@ module Kredki
           [sp.map{|it| it[3] }, ad + total_space]
         end
 
-        def arrange_non_layoutic pad, clw, clh
-          pw = pad.get_w clw
-          ph = pad.get_h clh
-          pad.set_size pw, ph
-          px = pad.get_x clw, pw, (get_x @x, clw, pw)
-          py = pad.get_y clh, ph, (get_y @y, clh, ph)
+        def arrange_non_layoutic pad, csx, csy
+          psx = pad.get_size_x csx
+          psy = pad.get_size_y csy
+          pad.set_size psx, psy
+          px = pad.get_x csx, psx, (get_x @x, csx, psx)
+          py = pad.get_y csy, psy, (get_y @y, csy, psy)
           pad.set_xy px, py
           pad.set_margin
           pad.arrange

@@ -7,26 +7,26 @@ module Kredki
       include TextEdition
 
       # Set text content.
-      def content! string = ""
-        return send_bundle :content!, yield(self.content) if block_given?
-        @verse.content! string
+      def text! text = ""
+        return send_bundle :text!, yield(self.text) if block_given?
+        @verse.subject! text
       end
 
-      # See #content!.
-      def content= param
-        send_bundle :content!, param
+      # See #text!.
+      def text= param
+        send_bundle :text!, param
       end
       
       # Get text content.
-      def content
-        @verse.content
+      def text
+        @verse.text
       end
 
       # Set suit.
       def suit! *suit
         return send_bundle :suit!, yield(self.suit) if block_given?
         suit = Util.uncover suit
-        return if @suit == suit && suit != :rand
+        return if @suit == suit && suit != :random
         @suit = suit
         repaint
         true
@@ -101,7 +101,7 @@ module Kredki
       def << feature
         case feature
         when String
-          content! feature
+          text! feature
         else
           super
         end
@@ -110,15 +110,14 @@ module Kredki
       # :section: LEVEL 2
 
       class NoteLayout < Layout::XWay
-        def arrange_layoutic pad, clw, clh, cx
-          pw = pad.sw
-          ph = pad.sh
-          px = pad.get_x clw, pw, cx
-          py = pad.get_y clh, ph, (get_y @y, clh, ph)
+        def arrange_layoutic pad, clip_size_x, clip_size_y, cx
+          sx, sy = pad.area_size
+          px = pad.get_x clip_size_x, sx, cx
+          py = pad.get_y clip_size_y, sy, (get_y @y, clip_size_y, sy)
           pad.arrange
           pad.set_xy px, py
           pad.set_margin
-          [pw, ph, px, py]
+          [sx, sy, px, py]
         end
       end
 
@@ -131,7 +130,7 @@ module Kredki
       attr :verse
 
       def initialize_verse
-        @verse = new EditableTextVerse, "", w: 1r, mousy: false, verse_size: Kredki.text_size
+        @verse = put EditableTextVerse, "", size_x: 1r, mousy: false, verse_size: Kredki.text_size
       end
 
       def sketch
@@ -143,9 +142,9 @@ module Kredki
         mousy!
         keyboardy!
         outline_w! 1
-        m! 2
+        margin! 2
         suit! :gray
-        h! Fit
+        size_y! Fit
 
         sketch_verse
       end

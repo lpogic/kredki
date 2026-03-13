@@ -20,33 +20,33 @@ module Kredki
       @content
     end
 
-    # Get width.
-    def w
-      @w
+    # Get size in X axis.
+    def size_x
+      @size_x
     end
 
-    # Set height. It can also affect the width.
-    def h! h = @h
-      return h! yield @h if block_given?
-      return if @h == h
-      Pastele.text_set_size @pointer, h
-      @h = h
+    # Set size in X axis. It can also affect the size in Y axis.
+    def size_y! size_y = @size_y
+      return size_y! yield @size_y if block_given?
+      return if @size_y == size_y
+      Pastele.text_set_size @pointer, size_y
+      @size_y = size_y
       update_size
     end
 
-    # See #h!.
-    def h= param
-      send_bundle :h!, param
+    # See #size_y!.
+    def size_y= param
+      send_bundle :size_y!, param
     end
 
-    # Get height.
-    def h
-      @h
+    # Get size in Y axis.
+    def size_y
+      @size_y
     end
 
-    # Get width and height.
-    def wh
-      [@w, @h]
+    # Get size.
+    def size
+      [@size_x, @size_y]
     end
 
     # Set font.
@@ -72,7 +72,7 @@ module Kredki
     def fill! *fill
       return send_bundle :fill!, yield(self.fill) if block_given?
       fill = Util.uncover fill
-      return if @fill == fill && fill != :rand
+      return if @fill == fill && fill != :random
       case f = Kredki.fill fill
       when Color
         Pastele.text_set_fill_color @pointer, *f.to_rgb
@@ -118,7 +118,7 @@ module Kredki
     def outline_fill! *outline_fill
       return send_bundle :outline_fill!, yield(self.outline_fill) if block_given?
       outline_fill = Util.uncover outline_fill
-      return if @outline_fill == outline_fill && outline_fill != :rand
+      return if @outline_fill == outline_fill && outline_fill != :random
       update_outline outline_fill, @outline_w
       @outline_fill = outline_fill
       update
@@ -153,15 +153,15 @@ module Kredki
       @outline_w
     end
 
-    # Get +string+ width rendered with +@font+ and +@height+ up to character at +index+. 
+    # Get +string+ width rendered with +@font+ and +@size_y+ up to character at +index+. 
     def substring_width index = nil, string = @content
       Pastele.text_get_text_width(@pointer, string.to_s, index || -1)
     end
 
-    # Get index of nearest character for +string+ rendered with +@font+ and +@height+, truncated to +width+.
-    def nearest_character_index width, string = @content
-      return 0 if width <= 0
-      Pastele.text_nearest_character_index @pointer, string.to_s, width
+    # Get index of nearest character for +string+ rendered with +@font+ and +@size_y+, truncated to +size_max+.
+    def nearest_character_index size_max, string = @content
+      return 0 if size_max <= 0
+      Pastele.text_nearest_character_index @pointer, string.to_s, size_max
     end
 
     # Push the feature.
@@ -170,7 +170,7 @@ module Kredki
       in String
         content! feature
       in Numeric
-        h! feature
+        size_y! feature
       else
         super
       end
@@ -187,10 +187,10 @@ module Kredki
       @fill = Kredki.color
       @outline_fill = Kredki.color
       @outline_w = 0
-      @h = Kredki.text_size
+      @size_y = Kredki.text_size
       Pastele.text_set_text @pointer, @content
       Pastele.text_set_font @pointer, @font.name
-      Pastele.text_set_size @pointer, @h
+      Pastele.text_set_size @pointer, @size_y
       Pastele.text_set_fill_color @pointer, *@fill.to_a(:rgb)
       update_size
     end
@@ -200,11 +200,11 @@ module Kredki
     end
 
     def pivot_xy
-      [@w * 0.5, @h * 0.5]
+      [@size_x * 0.5, @size_y * 0.5]
     end
 
     def update_size
-      @w = substring_width
+      @size_x = substring_width
       update_transform
       update
     end

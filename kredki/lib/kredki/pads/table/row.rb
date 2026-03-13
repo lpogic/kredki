@@ -6,7 +6,7 @@ module Kredki
 
         # Add new cell.
         def cell! ...
-          new(Cell).alter(...)
+          put(Cell, :cell!, ...)
         end
 
         # :section: LEVEL 2
@@ -14,7 +14,7 @@ module Kredki
         def sketch
           super
 
-          wh! 1r, Fit
+          size! 1r, Fit
           fill! false
         end
 

@@ -97,27 +97,27 @@ module Kredki
 
     class ROIEvent < PositionEvent
 
-      # Get width.
-      def w
-        @w
+      # Get size in the X axis.
+      def size_x
+        @size_x
       end
 
-      # Get height.
-      def h
-        @h
+      # Get size in the Y axis.
+      def size_y
+        @size_y
       end
 
-      # Get width and height.
-      def wh
-        [@w, @h]
+      # Get size.
+      def size
+        [@size_x, @size_y]
       end
 
       # :section: LEVEL 2
       
-      def initialize w, h, ...
+      def initialize size_x, size_y, ...
         super(...)
-        @w = w
-        @h = h
+        @size_x = size_x
+        @size_y = size_y
       end
       
     end

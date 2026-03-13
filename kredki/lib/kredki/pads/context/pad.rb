@@ -17,7 +17,7 @@ module Kredki
         def sketch
           super
 
-          wh! Fit
+          size! Fit
           layout! :yss
         end
       end

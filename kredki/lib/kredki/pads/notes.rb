@@ -10,13 +10,13 @@ module Kredki
       def sketch
         super
 
-        h! 64
+        size_y! 64
         verse_size! Kredki.text_size
         verse_layout! :yss
       end
 
       def initialize_verse
-        @verse = new EditableTextVerses, wh: 1r
+        @verse = put EditableTextVerses, size: 1r
       end
 
       def sketch_verse

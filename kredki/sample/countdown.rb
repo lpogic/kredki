@@ -21,7 +21,7 @@ button! "Countdown" do
       # two loops in parallel:
 
       blink_loop = it.loop 500 do # in loop with period 500 ms
-        d?(TextPad).fill!{|it| it != :white ? :white : :red }
+        find(TextPad).fill!{|it| it != :white ? :white : :red }
       end
 
       it.loop 1000 do |it| # in loop with period 1000 ms
@@ -29,7 +29,7 @@ button! "Countdown" do
         it.release if counter < 2 # mark this iteration as final one
       end.after 1000 do # after 1000 ms
         blink_loop.cancel
-        d?(TextPad).alter fill: :yellow, content: "Bye bye"
+        find(TextPad).alter "Bye Bye", fill: :yellow
       end.after 1000 do
         window.close
       end

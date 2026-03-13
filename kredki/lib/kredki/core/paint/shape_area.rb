@@ -19,10 +19,10 @@ module Kredki
     # Push the feature.
     def << feature
       case feature
-      in [w, h]
-        wh! w, h
+      in [x, y]
+        size! x, y
       in Numeric
-        wh! feature
+        size! feature
       else
         super
       end
@@ -31,22 +31,22 @@ module Kredki
     # Get features.
     def to_hash
       super.merge({
-        w: @w,
-        h: @h
+        size_x: @size_x,
+        size_y: @size_y
       })
     end
 
     # :section: LEVEL 2
 
     def initialize
-      @w = @h = 100
+      @size_x = @size_y = 100
       @redraw_flag = true
 
       super
     end
 
     def pivot_xy
-      [@w * 0.5, @h * 0.5]
+      [@size_x * 0.5, @size_y * 0.5]
     end
 
     def update

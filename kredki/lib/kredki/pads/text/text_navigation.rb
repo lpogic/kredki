@@ -75,7 +75,7 @@ module Kredki
         end
 
         on_mouse_move do |e|
-          if e.drag?
+          if e.drag? && e.button == :primary
             text.drag *text.layer.translate(*e.xy, text)
             e.close
           end

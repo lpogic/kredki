@@ -4,45 +4,45 @@ require 'kredki'
 
 define :circle! do
   pad! do
-    area! do |w, h|
-      m = [w, h].min
-      ellipse! m, m
+    area! do |sx, sy|
+      s = [sx, sy].min
+      ellipse! s, s
     end
   end
 end
 
 define :wheel! do |*a, rim:, tire: :black, **ka, &b|
   circle! **ka, fill: tire do
-    circle! wh: 1/2r, fill: rim
+    circle! size: 1/2r, fill: rim
   end.alter &b
 end
 
 define :car_body! do
   pad! do
-    area! do |w, h|
-      xy! w * 0.0, h * 0.75
-      line! w * 0.0, h * 0.45
-      line! w * 0.25, h * 0.3
-      line! w * 0.4, h * 0.0
-      line! w * 0.8, h * 0.0
-      line! w * 1.0, h * 0.4
-      line! w * 1.0, h * 0.75
+    area! do |sx, sy|
+      xy! sx * 0.0, sy * 0.75
+      line! sx * 0.0, sy * 0.45
+      line! sx * 0.25, sy * 0.3
+      line! sx * 0.4, sy * 0.0
+      line! sx * 0.8, sy * 0.0
+      line! sx * 1.0, sy * 0.4
+      line! sx * 1.0, sy * 0.75
     end
   end
 end
 
 define :car! do |*a, body: :blue, rim: :gray, tire: :black, **ka, &b|
   space! **ka do
-    car_body! fill: body, wh: 1r
-    wheel! x: 1/4r, y: End, wh: 1/2r, rim:, tire:;
-    wheel! x: 3/4r, y: End, wh: 1/2r, rim:, tire:;
+    car_body! fill: body, size: 1r
+    wheel! x: 1/4r, y: End, size: 1/2r, rim:, tire:;
+    wheel! x: 3/4r, y: End, size: 1/2r, rim:, tire:;
   end.alter &b
 end
 
-# Now we can use car!
 
-ycc! wh: 2/3r do
-  mi! 60
-  car! wh: 1r, rim: :green, body: :orange
-  car! wh: 1r, mag: -1, rim: :red, body: :gray
+
+ycc! size: 2/3r do
+  spacer! 60
+  car! size: 1r, rim: :green, body: :orange
+  car! size: 1r, zoom: -1, rim: :red, body: :gray
 end

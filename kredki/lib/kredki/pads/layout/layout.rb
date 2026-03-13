@@ -37,46 +37,46 @@ module Kredki
       end
 
       def arrange pad
-        clw = pad.clw
-        clh = pad.clh
+        csx = pad.clip_size_x
+        csy = pad.clip_size_y
 
-        lw = lh = 0
-        lx = clw
-        ly = clh
+        lsx = lsy = 0
+        lx = csx
+        ly = csy
         
         pad.arranged_pads.each do |p1|
-          ph = p1.get_h clh
-          pw = p1.get_w clw, ph
-          p1.set_size pw, ph
-          px = p1.get_x clw, pw, (get_x @x, clw, pw)
-          py = p1.get_y clh, ph, (get_y @y, clh, ph)
+          psy = p1.get_size_y csy
+          psx = p1.get_size_x csx, psy
+          p1.set_size psx, psy
+          px = p1.get_x csx, psx, (get_x @x, csx, psx)
+          py = p1.get_y csy, psy, (get_y @y, csy, psy)
           p1.set_xy px, py
           p1.set_margin
           p1.arrange
           if p1.layoutic?
             lx = [lx, px].min
             ly = [ly, py].min
-            lw = [lw, pw].max
-            lh = [lh, ph].max
+            lsx = [lsx, psx].max
+            lsy = [lsy, psy].max
           end
         end
 
-        [lx, ly, lw, lh]
+        [lx, ly, lsx, lsy]
       end
 
-      def fit_w pad
-        pad.layout_pads.map{|p1| p1.min_w }.max || 0
+      def fit_size_x pad
+        pad.layout_pads.map{|p1| p1.min_size_x }.max || 0
       end
 
-      def fit_h pad
-        pad.layout_pads.map{|p1| p1.min_h }.max || 0
+      def fit_size_y pad
+        pad.layout_pads.map{|p1| p1.min_size_y }.max || 0
       end
 
-      def get_wr p0, p0w, p1, r
+      def get_size_x_rational p0, p0w, p1, r
         r * p0w
       end
 
-      def get_hr p0, p0h, p1, r
+      def get_size_y_rational p0, p0h, p1, r
         r * p0h
       end
     end#Layout

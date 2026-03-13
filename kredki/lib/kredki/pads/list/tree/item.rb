@@ -6,7 +6,7 @@ module Kredki
 
         # Add new item.
         def item! *a, **ka, &b
-          parent.item! *a, w: 1r, at: pad_index + 1, level: level + 1, **ka, &b
+          lower.item! *a, size_x: 1r, at: pad_index + 1, level: level + 1, **ka, &b
           dir!
         end
 
@@ -14,7 +14,7 @@ module Kredki
         def open! value = true, &block
           return if (c = open) == (value = block ? block[c] : value == Not ? !c : value)
           @open = value
-          parent.update_show
+          lower.update_show
           true
         end
 
@@ -78,11 +78,11 @@ module Kredki
         def initialize
           super
 
-          @level_pad = new SpacePad, at: 0, w: 0
+          @level_pad = put SpacePad, at: 0, size_x: 0
         end
 
         def update_level
-          @level_pad.w = level * 16
+          @level_pad.size_x = level * 16
         end
 
       end#Item

@@ -38,7 +38,7 @@ module Kredki
       def suit! *suit
         return send_bundle :suit!, yield(self.suit) if block_given?
         suit = Util.uncover suit
-        return if @suit == suit && suit != :rand
+        return if @suit == suit && suit != :random
         @suit = suit
         repaint
         true
@@ -59,7 +59,7 @@ module Kredki
         case feature
         when String
           subject! feature
-          c?(TextPad)&.alter feature or default_text feature
+          find(TextPad)&.alter feature or default_text feature
         else
           super
         end
@@ -82,9 +82,9 @@ module Kredki
         keyboardy!
         outline_w! 1
         layout! :xcc
-        wh! Fit
+        size! Fit
         suit! :gray
-        m! 2
+        margin! 2
       end
 
       def presence
@@ -148,9 +148,9 @@ module Kredki
       end
 
       def default_text feature
-        new TextPad, feature do
+        put TextPad, feature do
           mousy! false
-          h! Fit
+          size_y! Fit
           verse_size! Kredki.text_size
           verse_layout! :ycc
         end

@@ -10,6 +10,7 @@ require_relative 'linear_gradient'
 require_relative 'radial_gradient'
 
 module Kredki
+
   class << self
 
     # Kredki root directory.
@@ -83,7 +84,7 @@ module Kredki
         @fonts.each_value&.first or raise "No fonts loaded"
       when Font
         param
-      when :rand
+      when :random
         @fonts.values.sample or raise "No fonts loaded"
       when String
         @fonts.each_value.find{|it| it.name == param || it.path == param } or raise "Unknown font #{param.inspect}"
@@ -104,7 +105,7 @@ module Kredki
         @colors.each_value.first || Color.new(255, 255, 255)
       when Color
         param
-      when :rand
+      when :random
         Color.new rand(255), rand(255), rand(255)
       when Array
         if param.size == 2
@@ -136,7 +137,7 @@ module Kredki
     # Get glyph.
     def glyph param = nil
       case param
-      when :rand
+      when :random
         @glyphs.values.sample or raise "No glyphs loaded"
       when String
         param

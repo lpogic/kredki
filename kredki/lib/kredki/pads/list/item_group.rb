@@ -6,14 +6,14 @@ module Kredki
 
         # Add new item.
         def item!(...)
-          new(Item, :item!, ...)
+          put(Item, :item!, ...)
         end
 
         # :section: LEVEL 2
 
         def selected_up_to pad
           bound = 0
-          each_d(Item).each_alter do
+          each_upper(Item).each_alter do
             bound += 1 if self == pad
             bound += 1 if keyboard_in?
             selected! if bound > 0

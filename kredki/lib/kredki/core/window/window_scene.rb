@@ -6,22 +6,6 @@ module Kredki
   class WindowScene < Scene
     include WindowSceneEvents
 
-    # Without block get value associated with key. If block given associate it with key.
-    def [] key, *other_keys, &block
-      if block
-        @store[key] = block
-      elsif !other_keys.empty?
-        @store.fetch_values key, *other_keys
-      else
-        @store[key]
-      end
-    end
-
-    # Associate value with key.
-    def []= key, value
-      @store[key] = value
-    end
-
     # Shift from current scene to another.
     def shift ...
       @scene.scene!(...)
@@ -175,64 +159,64 @@ module Kredki
       @scene.xy
     end
 
-    # Set width and height. 
-    def wh! ...
-      @scene.wh!(...)
+    # Set size. 
+    def size! ...
+      @scene.size!(...)
     end
 
-    # See #wh!.
-    def wh= param
-      send_bundle :wh!, param
+    # See #size!.
+    def size= param
+      send_bundle :size!, param
     end
 
-    # Get width and height.
-    def wh
-      @scene.wh
+    # Get size.
+    def size
+      @scene.size
     end
 
-    # Get width.
-    def w
-      wh[0]
+    # Get size in X axis.
+    def size_x
+      size[0]
     end
 
-    # Get height.
-    def h
-      wh[1]
+    # Get size in Y axis.
+    def size_y
+      size[1]
     end
 
-    # Set width and height limit. 
-    def wh_limit! ...
-      @scene.wh_limit!(...)
+    # Set size limit. 
+    def size_limit! ...
+      @scene.size_limit!(...)
     end
 
-    # See #wh_limit!.
-    def wh_limit= param
-      send_bundle :wh_limit!, param
+    # See #size_limit!.
+    def size_limit= param
+      send_bundle :size_limit!, param
     end
 
     # Get width and height limit.
-    def wh_limit
-      @scene.wh_limit
+    def size_limit
+      @scene.size_limit
     end
 
     # Set whether a window width and height can be customized by dragging its border.
-    def wh_drag! ...
-      @scene.wh_drag!(...)
+    def resizable! ...
+      @scene.resizable!(...)
     end
 
-    # See #wh_drag!.
-    def wh_drag= param
-      send_bundle :wh_drag!, param
+    # See #resizable!.
+    def resizable= param
+      send_bundle :resizable!, param
     end
 
     # Get whether a window width and height can be customized by dragging its border.
-    def wh_drag
-      @scene.wh_drag
+    def resizable
+      @scene.resizable
     end
 
-    # See #wh_drag.
-    def wh_drag?
-      !!wh_drag
+    # See #resizable.
+    def resizable?
+      !!resizable
     end
 
     # Set title.
@@ -417,12 +401,8 @@ module Kredki
 
       @jobs = {}
       @jobs_mutex = Thread::Mutex.new
-      @store = {}
       @event_manager = WindowSceneEventManager.new
       @fill = rectangle! xy: 0
-
-      on_tick do: method(:tick)
-      on_close{ @jobs.each_key{|it| it.cancel } }
     end
 
     def update_paint paint
@@ -433,14 +413,16 @@ module Kredki
       on_resize do: method(:resize_event)
       on_move do: method(:move_event)
       on_expose do: method(:expose_event)
+      on_tick do: method(:tick)
+      on_close{ @jobs.each_key{|it| it.cancel } }
 
-      @fill.wh = *wh
+      @fill.size = *size
       @last_xy = xy
       fill! 20, 70, 20
     end
 
     def resize_event event
-      @fill.wh = event.wh
+      @fill.size = event.param
     end
 
     def move_event event
@@ -448,8 +430,8 @@ module Kredki
     end
 
     def expose_event event
-      wh = @scene.wh
-      @scene.report ResizeEvent.new(w, h, event) if wh != @fill.wh
+      size = @scene.size
+      @scene.report ResizeEvent.new(size_x, size_y, event) if size != @fill.size
       xy = @scene.xy
       @scene.report MoveEvent.new(*xy, event) if xy != @last_xy
       @scene.report TickEvent.new event

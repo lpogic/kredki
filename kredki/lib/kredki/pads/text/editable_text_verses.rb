@@ -22,7 +22,7 @@ module Kredki
       end
 
       def delete
-        length = content.length
+        length = subject.length
         if selection?
           new_content = content_after_edit "", @selection_min, @selection_max
           report TextEdition::EditEvent.new @selection_min, @selection_max, new_content, "", :delete
@@ -33,7 +33,7 @@ module Kredki
       end
 
       def edit new_content, new_cursor_position
-        content! new_content, new_cursor_position
+        subject! new_content, new_cursor_position
       end
 
       def drop_move x, y
@@ -44,14 +44,14 @@ module Kredki
         end
       end
 
-      def content_after_edit string, from, to
-        s = content.to_s
-        s = if s == ""
-          string
-        elsif to < s.length
-          s[...from] + string + s[to..]
+      def content_after_edit inset, from, to
+        txt = text
+        txt = if txt == ""
+          inset
+        elsif to < txt.length
+          txt[...from] + inset + txt[to..]
         else
-          s[...from] + string
+          txt[...from] + inset
         end
       end
     end

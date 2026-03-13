@@ -1,7 +1,7 @@
 require 'kredki'
 
 layout! :xss # how pads are positioned by default
-mi! 10 # distance between pads
+spacer! 10 # distance between pads
 
 button! do
   text! "Say hello"

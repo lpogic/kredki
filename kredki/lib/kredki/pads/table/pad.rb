@@ -11,73 +11,73 @@ module Kredki
         # Get default row features.
         def row
           {
-            w: 1r,
-            h: Fit,
+            size_x: 1r,
+            size_y: Fit,
             layout: @column_layout
           }
         end
 
         # Add new row.
         def row! ...
-          new(Row, :row!, row, ...)
+          put(Row, :row!, row, ...)
         end
 
-        # Set X inner margin.
-        def mxi! ...
+        # Set spacer in X axis.
+        def spacer_x! ...
           if @column_layout.space!(...)
             layer&.break_layout
             true
           end
         end
 
-        # See #mxi!.
-        def mxi= param
-          send_bundle :mxi!, param
+        # See #spacer_x!.
+        def spacer_x= param
+          send_bundle :spacer_x!, param
         end
 
-        # Get X inner margin.
-        def mxi
+        # Get spacer in X axis.
+        def spacer_x
           @column_layout.space
         end
 
-        # Set Y inner margin.
-        def myi! myi = @mi
-          return myi! yield @mi if block_given?
-          return if Util.eqr @mi, myi
-          @mi = myi
+        # Set spacer in Y axis.
+        def spacer_y! spacer_y = @spacer
+          return spacer_y! yield @spacer if block_given?
+          return if Util.eqr @spacer, spacer_y
+          @spacer = spacer_y
           layer&.break_layout
           true
         end
 
-        # See #myi!.
-        def myi= param
-          send_bundle :myi!, param
+        # See #spacer_y!.
+        def spacer_y= param
+          send_bundle :spacer_y!, param
         end
 
-        # Get Y inner margin.
-        def myi
-          @mi
+        # Get spacer in Y axis.
+        def spacer_y
+          @spacer
         end
 
-        # Set inner margin.
-        def mi! mxi = @column_layout.space, myi = mxi
-          return mi! yield(self.mi) if block_given?
-          mxi!(mxi) | myi!(myi)
+        # Set spacer value.
+        def spacer! spacer_x = @column_layout.space, spacer_y = spacer_x
+          return spacer! yield(self.spacer) if block_given?
+          spacer_x!(spacer_x) | spacer_y!(spacer_y)
         end
 
-        # See #mi!.
-        def mi= param
-          send_bundle :mi!, param
+        # See #spacer!.
+        def spacer= param
+          send_bundle :spacer!, param
         end
 
-        # Get inner margin.
-        def mi
-          myi
+        # Get spacer value.
+        def spacer
+          spacer_y
         end
 
         # Add new scroll rows.
         def scroll_rows! ...
-          new(ScrollRows, :scroll_rows!, layout: :yss, mi: myi).alter(...)
+          put(ScrollRows, :scroll_rows!, spacer: spacer_y).alter(...)
         end
 
         # :section: LEVEL 2
@@ -93,7 +93,7 @@ module Kredki
 
           fill! false
           layout! :yss
-          h! Fit
+          size_y! Fit
         end
 
         def arrange

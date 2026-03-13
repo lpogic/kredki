@@ -4,10 +4,10 @@ require 'kredki'
 
 layouts = Kredki::Pads.layout_map.keys
 
-pad! fill: :rand, wh: 140
-pad! fill: :rand, wh: 120
-pad! fill: :rand, wh: 100
-l = layer
+pad! fill: :random, size: 140
+pad! fill: :random, size: 120
+pad! fill: :random, size: 100
+base_layer = layer
 
 define :button_text_input do |layout|
   "Click here to change layout\nCurrent layout: #{layout ? ":#{layout}" : "nil"}"
@@ -19,8 +19,8 @@ window.layer! do
 
     on_click do
       layouts.rotate!
-      d?(TextPad) << button_text_input(layouts.first)
-      l.layout! layouts.first
+      find_upper(TextPad) << button_text_input(layouts.first)
+      base_layer.layout! layouts.first
     end
   end
 end

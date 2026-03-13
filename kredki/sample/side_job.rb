@@ -14,7 +14,7 @@ job.side do |job|
     occaecat cupidatat non proident, sunt in culpa qui
     officia deserunt mollit anim id est laborum.
   LOREM
-    job.report{ t.content += char }
+    job.report{ t.subject += char }
     sleep rand 0.0..0.1
   end
 end

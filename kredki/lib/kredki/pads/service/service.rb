@@ -12,24 +12,24 @@ module Kredki
       include ServiceFilter
 
       # Get ancestors.
-      def lineage include_self = true
+      def lower_iterator include_self = true
         Enumerator.new do |e|
-          c = include_self ? self : parent
-          while c && !c.s?(WindowScene)
+          c = include_self ? self : lower
+          while c && !c.is(WindowScene)
             e << c
-            c = c.parent
+            c = c.lower
           end
         end
       end
 
       # Get Kredki::Pads::Layer ancestor.
       def layer
-        sa? Layer
+        is Layer or find_lower Layer
       end
 
       # Get Kredki::WindowScene ancestor.
       def window
-        layer&.pad_parent
+        layer&.lower_pad
       end
 
       # Get Kredki::Application ancestor.
@@ -37,32 +37,32 @@ module Kredki
         window&.app
       end
 
-      # Get whether +grand+ contains self.
-      def in? grand
-        lineage(false).include? grand
+      # Get whether +ancestor+ contains self.
+      def in? ancestor
+        lower_iterator(false).include? ancestor
       end
 
-      # Get whether self contains +child+.
-      def include? child
-        child.in? self
+      # Get whether self contains +descedant+.
+      def include? descedant
+        descedant.in? self
       end
      
-      # Get parent
-      def parent
-        @parent
+      # Get lower service.
+      def lower
+        @lower
       end
 
-      # Attach self to +parent+.
-      def attach parent, at: nil
-        raise "service loop detected" if a? self
-        detach true if @parent
-        parent&.push_service self, at: at
+      # Attach self to +lower+ service.
+      def attach lower, at: nil
+        raise "service loop detected" if find_lower self
+        detach true if @lower
+        lower&.push_service self, at: at
       end
 
       # Detach self.
       def detach transfer = false
-        @parent&.remove_service self
-        @parent = nil
+        @lower&.remove_upper self
+        @lower = nil
       end
 
       def on event_type, early: false, always: false, do: nil, &block
@@ -159,7 +159,7 @@ module Kredki
 
       def initialize
         super
-        @parent = nil
+        @lower = nil
         @tags = {}
         @services = []
         @event_manager = ServiceEventManager.new
@@ -183,16 +183,16 @@ module Kredki
         @services.map{|it| [it, it.service_tree] }.to_h
       end
 
-      def new klass, *a, at: nil, **ka, &b
+      def put klass, *a, at: nil, **ka, &b
         service = klass.new
-        push_service service, at if at != false
+        push_service service, at: at if at != false
         service.sketch_service
         service.alter *a, **ka, &b
         service
       end
 
-      def push_service service, at = nil
-        service.set_parent self, at
+      def push_service service, at: nil
+        service.set_lower self, at
         case at
         when Integer
           @services.insert at, service
@@ -208,20 +208,21 @@ module Kredki
         @services.index service
       end
 
-      def remove_service service
-        @services.delete service
+      def remove_upper upper
+        @services.delete upper
       end
 
-      def set_parent parent, at = nil
-        if new_parent = @parent != parent
-          @parent = parent
-          c_set_parent at
+      def set_lower lower, at = nil
+        different_lower = @lower != lower
+        if different_lower
+          @lower = lower
+          c_set_lower at
         end
-        new_parent
+        different_lower
       end
 
-      def c_set_parent at
-        @services.each{|it| it.set_parent self }
+      def c_set_lower at
+        @services.each{|it| it.set_lower self }
       end
 
       def grand_detach

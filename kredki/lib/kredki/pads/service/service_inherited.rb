@@ -14,7 +14,7 @@ module Kredki
         when Class
           class_eval <<~xx
             def #{name} ...
-              new(#{klass}, :#{name}, ...)
+              put(#{klass}, :#{name}, ...)
             end
           xx
         when nil

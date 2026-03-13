@@ -9,11 +9,11 @@ module Kredki
         def sketch
           super
 
-          wh! 1r
+          size! 1r
         end
 
-        def min_h
-          fit_h
+        def min_size_y
+          fit_size_y
         end
         
       end

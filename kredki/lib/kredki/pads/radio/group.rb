@@ -9,7 +9,7 @@ module Kredki
 
         # Add new radio item.
         def item! ...
-          new(Item, :item!, ...)
+          put(Item, :item!, ...)
         end
 
         # :section: LEVEL 2
@@ -26,17 +26,17 @@ module Kredki
         end
 
         def previous_item_button item_button
-          item_buttons = each_d(ItemButton).to_a
+          item_buttons = each_upper(ItemButton).to_a
           item_buttons[item_buttons.index(item_button) - 1]
         end
 
         def next_item_button item_button
-          item_buttons = each_d(ItemButton).to_a
+          item_buttons = each_upper(ItemButton).to_a
           item_buttons[(item_buttons.index(item_button) + 1) % item_buttons.size]
         end
 
         def set_checked item_button, checked
-          each_d(ItemButton){|it| it.checked? }.each{|it| it.set_checked false } if checked
+          each_upper(ItemButton){|it| it.checked? }.each{|it| it.set_checked false } if checked
           item_button.set_checked checked
         end
       end#Group

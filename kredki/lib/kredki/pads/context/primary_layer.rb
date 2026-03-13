@@ -9,11 +9,11 @@ module Kredki
 
         def load x, y
           arrange
-          w, h = parent.window.wh
-          x_max = w - @items.sw 
+          window_sx, window_sy = lower.window.size
+          x_max = window_sx - @items.area_size_x
           x = [x_max, 0].max if x > x_max
-          sh = @items.sh
-          y = [y - sh, 0].max if y + sh > h
+          sy = @items.area_size_y
+          y = [y - sy, 0].max if y + sy > window_sy
           load_common x, y
         end
 
@@ -21,7 +21,7 @@ module Kredki
           super
 
           on Item::PickEvent, early: true do |e|
-            if e.target.d? Item
+            if e.target.find_upper Item
               e.close
             else
               pad_detach

@@ -9,11 +9,23 @@ module Kredki
         super
         
         # this component creation order is intentional; @corner existence is checked in put_pad
-        corner = new RectanglePad, layoutic: false, fill: :gray, wh: 10, xy: End
-        @xslide = new HorizontalSlide, layoutic: false, h: 10
-        @yslide = new VerticalSlide, layoutic: false, w: 10
+        corner = put RectanglePad, layoutic: false, fill: :gray, size: 10, xy: End
+        @xslide = put HorizontalSlide, layoutic: false, size_y: 10
+        @yslide = put VerticalSlide, layoutic: false, size_x: 10
         @corner = corner
-        @och = @oclw = 0
+        @clip_size_y_offset = @clip_size_x_offset = 0
+      end
+
+      def xslide
+        @xslide
+      end
+
+      def yslide
+        @yslide
+      end
+
+      def corner
+        @corner
       end
 
       def behavior
@@ -28,18 +40,18 @@ module Kredki
         on_mouse_scroll do |e|
           ps = layout_pads
           if !ps.empty?
-            w, h = p0.swh
-            xo, yo = if w < @lw && h < @lh
+            size_x, size_y = p0.area_size
+            xo, yo = if size_x < @layout_size_x && size_y < @layout_size_y
               window.relative_scroll *e.xy
-            elsif w < @lw
+            elsif size_x < @layout_size_x
               [window.relative_scroll(*e.xy).find{|it| it.nonzero? }, 0]
-            elsif h < @lh
+            elsif size_y < @layout_size_y
               [0, window.relative_scroll(*e.xy).find{|it| it.nonzero? }]
             else
               [0, 0]
             end
-            if @xslide.value!{|it| (it - 0.3 * xo * w / @lw).clamp(0..1) } | 
-              @yslide.value!{|it| (it - 0.3 * yo * h / @lh).clamp(0..1) }
+            if @xslide.value!{|it| (it - 0.3 * xo * size_x / @layout_size_x).clamp(0..1) } | 
+              @yslide.value!{|it| (it - 0.3 * yo * size_y / @layout_size_y).clamp(0..1) }
             then
               e.close
             end
@@ -63,14 +75,14 @@ module Kredki
         on ROIEvent do |e|
           x, y = e.target.translate *e.xy, self
 
-          if (range = (@lw || 0) - sw) > 0
-            if x < 0 || (x += e.w - sw) > 0
+          if (range = (@layout_size_x || 0) - area_size_x) > 0
+            if x < 0 || (x += e.size_x - area_size_x) > 0
               @xslide.value += 1.0 * x / range
             end
           end
 
-          if (range = (@lh || 0) - sh) > 0
-            if y < 0 || (y += e.h - sh) > 0
+          if (range = (@layout_size_y || 0) - area_size_y) > 0
+            if y < 0 || (y += e.size_y - area_size_y) > 0
               @yslide.value += 1.0 * y / range
             end
           end
@@ -91,59 +103,57 @@ module Kredki
         pads.take_while{|it| it != @corner }
       end
 
-      def clw
-        super() + @oclw
+      def clip_size_x
+        super() + @clip_size_x_offset
       end
 
-      def clh
-        super() + @och
+      def clip_size_y
+        super() + @clip_size_y_offset
       end
 
-      def fit_w
-        super + @yslide.get_w
+      def fit_size_x
+        super + @yslide.get_size_x
       end
 
-      def fit_h
-        super + @xslide.get_h
+      def fit_size_y
+        super + @xslide.get_size_y
       end
 
       def arrange prepare = true
-        @oclw = @och = 0 if prepare
-        mx, my, @lw, @lh = super()
-        oh = @xslide.get_h
-        ow = @yslide.get_w
+        @clip_size_x_offset = @clip_size_y_offset = 0 if prepare
+        offset_x, offset_y, @layout_size_x, @layout_size_y = super()
+        slide_size_y = @xslide.get_size_y
+        slide_size_x = @yslide.get_size_x
         ps = arranged_pads
         if !ps.empty?
-          w = sw
-          h = sh
-          xscroll = w < @lw
-          yscroll = h < @lh
-          yscroll ||= xscroll && h - oh < @lh
-          xscroll ||= yscroll && w - ow < @lw
+          asx, asy = area_size
+          xscroll = asx < @layout_size_x
+          yscroll = asy < @layout_size_y
+          yscroll ||= xscroll && asy - slide_size_y < @layout_size_y
+          xscroll ||= yscroll && asx - slide_size_x < @layout_size_x
           if prepare && (xscroll || yscroll)
-            @oclw -= oh if yscroll
-            @och -= ow if xscroll
+            @clip_size_x_offset -= slide_size_y if yscroll
+            @clip_size_y_offset -= slide_size_x if xscroll
             return arrange false
           end
-          
           @xslide.show = xscroll
           pad_x = 0
           if xscroll
-            xs = yscroll ? w + @oclw : w
-            @xslide.set_size xs, oh
-            @xslide.set_xy 0, h - oh
-            @xslide.arrange @lw
-            pad_x += ((xs - @lw) * @xslide.value).round - mx
+            xs = yscroll ? asx + @clip_size_x_offset : asx
+            @xslide.set_size xs, slide_size_y
+            @xslide.set_xy 0, asy - slide_size_y
+            @xslide.arrange @layout_size_x
+            pad_x += ((xs - @layout_size_x) * @xslide.value).round - offset_x
           end
           
           @yslide.show = yscroll
           pad_y = 0
           if yscroll
-            ys = xscroll ? h + @och : h
-            @yslide.set_size ow, ys
-            @yslide.set_xy w - ow, 0
-            @yslide.arrange @lh
-            pad_y += ((ys - @lh) * @yslide.value).round - my
+            ys = xscroll ? asy + @clip_size_y_offset : asy
+            @yslide.set_size slide_size_x, ys
+            @yslide.set_xy asx - slide_size_x, 0
+            @yslide.arrange @layout_size_y
+            pad_y += ((ys - @layout_size_y) * @yslide.value).round - offset_y
           end
           
           ps.each do |p1|
@@ -152,7 +162,7 @@ module Kredki
             p1.set_xy px.ceil, py.ceil
           end
           if @corner.show = xscroll && yscroll
-            @corner.set_xy w - ow, h - oh
+            @corner.set_xy asx - slide_size_x, asy - slide_size_y
           end
         else
           @xslide.hide!

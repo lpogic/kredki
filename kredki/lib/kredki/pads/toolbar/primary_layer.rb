@@ -8,13 +8,13 @@ module Kredki
 
         def load item
           arrange
-          w, h = parent.window.wh
-          x, y = *item.translate(0, item.sh)
-          if x + @context_pad.sw > w
-            x = [w - @context_pad.sw, 0].max
+          wsx, wsy = lower.window.size
+          x, y = *item.translate(0, item.area_size_y)
+          if x + @context_pad.area_size_x > wsx
+            x = [wsc - @context_pad.area_size_x, 0].max
           end
-          if y + @context_pad.sh > h
-            y = [h - @context_pad.sh, 0].max
+          if y + @context_pad.area_size_y > wsy
+            y = [wsy - @context_pad.area_size_y, 0].max
           end
           load_common x, y
         end
@@ -23,10 +23,10 @@ module Kredki
           super
 
           on Item::PickEvent do |e|
-            if e.target.d? Item
+            if e.target.find_upper Item
               e.close
             else
-              parent.report e
+              lower.report e
               pad_detach
             end
           end
@@ -41,20 +41,21 @@ module Kredki
           end
         end
 
-        def set_parent parent, at = nil
+        def set_lower lower, at = nil
           if super
-            @parent_events&.each{ _1.detach }
-            @parent_events = []
+            @lower_events&.each{ _1.detach }
+            @lower_events = []
 
 
-            parent.on_focus_enter do |e|
-              load parent
-            end.then{|it| @parent_events << it }
+            focus_enter = lower.on_focus_enter do |e|
+              load lower
+            end
 
-            parent.on_focus_leave do |e|
+            focus_leave = lower.on_focus_leave do |e|
               unload if loaded?
-            end.then{|it| @parent_events << it }
+            end
             
+            @lower_events = [focus_enter, focus_leave]
           end
         end
       end#PrimaryLayer

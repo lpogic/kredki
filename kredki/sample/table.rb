@@ -1,6 +1,6 @@
 require 'kredki'
 
-table! w: 360 do
+table! size_x: 360 do
   column! 120
   column! 120
   column! 120

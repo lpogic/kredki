@@ -17,7 +17,7 @@ module Kredki
           send_bundle :selected!, param
         end
 
-        # Get whether is selecteded.
+        # Get whether is selected.
         def selected
           @selected
         end
@@ -31,7 +31,7 @@ module Kredki
         def suit! *suit
           return send_bundle :suit!, yield(self.suit) if block_given?
           suit = Util.uncover suit
-          return if @suit == suit && suit != :rand
+          return if @suit == suit && suit != :random
           @suit = suit
           repaint
           true
@@ -89,7 +89,7 @@ module Kredki
 
           on_key_press :up do |e|
             selected! if e.shift?
-            item = parent.update_selected_item(:previous)
+            item = lower.update_selected_item(:previous)
             if item
               item.selected! if e.shift?
               item.roi!
@@ -99,7 +99,7 @@ module Kredki
 
           on_key_press :down do |e|
             selected! if e.shift?
-            item = parent.update_selected_item(:next)
+            item = lower.update_selected_item(:next)
             if item
               item.selected! if e.shift?
               item.roi!
@@ -112,7 +112,7 @@ module Kredki
         end
 
         def mouse_press e
-          parent.selected_up_to self if Kredki.keyboard.mod_pass? shift: true
+          lower.selected_up_to self if Kredki.keyboard.mod_pass? shift: true
           super
         end
 

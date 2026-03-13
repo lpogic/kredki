@@ -14,10 +14,10 @@ module Kredki
       raise "File #{c} not found." unless File.exist? c
       Pastele.picture_load @pointer, c
       @content = content
-      @ow, @oh = get_size
+      @original_size_x, @original_size_y = fetch_size
       if pull_size
-        @w = @ow
-        @h = @oh
+        @size_x = @original_size_x
+        @size_y = @original_size_y
         update_transform
       else
         @redraw_flag = true
@@ -35,9 +35,9 @@ module Kredki
       @content
     end
 
-    # Get origin width and height.
-    def wh_origin
-      [@ow, @oh]
+    # Get original size.
+    def original_size
+      [@original_size_x, @original_size_y]
     end
 
     # Find shape of the picture.
@@ -66,10 +66,10 @@ module Kredki
     # Push the feature.
     def << feature
       case feature
-      in [w, h]
-        wh! w, h
+      in [x, y]
+        size! x, y
       in Numeric
-        wh! feature
+        size! feature
       in String
         content! feature
       else
@@ -80,8 +80,8 @@ module Kredki
     # :section: LEVEL 2
 
     def initialize pointer = nil
-      @w = @h = 100
-      @ow = @oh = 100.0
+      @size_x = @size_y = 100
+      @original_size_x = @original_size_y = 100.0
       @redraw_flag = true
       return super if pointer
       super Pastele.picture_new
@@ -101,23 +101,23 @@ module Kredki
     end
 
     def aspect_ratio
-      @ow / @oh
+      @original_size_x / @original_size_y
     end
 
-    def get_size
+    def fetch_size
       size = Pastele::Point.malloc(Fiddle::RUBY_FREE)
       Pastele.picture_get_size @pointer, size
       [size.x, size.y]
     end
 
     def pivot_xy
-      [@w * 0.5, @h * 0.5]
+      [@size_x * 0.5, @size_y * 0.5]
     end
 
     def update
       if @redraw_flag
         @redraw_flag = false
-        Pastele.picture_set_size @pointer, @w, @h
+        Pastele.picture_set_size @pointer, @size_x, @size_y
         update_transform
       end
       super

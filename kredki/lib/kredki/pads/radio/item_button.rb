@@ -8,7 +8,7 @@ module Kredki
         def suit! *suit
           return send_bundle :suit!, yield(self.suit) if block_given?
           suit = Util.uncover suit
-          return if @suit == suit && suit != :rand
+          return if @suit == suit && suit != :random
           @suit = suit
           repaint
           true
@@ -66,7 +66,7 @@ module Kredki
         def initialize
           super
           
-          @check = new ShapePad, mousy: false, keyboardy: false, fill: :text, wh: 1r do
+          @check = put ShapePad, mousy: false, keyboardy: false, fill: :text, size: 1r do
             area! @scene.ellipse!
             hide!
           end
@@ -79,8 +79,8 @@ module Kredki
           keyboardy!
           outline_w! 1
           layout! :zcc
-          wh! 16
-          m! 3
+          size! 16
+          margin! 3
           suit! :gray
         end
 
@@ -121,12 +121,12 @@ module Kredki
           end
 
           on_key_press do |e|
-            a?(Group).key e, self
+            find_lower(Group).key e, self
           end
         end
 
         def update_checked checked
-          a?(Group)&.set_checked self, checked or set_checked checked
+          find_lower(Group)&.set_checked self, checked or set_checked checked
         end
 
         def set_checked checked

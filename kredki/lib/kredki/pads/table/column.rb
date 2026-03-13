@@ -4,25 +4,25 @@ module Kredki
       # Table column model.
       class Column
 
-        # Set width.
-        def w! w = @w
-          return send_bundle :w!, yield(self.w) if block_given?
-          return if @w == w
-          @w = w
+        # Set size.
+        def size! size = @size
+          return send_bundle :size!, yield(self.size) if block_given?
+          return if @size == size
+          @size = size
           true
         end
 
-        # See #w!.
-        def w= param
-          send_bundle :w!, param
+        # See #size!.
+        def size= param
+          send_bundle :size!, param
         end
 
-        # Get width.
-        def w
-          @w
+        # Get size.
+        def size
+          @size
         end
 
-        # Set width limit.
+        # Set size limit.
         def limit! limit = @limit
           return send_bundle :limit!, yield(self.limit) if block_given?
           return if @limit == limit
@@ -35,7 +35,7 @@ module Kredki
           send_bundle :limit!, param
         end
 
-        # Get width limit.
+        # Get size limit.
         def limit
           @limit
         end
@@ -44,7 +44,7 @@ module Kredki
         def << feature
           case feature
           when Numeric
-            w! feature
+            size! feature
           when Range
             limit! feature
           else raise_ia feature
@@ -54,7 +54,7 @@ module Kredki
         # :section: LEVEL 2
 
         def initialize
-          @w = Auto
+          @size = Auto
           @limit = nil
         end
       end

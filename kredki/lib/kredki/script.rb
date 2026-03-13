@@ -28,7 +28,7 @@ else
   extend Forwardable
 
   window.alter do
-    wh_drag!
+    resizable!
     text_input!
     fill! 20, 70, 20
     exit_on_esc!

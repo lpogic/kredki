@@ -33,3 +33,5 @@ module Kredki
     end
   end
 end
+
+include Kredki::Pads

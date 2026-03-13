@@ -31,16 +31,16 @@ module Kredki
       def parse_xy x, y
         x = case x
         when Rational
-          @shape.w * x
+          @shape.size_x * x
         else
-          x < 0 ? x + @shape.w : x
+          x < 0 ? x + @shape.size_x : x
         end
 
         y = case y
         when Rational
-          @shape.h * y
+          @shape.size_y * y
         else
-          y < 0 ? y + @shape.h : y
+          y < 0 ? y + @shape.size_y : y
         end
 
         [x, y]
@@ -57,9 +57,9 @@ module Kredki
     end
 
     def redraw
-      crayon = AreaCrayon.new self, true, @w * 0.5, @h * 0.5
+      crayon = AreaCrayon.new self, true, @size_x * 0.5, @size_y * 0.5
       crayon.autoupdate = false
-      crayon.instance_exec @w, @h, &@block
+      crayon.instance_exec @size_x, @size_y, &@block
       crayon.commit!
     end
   end

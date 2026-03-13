@@ -43,7 +43,7 @@ module Kredki
       def suit! *suit
         return send_bundle :suit!, yield(self.suit) if block_given?
         suit = Util.uncover suit
-        return if @suit == suit && suit != :rand
+        return if @suit == suit && suit != :random
         @suit = suit
         repaint
         true
@@ -86,7 +86,7 @@ module Kredki
 
         @value = 0.0
         @c0 = 0
-        @handle = new RectanglePad, fill: :gray
+        @handle = put RectanglePad, fill: :gray
       end
 
       attr :handle
@@ -163,8 +163,8 @@ module Kredki
       # :section: LEVEL 2
 
       def process_drag e, speed = 1
-        s = @handle.sw
-        max_x = sw - s
+        hsx = @handle.area_size_x
+        max_x = area_size_x - hsx
         @c0 = @handle.sx if e.start?
         start_x = layer.pin_xy[0]
         x = [[0, @c0 + (e.x - start_x) * speed].max, max_x].min
@@ -174,24 +174,24 @@ module Kredki
       def sketch
         super
 
-        h! 10
+        size_y! 10
       end
 
       def behavior
         super
 
         on_mouse_press :primary do |e|
-          @handle.drag! @handle.translate(@handle.sw * 0.5, 0), :primary
+          @handle.drag! @handle.translate(@handle.area_size_x * 0.5, 0), :primary
           e.close
         end
       end
 
-      def arrange lw = nil
-        w = clw
-        lw ||= 3 * w
-        hw = (w.to_f / lw * w).clamp 20, [w - 20, 20].max
-        @handle.set_size hw, sh
-        @handle.set_xy ((w - hw) * @value.to_f.then{|it| it.nan? ? 0 : it.clamp(0..1) }).ceil, 0
+      def arrange request_size_x = nil
+        csx = clip_size_x
+        request_size_x ||= 3 * csx
+        size_x = (csx.to_f / request_size_x * csx).clamp 20, [csx - 20, 20].max
+        @handle.set_size size_x, area_size_y
+        @handle.set_xy ((csx - size_x) * @value.to_f.then{|it| it.nan? ? 0 : it.clamp(0..1) }).ceil, 0
       end
     end
 
@@ -201,8 +201,8 @@ module Kredki
       # :section: LEVEL 2
 
       def process_drag e, speed = 1
-        s = @handle.sh
-        max_y = sh - s
+        hsy = @handle.area_size_y
+        max_y = area_size_y - hsy
         @c0 = @handle.sy if e.start?
         start_y = layer.pin_xy[1]
         y = [[0, @c0 + (e.y - start_y) * speed].max, max_y].min
@@ -212,24 +212,24 @@ module Kredki
       def sketch
         super
 
-        w! 10
+        size_x! 10
       end
 
       def behavior
         super
 
         on_mouse_press :primary do |e|
-          @handle.drag! @handle.translate(0, @handle.sh * 0.5), :primary
+          @handle.drag! @handle.translate(0, @handle.area_size_x * 0.5), :primary
           e.close
         end
       end
 
-      def arrange lh = nil
-        h = clh
-        lh ||= 3 * h
-        hh = (h.to_f / lh * h).clamp 20, [h - 20, 20].max
-        @handle.set_size sw, hh
-        @handle.set_xy 0, ((h - hh) * @value.to_f.then{|it| it.nan? ? 0 : it.clamp(0..1) }).ceil
+      def arrange request_size_y = nil
+        csy = clip_size_y
+        request_size_y ||= 3 * csy
+        size_y = (csy.to_f / request_size_y * csy).clamp 20, [csy - 20, 20].max
+        @handle.set_size area_size_x, size_y
+        @handle.set_xy 0, ((csy - size_y) * @value.to_f.then{|it| it.nan? ? 0 : it.clamp(0..1) }).ceil
       end
     end
   end

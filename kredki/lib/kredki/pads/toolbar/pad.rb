@@ -12,7 +12,7 @@ module Kredki
 
         # Add menu item.
         def item!(...)
-          c?(ItemGroup).item!(...)
+          find(ItemGroup).item!(...)
         end
 
         # Create and attach item pick event reaction.
@@ -30,19 +30,18 @@ module Kredki
         def initialize
           super
 
-          w! 1r
-          h! Fit
+          size! 1r, Fit
           layout! :xsc
           fill! :gray
         
-          new ItemGroup
+          put ItemGroup
         end
 
         def behavior
           super
 
           on_pick do |e|
-            keyboard_dispose unless e.target.d? Context::Item
+            keyboard_dispose unless e.target.find_upper Context::Item
           end
         end
 

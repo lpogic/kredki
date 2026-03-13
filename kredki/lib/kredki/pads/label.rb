@@ -26,9 +26,9 @@ module Kredki
       end
 
       # Set text content.
-      def text! text = @text.content
+      def text! text = @text.subject
         return send_bundle :text!, yield(self.text) if block_given?
-        @text.content! text
+        @text.subject = text
       end
       
       # See #text!.
@@ -56,8 +56,8 @@ module Kredki
       def initialize
         super
 
-        @text = new NavigableTextPad, h: 1r do
-          cursor.w = 0
+        @text = put NavigableTextPad, size_y: 1r do
+          cursor.size_x = 0
           mousy! false
         end
       end
@@ -65,8 +65,8 @@ module Kredki
       def sketch
         super
 
-        wh! Fit, 24
-        for! proc{|it| it.p?&.c?{|it| it.keyboardy? } }
+        size! Fit, 24
+        for! proc{|it| it.lower_pad&.find{|it| it.keyboardy? } }
         keyboardy! false
         area.fill! false
 

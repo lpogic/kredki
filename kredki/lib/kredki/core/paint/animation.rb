@@ -21,109 +21,109 @@ module Kredki
       @content
     end
 
-    # Set width.
-    def w! ...
-      @picture.w!(...)
+    # Set size in X axis.
+    def size_x! ...
+      @picture.size_x!(...)
     end
 
-    # See: #w!
-    def w= param
-      @picture.w = param
+    # See: #size_x!
+    def size_= param
+      @picture.size_x = param
     end
 
-    # Get width.
-    def w
-      @picture.w
+    # Get size in X axis.
+    def size_x
+      @picture.size_x
     end
 
-    # Set height.
-    def h! ...
-      @picture.h!(...)
+    # Set size in Y axis.
+    def size_y! ...
+      @picture.size_y!(...)
     end
 
-    # See: #h!
-    def h= param
-      @picture.h = param
+    # See: #size_y!
+    def size_y= param
+      @picture.size_y = param
     end
 
-    # Get height.
-    def h
-      @picture.h
+    # Get size in Y axis.
+    def size_y
+      @picture.size_y
     end
 
-    # Set width and height.
-    def wh! ...
-      @picture.wh!(...)
+    # Set size.
+    def size! ...
+      @picture.size!(...)
     end
 
     # See: #wh!
-    def wh= param
-      @picture.wh = param
+    def size= param
+      @picture.size = param
     end
 
-    # Get height.
-    def wh
-      @picture.wh
+    # Get size.
+    def size
+      @picture.size
     end
 
-    # Set rotation angle.
-    def rot! ...
-      @picture.rot!(...)
+    # Set turn value.
+    def turn! ...
+      @picture.turn!(...)
     end
 
-    # See: #rot!
-    def rot= param
-      @picture.rot = param
+    # See: #turn!
+    def turn= param
+      @picture.turn = param
     end
 
-    # Get rotation angle.
-    def rot
-      @picture.rot
+    # Get turn value.
+    def turn
+      @picture.turn
     end
 
-    # Set magnification factor.
-    def mag! ...
-      @picture.mag!(...)
+    # Set zoom.
+    def zoom! ...
+      @picture.zoom!(...)
     end
 
-    # See: #mag!
-    def mag= param
-      @picture.mag = param
+    # See: #zoom!
+    def zoom= param
+      @picture.zoom = param
     end
 
-    # Get magnification factor.
-    def mag
-      @picture.mag
+    # Get zoom.
+    def zoom
+      @picture.zoom
     end
 
-    # Set magnification factor along the X axis.
-    def mag_x! ...
-      @picture.mag_x!(...)
+    # Set zoom in the X axis.
+    def zoom_x! ...
+      @picture.zoom_x!(...)
     end
 
-    # See: #mag_x!
-    def mag_x= param
-      @picture.mag_x = param
+    # See: #zoom_x!
+    def zoom_x= param
+      @picture.zoom_x = param
     end
 
-    # Get magnification factor along the X axis.
-    def mag_x
-      @picture.mag_x
+    # Get zoom in the X axis.
+    def zoom_x
+      @picture.zoom_x
     end
 
-    # Set magnification factor along the Y axis.
-    def mag_y! ...
-      @picture.mag_y!(...)
+    # Set zoom in the Y axis.
+    def zoom_y! ...
+      @picture.zoom_y!(...)
     end
 
-    # See: #mag_y!
-    def mag_y= param
-      @picture.mag_y = param
+    # See: #zoom_y!
+    def zoom_y= param
+      @picture.zoom_y = param
     end
 
-    # Get magnification factor along the Y axis.
-    def mag_y
-      @picture.mag_y
+    # Get zoom in the Y axis.
+    def zoom_y
+      @picture.zoom_y
     end
 
     # Check wheather [+x+, +y+] is inside.
@@ -198,10 +198,10 @@ module Kredki
     # Push the feature.
     def << feature
       case feature
-      in [w, h]
-        wh! w, h
+      in [x, y]
+        size! x, y
       in Numeric
-        wh! feature
+        size! feature
       in String
         content! feature
       else

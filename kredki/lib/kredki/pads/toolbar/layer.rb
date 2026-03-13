@@ -9,17 +9,17 @@ module Kredki
         def initialize
           super
 
-          @context_pad = new Context::Pad, outline: [1, :dark_gray] do
+          @context_pad = put Context::Pad, outline: [1, :dark_gray] do
           scene.drop_shadow! color: :black
         end
-          @item_group = @context_pad.new Context::ItemGroup
+          @item_group = @context_pad.put Context::ItemGroup
         end
 
         attr :context_pad, :item_group
 
         def load_common x, y
           @context_pad.xy! x, y
-          parent.window.push_layer self
+          lower.window.push_layer self
           break_layout
         end
         
@@ -29,7 +29,7 @@ module Kredki
         end
 
         def loaded?
-          !!@pad_parent
+          !!@lower_pad
         end
 
         def mouse_press e

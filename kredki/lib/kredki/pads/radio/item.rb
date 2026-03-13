@@ -33,7 +33,7 @@ module Kredki
         def << feature
           case feature
           when String
-            (c? Label or new Label) << feature
+            (find Label or put Label) << feature
             subject! feature
           else
             super
@@ -45,14 +45,19 @@ module Kredki
         def initialize
           super
 
-          @button = new ItemButton
+          @button = put ItemButton, :button!
+        end
+
+        def attach lower, at: nil
+          pad_detach
+          pad_attach lower, at: at
         end
 
         def sketch
           super
 
-          h! Fit
-          mi! 8
+          size_y! Fit
+          spacer! 8
           layout! :xsc
           
         end

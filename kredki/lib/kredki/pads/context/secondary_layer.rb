@@ -10,13 +10,13 @@ module Kredki
 
         def load item
           item.layer&.arrange
-          w, h = parent.window.wh
-          x, y = *item.translate(item.sw, 0)
-          if x + @items.sw > w
-            x = [x - item.sw - @items.sw, 0].max
+          window_sx, window_sy = lower.window.size
+          x, y = *item.translate(item.area_size_x, 0)
+          if x + @items.area_size_x > window_sx
+            x = [x - item.area_size_x - @items.area_size_x, 0].max
           end
-          if y + @items.sh > h
-            y = [h - @items.sh, 0].max
+          if y + @items.area_size_y > window_sy
+            y = [window_sy - @items.area_size_y, 0].max
           end
           load_common x, y
         end
@@ -25,34 +25,35 @@ module Kredki
           super
           
           on Item::PickEvent do |e|
-            if e.target.d? Item
+            if e.target.find_upper Item
               e.close
             else
-              parent.report e
+              lower.report e
               pad_detach
             end
           end
         end
 
-        def set_parent parent, at = nil
+        def set_lower lower, at = nil
           if super
-            @parent_events&.each{|it| it.detach }
-            @parent_events = []
+            @lower_events&.each{|it| it.detach }
 
-            parent.on_focus_enter do |e|
-              load parent
-            end.then{|it| @parent_events << it }
+            focus_enter = lower.on_focus_enter do |e|
+              load lower
+            end
 
-            parent.on_focus_leave do |e|
+            focus_leave = lower.on_focus_leave do |e|
               unload if loaded?
-            end.then{|it| @parent_events << it }
+            end
             
-            on_key_press :left do |e|
+            left_key_press = on_key_press :left do |e|
               if loaded?
                 unload
                 e.close
               end
-            end.then{ @parent_events << it }
+            end
+
+            @lower_events = [focus_enter, focus_leave, left_key_press]
           end
         end
 

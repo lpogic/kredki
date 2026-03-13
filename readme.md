@@ -1,14 +1,13 @@
 # :crayon::crayon::crayon: Kredki :crayon::crayon::crayon:
 
-Vector graphics & GUI toolkit for [Ruby](https://www.ruby-lang.org/) Ruby. For creating images, simulations, simple games and applications.
+Vector graphics & GUI toolkit for [Ruby](https://www.ruby-lang.org/). For creating images, simulations, simple games and applications.
 
 ## How it works:
 
-The project is based on the [ThorVG](https://www.thorvg.org/) library for rendering and the [SDL](https://www.libsdl.org/) library for connecting with hardware and host OS. Main features:
-- Binary files are included and loaded via FFI
-- Memory is managed automatically
-- Drawing is only triggered after scene changes
-- GUI widgets are built from scratch in Ruby
+The project is based on the [ThorVG](https://www.thorvg.org/) library for rendering and the [SDL](https://www.libsdl.org/) library for connecting with hardware and operating system. Main features:
+- no template languages, no style sheets - everything is written in Ruby
+- redraws after scene changes only - saves computing power
+- high level, object oriented API
 
 ## Installation:
 
@@ -37,14 +36,14 @@ Output
 ```RUBY
 require 'kredki'
 
-window.wh! 400, 200
+window.size! 400, 200
 
-ellipse! xy: 50, wh: 100, fill: :red
-rectangle! x: 150, y: 50, wh: 100, fill: :green
-shape! x: 250, y: 50, wh: 100, fill: :blue do |w, h|
-  xy! 0, h
-  line! w / 2, 0
-  line! w, h
+ellipse! xy: 50, size: 100, fill: :red
+rectangle! x: 150, y: 50, size: 100, fill: :green
+shape! x: 250, y: 50, size: 100, fill: :blue do |sx, sy|
+  xy! 0, sy
+  line! sx / 2, 0
+  line! sx, sy
 end
 ```
 
@@ -55,12 +54,12 @@ end
 ```RUBY
 require 'kredki'
 
-window.wh! 400, 250
+window.size! 400, 250
 layout! :xcc
-mi! 10
+spacer! 10
 
 label! "Enter name:"
-n = note! w: 100, content: "world"
+n = note! w: 100, text: "world"
 button! "Submit", suit: :orange do
   on_click do
     puts "Hello #{n}!"
@@ -69,7 +68,7 @@ end
 ```
 
 </td><td>
-<img src="./.github/hello.png">
+<img src="./.github/enter.png">
 </td></tr><tr><td>
 
 ```RUBY
@@ -78,16 +77,16 @@ require 'kredki/module' # embedded mode
 decision = Kredki.run do
   layout! :ycc
   
-  ysc! w: 100 do
+  ysc! size_x: 100 do
     radio! do
       item! "yes", checked: true
       item! "no"
       item! "perhaps"
     end
-    space! wh: 5
-    button! "Submit", w: 1r do
+    space! size: 5
+    button! "Submit", size_x: 1r do
       on_click do
-        app.return d?(:item!, :checked?).subject
+        app.return find_upper(:item!, :checked?).subject
       end
     end
   end

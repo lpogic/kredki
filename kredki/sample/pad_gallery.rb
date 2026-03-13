@@ -23,17 +23,18 @@ context! do
   end
 end
 
-xss! m: 10, mi: 10 do
-  yss! mi: 10 do
-    note! w: 1r
-    list! w: 1r, h: Fit do
+xss! margin: 10, spacer: 10 do
+  yss! spacer: 10 do
+    note! size_x: 1r
+    list! size_x: 1r, size_y: Fit do
       item! "First"
       item! "Second"
       item! "Third"
     end
-    xss! mi: 10 do
+    xss! spacer: 10 do
       yslide!
-      yss! mi: 10 do
+      yss! spacer: 10 do
+        margin[5]
         text! "Some text"
         xslide!
         button! "Button"
@@ -47,13 +48,13 @@ xss! m: 10, mi: 10 do
         end
       end
     end
-    scroll! wh: [1r, limit: Fit] do
+    scroll! size: [1r, limit: Fit] do
       picture! "#{Kredki.dir}/sample/stuff/test.png"
     end
   end
-  yss! w: 1/2r, mi: 10 do
-    notes! w: 1r
-    option! w: 1r do
+  yss! size_x: 1/2r, spacer: 10 do
+    notes! size_x: 1r
+    option! size_x: 1r do
       item! "Red"
       item! "Green", disabled: true
       item! "Blue"
@@ -68,7 +69,7 @@ xss! m: 10, mi: 10 do
       item! "Radio 3"
     end
     exploding_star = "#{Kredki.dir}/sample/stuff/1643-exploding-star.json"
-    animation! exploding_star, wh: [1r, limit: Ratio], x: Center do
+    animation! exploding_star, size: [1r, limit: Ratio], x: Center do
       job.animate self, true
     end
   end

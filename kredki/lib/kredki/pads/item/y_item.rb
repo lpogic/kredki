@@ -11,7 +11,7 @@ module Kredki
         super
 
         on_key_press :up do |e|
-          item = parent.update_selected_item :previous 
+          item = lower.update_selected_item :previous 
           if item
             item.roi!
             e.close
@@ -19,7 +19,7 @@ module Kredki
         end
 
         on_key_press :down do |e|
-          item = parent.update_selected_item :next
+          item = lower.update_selected_item :next
           if item
             item.roi!
             e.close

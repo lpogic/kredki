@@ -12,7 +12,7 @@ module Kredki
 
         # Create/Update dropdown.
         def dropdown! ...
-          (c? PrimaryLayer or new PrimaryLayer).alter(...)
+          (find PrimaryLayer or put PrimaryLayer).alter(...)
         end
 
         # See #dropdown!.
@@ -22,7 +22,7 @@ module Kredki
 
         # Get dropdown.
         def dropdown
-          c? PrimaryLayer
+          find PrimaryLayer
         end
 
         # Set whether is directory.
@@ -52,27 +52,29 @@ module Kredki
         def sketch
           super
 
-          mx! 5
+          margin_x! 5
         end
 
         def behavior
           super
 
           on_key_press :down, :up, :enter, :space do |e|
-            c?(PrimaryLayer)&.then do |it|
-              it.load self unless it.loaded?
-              it.d?(Context::Item)&.keyboard_request and e.close
+            if layer = find PrimaryLayer
+              layer.load self unless layer.loaded?
+              layer.find_upper(Context::Item)&.keyboard_request and e.close
             end
           end
 
           on_mouse_click do |e|
-            d?(PrimaryLayer)&.then{|it| it.load self unless it.loaded? }
+            layer = find_upper PrimaryLayer
+            layer.load self if layer && !layer.loaded?
           end
         end
 
         def mouse_enter e
           super
-          d?(PrimaryLayer)&.then{|it| it.update_keyboard_pad nil if it.loaded? }
+          layer = find_upper PrimaryLayer
+          layer.update_keyboart_pad nil if layer&.loaded?
         end
 
       end#Item

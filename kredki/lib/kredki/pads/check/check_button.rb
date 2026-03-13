@@ -31,9 +31,9 @@ module Kredki
       def initialize
         super
         
-        @check = new RectanglePad, mousy: false, keyboardy: false, fill: 0, wh: 1r do
+        @check = put RectanglePad, mousy: false, keyboardy: false, fill: 0, size: 1r do
           outline! fill: :text, w: 3
-          area! do |w, h|
+          area! do
             xy! 3, 1/2r
             line! 1/2r, -3
             line! -3, 3
@@ -46,8 +46,8 @@ module Kredki
         super
 
         layout! :zcc
-        wh! 16
-        m! 2
+        size! 16
+        margin! 2
       end
 
       def repaint event = nil

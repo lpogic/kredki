@@ -121,9 +121,9 @@ module Kredki
       when Start
         0
       when Center
-        (display_wh[0] - wh[0]) * 0.5
+        (display_size[0] - size[0]) * 0.5
       when End
-        display_wh[0] - wh[0]
+        display_size[0] - size[0]
       when Numeric
         x
       else raise_ia x
@@ -133,9 +133,9 @@ module Kredki
       when Start
         0
       when Center
-        (display_wh[1] - wh[1]) * 0.5
+        (display_size[1] - size[1]) * 0.5
       when End
-        display_wh[1] - wh[1]
+        display_size[1] - size[1]
       when Numeric
         y
       else raise_ia y
@@ -157,87 +157,87 @@ module Kredki
       [point.x, point.y]
     end
 
-    # Set width and height. 
-    def wh! w = 400, h = w, **ka
-      return send_bundle :wh!, yield(self.wh) if block_given?
-      w = case w
+    # Set size. 
+    def size! size_x = 400, size_y = size_x, **ka
+      return send_bundle :size!, yield(self.size) if block_given?
+      size_x = case size_x
       when Rational
-        display_wh[0] * w
+        display_size[0] * size_x
       when Numeric
-        w
-      else raise_ia w
+        size_x
+      else raise_ia size_x
       end
 
-      h = case h
+      size_y = case size_y
       when Rational
-        display_wh[1] * h
+        display_size[1] * size_y
       when Numeric
-        h
-      else raise_ia h
+        size_y
+      else raise_ia size_y
       end
       
-      Pastele.window_set_size @pointer, w, h
-      ka.each{ send_bundle "wh_#{_1}!", _2 }
-      report ResizeEvent.new w, h
+      Pastele.window_set_size @pointer, size_x, size_y
+      ka.each{ send_bundle "size_#{_1}!", _2 }
+      report ResizeEvent.new size_x, size_y
       true
     end
 
-    # See #wh!.
-    def wh= param
-      send_bundle :wh!, param
+    # See #size!.
+    def size= param
+      send_bundle :size!, param
     end
 
-    # Get width and height.
-    def wh
+    # Get size.
+    def size
       point = Pastele::IntPoint.malloc(Fiddle::RUBY_FREE)
       Pastele.window_get_size @pointer, point
       [point.x, point.y]
     end
 
-    # Set width and height limit. 
-    def wh_limit! w, h = w
-      return send_bundle :wh_limit!, yield(self.wh_limit) if block_given?
-      w_min, w_max = parse_limit w
-      h_min, h_max = parse_limit h
-      Pastele.window_set_minimum_size @pointer, w_min, h_min
-      Pastele.window_set_maximum_size @pointer, w_max, h_max
+    # Set size limit. 
+    def size_limit! x, y = x
+      return send_bundle :size_limit!, yield(self.size_limit) if block_given?
+      x_min, x_max = parse_limit x
+      y_min, y_max = parse_limit y
+      Pastele.window_set_minimum_size @pointer, x_min, y_min
+      Pastele.window_set_maximum_size @pointer, x_max, y_max
       true
     end
 
-    # See #wh_limit!.
-    def wh_limit= param
-      send_bundle :wh_limit!, param
+    # See #size_limit!.
+    def size_limit= param
+      send_bundle :size_limit!, param
     end
 
-    # Get width and height limit.
-    def wh_limit
+    # Get size limit.
+    def size_limit
       point = Pastele::IntPoint.malloc(Fiddle::RUBY_FREE)
       Pastele.window_get_minimum_size @pointer, point
-      w_min, h_min = [point.x, point.y]
+      x_min, y_min = [point.x, point.y]
       Pastele.window_get_maximum_size @pointer, point
-      [w_min..point.x, h_min..point.y]
+      [x_min..point.x, y_min..point.y]
     end
 
     # Set whether a window width and height can be customized by dragging its border.
-    def wh_drag! value = true
-      return if (c = wh_drag) == (value = block_given? ? yield(c) : value == Not ? !c : value)
+    def resizable! value = true
+      return if (c = resizable) == (value = block_given? ? yield(c) : value == Not ? !c : value)
       Pastele.window_set_resizable @pointer, value ? 1 : 0
       true
     end
 
-    # See #wh_drag!.
-    def wh_drag= param
-      wh_drag! param
+    # See #resizable!.
+    def resizable= param
+      resizable! param
     end
 
     # Get whether a window width and height can be customized by dragging its border.
-    def wh_drag
+    def resizable
       Pastele.window_get_flags(@pointer) & 0x20 != 0
     end
 
-    # See #wh_drag.
-    def wh_drag?
-      !!wh_drag
+    # See #resizable.
+    def resizable?
+      !!resizable
     end
 
     # Set title.
@@ -395,8 +395,8 @@ module Kredki
       Pastele.window_close @pointer
     end
 
-    # Get display width and height.
-    def display_wh
+    # Get display size.
+    def display_size
       bounds = Pastele::Bounds.malloc(Fiddle::RUBY_FREE)
       Pastele.window_get_display_bounds @pointer, bounds
       [bounds.w, bounds.h]
@@ -435,12 +435,12 @@ module Kredki
 
     # :section: LEVEL 2
 
-    def initialize w = 400, h = 400, engine: :sw
+    def initialize size_x = 400, size_y = 400, engine: :sw
       @pointer = case engine
       when :sw
-        @pointer = Pastele.window_new_sw w, h
+        @pointer = Pastele.window_new_sw size_x, size_y
       # when :gl
-      #   @pointer = Pastele.window_new_gl w, h
+      #   @pointer = Pastele.window_new_gl size_x, size_y
       else
         raise_ia engine
       end
@@ -448,7 +448,7 @@ module Kredki
       @update_thread = nil
       @update_queue = Thread::Queue.new
       @update_timestamp = 0
-      @fps_limit = 60
+      @fps_limit = 100
       @expose_timestamp = 0
       @scene = nil
       @mouse_in = nil

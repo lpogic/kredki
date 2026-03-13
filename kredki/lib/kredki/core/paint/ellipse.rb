@@ -11,7 +11,7 @@ module Kredki
     end
 
     def redraw
-      draw!(true, @w * 0.5, @h * 0.5).ellipse! @w - @outline_w, @h - @outline_w
+      draw!(true, @size_x * 0.5, @size_y * 0.5).ellipse! @size_x - @outline_w, @size_y - @outline_w
     end
 
     def set_outline_w ...

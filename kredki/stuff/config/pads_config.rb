@@ -40,14 +40,14 @@ module Kredki
 
     define :rectangle!, RectanglePad
     def ellipse! ...
-      new(ShapePad, __method__, ...).alter do
+      put(ShapePad, __method__, ...).alter do
         area! do |w, h|
           ellipse! w, h
         end
       end
     end
     def shape! *a, **ka, &b
-      new ShapePad, __method__, *a, **ka do
+      put ShapePad, __method__, *a, **ka do
         area! &b
       end
     end
@@ -58,7 +58,7 @@ module Kredki
     define :picture!, PicturePad
     define :animation!, AnimationPad
     def text! *a, **ka, &b
-      new NavigableTextPad, __method__, *a, keyboardy: true, **ka, &b
+      put NavigableTextPad, __method__, *a, keyboardy: true, **ka, &b
     end
     define :glyph!, GlyphPad
     define :xslide!, HorizontalSlide
@@ -72,7 +72,6 @@ module Kredki
     define :table!, Table::Pad
     define :list!, List::Pad
     define :tree!, Tree::Pad
-
     define :radio!, Radio::Group
     define :context!, Context::Menu
     define :toolbar!, Toolbar::Pad
@@ -88,13 +87,13 @@ module Kredki
 
       eval <<~RUBY
         def #{x}! *a, **ka, &b
-          new SpacePad, __method__, *a, layout: :#{x}, **ka, &b
+          put SpacePad, __method__, *a, layout: :#{x}, **ka, &b
         end
         def #{y}! *a, **ka, &b
-          new SpacePad, __method__, *a, layout: :#{y}, **ka, &b
+          put SpacePad, __method__, *a, layout: :#{y}, **ka, &b
         end
         def #{z}! *a, **ka, &b
-          new SpacePad, __method__, *a, layout: :#{z}, **ka, &b
+          put SpacePad, __method__, *a, layout: :#{z}, **ka, &b
         end
       RUBY
     end

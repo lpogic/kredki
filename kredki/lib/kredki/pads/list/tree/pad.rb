@@ -9,7 +9,7 @@ module Kredki
 
         # Add new item.
         def item! *a, **ka, &b
-          @item_group.item! *a, w: 1r, **ka, &b
+          @item_group.item! *a, size_x: 1r, **ka, &b
         end
 
         # Create and attach pick event reaction.
@@ -31,7 +31,7 @@ module Kredki
           fill! :gray
           layout! :yss
 
-          @item_group = new ItemGroup
+          @item_group = put ItemGroup
         end
 
         def behavior
@@ -47,7 +47,7 @@ module Kredki
                 if source.shift?
                   item.select! Not
                 else
-                  each_d(Item).each_alter{|it| selected! it == item }
+                  each_upper(Item).each_alter{|it| selected! it == item }
                 end
               end
             else
@@ -61,14 +61,14 @@ module Kredki
               elsif kb.ctrl?
                 item.selected! Not
               else
-                each_d(Item).each_alter{|it| selected! it == item }
+                each_upper(Item).each_alter{|it| selected! it == item }
                 item.open! Not
               end
             end
           end
 
           on_focus_leave do
-            each_d(Item).each_alter selected: false
+            each_upper(Item).each_alter selected: false
           end
         end
 

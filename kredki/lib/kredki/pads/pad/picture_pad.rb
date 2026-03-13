@@ -3,22 +3,6 @@ module Kredki
     # Pad with picture area.
     class PicturePad < Pad
 
-      # Set picture content.
-      def content! content = @area.content
-        return send_bundle :content!, yield(self.content) if block_given?
-        @area.content! content, @w == Auto && @h == Auto
-      end
-      
-      # See #content!.
-      def content= param
-        send_bundle :content!, param
-      end
-
-      # Get picture content.
-      def content
-        @area.content
-      end
-
       # Find shape of the picture.
       def find_shape ...
         @area.find_shape(...)
@@ -33,7 +17,7 @@ module Kredki
       def << arg
         case arg
         when String
-          content! arg
+          subject! arg
         else
           super
         end
@@ -45,64 +29,68 @@ module Kredki
         @area = @scene.picture!
       end
 
-      def min_wv m
-        case @w
+      def min_size_x_value margin
+        case @size_x
         when Ratio
-          get_h * @area.aspect_ratio
+          get_size_y * @area.aspect_ratio
         else super
         end
       end
 
-      def min_wl limit, m
+      def set_subject subject
+        @area.content! subject, @size_x == Auto && @size_y == Auto
+      end
+
+      def min_size_x_limit limit, margin
         case limit
         when Ratio
-          get_h * @area.aspect_ratio
+          get_size_y * @area.aspect_ratio
         else super
         end
       end
 
-      def get_wv w, tw, h
-        case w
+      def get_size_x_value size_x, reference_size_x, size_y
+        case size_x
         when Ratio
           if @ratio
-            h ||= @area.wh_origin[1]
+            size_y ||= @area.original_size[1]
           else
             @ratio = true
-            h ||= get_h
+            size_y ||= get_size_y
             @ratio = false
           end
-          h * @area.aspect_ratio
+          size_y * @area.aspect_ratio
         else super
         end
       end
 
-      def min_hv m
-        case @h
+      def min_size_y_value margin
+        case @size_y
         when Ratio
-          get_w / @area.aspect_ratio
+          get_size_x / @area.aspect_ratio
         else super
         end
       end
 
-      def min_hl limit, m
+      def min_size_y_limit limit, margin
         case limit
         when Ratio
-          get_w / @area.aspect_ratio
+          get_size_x / @area.aspect_ratio
         else super
         end
       end
 
-      def get_hv h, th, w
-        case h
+      def get_size_y_value size_y, reference_size_y, size_x
+        case size_y
         when Ratio
           if @ratio
-            w ||= @area.wh_origin[0]
+            size_x ||= @area.original_size[0]
           else
             @ratio = true
-            w ||= get_w
+            size_x ||= get_size_x
             @ratio = false
           end
-          w / @area.aspect_ratio
+          size_x / @area.aspect_ratio
         else super
         end
       end

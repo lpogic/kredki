@@ -1,11 +1,11 @@
 require 'kredki'
 
 window.fps_limit = false
-ball = ellipse! wh: 100, xy: 100
+ball = ellipse! size: 100, xy: 100
 
 vy = 0
 job.loop do
-  bottom = window.h - ball.h
+  bottom = window.size_y - ball.size_y
   nvy = vy + it.ms * 0.03
   ball.y += nvy ** 2 - vy ** 2
   vy = nvy

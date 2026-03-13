@@ -60,82 +60,82 @@ module Kredki
       [@x, @y]
     end
  
-    # Set rotation angle around the pivot point.
-    def rot! rot = @rot
-      return rot! yield @rot if block_given?
-      return if @rot == rot
-      @rot = rot
+    # Set turn around the pivot point.
+    def turn! turn = @turn
+      return turn! yield @turn if block_given?
+      return if @turn == turn
+      @turn = turn
       update_transform
       update
     end
 
-    # See #rot!.
-    def rot= param
-      send_bundle :rot!, param
+    # See #turn!.
+    def turn= param
+      send_bundle :turn!, param
     end
 
-    # Get rotation angle around the pivot point.
-    def rot
-      @rot
+    # Get turn around the pivot point.
+    def turn
+      @turn
     end
 
-    # Set magnification factor along the X axis.
-    def mag_x! mag_x = @mag_x
-      return mag_x! yield @mag_x if block_given?
-      return if @mag_x == mag_x
-      @mag_x = mag_x
+    # Set zoom in the X axis.
+    def zoom_x! zoom_x = @zoom_x
+      return zoom_x! yield @zoom_x if block_given?
+      return if @zoom_x == zoom_x
+      @zoom_x = zoom_x
       update_transform
       update
     end
 
-    # See #mag_x!.
-    def mag_x= param
-      send_bundle :mag_x!, param
+    # See #zoom_x!.
+    def zoom_x= param
+      send_bundle :zoom_x!, param
     end
 
-    # Get magnification factor along the X axis.
-    def mag_x
-      @mag_x
+    # Get zoom in the X axis.
+    def zoom_x
+      @zoom_x
     end
 
-    # Set magnification factor along the Y axis.
-    def mag_y! mag_y = @mag_y
-      return mag_y! yield @mag_y if block_given?
-      return if @mag_y == mag_y
-      @mag_y = mag_y
+    # Set zoom in the Y axis.
+    def zoom_y! zoom_y = @zoom_y
+      return zoom_y! yield @zoom_y if block_given?
+      return if @zoom_y == zoom_y
+      @zoom_y = zoom_y
       update_transform
       update
     end
 
-    # See #mag_y!.
-    def mag_y= param
-      send_bundle :mag_y!, param
+    # See #zoom_y!.
+    def zoom_y= param
+      send_bundle :zoom_y!, param
     end
 
-    # Get magnification factor along the Y axis.
-    def mag_y
-      @mag_y
+    # Get zoom in the Y axis.
+    def zoom_y
+      @zoom_y
     end
 
-    # Set magnification factor along X and Y axes.
-    def mag! mag_x = @mag_x, mag_y = mag_x, **ka
-      return send_bundle :mag!, yield(self.mag) if block_given?
-      unless @mag_x == mag_x && @mag_y == mag_y
-        @mag_x = mag_x
-        @mag_y = mag_y
+    # Set zoom in X and Y axes.
+    def zoom! zoom_x = @zoom_x, zoom_y = zoom_x, **ka
+      return send_bundle :zoom!, yield(self.zoom) if block_given?
+      unless @zoom_x == zoom_x && @zoom_y == zoom_y
+        @zoom_x = zoom_x
+        @zoom_y = zoom_y
         update_transform
         update
-      end | send_branch(:mag, ka)
+      end | send_branch(:zoom, ka)
     end
 
-    # See #mag!.
-    def mag= param
-      send_bundle :mag!, param
+    # See #zoom!.
+    def zoom= param
+      send_bundle :zoom!, param
     end
 
-    # Get magnification factor along X and Y axes.
-    def mag
-      [@mag_x, @mag_y]
+    # Get zoom in X and Y axes.
+    def zoom
+      [@zoom_x, @zoom_y]
     end
 
     # Set opacity degree.
@@ -329,9 +329,9 @@ module Kredki
       {
         x: @x,
         y: @y,
-        rot: @rot,
-        mag_x: @mag_x,
-        mag_y: @mag_y,
+        turn: @turn,
+        zoom_x: @zoom_x,
+        zoom_y: @zoom_y,
         opacity: @opacity,
         blend: @blend,
       }
@@ -344,9 +344,9 @@ module Kredki
       @scene = nil
       @x = 0
       @y = 0
-      @rot = 0
-      @mag_x = 1
-      @mag_y = 1
+      @turn = 0
+      @zoom_x = 1
+      @zoom_y = 1
       @opacity = 255
       @blend = nil
     end
@@ -391,7 +391,7 @@ module Kredki
     end
 
     def update_transform
-      Pastele.paint_set_transform @pointer, *pivot_xy, @x, @y, @rot, @mag_x, @mag_y
+      Pastele.paint_set_transform @pointer, *pivot_xy, @x, @y, 2 * Math::PI * @turn, @zoom_x, @zoom_y
     end
   end#Paint
 end#Kredki

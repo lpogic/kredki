@@ -1,67 +1,67 @@
 module Kredki
   module Area
 
-    # Set width.
-    def w! w = @w
-      return w! yield @w if block_given?
-      return if @w == w
-      @w = w
+    # Set size in X axis.
+    def size_x! size_x = @size_x
+      return size_x! yield @size_x if block_given?
+      return if @size_x == size_x
+      @size_x = size_x
       @redraw_flag = true
       update
     end
 
-    # See #w!.
-    def w= param
-      send_bundle :w!, param
+    # See #size_x!.
+    def size_x= param
+      send_bundle :size_x!, param
     end
 
-    # Get width.
-    def w
-      @w
+    # Get size in X axis.
+    def size_x
+      @size_x
     end
 
-    # Set height.
-    def h! h = @h
-      return h! yield @h if block_given?
-      return if @h == h
-      @h = h
+    # Set size in Y axis.
+    def size_y! size_y = @size_y
+      return size_y! yield @size_y if block_given?
+      return if @size_y == size_y
+      @size_y = size_y
       @redraw_flag = true
       update
     end
 
-    # See #h!.
-    def h= param
-      send_bundle :h!, param
+    # See #size_y!.
+    def size_y= param
+      send_bundle :size_y!, param
     end
 
-    # Get height.
-    def h
-      @h
+    # Get size in Y axis.
+    def size_y
+      @size_y
     end
 
-    # Set width and height.
-    def wh! w = @w, h = w
-      return send_bundle :wh!, yield(self.wh) if block_given?
-      return if @w == w && @h == h
-      @w = w
-      @h = h
+    # Set size.
+    def size! size_x = @size_x, size_y = size_x
+      return send_bundle :size!, yield(self.size) if block_given?
+      return if @size_x == size_x && @size_y == size_y
+      @size_x = size_x
+      @size_y = size_y
       @redraw_flag = true
       update
     end
 
-    # See #wh!.
-    def wh= param
-      send_bundle :wh!, param
+    # See #size!.
+    def size= param
+      send_bundle :size!, param
     end
     
-    # Get width and height.
-    def wh
-      [@w, @h]
+    # Get size.
+    def size
+      [@size_x, @size_y]
     end
 
     # Check wheather [+x+, +y+] is inside the Area.
     def contain? x, y
-      x <= @w && y <= @h && x >= 0 && y >= 0
+      x <= @size_x && y <= @size_y && x >= 0 && y >= 0
     end
   end
 end

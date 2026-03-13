@@ -3,26 +3,11 @@ module Kredki
     # Pad with animation area.
     class AnimationPad < Pad
 
-      # Set animation content.
-      def content! ...
-        @area.content!(...)
-      end
-
-      # See #content!.
-      def content= param
-        send_bundle :content!, param
-      end
-
-      # Get animation content.
-      def content
-        @area.content
-      end
-
       # Push the feature.
       def << arg
         case arg
         when String
-          content! arg
+          subject! arg
         else
           super
         end
@@ -50,64 +35,68 @@ module Kredki
         @area = @scene.animation!
       end
 
-      def min_wv m
-        case @w
+      def set_subject subject
+        @area.content = subject.to_s
+      end
+
+      def min_size_x_value m
+        case @size_x
         when Ratio
-          get_h * @area.picture.aspect_ratio
+          get_size_y * @area.picture.aspect_ratio
         else super
         end
       end
 
-      def min_wl limit, m
+      def min_size_x_limit limit, m
         case limit
         when Ratio
-          get_h * @area.picture.aspect_ratio
+          get_size_y * @area.picture.aspect_ratio
         else super
         end
       end
 
-      def get_wv w, tw, h
-        case w
+      def get_size_x_value size_x, target_size_x, size_y
+        case size_x
         when Ratio
           if @ratio
-            h ||= @area.picture.wh_origin[1]
+            size_y ||= @area.picture.original_size[1]
           else
             @ratio = true
-            h ||= get_h
+            size_y ||= get_size_y
             @ratio = false
           end
-          h * @area.picture.aspect_ratio
+          size_y * @area.picture.aspect_ratio
         else super
         end
       end
 
-      def min_hv m
-        case @h
+      def min_size_y_value m
+        case @size_y
         when Ratio
-          get_w / @area.picture.aspect_ratio
+          get_size_x / @area.picture.aspect_ratio
         else super
         end
       end
 
-      def min_hl limit, m
+      def min_size_y_limit limit, m
         case limit
         when Ratio
-          get_w / @area.picture.aspect_ratio
+          get_size_x / @area.picture.aspect_ratio
         else super
         end
       end
 
-      def get_hv h, th, w
-        case h
+      def get_size_y_value size_y, target_size_y, size_x
+        case size_y
         when Ratio
           if @ratio
-            w ||= @area.picture.wh_origin[0]
+            size_x ||= @area.picture.original_size[0]
           else
             @ratio = true
-            w ||= get_w
+            size_x ||= get_size_x
             @ratio = false
           end
-          w / @area.picture.aspect_ratio
+          size_x / @area.picture.aspect_ratio
         else super
         end
       end

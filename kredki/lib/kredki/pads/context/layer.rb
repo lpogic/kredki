@@ -12,7 +12,7 @@ module Kredki
         end
 
         def loaded?
-          !!@pad_parent
+          !!@lower_pad
         end
 
         attr :items, :item_group
@@ -20,15 +20,15 @@ module Kredki
         def initialize
           super
 
-          @items = new Pad, outline: [1, :dark_gray] do
+          @items = put Pad, outline: [1, :dark_gray] do
             scene.drop_shadow! color: :black
           end
-          @item_group = @items.new ItemGroup
+          @item_group = @items.put ItemGroup
         end
 
         def load_common x, y
           @items.xy! x, y
-          parent.window.push_layer self
+          lower.window.push_layer self
           break_layout
         end
 

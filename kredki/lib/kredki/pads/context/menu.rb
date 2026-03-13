@@ -15,7 +15,7 @@ module Kredki
 
         # Add new item.
         def item!(...)
-          new(Item, :item!, w: 1r).alter(...)
+          put(Item, :item!, size_x: 1r).alter(...)
         end
       end
       
@@ -39,49 +39,49 @@ module Kredki
           on_pick do: param
         end
 
-        # Set primary pad width.
-        def w! ...
-          @context_layer.items.w!(...)
+        # Set primary pad size in the X axis.
+        def size_x! ...
+          @context_layer.items.size_x!(...)
         end
 
-        # See #w!.
-        def w= param
-          send_bundle :w!, param
+        # See #size_x!.
+        def size_x= param
+          send_bundle :size_x!, param
         end
 
-        # Get primary pad width.
-        def w
-          @context_layer.items.w
+        # Get primary pad size in the X axis.
+        def size_x
+          @context_layer.items.size_x
         end
 
-        # Set primary pad height.
-        def h! ...
-          @context_layer.items.h!(...)
+        # Set primary pad size in the Y axis.
+        def size_y! ...
+          @context_layer.items.size_y!(...)
         end
 
-        # See #h!.
-        def h= param
-          send_bundle :h!, param
+        # See #size_y!.
+        def size_y= param
+          send_bundle :size_y!, param
         end
 
-        # Get primary pad height.
-        def h
-          @context_layer.items.h
+        # Get primary pad size in the Y axis.
+        def size_y
+          @context_layer.items.size_y
         end
 
-        # Set primary pad width and height.
-        def wh! ...
-          @context_layer.items.wh!(...)
+        # Set primary pad size.
+        def size! ...
+          @context_layer.items.size!(...)
         end
 
-        # See #wh!.
-        def wh= param
-          send_bundle :wh!, param
+        # See #size!.
+        def size= param
+          send_bundle :size!, param
         end
 
         # Get primary pad width and height.
-        def wh
-          @context_layer.items.wh
+        def size
+          @context_layer.items.size
         end
 
         # :section: LEVEL 2
@@ -89,25 +89,26 @@ module Kredki
         def initialize
           super
         
-          @context_layer = new PrimaryLayer
+          @context_layer = put PrimaryLayer
         end
 
-        def set_parent parent, at = nil
+        def set_lower lower, at = nil
           if super
-            @parent_events&.each{ _1.detach }
-            @parent_events = []
+            @lower_events&.each{ _1.detach }
 
-            parent.on_mouse_click :secondary do |e|
+            secondary_mouse_click = lower.on_mouse_click :secondary do |e|
               @context_layer.load *e.xy
-              @context_layer.d?(Item)&.keyboard_request
+              @context_layer.find_upper(Item)&.keyboard_request
               e.close
-            end.then{|it| @parent_events << it }
+            end
       
-            parent.on_key :context do |e|
-              @context_layer.load *parent.translate(parent.sx / 2, parent.sy / 2)
-              @context_layer.d?(Item)&.keyboard_request
+            context_key = lower.on_key :context do |e|
+              @context_layer.load *lower.translate(lower.sx / 2, lower.sy / 2)
+              @context_layer.find_upper(Item)&.keyboard_request
               e.close
-            end.then{|it| @parent_events << it }
+            end
+
+            @lower_events = [secondary_mouse_click, context_key]
           end
         end
 

@@ -1,5 +1,4 @@
 require_relative 'service/service_filter'
-require_relative 'layer'
 
 module Kredki
   module Pads
@@ -32,8 +31,8 @@ module Kredki
         end
       end
 
-      # Get ancestors.
-      def lineage include_self = false
+      # Get lower services iterator.
+      def lower_iterator include_self = false
         []
       end
 
@@ -71,16 +70,16 @@ module Kredki
         on_joystick_move do: method(:joystick_event)
         on_joystick_switch do: method(:joystick_event)
 
-        layer!.keyboard_request
+        layer!(RootLayer).keyboard_request
       end
 
       def resize_event event
         super
-        w, h = event.wh
+        sx, sy = event.size
         @services.each do |it|
           it.set_xy 0, 0
-          it.set_size w, h
-          it.wh! w, h
+          it.set_size sx, sy
+          it.size! sx, sy
         end
       end
 
@@ -94,36 +93,36 @@ module Kredki
         @services.last
       end
 
-      def pad_parent
+      def lower
         nil
       end
 
-      def service_parent
+      def lower_pad
         nil
       end
 
-      def sw
-        window.wh[0]
+      def area_size_x
+        window.size[0]
       end
 
-      def sh
-        window.wh[1]
+      def area_size_y
+        window.size[1]
       end
 
-      def swh
-        window.wh
+      def area_size
+        window.size
       end
 
-      def clw
-        window.wh[0]
+      def clip_size_x
+        window.size[0]
       end
 
-      def clh
-        window.wh[1]
+      def clip_size_y
+        window.size[1]
       end
 
-      def clwh
-        window.wh
+      def clip_size
+        window.size
       end
 
       def tick ms
@@ -188,26 +187,26 @@ module Kredki
       end
 
       def put_pad pad
-        pad.set_parent self
+        pad.set_lower self
         push_layer pad
       end
 
       def push_layer layer
-        return if layer.pad_parent == self
+        return if layer.lower_pad == self
         layer.window&.remove_pad layer
         put_paint layer.scene
-        layer.set_pad_parent self
-        w, h = wh
+        layer.pad_attach self
+        sx, sy = size
         layer.set_xy 0, 0
-        layer.set_size w, h
-        layer.wh! w, h
+        layer.set_size sx, sy
+        layer.size! sx, sy
         @services << layer
         @mouse_stale = true
         layer
       end
 
-      def remove_service layer, transfer = false
-        @services.delete layer
+      def remove_upper upper, transfer = false
+        @services.delete upper
         @mouse_stale = true
       end
 

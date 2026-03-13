@@ -34,7 +34,7 @@ module Kredki
       def << feature
         case feature
         when String
-          (c? Label or new Label) << feature
+          (find Label or put Label) << feature
         else
           super
         end
@@ -51,14 +51,14 @@ module Kredki
       def sketch
         super
 
-        @button = new CheckButton do
+        @button = put CheckButton do
           on_click do
             checked! Not
           end
         end
 
-        h! Fit
-        mi! 8
+        size_y! Fit
+        spacer! 8
         layout! :xsc
       end
 

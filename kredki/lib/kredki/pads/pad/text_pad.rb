@@ -3,29 +3,9 @@ module Kredki
     # Pad with text area.
     class TextPad < Pad
 
-      # Set content.
-      def content! content = @content
-        return send_bundle :content!, yield(self.content) if block_given?
-        return if @content == content
-        @content = content
-        font = @verses.first&.font || Kredki.font
-        @verses&.each{|it| it.detach }
-        @verses = "#{content}\n".each_line(chomp: true).map do |line|
-          @scene.text! line.chomp, fill: @area.fill, font: font
-        end
-        arrange_verses
-        layer&.break_layout
-        true
-      end
-
-      # See #content!.
-      def content= param
-        send_bundle :content!, param
-      end
-
-      # Get content.
-      def content
-        @content
+      # Get text content.
+      def text
+        @subject.to_s
       end
 
       # Set fill.
@@ -179,7 +159,7 @@ module Kredki
       def << feature
         case feature
         when String
-          content! feature
+          subject! feature
         else
           super
         end
@@ -197,44 +177,54 @@ module Kredki
       def sketch
         super
 
-        wh! Fit
+        size! Fit
         verse_layout! :ysc
         verse_size! Kredki.text_size
-        content! "TEXT"
+        subject! "TEXT"
       end
 
-      def verse_metrics h
+      def set_subject subject
+        font = @verses.first&.font || Kredki.font
+        @verses&.each{|it| it.detach }
+        @verses = "#{subject}\n".each_line(chomp: true).map do |line|
+          @scene.text! line.chomp, fill: @area.fill, font: font
+        end
+        arrange_verses
+        layer&.break_layout
+      end
+
+      def verse_metrics size_y
         case @verse_size
         when :auto
-          size = 0
+          size_v = 0
           case @verse_space
           when Rational
-            size = h / (1 + (@verses.size - 1) * @verse_space) if @verses.size > 0
-            space = size * @verse_space
+            size_v = size_y / (1 + (@verses.size - 1) * @verse_space) if @verses.size > 0
+            space = size_v * @verse_space
           when Numeric
-            size = (h + (@verses.size - 1) * @verse_space) / @verses.size if @verses.size > 0
+            size_v = (size_y + (@verses.size - 1) * @verse_space) / @verses.size if @verses.size > 0
             space = @verse_space
           when :auto
             if @verses.size > 0
-              size = h / @verses.size
-              space = (h - @verses.size * size) / (@verses.size - 1)
+              size_v = size_y / @verses.size
+              space = (size_y - @verses.size * size_v) / (@verses.size - 1)
             else
               space = 0
             end
           else
-            size = h / @verses.size if @verses.size > 0
+            size_v = size_y / @verses.size if @verses.size > 0
             space = 0
           end
         when Rational
-          size = @verses.size > 0 ? @verse_size * h : 0
+          size_v = @verses.size > 0 ? @verse_size * size_y : 0
           case @verse_space
           when Rational
-            space = size * @verse_space
+            space = size_v * @verse_space
           when Numeric
             space = @verse_space
           when :auto
             if @verses.size > 0
-              space = (h - @verses.size * size) / (@verses.size - 1)
+              space = (size_y - @verses.size * size_v) / (@verses.size - 1)
             else
               space = 0
             end
@@ -242,15 +232,15 @@ module Kredki
             space = 0
           end
         else
-          size = @verses.size > 0 ? @verse_size : 0
+          size_v = @verses.size > 0 ? @verse_size : 0
           case @verse_space
           when Rational
-            space = size * @verse_space
+            space = size_v * @verse_space
           when Numeric
             space = @verse_space
           when :auto
             if @verses.size > 0
-              space = (h - @verses.size * size) / (@verses.size - 1)
+              space = (size_y - @verses.size * size_v) / (@verses.size - 1)
             else
               space = 0
             end
@@ -259,59 +249,59 @@ module Kredki
           end
         end
 
-        [size, space]
+        [size_v, space]
       end
 
-      def fit_w
-        size, _ = verse_metrics get_h
-        @verses.map{|it| size * it.w / it.h }.max
+      def fit_size_x
+        size_v, _ = verse_metrics get_size_y
+        @verses.map{|it| size_v * it.size_x / it.size_y }.max
       end
 
-      def fit_h
-        size, space = verse_metrics 0
-        @mys + @mye + (size + space) * @verses.size - space
+      def fit_size_y
+        size_v, space = verse_metrics 0
+        @margin_ys + @margin_ye + (size_v + space) * @verses.size - space
       end
 
-      def set_size w, h
+      def set_size x, y
         super and arrange_verses
       end
 
       def arrange_verses
         if @verses.size > 0
-          w, h = swh
-          size, space = verse_metrics h
-          tsize = (size + space) * @verses.size - space
-          y = align_y tsize, h
+          sx, sy = area_size
+          size_v, space = verse_metrics sy
+          size_t = (size_v + space) * @verses.size - space
+          y = align_y size_t, sy
           @verses.each do |v|
-            v.h! size
-            x = align_x v.w, w
+            v.size_y! size_v
+            x = align_x v.size_x, sx
             v.xy! x, y
-            y += size + space
+            y += size_v + space
           end
         end
         true
       end
 
-      def align_x tw, w
+      def align_x reference_size_x, size_x
         case @verse_layout
         when :yss, :ysc, :yse
           0
         when :yes, :yec, :yee
-          w - tw
+          size_x - reference_size_x
         when :ycs, :ycc, :yce
-          (w - tw) * 0.5
+          (size_x - reference_size_x) * 0.5
         else raise_is @verse_layout
         end
       end
 
-      def align_y th, h
+      def align_y reference_size_y, size_y
         case @verse_layout
         when :yss, :ycs, :yes
           0
         when :yse, :yce, :yee
-          h - th
+          size_y - reference_size_y
         when :ysc, :ycc, :yec
-          (h - th) * 0.5
+          (size_y - reference_size_y) * 0.5
         else raise_is @verse_layout
         end
       end

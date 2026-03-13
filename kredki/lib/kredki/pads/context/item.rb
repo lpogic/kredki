@@ -12,9 +12,9 @@ module Kredki
 
         # Create/Update dropdown layer.
         def dropdown! ...
-          c? SecondaryLayer or begin
-            c?(:end_icon).scenic!
-            new SecondaryLayer
+          find SecondaryLayer or begin
+            find(:end_icon).scenic!
+            put SecondaryLayer
           end.alter(...)
         end
 
@@ -23,14 +23,14 @@ module Kredki
         def initialize
           super
           
-          new SpacePad, h: 1r, w: :h
-          new TextPad, "", mousy: false
-          new RectanglePad, :end_icon, mousy: false, keyboardy: false, fill: 0, x: End, h: 1r, w: :h do
+          put SpacePad, size: [:y, 1r]
+          put TextPad, "", mousy: false
+          put RectanglePad, :end_icon, mousy: false, keyboardy: false, fill: 0, x: End, size: [:y, 1r] do
             outline! fill: :text, w: 2, cap: :round
-            area! do |w, h|
-              xy! w * 0.5, h * 0.35
-              line! w * 0.65, h * 0.5
-              line! w * 0.5, h * 0.65
+            area! do |sx, sy|
+              xy! sx * 0.5, sy * 0.35
+              line! sx * 0.65, sy * 0.5
+              line! sx * 0.5, sy * 0.65
             end
             scenic! false
           end
@@ -40,9 +40,9 @@ module Kredki
           super
 
           on_key_press :right do |e|
-            c?(SecondaryLayer)&.then do |it|
-              it.load self unless it.loaded?
-              it.d?(Item)&.keyboard_request and e.close
+            if layer = find_upper SecondaryLayer
+              layer.load self if layer.loaded?
+              layer.find_upper(Item)&.keyboard_request and e.close
             end
           end
 
@@ -50,7 +50,8 @@ module Kredki
 
         def mouse_enter e
           super
-          d?(SecondaryLayer)&.then{|it| it.update_keyboard_pad nil if it.loaded? }
+          layer = find_upper SecondaryLayer
+          layer.update_keyboard_pad nil if layer&.loaded?
         end
         
       end#Item

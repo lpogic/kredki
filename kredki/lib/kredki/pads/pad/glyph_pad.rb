@@ -3,27 +3,22 @@ module Kredki
     # Pad with glyph area.
     class GlyphPad < PicturePad
 
-      # Set content.
-      def content! content = @content
-        return send_bundle :content!, yield(self.content) if block_given?
-        return if @content == content && content != :rand
-        if @area.content! Kredki.glyph(content), @w == Auto && @h == Auto
+      # Set subject.
+      def subject! subject = @subject
+        return send_bundle :subject!, yield(self.subject) if block_given?
+        return if @subject == subject && subject != :random
+        if set_subject Kredki.glyph(subject)
           set_color @color if @color
         end
-        @content = content
+        @subject = subject
         true
-      end
-
-      # Get content.
-      def content
-        @content
       end
 
       # Set fill.
       def fill! *fill
         return send_bundle :fill!, yield(self.fill) if block_given?
         fill = Util.uncover fill
-        return if @fill == fill && fill != :rand
+        return if @fill == fill && fill != :random
         set_color Kredki.color fill
         @fill = fill
         true
@@ -43,7 +38,7 @@ module Kredki
       def << arg
         case arg
         when Symbol
-          content! arg if arg =~ /^[a-z_0-9]+$/
+          subject! arg if arg =~ /^[a-z_0-9]+$/
           super
         else
           super
@@ -61,7 +56,7 @@ module Kredki
       def sketch
         super
 
-        wh! Kredki.text_size
+        size! Kredki.text_size
       end
 
       def set_color color
