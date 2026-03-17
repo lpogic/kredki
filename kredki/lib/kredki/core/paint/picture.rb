@@ -6,8 +6,8 @@ module Kredki
     include Area
 
     # Set content.
-    def content! content, pull_size = false
-      return content! yield @content if block_given?
+    def set_content content, pull_size = false
+      return set_content yield @content if block_given?
       return if @content == content
       renew if @content
       c = content.to_s
@@ -25,9 +25,9 @@ module Kredki
       update
     end
 
-    # See #content!.
+    # See #set_content.
     def content= param
-      send_bundle :content!, param
+      send_bundle :set_content, param
     end
 
     # Get content.
@@ -45,7 +45,7 @@ module Kredki
       paint = Pastele.picture_accessor_get @pointer, id
       if !paint.null? && Pastele.paint_get_type(paint) == 1
         shape = Shape.new(true, paint)
-        shape.set_masking self
+        shape.update_masking self
         shape
       end
     end
@@ -55,7 +55,7 @@ module Kredki
       callback = Fiddle::Closure::BlockCaller.new Fiddle::TYPE_INT, [Fiddle::TYPE_VOIDP, Fiddle::TYPE_VOIDP] do |paint, data|
         if Pastele.paint_get_type(paint) == 1
           shape = Shape.new(true, paint)
-          shape.set_masking self
+          shape.update_masking self
           block.call shape
         end
         1
@@ -67,11 +67,11 @@ module Kredki
     def << feature
       case feature
       in [x, y]
-        size! x, y
+        set_size x, y
       in Numeric
-        size! feature
+        set_size feature
       in String
-        content! feature
+        set_content feature
       else
         super
       end

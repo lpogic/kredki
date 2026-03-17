@@ -51,7 +51,7 @@ module Kredki
     # Set keyboard model.
     def keyboard! keyboard = nil, **ka, &b
       @keyboard = keyboard || Keyboard.new
-      @keyboard.alter **ka, &b
+      @keyboard.set **ka, &b
     end
 
     # Get keyboard model.
@@ -62,7 +62,7 @@ module Kredki
     # Set mouse model.
     def mouse! mouse = nil, **ka, &b
       @mouse = mouse || Mouse.new
-      @mouse.alter **ka, &b
+      @mouse.set **ka, &b
     end
 
     # Get mouse model.
@@ -72,7 +72,7 @@ module Kredki
 
     # Set joystick model.
     def joystick! key = nil, joystick = nil, **ka, &b
-      (@joysticks[key] = joystick || Joystick.new).alter **ka, &b
+      (@joysticks[key] = joystick || Joystick.new).set **ka, &b
     end
 
     # Get joystick model.
@@ -152,6 +152,15 @@ module Kredki
       else
         @glyphs[param] or raise "Unknown glyph #{param.inspect}"
       end
+    end
+
+    # Get relative scroll value
+    def relative_scroll x, y
+      mouse = self.mouse
+      keyboard = self.keyboard
+
+      jump = keyboard.alt? ? mouse.scroll_speed_alt : mouse.scroll_speed
+      keyboard.shift? ? [y * jump, x * jump] : [x * jump, y * jump]
     end
 
     # :section: LEVEL 2

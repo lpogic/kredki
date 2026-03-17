@@ -37,68 +37,70 @@ module Kredki
   color! :text, 255, 255, 255, 255
 
   module Pads
+    class Pad
 
-    define :rectangle!, RectanglePad
-    def ellipse! ...
-      put(ShapePad, __method__, ...).alter do
-        area! do |w, h|
-          ellipse! w, h
+      rectangle! RectanglePad
+      def ellipse! ...
+        put(ShapePad, __method__, ...).set do
+          set_area do |w, h|
+            ellipse! w, h
+          end
         end
       end
-    end
-    def shape! *a, **ka, &b
-      put ShapePad, __method__, *a, **ka do
-        area! &b
+      def shape! *a, **ka, &b
+        put ShapePad, __method__, *a, **ka do
+          set_area &b
+        end
       end
-    end
 
-    define :pad!, RectanglePad
-    define :space!, SpacePad
-    define :scroll!, ScrollPad
-    define :picture!, PicturePad
-    define :animation!, AnimationPad
-    def text! *a, **ka, &b
-      put NavigableTextPad, __method__, *a, keyboardy: true, **ka, &b
-    end
-    define :glyph!, GlyphPad
-    define :xslide!, HorizontalSlide
-    define :yslide!, VerticalSlide
-    define :button!, Button
-    define :check!, Check
-    define :note!, Note
-    define :notes!, Notes
-    define :label!, Label
-    define :option!, Option
-    define :table!, Table::Pad
-    define :list!, List::Pad
-    define :tree!, Tree::Pad
-    define :radio!, Radio::Group
-    define :context!, Context::Menu
-    define :toolbar!, Toolbar::Pad
+      pad! RectanglePad
+      space! SpacePad
+      scroll! ScrollPad
+      picture! PicturePad
+      animation! AnimationPad
+      def text! *a, **ka, &b
+        put NavigableTextPad, __method__, *a, keyboardy: true, **ka, &b
+      end
+      glyph! GlyphPad
+      xslide! HorizontalSlide
+      yslide! VerticalSlide
+      button! Button
+      check! Check
+      note! Note
+      notes! Notes
+      label! Label
+      option! Option
+      table! Table::Pad
+      list! List::Pad
+      tree! Tree::Pad
+      radio! Radio::Group
+      context! Context::Menu
+      toolbar! Toolbar::Pad
 
-    layout! nil, Layout::Align.new(Center, Center)
-    [Start, Center, End].repeated_permutation 2 do |a, b|
-      x = "x#{a.to_s[0]}#{b.to_s[0]}".to_sym
-      y = "y#{a.to_s[0]}#{b.to_s[0]}".to_sym
-      z = "z#{a.to_s[0]}#{b.to_s[0]}".to_sym
-      layout! x, Layout::XWay.new(a, b)
-      layout! y, Layout::YWay.new(a, b)
-      layout! z, Layout::Align.new(a, b)
+      Pads.layout! nil, Layout::Align.new(Center, Center)
+      [Start, Center, End].repeated_permutation 2 do |a, b|
+        x = "x#{a.to_s[0]}#{b.to_s[0]}".to_sym
+        y = "y#{a.to_s[0]}#{b.to_s[0]}".to_sym
+        z = "z#{a.to_s[0]}#{b.to_s[0]}".to_sym
+        Pads.layout! x, Layout::XWay.new(a, b)
+        Pads.layout! y, Layout::YWay.new(a, b)
+        Pads.layout! z, Layout::Align.new(a, b)
 
-      eval <<~RUBY
-        def #{x}! *a, **ka, &b
-          put SpacePad, __method__, *a, layout: :#{x}, **ka, &b
-        end
-        def #{y}! *a, **ka, &b
-          put SpacePad, __method__, *a, layout: :#{y}, **ka, &b
-        end
-        def #{z}! *a, **ka, &b
-          put SpacePad, __method__, *a, layout: :#{z}, **ka, &b
-        end
-      RUBY
-    end
+        eval <<~RUBY
+          def #{x}! *a, **ka, &b
+            put SpacePad, __method__, *a, layout: :#{x}, **ka, &b
+          end
+          def #{y}! *a, **ka, &b
+            put SpacePad, __method__, *a, layout: :#{y}, **ka, &b
+          end
+          def #{z}! *a, **ka, &b
+            put SpacePad, __method__, *a, layout: :#{z}, **ka, &b
+          end
+        RUBY
+      end
+    end#Pad
   end#Pads
 
-  Window.default_scene = Pads::WindowScene
+  Window.default_pane = Pads::Pane
 
 end#Kredki

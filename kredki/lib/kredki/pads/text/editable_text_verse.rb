@@ -34,14 +34,14 @@ module Kredki
         end
       end
 
-      def subject! subject = @subject, cursor_position = 0, &b
+      def set_subject subject = @subject, cursor_position = 0, &b
         super("#{subject}\n".each_line(chomp: true).to_a.join, cursor_position, &b)
       end
 
       def edit new_content, new_cursor_position
         v = @verses.first
         initial_size_x = v.size_x
-        subject! new_content, new_cursor_position
+        set_subject new_content, new_cursor_position
         case @verse_layout
         when :yss, :ysc, :yse
           nil

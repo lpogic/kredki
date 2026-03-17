@@ -7,20 +7,20 @@ module Kredki
         # Add new item.
         def item! *a, **ka, &b
           lower.item! *a, size_x: 1r, at: pad_index + 1, level: level + 1, **ka, &b
-          dir!
+          set_dir
         end
 
         # Set whether is opened.
-        def open! value = true, &block
+        def set_open value = true, &block
           return if (c = open) == (value = block ? block[c] : value == Not ? !c : value)
           @open = value
           lower.update_show
           true
         end
 
-        # See #open!.
+        # See #set_open.
         def open= param
-          send_bundle :open!, param
+          send_bundle :set_open, param
         end
 
         # Get whether is opened.
@@ -34,15 +34,15 @@ module Kredki
         end
 
         # Set whether is directory.
-        def dir! value = true, set_icon = true, &block
+        def set_dir value = true, set_icon = true, &block
           return if (c = dir) == (value = block ? block[c] : value == Not ? !c : value)
           @dir = value
           true
         end
 
-        # See #dir!.
+        # See #set_dir.
         def dir= param
-          send_bundle :dir!, param
+          send_bundle :set_dir, param
         end
 
         # Get whether is directory.
@@ -56,16 +56,16 @@ module Kredki
         end
 
         # Set level.
-        def level! level
+        def set_level level
           return if @level == level
           @level = level
           update_level
           true
         end
 
-        # See #level!.
+        # See #set_level.
         def level= param
-          send_bundle :level!, param
+          send_bundle :set_level, param
         end
         
         # Get level

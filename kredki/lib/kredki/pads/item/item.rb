@@ -20,8 +20,8 @@ module Kredki
       end
 
       # Set suit.
-      def suit! *suit
-        return send_bundle :suit!, yield(self.suit) if block_given?
+      def set_suit *suit
+        return send_bundle :set_suit, yield(self.suit) if block_given?
         suit = Util.uncover suit
         return if @suit == suit && suit != :random
         @suit = suit
@@ -29,9 +29,9 @@ module Kredki
         true
       end
 
-      # See #suit!.
+      # See #set_suit.
       def suit= param
-        send_bundle :suit!, param
+        send_bundle :set_suit, param
       end
 
       # Get suit.
@@ -53,8 +53,8 @@ module Kredki
       def << feature
         case feature
         when String
-          subject! feature
-          find(TextPad)&.alter feature or default_text feature
+          set_subject feature
+          find(TextPad)&.set feature or default_text feature
           self
         else
           super
@@ -69,10 +69,10 @@ module Kredki
       def sketch
         super
 
-        keyboardy!
-        layout! :xsc
-        suit! :gray
-        size! Fit, 24
+        set keyboardy: true
+        set layout: :xsc
+        set suit: :gray
+        set_size Fit, 24
       end
 
       def presence
@@ -92,11 +92,11 @@ module Kredki
       def repaint event = nil
         color = Kredki.color @suit
         if disabled?
-          opacity! 3/4r
-          area.fill! color
+          set opacity: 3/4r
+          area.set fill: color
         else
-          opacity! 1r
-          area.fill! pin_in? ? color.darken : keyboard_in? ? color.lighten : color
+          set opacity: 1r
+          area.set fill: pin_in? ? color.darken : keyboard_in? ? color.lighten : color
         end
       end
 

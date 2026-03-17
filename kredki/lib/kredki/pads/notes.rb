@@ -10,9 +10,9 @@ module Kredki
       def sketch
         super
 
-        size_y! 64
-        verse_size! Kredki.text_size
-        verse_layout! :yss
+        set_size_y 64
+        set_verse_size Kredki.text_size
+        set_verse_layout :yss
       end
 
       def initialize_verse
@@ -24,7 +24,7 @@ module Kredki
       end
 
       def mouse_scroll event
-        @verse.scroll *window.relative_scroll(*event.xy)
+        @verse.scroll *Kredki.relative_scroll(*event.xy)
       end
 
     end

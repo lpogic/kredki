@@ -14,8 +14,8 @@ module Kredki
         def sketch
           super
 
-          size! 1r, Fit
-          fill! false
+          set_size 1r, Fit
+          set_fill false
         end
 
       end

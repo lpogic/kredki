@@ -27,9 +27,9 @@ module Kredki
         def sketch
           super
 
-          keyboardy!
-          fill! :gray
-          layout! :yss
+          set keyboardy: true
+          set fill: :gray
+          set layout: :yss
 
           @item_group = put ItemGroup
         end
@@ -42,33 +42,33 @@ module Kredki
             source = it.source
             if source.is_a? KeyEvent
               if source.key.id == :enter
-                item.open! Not
+                item.set_open Not
               else
                 if source.shift?
-                  item.select! Not
+                  item.set_select Not
                 else
-                  each_upper(Item).each_alter{|it| selected! it == item }
+                  each_upper(Item).each_set{|it| set_selected it == item }
                 end
               end
             else
               kb = Kredki.keyboard
               if kb.shift?
                 if kb.ctrl?
-                  item.open! Not
+                  item.set_open Not
                 else
-                  item.selected!
+                  item.set_selected
                 end
               elsif kb.ctrl?
-                item.selected! Not
+                item.set_selected Not
               else
-                each_upper(Item).each_alter{|it| selected! it == item }
-                item.open! Not
+                each_upper(Item).each_set{|it| set_selected it == item }
+                item.set_open Not
               end
             end
           end
 
           on_focus_leave do
-            each_upper(Item).each_alter selected: false
+            each_upper(Item).each_set selected: false
           end
         end
 

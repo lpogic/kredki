@@ -23,16 +23,16 @@ module Kredki
         end
 
         # Set spacer in X axis.
-        def spacer_x! ...
-          if @column_layout.space!(...)
+        def set_spacer_x ...
+          if @column_layout.set_space(...)
             layer&.break_layout
             true
           end
         end
 
-        # See #spacer_x!.
+        # See #set_spacer_x.
         def spacer_x= param
-          send_bundle :spacer_x!, param
+          send_bundle :set_spacer_x, param
         end
 
         # Get spacer in X axis.
@@ -41,17 +41,17 @@ module Kredki
         end
 
         # Set spacer in Y axis.
-        def spacer_y! spacer_y = @spacer
-          return spacer_y! yield @spacer if block_given?
+        def set_spacer_y spacer_y = @spacer
+          return set_spacer_y yield @spacer if block_given?
           return if Util.eqr @spacer, spacer_y
           @spacer = spacer_y
           layer&.break_layout
           true
         end
 
-        # See #spacer_y!.
+        # See #set_spacer_y.
         def spacer_y= param
-          send_bundle :spacer_y!, param
+          send_bundle :set_spacer_y, param
         end
 
         # Get spacer in Y axis.
@@ -60,14 +60,14 @@ module Kredki
         end
 
         # Set spacer value.
-        def spacer! spacer_x = @column_layout.space, spacer_y = spacer_x
-          return spacer! yield(self.spacer) if block_given?
-          spacer_x!(spacer_x) | spacer_y!(spacer_y)
+        def set_spacer spacer_x = @column_layout.space, spacer_y = spacer_x
+          return set_spacer yield(self.spacer) if block_given?
+          set_spacer_x(spacer_x) | set_spacer_y(spacer_y)
         end
 
-        # See #spacer!.
+        # See #set_spacer.
         def spacer= param
-          send_bundle :spacer!, param
+          send_bundle :set_spacer, param
         end
 
         # Get spacer value.
@@ -77,7 +77,7 @@ module Kredki
 
         # Add new scroll rows.
         def scroll_rows! ...
-          put(ScrollRows, :scroll_rows!, spacer: spacer_y).alter(...)
+          put(ScrollRows, :scroll_rows!, spacer: spacer_y).set(...)
         end
 
         # :section: LEVEL 2
@@ -91,9 +91,9 @@ module Kredki
         def sketch
           super 
 
-          fill! false
-          layout! :yss
-          size_y! Fit
+          set fill: false
+          set layout: :yss
+          set size_y: Fit
         end
 
         def arrange

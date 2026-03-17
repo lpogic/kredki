@@ -3,15 +3,15 @@ module Kredki
   class Clipboard
 
     # Set content.
-    def content! content = nil
-      return content! yield self.content if block_given?
+    def set_content content = nil
+      return set_content yield self.content if block_given?
       Pastele.clipboard_set_text content.to_s
       true
     end
     
-    # See #content!.
+    # See #set_content.
     def content= param
-      content! param
+      set_content param
     end
     
     # Get content.

@@ -48,36 +48,27 @@ KredkiProc = proc do
         (MainLayer.methods - Object.instance_methods).each do |it|
             def_delegator :MainLayer, it
         end
-  
-        def layer! ...
-          MainLayer.window.layer!(...)
-        end
-
-        def define ...
-          def_delegator :MainLayer, Pads.define(...)
-        end
       end
     end
     extend Kredki::Extend
     include Kredki
     include Kredki::Pads
-    extend Forwardable
     
-    window.alter do
-      resizable!
-      text_input!
-      fill! 20, 70, 20
-      top!
-      exit_on_esc!
+    window.set do
+      set_resizable
+      set_text_input
+      set_fill 20, 70, 20
+      set_top
+      exit_on_esc
     end
-    MainLayer.carry_focus_on_tab!
+    MainLayer.carry_focus_on_tab
 
     kredki_workspace = KredkiWorkSpace.new app, binding
     IRB.CurrentContext.replace_workspace kredki_workspace
     IRB.conf[:AT_EXIT] << proc{ kredki_workspace.evaluate :exit }
     job.loop{ kredki_workspace.release }
     mutex.synchronize{ convar.signal }
-    window.show!
+    window.show
     app.run
   end
 

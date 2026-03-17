@@ -8,16 +8,16 @@ module Kredki
       include TextNavigation
 
       # Set selector for click event target.
-      def for! new_for = @for
-        return send_bundle :for!, yield(self.for) if block_given?
+      def set_for new_for = @for
+        return send_bundle :set_for, yield(self.for) if block_given?
         return if @for == new_for
         @for = new_for
         true
       end
 
-      # See #for!.
+      # See #set_for.
       def for= param
-        send_bundle :for!, param
+        send_bundle :set_for, param
       end
 
       # Get selector for click event target.
@@ -26,14 +26,14 @@ module Kredki
       end
 
       # Set text content.
-      def text! text = @text.subject
-        return send_bundle :text!, yield(self.text) if block_given?
+      def set_text text = @text.subject
+        return send_bundle :set_text, yield(self.text) if block_given?
         @text.subject = text
       end
       
-      # See #text!.
+      # See #set_text.
       def text= param
-        send_bundle :text!, param
+        send_bundle :set_text, param
       end
 
       # Get text content.
@@ -45,7 +45,7 @@ module Kredki
       def << arg
         case arg
         when String
-          text! arg
+          set_text arg
         else
           super
         end
@@ -58,17 +58,17 @@ module Kredki
 
         @text = put NavigableTextPad, size_y: 1r do
           cursor.size_x = 0
-          mousy! false
+          set_mousy false
         end
       end
 
       def sketch
         super
 
-        size! Fit, 24
-        for! proc{|it| it.lower_pad&.find{|it| it.keyboardy? } }
-        keyboardy! false
-        area.fill! false
+        set_size Fit, 24
+        set_for proc{|it| it.lower_pad&.find{|it| it.keyboardy? } }
+        set_keyboardy false
+        area.set_fill false
 
         text_navigation @text
       end
@@ -81,7 +81,7 @@ module Kredki
         super
 
         on_mouse_enter do |event|
-          @portal_layer = window.layer! PortalLayer
+          @portal_layer = pane.layer! PortalLayer
           @portal_layer.entry = self
           @portal_layer.exit = for_pad
         end

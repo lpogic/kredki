@@ -5,16 +5,16 @@ module Kredki
       class Item < YItem
 
         # Set whether is selected.
-        def selected! value = true, &block
+        def set_selected value = true, &block
           return if (c = selected) == (value = block ? block[c] : value == Not ? !c : value)
           @selected = value
           repaint
           true
         end
 
-        # See #selected!.
+        # See #set_selected.
         def selected= param
-          send_bundle :selected!, param
+          send_bundle :set_selected, param
         end
 
         # Get whether is selected.
@@ -28,8 +28,8 @@ module Kredki
         end
 
         # Set suit.
-        def suit! *suit
-          return send_bundle :suit!, yield(self.suit) if block_given?
+        def set_suit *suit
+          return send_bundle :set_suit, yield(self.suit) if block_given?
           suit = Util.uncover suit
           return if @suit == suit && suit != :random
           @suit = suit
@@ -37,9 +37,9 @@ module Kredki
           true
         end
 
-        # See #suit!.
+        # See #set_suit.
         def suit= param
-          send_bundle :suit!, param
+          send_bundle :set_suit, param
         end
 
         # Get suit.
@@ -67,19 +67,19 @@ module Kredki
           color = Kredki.color @suit
 
           if disabled?
-            opacity! 3/4r
-            area.fill! color
-            area.outline_w! 0
-            area.outline_fill! color
+            set_opacity 3/4r
+            area.set_fill color
+            area.set_outline_w 0
+            area.set_outline_fill color
           else
-            opacity! 1r
-            area.fill! selected? ? mouse_in? ? Kredki.color(:text_selection).lighten : :text_selection : mouse_in? ? color.lighten : color
+            set_opacity 1r
+            area.set_fill selected? ? mouse_in? ? Kredki.color(:text_selection).lighten : :text_selection : mouse_in? ? color.lighten : color
             if keyboard_in?
-              area.outline_w! 1
-              area.outline_fill! :outline_focus
+              area.set_outline_w 1
+              area.set_outline_fill :outline_focus
             else
-              area.outline_w! 0
-              area.outline_fill! color
+              area.set_outline_w 0
+              area.set_outline_fill color
             end
           end
         end
@@ -88,21 +88,21 @@ module Kredki
           super
 
           on_key_press :up do |e|
-            selected! if e.shift?
+            set_selected if e.shift?
             item = lower.update_selected_item(:previous)
             if item
-              item.selected! if e.shift?
-              item.roi!
+              item.set_selected if e.shift?
+              item.request_vision
             end
             e.close
           end
 
           on_key_press :down do |e|
-            selected! if e.shift?
+            set_selected if e.shift?
             item = lower.update_selected_item(:next)
             if item
-              item.selected! if e.shift?
-              item.roi!
+              item.set_selected if e.shift?
+              item.request_vision
             end
             e.close
           end

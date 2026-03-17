@@ -3,6 +3,18 @@ module Kredki
     # Module to include in service containers.
     module ServiceFilter
 
+      def respond_to? name, include_all = false
+        name.end_with? "?" or super
+      end
+
+      def method_missing name, ...
+        if name.end_with? "?"
+          find_upper(name.to_s.tr("?", "!").to_sym, ...)
+        else
+          super
+        end
+      end
+
       # Get self if it matches filters.
       def is *filters, **ka, &block
         return self if self =~ [*filters, ka, block]
@@ -22,15 +34,15 @@ module Kredki
       def find_lower *filters, last: false, **ka, &block
         each_lower(*filters, **ka, reverse: last, &block).first
       end
-      
-      # Get each lower service matching filters.
-      def each_lower *filters, reverse: false, **ka, &block
-        lower_iterator(false).then{|it| reverse ? it.reverse_each : it }.filter{|it| it =~ [*filters, ka, block] }
-      end
 
       # Get each direct lower service matching filters.
       def each *filters, reverse: false, **ka, &block
         upper_iterator deep: false, reverse:, filter: [*filters, ka, block]
+      end
+      
+      # Get each lower service matching filters.
+      def each_lower *filters, reverse: false, **ka, &block
+        lower_iterator(false).then{|it| reverse ? it.reverse_each : it }.filter{|it| it =~ [*filters, ka, block] }
       end
 
       # Get each upper service matching filters.

@@ -47,11 +47,11 @@ module Kredki
         pad.arranged_pads.each do |p1|
           psy = p1.get_size_y csy
           psx = p1.get_size_x csx, psy
-          p1.set_size psx, psy
+          p1.update_size psx, psy
           px = p1.get_x csx, psx, (get_x @x, csx, psx)
           py = p1.get_y csy, psy, (get_y @y, csy, psy)
-          p1.set_xy px, py
-          p1.set_margin
+          p1.update_xy px, py
+          p1.update_margin
           p1.arrange
           if p1.layoutic?
             lx = [lx, px].min

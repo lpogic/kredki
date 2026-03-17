@@ -139,7 +139,7 @@ module Kredki
 
     # Set hat.
     def hat! id, code, &block
-      @hat_map[id] = @hatcode_map[code] = Hat.new(id, code).alter &block
+      @hat_map[id] = @hatcode_map[code] = Hat.new(id, code).set &block
     end
 
     # Get hat.

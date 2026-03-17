@@ -9,18 +9,18 @@ pad! fill: :random, size: 120
 pad! fill: :random, size: 100
 base_layer = layer
 
-define :button_text_input do |layout|
+Button.define :button_text_input do |layout|
   "Click here to change layout\nCurrent layout: #{layout ? ":#{layout}" : "nil"}"
 end
 
-window.layer! do
+pane.layer! do
   button! do
     text! button_text_input(layouts.first)
 
     on_click do
       layouts.rotate!
       find_upper(TextPad) << button_text_input(layouts.first)
-      base_layer.layout! layouts.first
+      base_layer.set_layout layouts.first
     end
   end
 end

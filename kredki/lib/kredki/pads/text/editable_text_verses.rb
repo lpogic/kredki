@@ -33,7 +33,7 @@ module Kredki
       end
 
       def edit new_content, new_cursor_position
-        subject! new_content, new_cursor_position
+        set_subject new_content, new_cursor_position
       end
 
       def drop_move x, y

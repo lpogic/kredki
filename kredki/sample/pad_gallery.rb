@@ -1,6 +1,6 @@
 require 'kredki'
 
-layout! :yss
+set layout: :yss
 
 toolbar! do
   item! "File"

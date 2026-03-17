@@ -10,10 +10,6 @@ module Kredki
       def_delegator :@layer, it
     end
 
-    def define ...
-      def_delegator :@layer, Pads.define(...)
-    end
-
     def setup
       @layer = Kredki.app.open show: false
     end
@@ -34,4 +30,5 @@ module Kredki
   end
 end
 
+include Kredki
 include Kredki::Pads

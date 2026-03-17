@@ -1,18 +1,20 @@
 require 'kredki'
 
-define :spawn_action do |path, color|
-  window.alter :exit_on_esc!
-  window.title! path
-  window.fill! color
+class SpawnPane < Pane
+  layer do |path, color|
+    window.set title: path
+    pane.set fill: color
+    pane.close_on_esc
 
-  i = 0
-  button! "Spawn #{path}.#{i}" do
-    on_click do
-      app.open{ spawn_action "#{path}.#{i}", color.tune(0, -10, 10) }
-      i += 1
-      alter "Spawn #{path}.#{i}"
+    i = 0
+    button! "Spawn #{path}.#{i}" do
+      on_click do
+        app.open SpawnPane.new("#{path}.#{i}", color.tune(0, -10, 10))
+        i += 1
+        set "Spawn #{path}.#{i}"
+      end
     end
   end
 end
 
-spawn_action "", Kredki.color(window.fill)
+window.set SpawnPane.new("", Kredki.color(pane.fill))

@@ -9,7 +9,7 @@ module Kredki
         def sketch
           super
 
-          size! 1r
+          set_size 1r
         end
 
         def min_size_y

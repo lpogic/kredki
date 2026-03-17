@@ -47,7 +47,7 @@ module Kredki
           
           pad.layout_pads.zip measurement do |p1, m|
             psy = p1.get_size_y csy, m
-            p1.set_size m, psy
+            p1.update_size m, psy
           end
 
           arrange_pads pad.arranged_pads, sx, csx, csy, pad.spacer || 0
@@ -91,8 +91,8 @@ module Kredki
           psx, psy = pad.area_size
           px = pad.get_x csx, psx, cx
           py = pad.get_y csy, psy, (get_y @y, csy, psy)
-          pad.set_xy px, py
-          pad.set_margin
+          pad.update_xy px, py
+          pad.update_margin
           pad.arrange
           [psx, psy, px, py]
         end

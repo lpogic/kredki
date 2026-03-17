@@ -12,10 +12,10 @@ module Kredki
 
         def selected_up_to pad
           bound = 0
-          each_upper(Item).each_alter do
+          each_upper(Item).each_set do
             bound += 1 if self == pad
             bound += 1 if keyboard_in?
-            selected! if bound > 0
+            set_selected if bound > 0
             break if bound > 1
           end
         end
@@ -26,12 +26,12 @@ module Kredki
 
         def update_show
           hide_level = 0
-          each_upper(Item).each_alter do
+          each_upper(Item).each_set do
             if level <= hide_level
-              show!
+              set_show
               hide_level = open? ? level + 1 : level
             else
-              show! false
+              set_show false
             end
           end
         end

@@ -30,9 +30,9 @@ module Kredki
         def initialize
           super
 
-          size! 1r, Fit
-          layout! :xsc
-          fill! :gray
+          set_size 1r, Fit
+          set_layout :xsc
+          set_fill :gray
         
           put ItemGroup
         end

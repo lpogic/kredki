@@ -4,16 +4,16 @@ module Kredki
     class CheckButton < Button
 
       # Set whether is checked.
-      def checked! value = true
+      def set_checked value = true
         return if (c = checked) == (value = block_given? ? yield(c) : value == Not ? !c : value)
-        @check.show! value
+        @check.set_show value
         @checked = value
         true
       end
 
-      # See #checked!.
+      # See #set_checked.
       def checked= param
-        send_bundle :checked!, param
+        send_bundle :set_checked, param
       end
 
       # Get whether is checked.
@@ -32,32 +32,32 @@ module Kredki
         super
         
         @check = put RectanglePad, mousy: false, keyboardy: false, fill: 0, size: 1r do
-          outline! fill: :text, w: 3
-          area! do
+          set_outline fill: :text, w: 3
+          set_area do
             xy! 3, 1/2r
             line! 1/2r, -3
             line! -3, 3
           end
-          hide!
+          set_show false
         end
       end
 
       def sketch
         super
 
-        layout! :zcc
-        size! 16
-        margin! 2
+        set layout: :zcc
+        set size: 16
+        set margin: 2
       end
 
       def repaint event = nil
         color = Kredki.color @suit
         if disabled?
-          area.fill! color
-          area.outline_fill! color.darken
+          area.set fill: color
+          area.set outline_fill: color.darken
         else
-          area.fill! pressed? ? color.darken : mouse_in? ? color.lighten : color
-          area.outline_fill! keyboard_in? ? :outline_focus : color.darken
+          area.set fill: pressed? ? color.darken : mouse_in? ? color.lighten : color
+          area.set outline_fill: keyboard_in? ? :outline_focus : color.darken
         end
       end
 

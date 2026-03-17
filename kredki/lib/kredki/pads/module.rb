@@ -5,7 +5,6 @@ require_relative 'pad/sort_pad'
 require_relative 'pad/shape_pad'
 require_relative 'pad/rectangle_pad'
 require_relative 'layer'
-require_relative 'root_layer'
-require_relative 'window_scene'
+require_relative 'pane'
 
 load Kredki::Pads.config

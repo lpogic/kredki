@@ -2,8 +2,8 @@ require_relative 'service/service_filter'
 
 module Kredki
   module Pads
-    # WindowScene for Pads module.
-    class WindowScene < Kredki::WindowScene
+    # Pane of Pads module.
+    class Pane < Kredki::Pane
       include ServiceFilter
       
       # Add new layer.
@@ -11,7 +11,7 @@ module Kredki
         layer = klass.new
         put_pad layer
         layer.sketch_service
-        layer.alter *a, **ka, &b
+        layer.set *a, **ka, &b
         layer
       end
 
@@ -36,25 +36,47 @@ module Kredki
         []
       end
 
-      # Save window as PNG image.
-      def to_png filepath
-        arrange
-        @scene.to_png filepath
+      class << self
+        attr_accessor :sketch_layer
+
+        def layer &block
+          self.sketch_layer = Class.new Layer
+          sketch_layer.define_method :sketch do
+            super()
+            pane.sketch_layer_block self, &block
+          end
+        end
       end
+
+      self.sketch_layer = Layer
 
       # :section: LEVEL 2
 
-      def initialize
-        super
+      def initialize *a, **ka
+        super()
         
         @event_queue = EventQueue.new
         @services = []
+        @sketch_a = a
+        @sketch_ka = ka
+      end
+
+      def sketch_layer_block layer, &block
+        layer.instance_exec *@sketch_a, **@sketch_ka, &block
+        @sketch_a = @sketch_ka = nil
+      end
+
+      def sketch_pane
+        super
+        @mouse_stale = false
+        layer!(self.class.sketch_layer).keyboard_request
       end
 
       def sketch
-        super
-        @mouse_stale = false
+      end
 
+      def behavior
+        super
         on_mouse_move do: method(:update_mouse_location)
         @event_manager.manager MousePointerEnterEvent, proc{|e| update_mouse_location }
         @event_manager.manager MousePointerLeaveEvent, proc{|e| update_mouse_location }
@@ -69,17 +91,20 @@ module Kredki
         on_joystick_release do: method(:joystick_event)
         on_joystick_move do: method(:joystick_event)
         on_joystick_switch do: method(:joystick_event)
+      end
 
-        layer!(RootLayer).keyboard_request
+      def service
+        super
+        @services.last
       end
 
       def resize_event event
         super
         sx, sy = event.size
         @services.each do |it|
-          it.set_xy 0, 0
+          it.update_xy 0, 0
           it.set_size sx, sy
-          it.size! sx, sy
+          it.update_size sx, sy
         end
       end
 
@@ -138,10 +163,6 @@ module Kredki
         @services.map{|it| [it, it.pad_tree] }.to_h
       end
 
-      def build_context
-        @services.last
-      end
-
       def mouse_event event
         arrange
         @services.reverse_each do |layer|
@@ -164,7 +185,7 @@ module Kredki
           end
           @event_queue.process
         end
-        Kredki.mouse.cursor! cursor
+        Kredki.mouse.set_cursor cursor
         @mouse_stale = false
       end
 
@@ -187,7 +208,7 @@ module Kredki
       end
 
       def put_pad pad
-        pad.set_lower self
+        pad.update_lower self
         push_layer pad
       end
 
@@ -196,10 +217,10 @@ module Kredki
         layer.window&.remove_pad layer
         put_paint layer.scene
         layer.pad_attach self
-        sx, sy = size
-        layer.set_xy 0, 0
+        sx, sy = window.size
+        layer.update_xy 0, 0
         layer.set_size sx, sy
-        layer.size! sx, sy
+        layer.update_size sx, sy
         @services << layer
         @mouse_stale = true
         layer

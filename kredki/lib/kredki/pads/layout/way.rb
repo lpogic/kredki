@@ -85,11 +85,11 @@ module Kredki
         def arrange_non_layoutic pad, csx, csy
           psx = pad.get_size_x csx
           psy = pad.get_size_y csy
-          pad.set_size psx, psy
+          pad.update_size psx, psy
           px = pad.get_x csx, psx, (get_x @x, csx, psx)
           py = pad.get_y csy, psy, (get_y @y, csy, psy)
-          pad.set_xy px, py
-          pad.set_margin
+          pad.update_xy px, py
+          pad.update_margin
           pad.arrange
         end
         

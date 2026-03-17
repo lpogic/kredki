@@ -9,16 +9,16 @@ module Kredki
       end
 
       # Set fill.
-      def fill! *fill
-        return send_bundle :fill!, yield(self.fill) if block_given?
-        return unless @area.fill! *fill
-        @verses.each{|it| it.fill! *fill }
+      def set_fill *fill
+        return send_bundle :set_fill, yield(self.fill) if block_given?
+        return unless @area.set_fill *fill
+        @verses.each{|it| it.set_fill *fill }
         true
       end
       
-      # See #fill!.
+      # See #set_fill.
       def fill= param
-        send_bundle :fill!, param
+        send_bundle :set_fill, param
       end
 
       # Get fill.
@@ -27,35 +27,35 @@ module Kredki
       end
 
       # Set outline features.
-      def outline! *a, **ka
+      def set_outline *a, **ka
         a.map do |it|
           case it
           when Hash
-            outline! **it
+            set_outline **it
           when Numeric
-            outline_w! it
+            set_outline_w it
           else
-            send_bundle :outline_fill!, it
+            send_bundle :set_outline_fill, it
           end
-        end.any? | send_branch(:outline, ka)
+        end.any? | send_branch(__method__, ka)
       end
       
-      # See #outline!.
+      # See #set_outline.
       def outline= param
-        send_bundle :outline!, param
+        send_bundle :set_outline, param
       end
 
       # Set outline fill.
-      def outline_fill! *outline_fill
-        return send_bundle :outline_fill!, yield(self.outline_fill) if block_given?
-        return unless @area.outline_fill! *outline_fill
-        @verses.each{|it| it.outline_fill! *outline_fill }
+      def set_outline_fill *outline_fill
+        return send_bundle :set_outline_fill, yield(self.outline_fill) if block_given?
+        return unless @area.set_outline_fill *outline_fill
+        @verses.each{|it| it.set_outline_fill *outline_fill }
         true
       end
 
-      # See #outline_fill!.
+      # See #set_outline_fill.
       def outline_fill= param
-        send_bundle :outline_fill!, param
+        send_bundle :set_outline_fill, param
       end
 
       # Get outline fill.
@@ -64,16 +64,16 @@ module Kredki
       end
 
       # Set outline width.
-      def outline_w! outline_w = @outline_w
-        return send_bundle :outline_w!, yield(self.outline_w) if block_given?
-        return unless @area.outline_w! *outline_w
-        @verses.each{|it| it.outline_w! *outline_w }
+      def set_outline_w outline_w = @outline_w
+        return send_bundle :set_outline_w, yield(self.outline_w) if block_given?
+        return unless @area.set_outline_w *outline_w
+        @verses.each{|it| it.set_outline_w *outline_w }
         true
       end
 
-      # See #outline_w!.
+      # See #set_outline_w.
       def outline_w= param
-        send_bundle :outline_w!, param
+        send_bundle :set_outline_w, param
       end
 
       # Get outline width.
@@ -82,35 +82,35 @@ module Kredki
       end
 
       # Set verse features.
-      def verse! *a, **ka
+      def set_verse *a, **ka
         a.map do |it|
           case it
           when Hash
-            verse! **it
+            set_verse **it
           when Numeric, :auto
-            verse_size! it
+            set_verse_size it
           else
-            verse_layout! it
+            set_verse_layout it
           end
-        end.any? | send_branch(:verse, ka)
+        end.any? | send_branch(__method__, ka)
       end
 
-      # See #verse!.
+      # See #set_verse.
       def verse= param
-        send_bundle :verse!, param
+        send_bundle :set_verse, param
       end
 
       # Set verse layout.
-      def verse_layout! layout = nil
-        return send_bundle :verse_layout!, yield(self.verse_layout) if block_given?
+      def set_verse_layout layout = nil
+        return send_bundle :set_verse_layout, yield(self.verse_layout) if block_given?
         return if @verse_layout == layout
         @verse_layout = layout
         arrange_verses
       end
 
-      # See #verse_layout!.
+      # See #set_verse_layout.
       def verse_layout= param
-        send_bundle :verse_layout!, param
+        send_bundle :set_verse_layout, param
       end
 
       # Get verse layout.
@@ -119,17 +119,17 @@ module Kredki
       end
 
       # Set space between verses.
-      def verse_space! verse_space = @verse_space
-        return send_bundle :verse_space!, yield(self.verse_space) if block_given?
+      def set_verse_space verse_space = @verse_space
+        return send_bundle :set_verse_space, yield(self.verse_space) if block_given?
         return if @verse_space == verse_space
         @verse_space = verse_space
         layer&.break_layout
         true
       end
       
-      # See #verse_space!.
+      # See #set_verse_space.
       def verse_space= param
-        send_bundle :verse_space!, param
+        send_bundle :set_verse_space, param
       end
       
       # Get space between verses.
@@ -138,16 +138,16 @@ module Kredki
       end
 
       # Set verse size.
-      def verse_size! verse_size = @verse_size
-        return send_bundle :verse_size!, yield(self.verse_size) if block_given?
+      def set_verse_size verse_size = @verse_size
+        return send_bundle :set_verse_size, yield(self.verse_size) if block_given?
         return if @verse_size == verse_size
         @verse_size = verse_size
         arrange_verses
       end
 
-      # See #verse_size!.
+      # See #set_verse_size.
       def verse_size= param
-        send_bundle :verse_size!, param
+        send_bundle :set_verse_size, param
       end
 
       # Get verse size.
@@ -159,7 +159,7 @@ module Kredki
       def << feature
         case feature
         when String
-          subject! feature
+          set_subject feature
         else
           super
         end
@@ -177,13 +177,13 @@ module Kredki
       def sketch
         super
 
-        size! Fit
-        verse_layout! :ysc
-        verse_size! Kredki.text_size
-        subject! "TEXT"
+        set size: Fit
+        set verse_layout: :ysc
+        set verse_size: Kredki.text_size
+        set subject: "TEXT"
       end
 
-      def set_subject subject
+      def update_subject subject
         font = @verses.first&.font || Kredki.font
         @verses&.each{|it| it.detach }
         @verses = "#{subject}\n".each_line(chomp: true).map do |line|
@@ -262,7 +262,7 @@ module Kredki
         @margin_ys + @margin_ye + (size_v + space) * @verses.size - space
       end
 
-      def set_size x, y
+      def update_size x, y
         super and arrange_verses
       end
 
@@ -273,9 +273,9 @@ module Kredki
           size_t = (size_v + space) * @verses.size - space
           y = align_y size_t, sy
           @verses.each do |v|
-            v.size_y! size_v
+            v.set_size_y size_v
             x = align_x v.size_x, sx
-            v.xy! x, y
+            v.set_xy x, y
             y += size_v + space
           end
         end

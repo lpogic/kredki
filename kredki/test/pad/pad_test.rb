@@ -5,16 +5,16 @@ class PadTest < Kredki::Test
 
   def test_basic
     pad! size_x: 100, size_y: 1/2r, fill: :yellow, corner: [10, ee: 30] do
-      outline! 15, :red, cap: :round, pattern: [10, 20], behind: true
-      turn! 1/4r
-      zoom! 3/4r
+      set_outline 15, :red, cap: :round, pattern: [10, 20], behind: true
+      set_turn 1/4r
+      set_zoom 3/4r
     end
     assert_png
   end
 
   def test_clip
     pad! fill: :white, turn: 1/5r do
-      area! do |sx, sy|
+      set_area do |sx, sy|
         ellipse! sx, sy
       end
       pad! fill: :black, size: 4/5r

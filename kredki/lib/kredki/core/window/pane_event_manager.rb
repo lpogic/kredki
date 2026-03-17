@@ -4,8 +4,8 @@ require_relative '../event/mouse_event_manager'
 require_relative '../event/joystick_event_manager'
 
 module Kredki
-  # Manage window scene events.
-  class WindowSceneEventManager
+  # Manage pane events.
+  class PaneEventManager
 
     # :section: LEVEL 2
 

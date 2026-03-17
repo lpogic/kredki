@@ -57,6 +57,11 @@ module Kredki
         @source.y
       end
 
+      # Get click combo.
+      def combo
+        @combo
+      end
+
       # Get position along X and Y axes.
       def xy
         [x, y]
@@ -65,6 +70,10 @@ module Kredki
       def timestamp
         @source.timestamp
       end
+
+      # :section: LEVEL 2
+
+      attr_writer :combo
     end
 
     class KeyClickEvent < Event
@@ -95,7 +104,7 @@ module Kredki
     class FocusOfferEvent < Event
     end
 
-    class ROIEvent < PositionEvent
+    class VisionOfferEvent < PositionEvent
 
       # Get size in the X axis.
       def size_x

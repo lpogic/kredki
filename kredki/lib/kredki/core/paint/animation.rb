@@ -2,8 +2,8 @@ module Kredki
   # Picture that may change over time.
   class Animation
 
-    def content! ...
-      if @picture.content!(...)
+    def set_content ...
+      if @picture.set_content(...)
         @duration = (Pastele.animation_get_duration(@pointer) * 1000).to_i
         @frame_ms_to_index = Pastele.animation_get_total_frames(@pointer) / @duration
         @frame = 0
@@ -11,9 +11,9 @@ module Kredki
       end
     end
 
-    # See #content!.
+    # See #set_content.
     def content= param
-      send_bundle :content!, param
+      send_bundle :set_content, param
     end
 
     # Get content.
@@ -22,11 +22,11 @@ module Kredki
     end
 
     # Set size in X axis.
-    def size_x! ...
-      @picture.size_x!(...)
+    def set_size_x ...
+      @picture.set_size_x(...)
     end
 
-    # See: #size_x!
+    # See: #set_size_x
     def size_= param
       @picture.size_x = param
     end
@@ -37,11 +37,11 @@ module Kredki
     end
 
     # Set size in Y axis.
-    def size_y! ...
-      @picture.size_y!(...)
+    def set_size_y ...
+      @picture.set_size_y(...)
     end
 
-    # See: #size_y!
+    # See: #set_size_y
     def size_y= param
       @picture.size_y = param
     end
@@ -52,11 +52,11 @@ module Kredki
     end
 
     # Set size.
-    def size! ...
-      @picture.size!(...)
+    def set_size ...
+      @picture.set_size(...)
     end
 
-    # See: #wh!
+    # See: #set_size
     def size= param
       @picture.size = param
     end
@@ -67,11 +67,11 @@ module Kredki
     end
 
     # Set turn value.
-    def turn! ...
-      @picture.turn!(...)
+    def set_turn ...
+      @picture.set_turn(...)
     end
 
-    # See: #turn!
+    # See: #set_turn
     def turn= param
       @picture.turn = param
     end
@@ -82,11 +82,11 @@ module Kredki
     end
 
     # Set zoom.
-    def zoom! ...
-      @picture.zoom!(...)
+    def set_zoom ...
+      @picture.set_zoom(...)
     end
 
-    # See: #zoom!
+    # See: #set_zoom
     def zoom= param
       @picture.zoom = param
     end
@@ -97,11 +97,11 @@ module Kredki
     end
 
     # Set zoom in the X axis.
-    def zoom_x! ...
-      @picture.zoom_x!(...)
+    def set_zoom_x ...
+      @picture.set_zoom_x(...)
     end
 
-    # See: #zoom_x!
+    # See: #set_zoom_x
     def zoom_x= param
       @picture.zoom_x = param
     end
@@ -112,11 +112,11 @@ module Kredki
     end
 
     # Set zoom in the Y axis.
-    def zoom_y! ...
-      @picture.zoom_y!(...)
+    def set_zoom_y ...
+      @picture.set_zoom_y(...)
     end
 
-    # See: #zoom_y!
+    # See: #set_zoom_y
     def zoom_y= param
       @picture.zoom_y = param
     end
@@ -132,17 +132,17 @@ module Kredki
     end
 
     # Set current animation frame ms.
-    def frame! frame = @frame
-      return frame! yield @frame if block_given?
+    def set_frame frame = @frame
+      return set_frame yield @frame if block_given?
       return if @frame == frame
-      set_frame frame * @frame_ms_to_index
+      update_frame frame * @frame_ms_to_index
       @frame = frame
       true
     end
 
-    # See #frame!.
+    # See #set_frame.
     def frame= param
-      send_bundle :frame!, param
+      send_bundle :set_frame, param
     end
 
     # Get current animation frame ms.
@@ -156,7 +156,7 @@ module Kredki
     end
 
     # Set animated segment.
-    def segment! *segment
+    def set_segment *segment
       Pastele.animation_set_segment @pointer, *segment
     end
 
@@ -174,15 +174,15 @@ module Kredki
     # Set whether Animation is drawn on the scene.
     #
     # Containing Kredki::Scene and all lower level Scenes must be shown for the Paint to be displayed on the screen.
-    def show! value = true
+    def set_show value = true
       return if (c = show) == (value = block_given? ? yield(c) : value == Not ? !c : value)
-      set_show value
+      update_show value
       true
     end
 
-    # See #show!.
+    # See #set_show.
     def show= value
-      show! value
+      set_show value
     end
     
     # Get whether Animation is drawn on the screen.
@@ -199,11 +199,11 @@ module Kredki
     def << feature
       case feature
       in [x, y]
-        size! x, y
+        set_size x, y
       in Numeric
-        size! feature
+        set_size feature
       in String
-        content! feature
+        set_content feature
       else
         super
       end
@@ -214,18 +214,18 @@ module Kredki
         if block
           value = block.call ms, @duration
           return true if !value
-          frame! value
+          set_frame value
         else
-          frame! ms % @duration
+          set_frame ms % @duration
         end
       else
         if block
           value = block.call ms, @duration
           return true if !value || value < 0 || value > @duration
-          frame! value
+          set_frame value
         else
           return true if ms > @duration
-          frame! ms
+          set_frame ms
         end
       end
       false
@@ -257,15 +257,15 @@ module Kredki
       @picture.scene = scene
     end
 
-    def set_show show
-      @picture.set_show show
+    def update_show show
+      @picture.update_show show
     end
   
     def get_show
       @picture.get_show
     end
 
-    def set_frame frame_index
+    def update_frame frame_index
       Pastele.animation_set_frame @pointer, frame_index
       @picture.update
     end

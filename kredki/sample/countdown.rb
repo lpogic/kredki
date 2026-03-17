@@ -8,7 +8,7 @@ button! "Countdown" do
 
     counter = 5
     countdown = proc do
-      alter "Exit in #{counter} seconds"
+      set "Exit in #{counter} seconds"
       counter -= 1
     end
 
@@ -20,16 +20,18 @@ button! "Countdown" do
     .then do |it|
       # two loops in parallel:
 
+      # first loop
       blink_loop = it.loop 500 do # in loop with period 500 ms
-        find(TextPad).fill!{|it| it != :white ? :white : :red }
+        text?.set_fill{|it| it != :blue ? :blue : :red }
       end
 
+      # second loop
       it.loop 1000 do |it| # in loop with period 1000 ms
         countdown.call
         it.release if counter < 2 # mark this iteration as final one
       end.after 1000 do # after 1000 ms
         blink_loop.cancel
-        find(TextPad).alter "Bye Bye", fill: :yellow
+        text?.set "Bye Bye", fill: :white
       end.after 1000 do
         window.close
       end

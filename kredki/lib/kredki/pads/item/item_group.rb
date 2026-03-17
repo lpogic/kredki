@@ -21,11 +21,11 @@ module Kredki
         when :previous
           items = each(Item).to_a 
           index = items.index{|it| it.keyboard_in? } || 1
-          index > 0 && (item = (0..index - 1).map{|i| items[index - 1 - i]}.find{|i| i.disabled?.not }) ? update_selected_item(item) : items[index]
+          index > 0 && (item = (0..index - 1).map{|i| items[index - 1 - i]}.find{|i| !i.disabled? }) ? update_selected_item(item) : items[index]
         when :next
           items = each(Item).to_a 
           index = items.index{|it| it.keyboard_in? } || -1
-          index < items.length - 1 && (item = (index + 1..items.length - 1).map{|i| items[i]}.find{|i| i.disabled?.not }) ? update_selected_item(item) : items[index]
+          index < items.length - 1 && (item = (index + 1..items.length - 1).map{|i| items[i]}.find{|i| !i.disabled? }) ? update_selected_item(item) : items[index]
         else
           item&.keyboard_request
           item

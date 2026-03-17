@@ -1,6 +1,6 @@
 module Kredki
   # Set of methods for event resolving.
-  module WindowSceneEvents
+  module PaneEvents
 
     # Create and attach generic event reaction.
     def on event_type, do: nil, &block

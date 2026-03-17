@@ -35,9 +35,9 @@ module Kredki
           item_buttons[(item_buttons.index(item_button) + 1) % item_buttons.size]
         end
 
-        def set_checked item_button, checked
-          each_upper(ItemButton){|it| it.checked? }.each{|it| it.set_checked false } if checked
-          item_button.set_checked checked
+        def update_checked item_button, checked
+          each_upper(ItemButton){|it| it.checked? }.each{|it| it.update_checked false } if checked
+          item_button.update_checked checked
         end
       end#Group
     end#Radio

@@ -1,15 +1,15 @@
 module Kredki
   module Pads
-    # Kredki::Pads::WindowScene child. Layers form a layer stack. Pads from higher layers are processed before pads from lower ones.
+    # The Kredki::Pads::Pane child. Layers form a layer stack. Pads from higher layers are processed before pads from lower ones.
     class Layer < RectanglePad
 
       # Get repeated click counter value. The counter is reset when the next click occurs after a specified time interval, 
       # or the click target is a different pad, or the click location is beyond a specified distance limit from the previous one.
-      def mouse_clicks
+      def mouse_click_combo
         @click_data&.combo || 0
       end
 
-      # Detach from window.
+      # Detach from pane.
       def detach transfer = false
         unless transfer
           update_keyboard_pad nil
@@ -19,12 +19,7 @@ module Kredki
         super
       end
 
-      # Extend API at runtime.
-      def define ...
-        Pads.define(...)
-      end
-
-      def carry_focus_on_tab!
+      def carry_focus_on_tab
         on_key_press :tab do |event|
           next_pad = layer.keyboard_pad&.then do |p0|
             upper_pad_iterator(reverse: event.shift?, deep: true)
@@ -87,8 +82,8 @@ module Kredki
       def sketch
         super
 
-        keyboardy!
-        fill! false
+        set_keyboardy
+        set_fill false
       end
 
       def behavior
@@ -200,7 +195,7 @@ module Kredki
         enter, stay, leave = *Util.polarize(@mouse_pads, last_mouse_pads)
         leave.reverse_each{|it| it.report MousePointerLeaveEvent.new(event), false }
         enter.reverse_each{|it| it.report MousePointerEnterEvent.new(event), false }
-        
+
         @mouse_pads.last&.report event
         event
       end
@@ -274,6 +269,7 @@ module Kredki
         else
           combo = 1
         end
+        event.combo = combo
         @click_data = ClickData.new event.target, event.xy, event.timestamp, combo
       end
 
@@ -318,7 +314,7 @@ module Kredki
         bxy = @pin_data&.xy and @pin_data.pad.drag_check bxy, xy
       end
 
-      def set_lower lower, at = nil
+      def update_lower lower, at = nil
         return if @lower == lower
         @lower = lower
       end

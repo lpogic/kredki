@@ -11,11 +11,11 @@ module Kredki
       end
 
       # Set whether is checked.
-      def checked! ...
-        button.checked!(...)
+      def set_checked ...
+        button.set_checked(...)
       end
 
-      # See #checked!.
+      # See #set_checked.
       def checked= param
         button.checked = param
       end
@@ -53,17 +53,17 @@ module Kredki
 
         @button = put CheckButton do
           on_click do
-            checked! Not
+            set_checked Not
           end
         end
 
-        size_y! Fit
-        spacer! 8
-        layout! :xsc
+        set size_y: Fit
+        set spacer: 8
+        set layout: :xsc
       end
 
       def repaint event = nil
-        opacity! disabled? ? 3/4r : 1r
+        set opacity: disabled? ? 3/4r : 1r
       end
 
     end

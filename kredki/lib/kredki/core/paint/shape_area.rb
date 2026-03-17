@@ -7,8 +7,8 @@ module Kredki
     include Area
 
     # Set outline width.
-    def outline_w! outline_w = @outline_w
-      return outline_w! yield @outline_w if block_given?
+    def set_outline_w outline_w = @outline_w
+      return set_outline_w yield @outline_w if block_given?
       return if @outline_w == outline_w
       Pastele.shape_set_stroke_width @pointer, outline_w.to_f
       @outline_w = outline_w
@@ -20,9 +20,9 @@ module Kredki
     def << feature
       case feature
       in [x, y]
-        size! x, y
+        set_size x, y
       in Numeric
-        size! feature
+        set_size feature
       else
         super
       end

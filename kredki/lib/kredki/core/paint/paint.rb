@@ -3,17 +3,17 @@ module Kredki
   class Paint
 
     # Set position along the X axis.
-    def x! x = @x
-      return x! yield @x if block_given?
+    def set_x x = @x
+      return set_x yield @x if block_given?
       return if @x == x
       @x = x
       update_transform
       update
     end
     
-    # See #x!.
+    # See #set_x.
     def x= param
-      send_bundle :x!, param
+      send_bundle :set_x, param
     end
 
     # Get position along the X axis.
@@ -22,17 +22,17 @@ module Kredki
     end
 
     # Set position along the Y axis.
-    def y! y = @y
-      return y! yield @y if block_given?
+    def set_y y = @y
+      return set_y yield @y if block_given?
       return if @y == y
       @y = y
       update_transform
       update
     end
 
-    # See #y!.
+    # See #set_y.
     def y= param
-      send_bundle :y!, param
+      send_bundle :set_y, param
     end
 
     # Get position along the X axis.
@@ -41,8 +41,8 @@ module Kredki
     end
 
     # Set position along X and Y axes.
-    def xy! x = @x, y = x
-      return send_bundle :xy!, yield(self.xy) if block_given?
+    def set_xy x = @x, y = x
+      return send_bundle :set_xy, yield(self.xy) if block_given?
       return if @x == x && @y == y
       @x = x
       @y = y
@@ -50,9 +50,9 @@ module Kredki
       update
     end
     
-    # See #xy!.
+    # See #set_xy.
     def xy= param
-      send_bundle :xy!, param
+      send_bundle :set_xy, param
     end
 
     # Get position along X and Y axes.
@@ -61,17 +61,17 @@ module Kredki
     end
  
     # Set turn around the pivot point.
-    def turn! turn = @turn
-      return turn! yield @turn if block_given?
+    def set_turn turn = @turn
+      return set_turn yield @turn if block_given?
       return if @turn == turn
       @turn = turn
       update_transform
       update
     end
 
-    # See #turn!.
+    # See #set_turn.
     def turn= param
-      send_bundle :turn!, param
+      send_bundle :set_turn, param
     end
 
     # Get turn around the pivot point.
@@ -80,17 +80,17 @@ module Kredki
     end
 
     # Set zoom in the X axis.
-    def zoom_x! zoom_x = @zoom_x
-      return zoom_x! yield @zoom_x if block_given?
+    def set_zoom_x zoom_x = @zoom_x
+      return set_zoom_x yield @zoom_x if block_given?
       return if @zoom_x == zoom_x
       @zoom_x = zoom_x
       update_transform
       update
     end
 
-    # See #zoom_x!.
+    # See #set_zoom_x.
     def zoom_x= param
-      send_bundle :zoom_x!, param
+      send_bundle :set_zoom_x, param
     end
 
     # Get zoom in the X axis.
@@ -99,17 +99,17 @@ module Kredki
     end
 
     # Set zoom in the Y axis.
-    def zoom_y! zoom_y = @zoom_y
-      return zoom_y! yield @zoom_y if block_given?
+    def set_zoom_y zoom_y = @zoom_y
+      return set_zoom_y yield @zoom_y if block_given?
       return if @zoom_y == zoom_y
       @zoom_y = zoom_y
       update_transform
       update
     end
 
-    # See #zoom_y!.
+    # See #set_zoom_y.
     def zoom_y= param
-      send_bundle :zoom_y!, param
+      send_bundle :set_zoom_y, param
     end
 
     # Get zoom in the Y axis.
@@ -118,19 +118,19 @@ module Kredki
     end
 
     # Set zoom in X and Y axes.
-    def zoom! zoom_x = @zoom_x, zoom_y = zoom_x, **ka
-      return send_bundle :zoom!, yield(self.zoom) if block_given?
+    def set_zoom zoom_x = @zoom_x, zoom_y = zoom_x, **ka
+      return send_bundle :set_zoom, yield(self.zoom) if block_given?
       unless @zoom_x == zoom_x && @zoom_y == zoom_y
         @zoom_x = zoom_x
         @zoom_y = zoom_y
         update_transform
         update
-      end | send_branch(:zoom, ka)
+      end | send_branch(__method__, ka)
     end
 
-    # See #zoom!.
+    # See #set_zoom.
     def zoom= param
-      send_bundle :zoom!, param
+      send_bundle :set_zoom, param
     end
 
     # Get zoom in X and Y axes.
@@ -139,17 +139,17 @@ module Kredki
     end
 
     # Set opacity degree.
-    def opacity! opacity = @opacity
-      return opacity! yield @opacity if block_given?
+    def set_opacity opacity = @opacity
+      return set_opacity yield @opacity if block_given?
       return if @opacity == opacity
       Pastele.paint_set_opacity @pointer, opacity.to_i
       @opacity = opacity
       update
     end
 
-    # See #opacity!.
+    # See #set_opacity.
     def opacity= param
-      send_bundle :opacity!, param
+      send_bundle :set_opacity, param
     end
 
     # Get opacity degree.
@@ -177,17 +177,17 @@ module Kredki
     end
 
     # Set color blending method.
-    def blend! blend = @blend
-      return blend! yield @blend if block_given?
+    def set_blend blend = @blend
+      return set_blend yield @blend if block_given?
       return if @blend == blend
       Pastele.paint_set_blend_method @pointer, BlendMethod.send(blend || :normal)
       @blend = blend
       update
     end
 
-    # See #blend!.
+    # See #set_blend.
     def blend= param
-      send_bundle :blend!, param
+      send_bundle :set_blend, param
     end
 
     # Get color blending method.
@@ -212,20 +212,20 @@ module Kredki
     end
 
     # Set color masking method with +target+.
-    def mask! mask = @mask, target = nil
-      return send_bundle :mask!, yield(@mask, @mask_target) if block_given?
+    def set_mask mask = @mask, target = nil
+      return send_bundle :set_mask, yield(@mask, @mask_target) if block_given?
       return if @mask == mask && @mask_target == target
       @mask_target&.unset_masking
-      target&.set_masking self
+      target&.update_masking self
       Pastele.paint_set_mask @pointer, target&.pointer, MaskMethod.send(mask || :none)
       @mask = mask
       @mask_target = target
       update
     end
 
-    # See #mask!.
+    # See #set_mask.
     def mask= param
-      send_bundle :mask!, param
+      send_bundle :set_mask, param
     end
 
     # Get color masking method.
@@ -236,15 +236,15 @@ module Kredki
     # Set whether Paint is drawn on the scene.
     #
     # Containing Kredki::Scene and all lower level Scenes must be shown for the Paint to be displayed on the screen.
-    def show! value = true
+    def set_show value = true
       return if (c = show) == (value = block_given? ? yield(c) : value == Not ? !c : value)
-      set_show value
+      update_show value
       true
     end
 
-    # See #show!.
+    # See #set_show.
     def show= value
-      show! value
+      set_show value
     end
     
     # Get whether Paint is drawn on the screen.
@@ -258,20 +258,20 @@ module Kredki
     end
 
     # Set the Kredki::Shape to use as the Paint clipping path.
-    def clip! clip = @clip
+    def set_clip clip = @clip
       return yield @clip if block_given?
       clip = nil unless clip
       return if @clip == clip
       @clip&.unset_masking
-      clip&.set_masking self
+      clip&.update_masking self
       Pastele.paint_set_clip @pointer, clip&.pointer
       @clip = clip
       update
     end
 
-    # See #clip!.
+    # See #set_clip.
     def clip= param
-      send_bundle :clip!, param
+      send_bundle :set_clip, param
     end
 
     # Get the Kredki::Shape used as the Paint clipping path.
@@ -299,12 +299,7 @@ module Kredki
       @scene = scene
     end
 
-    # Stop showing the Paint.
-    def hide!
-      set_show false
-    end
-
-    # Get Kredki::WindowScene ancestor.
+    # Get window.
     def window
       @scene&.window
     end
@@ -313,11 +308,11 @@ module Kredki
     def << feature
       case feature
       when Hash
-        alter **feature
+        set **feature
       when Array
-        alter *feature
+        set *feature
       when Proc
-        alter &feature
+        set &feature
       else
         raise "Unsupported << (#{feature} : #{feature.class})"
       end
@@ -358,7 +353,7 @@ module Kredki
       "#{self.class}:#{object_id}"
     end
 
-    def set_masking scene
+    def update_masking scene
       @scene&.remove_paint self unless @is_mask
       @scene = scene
       @is_mask = true
@@ -378,7 +373,7 @@ module Kredki
       end
     end
 
-    def set_show show
+    def update_show show
       show ? @scene&.show_paint(self) : @scene&.hide_paint(self)
     end
 

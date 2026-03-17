@@ -16,7 +16,7 @@ module Kredki
         super
 
         @scroll = put ScrollPad, layout: :yss do
-          scene.drop_shadow! color: :black
+          scene.drop_shadow color: :black
         end
         @pad = @scroll.put RectanglePad, fill: :gray, layout: :yss, size_y: Fit
         @item_group = @pad.put ItemGroup
@@ -54,7 +54,7 @@ module Kredki
           [psx, fit_size_x].max
         end
 
-        note.window.push_layer self
+        note.pane.push_layer self
         @pad.find_upper(Item)&.keyboard_request
       end
 

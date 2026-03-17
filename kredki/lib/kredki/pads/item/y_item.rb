@@ -13,7 +13,7 @@ module Kredki
         on_key_press :up do |e|
           item = lower.update_selected_item :previous 
           if item
-            item.roi!
+            item.request_vision
             e.close
           end
         end
@@ -21,7 +21,7 @@ module Kredki
         on_key_press :down do |e|
           item = lower.update_selected_item :next
           if item
-            item.roi!
+            item.request_vision
             e.close
           end
         end

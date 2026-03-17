@@ -13,13 +13,13 @@ module Kredki
 
       # Add new item.
       def item! ...
-        dropdown!.item!(size_x: 1r).alter(...)
+        dropdown!.item!(size_x: 1r).set(...)
       end
 
       # Create/Update dropdown.
       def dropdown! ...
         @dropdown ||= put OptionLayer
-        @dropdown.alter(...)
+        @dropdown.set(...)
       end
 
       # Get dropdown.
@@ -50,11 +50,11 @@ module Kredki
 
         @note = put Note
         @arrow = @note.put Button, size: [20, 1r] do
-          outline_w! 0
-          keyboardy! false
+          set outline_w: 0
+          set keyboardy: false
           put RectanglePad, mousy: false, keyboardy: false, fill: 0, size: 1r do
-            outline! fill: :text, w: 2, cap: :round
-            area! do |sx, sy|
+            set_outline fill: :text, w: 2, cap: :round
+            set_area do |sx, sy|
               xy! sx * 0.2, sy * 0.35
               line! sx * 0.5, sy * 0.65
               line! sx * 0.8, sy * 0.35
@@ -62,16 +62,20 @@ module Kredki
           end
         end
 
-        size_y! 24
-        @note.size! 1r
+        set_size_y 24
+        @note.set_size 1r
         dropdown!
       end
 
       def behavior
         super
 
-        Event.each on_key(:enter) do
-          @dropdown.load self unless @dropdown.loaded?
+        on_key :enter do |e|
+          if @dropdown.loaded?
+            item?(keyboard_in?: true)&.report Item::PickEvent.new e
+          else
+            @dropdown.load self
+          end
         end
 
         # Event.each on_move, on_resize do |e|
@@ -100,8 +104,8 @@ module Kredki
         on_pick do |e|
           @dropdown.unload
           subject = e.target.find_upper(TextPad).subject
-          @note.text! subject
-          @note.verse.set_cursor subject.to_s.length
+          @note.set_text subject
+          @note.verse.update_cursor subject.to_s.length
         end
 
         @dropdown.on_key :escape do |it|

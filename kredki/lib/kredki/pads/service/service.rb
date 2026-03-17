@@ -8,31 +8,35 @@ module Kredki
     # Base class of Pads tree nodes.
     class Service
       extend ServiceInherited
-      include Pads
       include ServiceFilter
 
       # Get ancestors.
       def lower_iterator include_self = true
         Enumerator.new do |e|
           c = include_self ? self : lower
-          while c && !c.is(WindowScene)
+          while c && !c.is(Pane)
             e << c
             c = c.lower
           end
         end
       end
 
-      # Get Kredki::Pads::Layer ancestor.
+      # Get service layer.
       def layer
         is Layer or find_lower Layer
       end
 
-      # Get Kredki::WindowScene ancestor.
-      def window
+      # Get service pane.
+      def pane
         layer&.lower_pad
       end
 
-      # Get Kredki::Application ancestor.
+      # Get service window.
+      def window
+        pane&.window
+      end
+
+      # Get service application.
       def app
         window&.app
       end
@@ -98,7 +102,7 @@ module Kredki
       end
 
       # Set whether Pad is tagged with +tag+.
-      def tag! tag, value = true
+      def set_tag tag, value = true
         return if (c = self.tag tag) == (value = block_given? ? yield(c) : value == Not ? !c : value)
         if value
           @tags[tag] = true
@@ -108,9 +112,9 @@ module Kredki
         true
       end
 
-      # See #tag!.
+      # See #set_tag.
       def tag= param
-        send_bundle :tag!, param
+        send_bundle :set_tag, param
       end
 
       # Get whether Pad is tagged with +tag+.
@@ -131,7 +135,7 @@ module Kredki
       # Create new job tree.
       def job run = true, &block
         job = AfterJob.new block, 0
-        job.run window if run
+        job.run pane if run
         job
       end
 
@@ -139,16 +143,15 @@ module Kredki
       def << feature
         case feature
         when Symbol
-          to_send = feature.end_with?("!") && @tags.size > 0 # skip type tag
-          tag! feature
+          set_tag feature
           eval "#{feature} = WeakRef.new self" if feature.start_with? "$"
-          send feature if to_send
+          lower&.instance_variable_set feature, self if feature.start_with? "@"
         when Hash
-          alter **feature
+          set **feature
         when Array
-          alter *feature
+          set *feature
         when Proc
-          alter &feature
+          set &feature
         else
           raise "Unsupported << (#{feature} : #{feature.class})"
         end
@@ -187,12 +190,12 @@ module Kredki
         service = klass.new
         push_service service, at: at if at != false
         service.sketch_service
-        service.alter *a, **ka, &b
+        service.set *a, **ka, &b
         service
       end
 
       def push_service service, at: nil
-        service.set_lower self, at
+        service.update_lower self, at
         case at
         when Integer
           @services.insert at, service
@@ -212,7 +215,7 @@ module Kredki
         @services.delete upper
       end
 
-      def set_lower lower, at = nil
+      def update_lower lower, at = nil
         different_lower = @lower != lower
         if different_lower
           @lower = lower
@@ -222,7 +225,7 @@ module Kredki
       end
 
       def c_set_lower at
-        @services.each{|it| it.set_lower self }
+        @services.each{|it| it.update_lower self }
       end
 
       def grand_detach
@@ -231,7 +234,7 @@ module Kredki
       
       def report event, path = false, instant = false
         event.target ||= self
-        event_queue = window&.event_queue
+        event_queue = pane&.event_queue
         return unless event_queue
         if path
           path.each do |it|

@@ -3,7 +3,6 @@ require_relative "layout/layout"
 
 module Kredki
   module Pads
-    extend ServiceInherited
 
     class << self
       attr_accessor :layout_map

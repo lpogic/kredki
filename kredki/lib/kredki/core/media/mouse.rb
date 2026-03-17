@@ -34,15 +34,15 @@ module Kredki
     end
 
     # Set wheel speed.
-    def scroll_speed! speed = @scroll_speed
-      return scroll_speed! yield @scroll_speed if block_given?
+    def set_scroll_speed speed = @scroll_speed
+      return set_scroll_speed yield @scroll_speed if block_given?
       @scroll_speed = speed
       true
     end
 
-    # See #scroll_speed!.
+    # See #set_scroll_speed.
     def scroll_speed= param
-      scroll_speed! param
+      set_scroll_speed param
     end
 
     # Get wheel speed.
@@ -51,15 +51,15 @@ module Kredki
     end
 
     # Set alternative wheel speed.
-    def scroll_speed_alt! speed = @scroll_speed_alt
-      return scroll_speed_alt! yield @scroll_speed_alt if block_given?
+    def set_scroll_speed_alt speed = @scroll_speed_alt
+      return set_scroll_speed_alt yield @scroll_speed_alt if block_given?
       @scroll_speed_alt = speed
       true
     end
 
-    # See #scroll_speed_alt!.
+    # See #set_scroll_speed_alt.
     def scroll_speed_alt= param
-      scroll_speed_alt! param
+      set_scroll_speed_alt param
     end
 
     # Get alternative wheel speed.
@@ -107,29 +107,29 @@ module Kredki
     end
 
     # Set whether capture mode is on.
-    def capture! value = true
+    def set_capture value = true
       return if (c = capture) == (value = block_given? ? yield(c) : value == Not ? !c : value)
       Pastele.mouse_set_capture capture ? 1 : 0
       true
     end
 
-    # See #capture!.
+    # See #set_capture.
     def capture= param
-      caupture! param
+      set_caupture param
     end
 
     # Set cursor.
-    def cursor! cursor = @cursor
-      return send_bundle :cursor!, yield(self.cursor) if block_given?
+    def set_cursor cursor = @cursor
+      return send_bundle :set_cursor, yield(self.cursor) if block_given?
       return if @cursor == cursor
       @cursor = cursor
-      set_cursor cursor
+      update_cursor cursor
       true
     end
 
-    # See #cursor!.
+    # See #set_cursor.
     def cursor= param
-      send_bundle :cursor!, param
+      send_bundle :set_cursor, param
     end
 
     # Get cursor.
@@ -164,7 +164,7 @@ module Kredki
       MouseButtonReleaseEvent.new self, pastele_event
     end
 
-    def set_cursor cursor
+    def update_cursor cursor
       Pastele.mouse_set_cursor case cursor
       when nil, :default then system_cursor 0
       when :text then system_cursor 1

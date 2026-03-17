@@ -60,7 +60,7 @@ module Kredki
       crayon = AreaCrayon.new self, true, @size_x * 0.5, @size_y * 0.5
       crayon.autoupdate = false
       crayon.instance_exec @size_x, @size_y, &@block
-      crayon.commit!
+      crayon.commit
     end
   end
 end

@@ -2,17 +2,17 @@ module Kredki
   class Text < Paint
 
     # Set content.
-    def content! content = @content
-      return content! yield @content if block_given?
+    def set_content content = @content
+      return set_content yield @content if block_given?
       return if @content == content
       Pastele.text_set_text @pointer, content.to_s
       @content = content
       update_size
     end
 
-    # See #content!.
+    # See #set_content.
     def content= param
-      send_bundle :content!, param
+      send_bundle :set_content, param
     end
 
     # Get content.
@@ -26,17 +26,17 @@ module Kredki
     end
 
     # Set size in X axis. It can also affect the size in Y axis.
-    def size_y! size_y = @size_y
-      return size_y! yield @size_y if block_given?
+    def set_size_y size_y = @size_y
+      return set_size_y yield @size_y if block_given?
       return if @size_y == size_y
       Pastele.text_set_size @pointer, size_y
       @size_y = size_y
       update_size
     end
 
-    # See #size_y!.
+    # See #set_size_y.
     def size_y= param
-      send_bundle :size_y!, param
+      send_bundle :set_size_y, param
     end
 
     # Get size in Y axis.
@@ -50,17 +50,17 @@ module Kredki
     end
 
     # Set font.
-    def font! font
-      return font! yield @font if block_given?
+    def set_font font
+      return set_font yield @font if block_given?
       return if @font == font
       Pastele.text_set_font @pointer, Kredki.font(font).name
       @font = font
       update_size
     end
 
-    # See #font!.
+    # See #set_font.
     def font= param
-      send_bundle :font!, param
+      send_bundle :set_font, param
     end
 
     # Get font.
@@ -69,8 +69,8 @@ module Kredki
     end
 
     # Set fill color.
-    def fill! *fill
-      return send_bundle :fill!, yield(self.fill) if block_given?
+    def set_fill *fill
+      return send_bundle :set_fill, yield(self.fill) if block_given?
       fill = Util.uncover fill
       return if @fill == fill && fill != :random
       case f = Kredki.fill fill
@@ -85,9 +85,9 @@ module Kredki
       update
     end
 
-    # See #fill!.
+    # See #set_fill.
     def fill= param
-      send_bundle :fill!, param
+      send_bundle :set_fill, param
     end
 
     # Get fill color.
@@ -96,27 +96,27 @@ module Kredki
     end
 
     # Set outline features.
-    def outline! *a, **ka
+    def set_outline *a, **ka
       a.map do |it|
         case it
         when Hash
-          outline! **it
+          set_outline **it
         when Numeric
-          outline_w! it
+          set_outline_w it
         else
-          send_bundle :outline_fill!, it
+          send_bundle :set_outline_fill, it
         end
-      end.any? | send_branch(:outline, ka)
+      end.any? | send_branch(__method__, ka)
     end
     
-    # See #outline!.
+    # See #set_outline.
     def outline= param
-      send_bundle :outline!, param
+      send_bundle :set_outline, param
     end
 
     # Set outline fill.
-    def outline_fill! *outline_fill
-      return send_bundle :outline_fill!, yield(self.outline_fill) if block_given?
+    def set_outline_fill *outline_fill
+      return send_bundle :set_outline_fill, yield(self.outline_fill) if block_given?
       outline_fill = Util.uncover outline_fill
       return if @outline_fill == outline_fill && outline_fill != :random
       update_outline outline_fill, @outline_w
@@ -124,9 +124,9 @@ module Kredki
       update
     end
 
-    # See #outline_fill!.
+    # See #set_outline_fill.
     def outline_fill= param
-      send_bundle :outline_fill!, param
+      send_bundle :set_outline_fill, param
     end
 
     # Get outline fill.
@@ -135,17 +135,17 @@ module Kredki
     end
 
     # Set outline width.
-    def outline_w! outline_w = @outline_w
-      return outline_w! yield @outline_w if block_given?
+    def set_outline_w outline_w = @outline_w
+      return set_outline_w yield @outline_w if block_given?
       return if @outline_w == outline_w
       update_outline @outline_fill, outline_w
       @outline_w = outline_w
       update
     end
 
-    # See #outline_w!.
+    # See #set_outline_w.
     def outline_w= param
-      send_bundle :outline_w!, param
+      send_bundle :set_outline_w, param
     end
 
     # Get outline width.
@@ -168,9 +168,9 @@ module Kredki
     def << feature
       case feature
       in String
-        content! feature
+        set_content feature
       in Numeric
-        size_y! feature
+        set_size_y feature
       else
         super
       end

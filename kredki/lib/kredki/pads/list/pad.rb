@@ -26,10 +26,10 @@ module Kredki
         def sketch
           super
 
-          keyboardy!
-          fill! :gray
-          layout! :yss
-          size_y! Fit
+          set keyboardy: true
+          set fill: :gray
+          set layout: :yss
+          set size_y: Fit
 
           @item_group = put ItemGroup
         end
@@ -41,16 +41,16 @@ module Kredki
             item = e.target
             kb = Kredki.keyboard
             if kb.shift?
-              item.selected!
+              item.set_selected
             elsif kb.ctrl?
-              item.selected! Not
+              item.set_selected Not
             else
-              each_upper(Item).each_alter{|it| selected! it == item }
+              each_upper(Item).each_set{|it| set_selected it == item }
             end
           end
 
           on_focus_leave do
-            each_upper(Item).each_alter selected: false
+            each_upper(Item).each_set selected: false
           end
         end
 

@@ -12,16 +12,16 @@ module Kredki
       end
 
       # Set whether is pressed.
-      def pressed! value = true, event = nil
+      def set_pressed value = true, event = nil
         return if (c = pressed) == (value = block_given? ? yield(c) : value == Not ? !c : value)
         @pressed = value
         report (@pressed ? ButtonPressEvent.new(event) : ButtonReleaseEvent.new(event)) if event
         true
       end
 
-      # See #pressed!.
+      # See #set_pressed.
       def pressed= param
-        send_bundle :pressed!, param
+        send_bundle :set_pressed, param
       end
 
       # Get whether is pressed.
@@ -35,8 +35,8 @@ module Kredki
       end
 
       # Set suit.
-      def suit! *suit
-        return send_bundle :suit!, yield(self.suit) if block_given?
+      def set_suit *suit
+        return send_bundle :set_suit, yield(self.suit) if block_given?
         suit = Util.uncover suit
         return if @suit == suit && suit != :random
         @suit = suit
@@ -44,9 +44,9 @@ module Kredki
         true
       end
 
-      # See #suit!.
+      # See #set_suit.
       def suit= param
-        send_bundle :suit!, param
+        send_bundle :set_suit, param
       end
 
       # Get suit.
@@ -58,8 +58,8 @@ module Kredki
       def << feature
         case feature
         when String
-          subject! feature
-          find(TextPad)&.alter feature or default_text feature
+          set_subject feature
+          text?&.set feature or super
         else
           super
         end
@@ -79,12 +79,12 @@ module Kredki
       def sketch
         super
 
-        keyboardy!
-        outline_w! 1
-        layout! :xcc
-        size! Fit
-        suit! :gray
-        margin! 2
+        set_keyboardy
+        set_outline_w 1
+        set_layout :xcc
+        set_size Fit
+        set_suit :gray
+        set_margin 2
       end
 
       def presence
@@ -104,15 +104,15 @@ module Kredki
       def repaint event = nil
         color = Kredki.color @suit
         if disabled?
-          opacity! 3/4r
-          mouse_cursor! nil
-          area.fill! color
-          area.outline_fill! color.darken
+          set_opacity 3/4r
+          set_mouse_cursor nil
+          area.set_fill color
+          area.set_outline_fill color.darken
         else
-          opacity! 1r
-          mouse_cursor! :pointer
-          area.fill! pressed? ? color.darken : mouse_in? ? color.lighten : color
-          area.outline_fill! keyboard_in? ? :outline_focus : color.darken
+          set_opacity 1r
+          set_mouse_cursor :pointer
+          area.set_fill pressed? ? color.darken : mouse_in? ? color.lighten : color
+          area.set_outline_fill keyboard_in? ? :outline_focus : color.darken
         end
       end
 
@@ -120,26 +120,26 @@ module Kredki
         super
 
         Event.each on_mouse_press(:primary), on_key_press(:enter, :space) do |e|
-          pressed! true, e
+          set_pressed true, e
         end
 
         on_focus_leave do |e|
-          pressed! false, e
+          set_pressed false, e
         end
 
         on_mouse_release :primary do |e|
           pressed = keyboard_in? && ( Kredki.keyboard.pressed?(:space) || Kredki.keyboard.pressed?(:enter) )
-          report ButtonClickEvent.new e if !pressed && pressed!(false, e) && !e.drag && include_point?(*layer.translate(*e.xy, self))
+          report ButtonClickEvent.new e if !pressed && set_pressed(false, e) && !e.drag && include_point?(*layer.translate(*e.xy, self))
         end
 
         on_key_release :enter do |e|
           pressed = pin_top?(:primary) || ( keyboard_in? && Kredki.keyboard.pressed?(:space) )
-          report ButtonClickEvent.new e if !pressed && pressed!(false, e)
+          report ButtonClickEvent.new e if !pressed && set_pressed(false, e)
         end
 
         on_key_release :space do |e|
           pressed = pin_top?(:primary) || ( keyboard_in? && Kredki.keyboard.pressed?(:enter) )
-          report ButtonClickEvent.new e if !pressed && pressed!(false, e)
+          report ButtonClickEvent.new e if !pressed && set_pressed(false, e)
         end
 
         on_click early: true do |e|
@@ -148,11 +148,11 @@ module Kredki
       end
 
       def default_text feature
-        put TextPad, feature do
-          mousy! false
-          size_y! Fit
-          verse_size! Kredki.text_size
-          verse_layout! :ycc
+        put TextPad, :text!, feature do
+          set_mousy false
+          set_size_y Fit
+          set_verse_size Kredki.text_size
+          set_verse_layout :ycc
         end
       end
     end

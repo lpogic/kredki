@@ -7,7 +7,7 @@ module Kredki
       def << arg
         case arg
         when String
-          subject! arg
+          set_subject arg
         else
           super
         end
@@ -17,12 +17,12 @@ module Kredki
         @area.step(...)
       end
 
-      def frame! ...
-        @area.frame!(...)
+      def set_frame ...
+        @area.set_frame(...)
       end
 
       def frame= param
-        send_bundle :frame!, param
+        send_bundle :set_frame, param
       end
 
       def frame
@@ -35,7 +35,7 @@ module Kredki
         @area = @scene.animation!
       end
 
-      def set_subject subject
+      def update_subject subject
         @area.content = subject.to_s
       end
 

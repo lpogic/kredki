@@ -4,17 +4,17 @@ module Kredki
   class Scene < Paint
 
     # Set pivot point position along the X axis.
-    def pivot_x! pivot_x = @pivot_x
-      return pivot_x! yield @pivot_x if block_given?
+    def set_pivot_x pivot_x = @pivot_x
+      return set_pivot_x yield @pivot_x if block_given?
       return if @pivot_x == pivot_x
       @pivot_x = pivot_x
       update_transform
       update
     end
 
-    # See #pivot_x!.
+    # See #set_pivot_x.
     def pivot_x= param
-      send_bundle :pivot_x!, param
+      send_bundle :set_pivot_x, param
     end
 
     # Get pivot point position along the X axis.
@@ -23,17 +23,17 @@ module Kredki
     end
 
     # Set pivot point position along the Y axis.
-    def pivot_y! pivot_y = @pivot_y
-      return pivot_y! yield @pivot_y if block_given?
+    def set_pivot_y pivot_y = @pivot_y
+      return set_pivot_y yield @pivot_y if block_given?
       return if @pivot_y == pivot_y
       @pivot_y = pivot_y
       update_transform
       update
     end
 
-    # See #pivot_y!.
+    # See #set_pivot_y.
     def pivot_y= param
-      send_bundle :pivot_y!, param
+      send_bundle :set_pivot_y, param
     end
 
     # Get pivot point position along the Y axis.
@@ -42,8 +42,8 @@ module Kredki
     end
 
     # Set pivot point position along X and Y axes.
-    def pivot_xy! pivot_x = @pivot_x, pivot_y = pivot_x
-      return send_bundle :pivot_xy!, yield(self.pivot_xy) if block_given?
+    def set_pivot_xy pivot_x = @pivot_x, pivot_y = pivot_x
+      return send_bundle :set_pivot_xy, yield(self.pivot_xy) if block_given?
       return if @pivot_x == pivot_x && @pivot_y == pivot_y
       @pivot_x = pivot_x
       @pivot_y = pivot_y
@@ -51,9 +51,9 @@ module Kredki
       update
     end
 
-    # See #pivot_xy!.
+    # See #set_pivot_xy.
     def pivot_xy= param
-      send_bundle :pivot_xy!, param
+      send_bundle :set_pivot_xy, param
     end
 
     # Get pivot point position along X and Y axes.
@@ -96,12 +96,12 @@ module Kredki
       new_animation(...)
     end
 
-    def clear_effects!
+    def clear_effects
       Pastele.scene_clear_effects @pointer
       update
     end
 
-    def gaussian_blur! sigma, direction = :both, border = :wrap, quality = 100
+    def gaussian_blur sigma, direction = :both, border = :wrap, quality = 100
       direction = case direction
       when :both, 0 then 0
       when :x, 1 then 1
@@ -116,28 +116,28 @@ module Kredki
       update
     end
 
-    def drop_shadow! color:, angle: 135, distance: 10, blur: 5, quality: 100
+    def drop_shadow color:, angle: 135, distance: 10, blur: 5, quality: 100
       Pastele.scene_add_drop_shadow @pointer, *Kredki.color(color).to_rgba, angle, distance, blur, quality
       update
     end
 
-    def fill! *a
+    def fill *a
       Pastele.scene_add_fill @pointer, *Kredki.color(a.uncover).to_rgba
       update
     end
 
-    def tint! black:, white:, intensity: 100.0
+    def tint black:, white:, intensity: 100.0
       Pastele.scene_add_tint @pointer, *Kredki.color(black).to_rgb, *Kredki.color(white).to_rgb, intensity
       update
     end
 
-    def tritone! shadow:, midtone:, highlight:, blend: 255
+    def tritone shadow:, midtone:, highlight:, blend: 255
       Pastele.scene_add_tritone @pointer, *Kredki.color(shadow).to_rgb, *Kredki.color(midtone).to_rgb, *Kredki.color(highlight).to_rgb, blend
       update
     end
 
     # Detach all paints.
-    def clear!
+    def clear
       Pastele.scene_remove @pointer, nil
       nil_paint = PaintState.new nil, nil, nil, nil
       nil_paint.before = nil_paint.after = nil_paint
@@ -176,7 +176,7 @@ module Kredki
       ObjectSpace.define_finalizer(self, Scene.finalizer(@pointer))
 
       @pivot_x = @pivot_y = 0
-      clear!
+      clear
     end
 
     def self.finalizer pointer
@@ -184,11 +184,11 @@ module Kredki
     end
 
     def new_paint klass, *a, show: true, at: nil, **ka, &b
-      put_paint(klass.new, show, at).paint.alter(*a, **ka, &b)
+      put_paint(klass.new, show, at).paint.set(*a, **ka, &b)
     end
 
     def new_animation *a, show: true, at: nil, **ka, &b
-      Animation.new.attach(self, show, at).alter(*a, **ka, &b)
+      Animation.new.attach(self, show, at).set(*a, **ka, &b)
     end
 
     def each_paint &b

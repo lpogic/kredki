@@ -111,7 +111,7 @@ module Kredki
       when CancelEvent
         cancel event
       else
-        run event.target.window, event
+        run event.target.pane, event
       end
     end
   end

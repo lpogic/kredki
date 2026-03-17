@@ -7,14 +7,14 @@ module Kredki
       include TextEdition
 
       # Set text content.
-      def text! text = ""
-        return send_bundle :text!, yield(self.text) if block_given?
-        @verse.subject! text
+      def set_text text = ""
+        return send_bundle :set_text, yield(self.text) if block_given?
+        @verse.set_subject text
       end
 
-      # See #text!.
+      # See #set_text.
       def text= param
-        send_bundle :text!, param
+        send_bundle :set_text, param
       end
       
       # Get text content.
@@ -23,8 +23,8 @@ module Kredki
       end
 
       # Set suit.
-      def suit! *suit
-        return send_bundle :suit!, yield(self.suit) if block_given?
+      def set_suit *suit
+        return send_bundle :set_suit, yield(self.suit) if block_given?
         suit = Util.uncover suit
         return if @suit == suit && suit != :random
         @suit = suit
@@ -32,9 +32,9 @@ module Kredki
         true
       end
 
-      # See #suit!.
+      # See #set_suit.
       def suit= param
-        send_bundle :suit!, param
+        send_bundle :set_suit, param
       end
 
       # Get suit.
@@ -43,23 +43,23 @@ module Kredki
       end
 
       # Set verse features.
-      def verse! ...
-        send_branch(:verse, ...)
+      def set_verse ...
+        send_branch(__method__, ...)
       end
 
-      # See #verse!.
+      # See #set_verse.
       def verse= param
-        send_bundle :verse!, param
+        send_bundle :set_verse, param
       end
       
       # Set verse size.
-      def verse_size! ...
-        @verse.verse_size!(...)
+      def set_verse_size ...
+        @verse.set_verse_size(...)
       end
 
-      # See #verse_size!.
+      # See #set_verse_size.
       def verse_size= param
-        send_bundle :verse_size!, param
+        send_bundle :set_verse_size, param
       end
 
       # Get verse size.
@@ -68,13 +68,13 @@ module Kredki
       end
 
       # Set verse font.
-      def verse_font! ...
-        @verse.font!(...)
+      def set_verse_font ...
+        @verse.set_font(...)
       end
 
-      # See #verse_font!.
+      # See #set_verse_font.
       def verse_font= param
-        send_bundle :verse_font!, param
+        send_bundle :set_verse_font, param
       end
 
       # Get verse font.
@@ -83,13 +83,13 @@ module Kredki
       end
 
       # Set verse layout.
-      def verse_layout! ...
-        @verse.verse_layout!(...)
+      def set_verse_layout ...
+        @verse.set_verse_layout(...)
       end
 
-      # See #verse_layout!.
+      # See #set_verse_layout.
       def verse_layout= param
-        send_bundle :verse_layout!, param
+        send_bundle :set_verse_layout, param
       end
 
       # Get verse layout.
@@ -101,7 +101,7 @@ module Kredki
       def << feature
         case feature
         when String
-          text! feature
+          set_text feature
         else
           super
         end
@@ -115,8 +115,8 @@ module Kredki
           px = pad.get_x clip_size_x, sx, cx
           py = pad.get_y clip_size_y, sy, (get_y @y, clip_size_y, sy)
           pad.arrange
-          pad.set_xy px, py
-          pad.set_margin
+          pad.update_xy px, py
+          pad.update_margin
           [sx, sy, px, py]
         end
       end
@@ -138,13 +138,13 @@ module Kredki
 
         initialize_verse
 
-        layout! NoteLayout.new(Start, Center)
-        mousy!
-        keyboardy!
-        outline_w! 1
-        margin! 2
-        suit! :gray
-        size_y! Fit
+        set_layout NoteLayout.new(Start, Center)
+        set_mousy
+        set_keyboardy
+        set_outline_w 1
+        set_margin 2
+        set_suit :gray
+        set_size_y Fit
 
         sketch_verse
       end
@@ -159,7 +159,7 @@ module Kredki
         on_mouse_scroll do: method(:mouse_scroll)
 
         on_mouse_press :scroll do |e|
-          drag! e.xy, :scroll
+          start_drag e.xy, :scroll
           e.close
         end
 
@@ -176,7 +176,7 @@ module Kredki
       end
 
       def mouse_scroll event
-        x, y = window.relative_scroll(*event.xy)
+        x, y = Kredki.relative_scroll(*event.xy)
         @verse.scroll x == 0 ? y : x, y
       end
 
@@ -197,17 +197,17 @@ module Kredki
         kb_top = keyboard_top?
 
         if disabled?
-          opacity! 3/4r
-          mouse_cursor! nil
-          area.fill! color
-          area.outline_fill! color
+          set_opacity 3/4r
+          set_mouse_cursor nil
+          area.set_fill color
+          area.set_outline_fill color
         else
-          opacity! 1r
-          mouse_cursor! :text
-          area.fill! kb_top ? color.darken : mouse_in? ? color.lighten : color
-          area.outline_fill! kb_top ? :outline_focus : color
+          set_opacity 1r
+          set_mouse_cursor :text
+          area.set_fill kb_top ? color.darken : mouse_in? ? color.lighten : color
+          area.set_outline_fill kb_top ? :outline_focus : color
         end
-        verse.selection.each_paint{|it| it.fill! kb_top ? :text_selection : :text_selection_inactive }
+        verse.selection.each_paint{|it| it.set_fill kb_top ? :text_selection : :text_selection_inactive }
       end
     end
   end

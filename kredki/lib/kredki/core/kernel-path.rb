@@ -7,11 +7,11 @@ class Object
     raise "Invalid state #{state.inspect}."
   end
 
-  def alter *a, filter_keywords: false, **ka, &block
+  def set *a, filter_keywords: false, **ka, &block
     a.each{|it| self << it }
-    ka.each do |k, a|
-      k = "#{k}=" if k =~ /^\w+$/
-      send k, a if !filter_keywords || self.respond_to?(k)
+    ka.each do |key, arg|
+      key = "#{key}=" if key =~ /^\w+$/
+      send key, arg if !filter_keywords || self.respond_to?(key)
     end
     instance_exec self, &block if block
     self
@@ -31,7 +31,7 @@ class Object
   end
 
   def send_branch root, branches, separator = "_"
-    branches.count{ send_bundle "#{root}#{separator}#{_1}!", _2 }.nonzero?
+    branches.count{ send_bundle "#{root}#{separator}#{_1}", _2 }.nonzero?
   end
 end
 
@@ -44,8 +44,8 @@ class Symbol
 end
 
 module Enumerable
-  def each_alter ...
-    each{|it| it.alter(...) }
+  def each_set ...
+    each{|it| it.set(...) }
   end
 end
 

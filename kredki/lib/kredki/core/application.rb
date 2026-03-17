@@ -12,8 +12,8 @@ module Kredki
     # Create new window.
     def open *a, engine: :sw, show: true, **ka, &b
       w = Window.new engine: engine
-      s = put_window(w).scene!(*a, **ka, &b)
-      w.show! if show
+      s = put_window(w).set_pane(*a, **ka, &b)
+      w.set_show if show
       s
     end
 
@@ -104,7 +104,7 @@ module Kredki
         abi = Pastele::WindowEvent.new event_ptr
         event = MousePointerEnterEvent.new abi
         if window = @windows[abi.window_id]
-          window.set_mouse_in true
+          window.update_mouse_in true
           window.report event
         end
         event
@@ -112,7 +112,7 @@ module Kredki
         abi = Pastele::WindowEvent.new event_ptr
         event = MousePointerLeaveEvent.new abi
         if window = @windows[abi.window_id]
-          window.set_mouse_in false
+          window.update_mouse_in false
           window.report event
         end
         event
@@ -271,15 +271,15 @@ module Kredki
       window_id = Pastele.application_insert_window @pointer, window.pointer
       @windows[window_id] = window
       @main_window ||= window
-      window.attach! self
+      window.attach self
       window
     end
 
     def remove_window window, last_exit = true
-      window.hide!
+      window.hide
       window_id = Pastele.application_erase_window(@pointer, window.pointer)
       @windows.delete window_id
-      window.detach!
+      window.detach
       if last_exit && @windows.empty?
         self.return
       else

@@ -10,7 +10,7 @@ module Kredki
           super
 
           @context_pad = put Context::Pad, outline: [1, :dark_gray] do
-          scene.drop_shadow! color: :black
+          scene.drop_shadow color: :black
         end
           @item_group = @context_pad.put Context::ItemGroup
         end
@@ -18,8 +18,8 @@ module Kredki
         attr :context_pad, :item_group
 
         def load_common x, y
-          @context_pad.xy! x, y
-          lower.window.push_layer self
+          @context_pad.set_xy x, y
+          lower.pane.push_layer self
           break_layout
         end
         

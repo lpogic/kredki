@@ -5,8 +5,8 @@ module Kredki
       class ItemButton < RectanglePad
 
         # Set suit.
-        def suit! *suit
-          return send_bundle :suit!, yield(self.suit) if block_given?
+        def set_suit *suit
+          return send_bundle :set_suit, yield(self.suit) if block_given?
           suit = Util.uncover suit
           return if @suit == suit && suit != :random
           @suit = suit
@@ -14,9 +14,9 @@ module Kredki
           true
         end
 
-        # See #suit!.
+        # See #set_suit.
         def suit= param
-          send_bundle :suit!, param
+          send_bundle :set_suit, param
         end
 
         # Get suit.
@@ -25,14 +25,14 @@ module Kredki
         end
         
         # Set whether is checked.
-        def checked! value = true
+        def set_checked value = true
           return if (c = checked) == (value = block_given? ? yield(c) : value == Not ? !c : value)
-          update_checked value
+          update_group_checked value
         end
 
-        # See #checked!.
+        # See #set_checked.
         def checked= param
-          send_bundle :checked!, param
+          send_bundle :set_checked, param
         end
 
         # Get whether is checked.
@@ -67,21 +67,21 @@ module Kredki
           super
           
           @check = put ShapePad, mousy: false, keyboardy: false, fill: :text, size: 1r do
-            area! @scene.ellipse!
-            hide!
+            set_area @scene.ellipse!
+            set_show false
           end
         end
 
         def sketch
           super
 
-          area! @scene.ellipse!
-          keyboardy!
-          outline_w! 1
-          layout! :zcc
-          size! 16
-          margin! 3
-          suit! :gray
+          set area: @scene.ellipse!
+          set keyboardy: true
+          set outline_w: 1
+          set layout: :zcc
+          set size: 16
+          set margin: 3
+          set suit: :gray
         end
 
         def presence
@@ -101,11 +101,11 @@ module Kredki
         def repaint event = nil
           color = Kredki.color @suit
           if disabled?
-            area.fill! color
-            area.outline_fill! color.darken
+            area.set fill: color
+            area.set outline_fill: color.darken
           else
-            area.fill! pin_top? ? color.darken : mouse_in? ? color.lighten : color
-            area.outline_fill! keyboard_in? ? :outline_focus : color.darken
+            area.set fill: pin_top? ? color.darken : mouse_in? ? color.lighten : color
+            area.set outline_fill: keyboard_in? ? :outline_focus : color.darken
           end
         end
 
@@ -117,7 +117,7 @@ module Kredki
           end
 
           on_change early: true do |e|
-            e.close if disabled? || checked!(e.value).not
+            e.close if disabled? || set_checked(e.value).not
           end
 
           on_key_press do |e|
@@ -125,13 +125,13 @@ module Kredki
           end
         end
 
-        def update_checked checked
-          find_lower(Group)&.set_checked self, checked or set_checked checked
+        def update_group_checked checked
+          find_lower(Group)&.update_checked self, checked or update_checked checked
         end
 
-        def set_checked checked
+        def update_checked checked
           @checked = checked
-          @check.show! checked
+          @check.set_show checked
         end
       end
     end

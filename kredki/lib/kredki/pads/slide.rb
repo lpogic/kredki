@@ -22,16 +22,16 @@ module Kredki
       end
 
       # Set value.
-      def value! value = @value
-        return send_bundle :value!, yield(self.value) if block_given?
+      def set_value value = @value
+        return send_bundle :set_value, yield(self.value) if block_given?
         return if @value == value
         @value = value
         layer&.break_layout
       end
 
-      # See #value!.
+      # See #set_value.
       def value= param
-        send_bundle :value!, param
+        send_bundle :set_value, param
       end
 
       # Get value.
@@ -40,8 +40,8 @@ module Kredki
       end
 
       # Set suit.
-      def suit! *suit
-        return send_bundle :suit!, yield(self.suit) if block_given?
+      def set_suit *suit
+        return send_bundle :set_suit, yield(self.suit) if block_given?
         suit = Util.uncover suit
         return if @suit == suit && suit != :random
         @suit = suit
@@ -49,9 +49,9 @@ module Kredki
         true
       end
 
-      # See #suit!.
+      # See #set_suit.
       def suit= param
-        send_bundle :suit!, param
+        send_bundle :set_suit, param
       end
 
       # Get suit.
@@ -94,7 +94,7 @@ module Kredki
       def sketch
         super
 
-        suit! :gray
+        set_suit :gray
       end
 
       def presence
@@ -113,11 +113,11 @@ module Kredki
         color = Kredki.color @suit
 
         if disabled?
-          opacity! 3/4r
-          handle.area.fill! color.darken
+          set_opacity 3/4r
+          handle.area.set_fill color.darken
         else
-          opacity! 1r
-          handle.area.fill! mouse_in? ? color.lighten : color.darken
+          set_opacity 1r
+          handle.area.set_fill mouse_in? ? color.lighten : color.darken
         end
       end
 
@@ -143,7 +143,7 @@ module Kredki
         end
 
         on_edit do |e|
-          value! e.value
+          set_value e.value
         end
 
         @handle.on_mouse_release do |e|
@@ -151,7 +151,7 @@ module Kredki
         end
 
         @handle.on_mouse_press do |e|
-          @handle.drag! e.xy, e.button.id
+          @handle.start_drag e.xy, e.button.id
           e.close
         end
       end
@@ -174,14 +174,14 @@ module Kredki
       def sketch
         super
 
-        size_y! 10
+        set_size_y 10
       end
 
       def behavior
         super
 
         on_mouse_press :primary do |e|
-          @handle.drag! @handle.translate(@handle.area_size_x * 0.5, 0), :primary
+          @handle.start_drag @handle.translate(@handle.area_size_x * 0.5, 0), :primary
           e.close
         end
       end
@@ -190,8 +190,8 @@ module Kredki
         csx = clip_size_x
         request_size_x ||= 3 * csx
         size_x = (csx.to_f / request_size_x * csx).clamp 20, [csx - 20, 20].max
-        @handle.set_size size_x, area_size_y
-        @handle.set_xy ((csx - size_x) * @value.to_f.then{|it| it.nan? ? 0 : it.clamp(0..1) }).ceil, 0
+        @handle.update_size size_x, area_size_y
+        @handle.update_xy ((csx - size_x) * @value.to_f.then{|it| it.nan? ? 0 : it.clamp(0..1) }).ceil, 0
       end
     end
 
@@ -212,14 +212,14 @@ module Kredki
       def sketch
         super
 
-        size_x! 10
+        set_size_x 10
       end
 
       def behavior
         super
 
         on_mouse_press :primary do |e|
-          @handle.drag! @handle.translate(0, @handle.area_size_x * 0.5), :primary
+          @handle.start_drag @handle.translate(0, @handle.area_size_x * 0.5), :primary
           e.close
         end
       end
@@ -228,8 +228,8 @@ module Kredki
         csy = clip_size_y
         request_size_y ||= 3 * csy
         size_y = (csy.to_f / request_size_y * csy).clamp 20, [csy - 20, 20].max
-        @handle.set_size area_size_x, size_y
-        @handle.set_xy 0, ((csy - size_y) * @value.to_f.then{|it| it.nan? ? 0 : it.clamp(0..1) }).ceil
+        @handle.update_size area_size_x, size_y
+        @handle.update_xy 0, ((csy - size_y) * @value.to_f.then{|it| it.nan? ? 0 : it.clamp(0..1) }).ceil
       end
     end
   end

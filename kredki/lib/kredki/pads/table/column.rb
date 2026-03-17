@@ -5,16 +5,16 @@ module Kredki
       class Column
 
         # Set size.
-        def size! size = @size
-          return send_bundle :size!, yield(self.size) if block_given?
+        def set_size size = @size
+          return send_bundle :set_size, yield(self.size) if block_given?
           return if @size == size
           @size = size
           true
         end
 
-        # See #size!.
+        # See #set_size.
         def size= param
-          send_bundle :size!, param
+          send_bundle :set_size, param
         end
 
         # Get size.
@@ -23,16 +23,16 @@ module Kredki
         end
 
         # Set size limit.
-        def limit! limit = @limit
-          return send_bundle :limit!, yield(self.limit) if block_given?
+        def set_limit limit = @limit
+          return send_bundle :set_limit, yield(self.limit) if block_given?
           return if @limit == limit
           @limit = limit
           true
         end
 
-        # See #limit!.
+        # See #set_limit.
         def limit= param
-          send_bundle :limit!, param
+          send_bundle :set_limit, param
         end
 
         # Get size limit.
@@ -44,9 +44,9 @@ module Kredki
         def << feature
           case feature
           when Numeric
-            size! feature
+            set_size feature
           when Range
-            limit! feature
+            set_limit feature
           else raise_ia feature
           end
         end

@@ -66,7 +66,7 @@ module Kredki
       attr :shape
 
       # Publicate prepared path.
-      def commit!
+      def commit
         @shape.update
       end
     end
@@ -74,20 +74,20 @@ module Kredki
     # Get Crayon to create custom path.
     #
     # +block+ is called in Crayon context if given.
-    def draw! reset = true, x = 0, y = 0, &block
+    def draw reset = true, x = 0, y = 0, &block
       crayon = Crayon.new self, reset, x, y
       if block
         crayon.autoupdate = false
-        crayon.alter &block
-        crayon.commit!
+        crayon.set &block
+        crayon.commit
         crayon.autoupdate = true
       end
       crayon
     end
 
     # Set fill.
-    def fill! *fill
-      return send_bundle :fill!, yield(self.fill) if block_given?
+    def set_fill *fill
+      return send_bundle :set_fill, yield(self.fill) if block_given?
       fill = Util.uncover fill
       return if @fill == fill && fill != :random
       case f = Kredki.fill fill
@@ -102,9 +102,9 @@ module Kredki
       update
     end
 
-    # See #fill!.
+    # See #set_fill.
     def fill= param
-      send_bundle :fill!, param
+      send_bundle :set_fill, param
     end
 
     # Get fill.
@@ -119,17 +119,17 @@ module Kredki
     end
     
     # Set fill rule.
-    def fill_rule! rule = @fill_rule
-      return fill_rule! yield @fill_rule if block_given?
+    def set_fill_rule rule = @fill_rule
+      return set_fill_rule yield @fill_rule if block_given?
       return if @fill_rule == rule
       Pastele.shape_set_fill_rule @pointer, FillRule.send(rule || :winding)
       @fill_rule = rule
       update
     end
 
-    # See #fill_rule!.
+    # See #set_fill_rule.
     def fill_rule= param
-      send_bundle :fill_rule!, param
+      send_bundle :set_fill_rule, param
     end
 
     # Get fill rule.
@@ -138,27 +138,27 @@ module Kredki
     end
 
     # Set outline features.
-    def outline! *a, **ka
+    def set_outline *a, **ka
       a.map do |it|
         case it
         when Hash
-          outline! **it
+          set_outline **it
         when Numeric
-          outline_w! it
+          set_outline_w it
         else
-          send_bundle :outline_fill!, it
+          send_bundle :set_outline_fill, it
         end
-      end.any? | send_branch(:outline, ka)
+      end.any? | send_branch(__method__, ka)
     end
     
-    # See #outline!.
+    # See #set_outline.
     def outline= param
-      send_bundle :outline!, param
+      send_bundle :set_outline, param
     end
 
     # Set outline fill.
-    def outline_fill! *outline_fill
-      return send_bundle :outline_fill!, yield(self.outline_fill) if block_given?
+    def set_outline_fill *outline_fill
+      return send_bundle :set_outline_fill, yield(self.outline_fill) if block_given?
       outline_fill = Util.uncover outline_fill
       return if @outline_fill == outline_fill && outline_fill != :random
       case f = Kredki.fill outline_fill
@@ -173,9 +173,9 @@ module Kredki
       update
     end
 
-    # See #outline_fill!.
+    # See #set_outline_fill.
     def outline_fill= param
-      send_bundle :outline_fill!, param
+      send_bundle :set_outline_fill, param
     end
 
     # Get outline fill.
@@ -184,17 +184,17 @@ module Kredki
     end
 
     # Set outline width.
-    def outline_w! outline_w = @outline_w
-      return outline_w! yield @outline_w if block_given?
+    def set_outline_w outline_w = @outline_w
+      return set_outline_w yield @outline_w if block_given?
       return if @outline_w == outline_w
       Pastele.shape_set_stroke_width @pointer, outline_w.to_f
       @outline_w = outline_w
       update
     end
 
-    # See #outline_w!.
+    # See #set_outline_w.
     def outline_w= param
-      send_bundle :outline_w!, param
+      send_bundle :set_outline_w, param
     end
 
     # Get outline width.
@@ -210,17 +210,17 @@ module Kredki
     end
 
     # Set outline path ending method.
-    def outline_cap! outline_cap = @outline_cap
-      return outline_cap! yield @outline_cap if block_given?
+    def set_outline_cap outline_cap = @outline_cap
+      return set_outline_cap yield @outline_cap if block_given?
       return if @outline_cap == outline_cap
       Pastele.shape_set_stroke_cap @pointer, OutlineCap.send(outline_cap || :square)
       @outline_cap = outline_cap
       update
     end
 
-    # See #outline_cap!.
+    # See #set_outline_cap.
     def outline_cap= param
-      send_bundle :outline_cap!, param
+      send_bundle :set_outline_cap, param
     end
 
     # Get outline path ending method.
@@ -237,8 +237,8 @@ module Kredki
     end
 
     # Set outline path connection method.
-    def outline_join! outline_join = @outline_join
-      return outline_join! yield @outline_join if block_given?
+    def set_outline_join outline_join = @outline_join
+      return set_outline_join yield @outline_join if block_given?
       return if @outline_join == outline_join
       if outline_join.is_a? Numeric
         Pastele.shape_set_stroke_join @pointer, 2
@@ -250,9 +250,9 @@ module Kredki
       update
     end
 
-    # See #outline_join!.
+    # See #set_outline_join.
     def outline_join= param
-      send_bundle :outline_join!, param
+      send_bundle :set_outline_join, param
     end
 
     # Get outline path connection method.
@@ -261,17 +261,17 @@ module Kredki
     end
 
     # Set outline dash pattern.
-    def outline_pattern! *outline_pattern
-      return send_bundle :outline_pattern!, yield(self.outline_pattern) if block_given?
+    def set_outline_pattern *outline_pattern
+      return send_bundle :set_outline_pattern, yield(self.outline_pattern) if block_given?
       return if @outline_pattern == outline_pattern
       Pastele.shape_set_stroke_dash @pointer, Fiddle::Pointer[outline_pattern.pack "f*"], outline_pattern.length, 0
       @outline_pattern = outline_pattern
       update
     end
 
-    # See #outline_pattern!.
+    # See #set_outline_pattern.
     def outline_pattern= param
-      send_bundle :outline_pattern!, param
+      send_bundle :set_outline_pattern, param
     end
 
     # Get outline dash pattern.
@@ -280,16 +280,16 @@ module Kredki
     end
 
     # Set whether outline is drawn behind the fill.
-    def outline_behind! value = true
+    def set_outline_behind value = true
       return if (c = outline_behind) == (value = block_given? ? yield(c) : value == Not ? !c : value)
       Pastele.shape_set_paint_order @pointer, value ? 1 : 0
       @outline_behind = value
       true
     end
 
-    # See #outline_behind!.
+    # See #set_outline_behind.
     def outline_behind= value
-      outline_behind! value
+      set_outline_behind value
     end
     
     # Get whether outline is drawn behind the fill.
@@ -303,8 +303,8 @@ module Kredki
     end
 
     # Set outline displayed part.
-    def outline_trim! *outline_trim
-      return send_bundle :outline_trim!, yield(self.outline_trim) if block_given?
+    def set_outline_trim *outline_trim
+      return send_bundle :set_outline_trim, yield(self.outline_trim) if block_given?
       outline_trim = Util.uncover outline_trim
       return if @outline_trim == outline_trim
       start, finish, simultaneous = *OutlineTrim[outline_trim].to_a
@@ -313,9 +313,9 @@ module Kredki
       update
     end
 
-    # See #outline_trim!.
+    # See #set_outline_trim.
     def outline_trim= param
-      send_bundle :outline_trim!, param
+      send_bundle :set_outline_trim, param
     end
 
     # Get outline displayed part.
@@ -365,7 +365,7 @@ module Kredki
       ObjectSpace.define_finalizer(self, Shape.finalizer(@pointer)) unless pointer
 
       @outline_w = 0
-      outline_join! :bevel
+      set_outline_join :bevel
       @fill = Kredki.color
       Pastele.shape_set_fill_color @pointer, *@fill
       @outline_fill = Kredki.color

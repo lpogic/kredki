@@ -80,5 +80,5 @@ require_relative 'event/keyboard_event_manager'
 require_relative 'event/mouse_event_manager'
 require_relative 'event/joystick_event_manager'
 
-require_relative 'window/window_scene'
+require_relative 'window/pane'
 require_relative 'window/window'

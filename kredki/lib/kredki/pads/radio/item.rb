@@ -10,11 +10,11 @@ module Kredki
         end
 
         # Set whether is checked.
-        def checked! ...
-          button.checked!(...)
+        def set_checked ...
+          button.set_checked(...)
         end
 
-        # See #checked!.
+        # See #set_checked.
         def checked= param
           button.checked = param
         end
@@ -34,7 +34,7 @@ module Kredki
           case feature
           when String
             (find Label or put Label) << feature
-            subject! feature
+            set_subject feature
           else
             super
           end
@@ -56,14 +56,14 @@ module Kredki
         def sketch
           super
 
-          size_y! Fit
-          spacer! 8
-          layout! :xsc
+          set size_y: Fit
+          set spacer: 8
+          set layout: :xsc
           
         end
 
         def repaint event = nil
-          opacity! disabled? ? 3/4r : 1r
+          set opacity: disabled? ? 3/4r : 1r
         end
       end
     end

@@ -71,7 +71,7 @@ module Kredki
       end
 
       def translated_xy xy
-        lx, ly = window.translate *xy, @entry
+        lx, ly = pane.translate *xy, @entry
         @exit.translate lx * @exit.area_size_x / @entry.area_size_x, ly * @exit.area_size_y / @entry.area_size_y
       end
 

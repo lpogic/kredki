@@ -17,8 +17,8 @@ module Kredki
         def sketch
           super
 
-          size! Fit
-          layout! :yss
+          set size: Fit
+          set layout: :yss
         end
       end
     end

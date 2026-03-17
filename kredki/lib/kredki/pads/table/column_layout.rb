@@ -6,19 +6,19 @@ module Kredki
         
         # Add new column.
         def column! ...
-          @columns << Column.new.alter(...)
+          @columns << Column.new.set(...)
         end
         
         # Set space between columns.
-        def space! space = @space
+        def set_space space = @space
           return if @space == space
           @space = space
           true
         end
 
-        # See #space!.
+        # See #set_space.
         def space= param
-          send_bundle :space!, param
+          send_bundle :set_space, param
         end
 
         # Get space between columns.
@@ -62,7 +62,7 @@ module Kredki
               size_x = client_size_x
             end
             sy = p1.get_size_y client_size_y
-            p1.set_size sx, sy
+            p1.update_size sx, sy
           end
 
           arrange_pads pad.arranged_pads, size_x, client_size_x, client_size_y, @space || 0

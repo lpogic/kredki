@@ -3,23 +3,23 @@ module Kredki
     class NavigableTextPad < TextPad
       
       # Set subject.
-      def subject! subject = @subject, cursor_position = 0, &b
+      def set_subject subject = @subject, cursor_position = 0, &b
         if super(subject, &b) && @selection.size != @verses.size
-          @selection.clear!
+          @selection.clear
           @verses.each{ @selection.rectangle! fill: :text_selection, size_x: 0 }
         end
-        set_cursor cursor_position
+        update_cursor cursor_position
       end
 
       # Set font.
-      def font! font = @verses.first.font
-        return send_bundle :font!, yield(self.font) if block_given?
-        @verses.count{ _1.font! font }.nonzero?
+      def set_font font = @verses.first.font
+        return send_bundle :set_font, yield(self.font) if block_given?
+        @verses.count{ _1.set_font font }.nonzero?
       end
       
-      # See #font!.
+      # See #set_font.
       def font= param
-        send_bundle :font!, param
+        send_bundle :set_font, param
       end
 
       # Get font
@@ -49,7 +49,7 @@ module Kredki
       attr :selection_min, :selection_max, :cursor
       attr_accessor :cursor_position
 
-      def set_cursor position = 0
+      def update_cursor position = 0
         @cursor_position = @selection_min = @selection_max = position
         layer&.break_layout
       end
@@ -134,9 +134,9 @@ module Kredki
         super + @cursor.size_x * 2
       end
 
-      def set_size x, y # set_size must be called before get_x/get_y
+      def update_size x, y # update_size must be called before get_x/get_y
         super
-        update_cursor if @cursor.show?
+        update_cursor_location if @cursor.show?
       end
 
       def get_x clip_size, size, ax
@@ -197,14 +197,14 @@ module Kredki
       def arrange_verses
         sx, sy = area_size
         size_v, space = verse_metrics sy
-        @cursor.size_y! size_v
+        @cursor.set_size_y size_v
         if @verses.size > 0
           size_t = (size_v + space) * @verses.size - space
           y = align_y size_t, sy
           @verses.each do |v|
-            v.size_y! size_v
+            v.set_size_y size_v
             x = align_x v.size_x, sx
-            v.xy! x.floor, y.floor
+            v.set_xy x.floor, y.floor
             y += size_v + space
           end
         end
@@ -232,7 +232,7 @@ module Kredki
             reference_size_y > sy ? (@scene.y + y).clamp(sy - reference_size_y - y0..-y0) : @scene.y
           end
 
-          @scene.xy! scene_x.floor, scene_y.floor
+          @scene.set_xy scene_x.floor, scene_y.floor
         end
       end
 
@@ -250,17 +250,17 @@ module Kredki
         @sy0 = @scene.y if e.start? || !@sy0
         scene_y = reference_size_y > sy ? (@sy0 + (e.y - layer.pin_xy[1]) * speed).clamp(sy - reference_size_y - y0..-y0) : @scene.y
 
-        @scene.xy! scene_x.floor, scene_y.floor
+        @scene.set_xy scene_x.floor, scene_y.floor
       end
 
-      def update_cursor
+      def update_cursor_location
         total = -1
-        @cursor.xy! align_x(@cursor.size_x * 0.5, area_size_x).floor, align_y(@cursor.size_y, area_size_y).floor
+        @cursor.set_xy align_x(@cursor.size_x * 0.5, area_size_x).floor, align_y(@cursor.size_y, area_size_y).floor
         @verses.each do |verse|
           total += 1
           if @cursor_position <= total + verse.content.length
             x = verse.substring_width @cursor_position - total
-            @cursor.xy! (x + verse.x - @cursor.size_x * 0.5).floor, verse.y.floor
+            @cursor.set_xy (x + verse.x - @cursor.size_x * 0.5).floor, verse.y.floor
             break
           end
           total += verse.content.length
@@ -271,23 +271,23 @@ module Kredki
           total += 1
           next_total = total + v.content.length
           if @selection_min == @selection_max || @selection_min > next_total || @selection_max <= total
-            s.size_x! 0
+            s.set_size_x 0
           elsif @selection_min <= total && @selection_max >= next_total
-            s.size! *v.size
-            s.xy! *v.xy
+            s.set_size *v.size
+            s.set_xy *v.xy
           elsif @selection_max >= next_total
             x1 = v.substring_width @selection_min - total
-            s.size! v.size_x - x1, v.size_y
-            s.xy! v.x + x1, v.y
+            s.set_size v.size_x - x1, v.size_y
+            s.set_xy v.x + x1, v.y
           elsif @selection_min <= total
             x1 = v.substring_width @selection_max - total
-            s.size! x1, v.size_y
-            s.xy! *v.xy
+            s.set_size x1, v.size_y
+            s.set_xy *v.xy
           else
             x1 = v.substring_width @selection_min - total
             x2 = v.substring_width @selection_max - total
-            s.size! x2 - x1, v.size_y
-            s.xy! v.x + x1, v.y
+            s.set_size x2 - x1, v.size_y
+            s.set_xy v.x + x1, v.y
           end
           total = next_total
         end
@@ -377,7 +377,7 @@ module Kredki
           @cursor_position = cursor_position
           layer&.break_layout
         else
-          set_cursor cursor_position
+          update_cursor cursor_position
         end
       end
 
@@ -405,7 +405,7 @@ module Kredki
           @cursor_position = cursor_position
           layer&.break_layout
         else
-          set_cursor cursor_position
+          update_cursor cursor_position
         end
       end
     end

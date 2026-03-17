@@ -21,14 +21,14 @@ module Kredki
           super
 
           @items = put Pad, outline: [1, :dark_gray] do
-            scene.drop_shadow! color: :black
+            scene.drop_shadow color: :black
           end
           @item_group = @items.put ItemGroup
         end
 
         def load_common x, y
-          @items.xy! x, y
-          lower.window.push_layer self
+          @items.set_xy x, y
+          lower.pane.push_layer self
           break_layout
         end
 

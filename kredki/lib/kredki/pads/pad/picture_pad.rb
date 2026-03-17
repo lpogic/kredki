@@ -17,7 +17,7 @@ module Kredki
       def << arg
         case arg
         when String
-          subject! arg
+          set_subject arg
         else
           super
         end
@@ -37,8 +37,8 @@ module Kredki
         end
       end
 
-      def set_subject subject
-        @area.content! subject, @size_x == Auto && @size_y == Auto
+      def update_subject subject
+        @area.set_content subject, @size_x == Auto && @size_y == Auto
       end
 
       def min_size_x_limit limit, margin

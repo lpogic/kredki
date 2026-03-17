@@ -4,7 +4,7 @@ class PadGalleryTest < Kredki::Test
   def dir = __dir__
 
   def test_pad_gallery
-    layout! :yss
+    set layout: :yss
 
     toolbar! do
       item! "File"

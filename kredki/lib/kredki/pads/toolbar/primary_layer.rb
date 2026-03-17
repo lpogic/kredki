@@ -41,7 +41,7 @@ module Kredki
           end
         end
 
-        def set_lower lower, at = nil
+        def update_lower lower, at = nil
           if super
             @lower_events&.each{ _1.detach }
             @lower_events = []

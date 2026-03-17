@@ -8,7 +8,19 @@ module Kredki
         end
       end
 
-      # Define common Pads method.
+      def method_missing name, ...
+        if name.end_with? "!"
+          define(name, ...)
+        else
+          super
+        end
+      end
+
+      def respond_to? name, all = false
+        name.end_with? "!" or super
+      end
+
+      # Define method.
       def define name, klass = nil, &block
         case klass
         when Class
@@ -20,11 +32,11 @@ module Kredki
         when nil
           if block.parameters.empty?
             define_method name do |*a, **ka, &b|
-              instance_exec(&block).alter *a, **ka, &b
+              instance_exec(&block).set *a, **ka, &b
             end
           else
             define_method name do |*a, **ka, &b|
-              instance_exec(*a, **ka, &block).alter &b
+              instance_exec(*a, **ka, &block).set &b
             end
           end
         else raise_ia klass

@@ -12,7 +12,7 @@ module Kredki
 
         # Create/Update dropdown.
         def dropdown! ...
-          (find PrimaryLayer or put PrimaryLayer).alter(...)
+          (find PrimaryLayer or put PrimaryLayer).set(...)
         end
 
         # See #dropdown!.
@@ -26,15 +26,15 @@ module Kredki
         end
 
         # Set whether is directory.
-        def dir! value = true, set_icon = true, &block
+        def set_dir value = true, set_icon = true, &block
           return if (c = dir) == (value = block ? block[c] : value == Not ? !c : value)
           @dir = value
           true
         end
 
-        # See #dir!.
+        # See #set_dir.
         def dir= param
-          send_bundle :dir!, param
+          send_bundle :set_dir, param
         end
 
         # Get whether is directory.
@@ -52,7 +52,7 @@ module Kredki
         def sketch
           super
 
-          margin_x! 5
+          set_margin_x 5
         end
 
         def behavior
