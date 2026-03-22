@@ -9,12 +9,19 @@ module Kredki
       @result
     end
 
-    # Create new window.
-    def open *a, engine: :sw, show: true, **ka, &b
-      w = Window.new engine: engine
-      s = put_window(w).set_pane(*a, **ka, &b)
-      w.set_show if show
-      s
+    # Open window in application.
+    def open opened = nil, *a, hidden: false, **ka, &b
+      case opened
+      when Window
+        window = opened
+        result = put_window(window).set_pane(*a, **ka, &b)
+        window.show unless hidden
+      else
+        window = default_window
+        result = put_window(window).set_pane(opened, *a, **ka, &b)
+        window.show unless hidden
+      end
+      result
     end
 
     # Get window.
@@ -297,6 +304,10 @@ module Kredki
       @windows.values.each{|it| it.report event }
       post_process&.call event
       event
+    end
+
+    def default_window
+      Window.new
     end
   end
 end

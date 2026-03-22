@@ -159,21 +159,23 @@ module Kredki
 
     # Available blending methods.
     class BlendMethod
-      # Blending disabled (default).
-      def self.normal = 0
-      def self.add = 1
-      def self.screen = 2
-      def self.multiply = 3
-      def self.overlay = 4
-      def self.difference = 5
-      def self.exclusion = 6
-      def self.srcover = 7
-      def self.darken = 9
-      def self.lighten = 10
-      def self.color_dodge = 11
-      def self.color_burn = 12
-      def self.hard_light = 13
-      def self.soft_light = 14
+      class << self
+        # Blending disabled (default).
+        def normal = 0
+        def add = 1
+        def screen = 2
+        def multiply = 3
+        def overlay = 4
+        def difference = 5
+        def exclusion = 6
+        def srcover = 7
+        def darken = 9
+        def lighten = 10
+        def color_dodge = 11
+        def color_burn = 12
+        def hard_light = 13
+        def soft_light = 14
+      end
     end
 
     # Set color blending method.
@@ -197,18 +199,20 @@ module Kredki
 
     # Available masking methods.
     class MaskMethod
-      # Masking disabled (default).
-      def self.none = 0
-      def self.alpha = 1
-      def self.inv_alpha = 2
-      def self.luma = 3
-      def self.inv_luma = 4
-      def self.add = 5
-      def self.substract = 6
-      def self.intersect = 7
-      def self.difference = 8
-      def self.lighten = 9
-      def self.darken = 10
+      class << self
+        # Masking disabled (default).
+        def none = 0
+        def alpha = 1
+        def inv_alpha = 2
+        def luma = 3
+        def inv_luma = 4
+        def add = 5
+        def substract = 6
+        def intersect = 7
+        def difference = 8
+        def lighten = 9
+        def darken = 10
+      end
     end
 
     # Set color masking method with +target+.
@@ -233,28 +237,28 @@ module Kredki
       @mask
     end
 
-    # Set whether Paint is drawn on the scene.
+    # Set whether Paint is scenic.
     #
-    # Containing Kredki::Scene and all lower level Scenes must be shown for the Paint to be displayed on the screen.
-    def set_show value = true
-      return if (c = show) == (value = block_given? ? yield(c) : value == Not ? !c : value)
-      update_show value
+    # All lower level Scenes must be scenic for the Paint to be displayed.
+    def set_scenic value = true
+      return if (c = scenic) == (value = block_given? ? yield(c) : value == Not ? !c : value)
+      update_scenic value
       true
     end
 
-    # See #set_show.
-    def show= value
-      set_show value
+    # See #set_scenic.
+    def scenic= value
+      set_scenic value
     end
     
-    # Get whether Paint is drawn on the screen.
-    def show
-      get_show
+    # Get whether Paint is scenic.
+    def scenic
+      @scene&.paint_scenic self
     end
 
-    # See #show.
-    def show?
-      !!show
+    # Get whether Paint is displayed.
+    def displayed
+      @scene&.paint_displayed self
     end
 
     # Set the Kredki::Shape to use as the Paint clipping path.
@@ -293,9 +297,9 @@ module Kredki
     end
 
     # Attach the Paint to the Kredki::Scene.
-    def attach scene, show = true, at = nil
+    def attach scene, hidden = false, at = nil
       @scene&.remove_paint self
-      scene.put_paint self, show, at
+      scene.put_paint self, scenic, at
       @scene = scene
     end
 
@@ -304,7 +308,7 @@ module Kredki
       @scene&.window
     end
 
-    # Push the feature.
+    # Set a feature recognized by its class.
     def << feature
       case feature
       when Hash
@@ -373,20 +377,16 @@ module Kredki
       end
     end
 
-    def update_show show
-      show ? @scene&.show_paint(self) : @scene&.hide_paint(self)
+    def update_scenic scenic
+      scenic ? @scene&.show_paint(self) : @scene&.hide_paint(self)
     end
 
-    def get_show direct = false
-      @scene&.paint_shown self, direct
-    end
-
-    def pivot_xy
+    def pivot
       [0, 0]
     end
 
     def update_transform
-      Pastele.paint_set_transform @pointer, *pivot_xy, @x, @y, 2 * Math::PI * @turn, @zoom_x, @zoom_y
+      Pastele.paint_set_transform @pointer, *pivot, @x, @y, 2 * Math::PI * @turn, @zoom_x, @zoom_y
     end
   end#Paint
 end#Kredki

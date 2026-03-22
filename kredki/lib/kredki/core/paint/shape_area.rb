@@ -2,21 +2,11 @@ require_relative 'shape'
 require_relative 'area'
 
 module Kredki
-  # Base class for Shape's with defined width and height.
+  # Base class for Shape's with defined size.
   class ShapeArea < Shape
     include Area
 
-    # Set outline width.
-    def set_outline_w outline_w = @outline_w
-      return set_outline_w yield @outline_w if block_given?
-      return if @outline_w == outline_w
-      Pastele.shape_set_stroke_width @pointer, outline_w.to_f
-      @outline_w = outline_w
-      @redraw_flag = true
-      update
-    end
-
-    # Push the feature.
+    # Set a feature recognized by its class.
     def << feature
       case feature
       in [x, y]
@@ -45,8 +35,13 @@ module Kredki
       super
     end
 
-    def pivot_xy
+    def pivot
       [@size_x * 0.5, @size_y * 0.5]
+    end
+
+    def update_stroke_width ...
+      super
+      @redraw_flag = true
     end
 
     def update

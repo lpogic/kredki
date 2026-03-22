@@ -9,9 +9,9 @@ module Kredki
       end
 
       # Get whether is pressed.
-      def pressed? keyboard_in = nil
-        keyboard_in = keyboard_in? if keyboard_in.nil?
-        pin_top? :primary or (
+      def pressed keyboard_in = nil
+        keyboard_in = self.keyboard_in if keyboard_in.nil?
+        pin_top :primary or (
           keyboard_in and (
             Kredki.keyboard.pressed? :space or
             Kredki.keyboard.pressed? :enter
@@ -49,7 +49,7 @@ module Kredki
         on_pick do: param
       end
 
-      # Push the feature.
+      # Set a feature recognized by its class.
       def << feature
         case feature
         when String
@@ -91,12 +91,12 @@ module Kredki
 
       def repaint event = nil
         color = Kredki.color @suit
-        if disabled?
+        if in_disabled
           set opacity: 3/4r
           area.set fill: color
         else
           set opacity: 1r
-          area.set fill: pin_in? ? color.darken : keyboard_in? ? color.lighten : color
+          area.set fill: pin_in ? color.darken : keyboard_in ? color.lighten : color
         end
       end
 
@@ -113,7 +113,7 @@ module Kredki
         end
 
         on_pick do |e|
-          e.close if disabled?
+          e.close if in_disabled
         end
       end
 

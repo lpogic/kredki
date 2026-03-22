@@ -6,16 +6,16 @@ module Kredki
     include Area
 
     # Set content.
-    def set_content content, pull_size = false
+    def set_content content, reset_size = false
       return set_content yield @content if block_given?
       return if @content == content
+      string_content = content.to_s
+      raise "File \"#{c}\" not found." unless File.exist? string_content
       renew if @content
-      c = content.to_s
-      raise "File #{c} not found." unless File.exist? c
-      Pastele.picture_load @pointer, c
+      Pastele.picture_load @pointer, string_content
       @content = content
       @original_size_x, @original_size_y = fetch_size
-      if pull_size
+      if reset_size
         @size_x = @original_size_x
         @size_y = @original_size_y
         update_transform
@@ -63,7 +63,7 @@ module Kredki
       Pastele.paint_accessor_traverse @pointer, callback
     end
 
-    # Push the feature.
+    # Set a feature recognized by its class.
     def << feature
       case feature
       in [x, y]
@@ -110,7 +110,7 @@ module Kredki
       [size.x, size.y]
     end
 
-    def pivot_xy
+    def pivot
       [@size_x * 0.5, @size_y * 0.5]
     end
 

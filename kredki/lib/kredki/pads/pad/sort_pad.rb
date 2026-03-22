@@ -5,7 +5,7 @@ module Kredki
       # :section: LEVEL 2
 
       def point_pads x, y, pads, force = false
-        if force || (mousy? && show? && include_point?(x, y))
+        if force || (mousy && scenic && include_point(x, y))
           pads << self
           x -= @clip_scene.x
           y -= @clip_scene.y

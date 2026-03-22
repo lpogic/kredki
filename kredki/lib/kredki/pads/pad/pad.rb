@@ -538,31 +538,33 @@ module Kredki
         @layout
       end
 
-      # Set whether Pad is drawn on the scene and is layout part.
+      # Set whether Pad is scenic.
       #
-      # All ancestors must be shown for the Paint to be displayed on the screen.
-      def set_show value = true
-        return if (c = show) == (value = block_given? ? yield(c) : value == Not ? !c : value)
-        update_show value
+      # All lower pads must also be scenic for the Pad to be displayed.
+      def set_scenic value = true
+        return if (c = scenic) == (value = block_given? ? yield(c) : value == Not ? !c : value)
+        update_scenic value
         true
       end
 
-      # See #set_show.
-      def show= value
-        set_show value
+      # See #set_scenic.
+      def scenic= value
+        set_scenic value
       end
       
-      # Get whether Pad is drawn on the screen.
-      def show
-        get_show
+      # Get whether Pad is scenic.
+      def scenic
+        get_scenic
       end
 
-      # See #show.
-      def show?
-        !!show
+      # Get whether Pad is displayed
+      def displayed
+        @scene.displayed
       end
 
-      # Set whether Pad is layout part.
+      # Set whether Pad is layoutic.
+      #
+      # Layoutic pad occupy place in layout even if it is not scenic.
       def set_layoutic value = true
         return if (c = layoutic) == (value = block_given? ? yield(c) : value == Not ? !c : value)
         layer&.break_layout
@@ -575,76 +577,48 @@ module Kredki
         set_layoutic value
       end
       
-      # Get whether Pad is layout part.
+      # Get whether Pad is layoutic.
       def layoutic
         @layoutic || @layoutic.nil?
       end
 
-      # See #layoutic.
-      def layoutic?
-        !!layoutic
-      end
-
-      # Set whether Pad is drawn on the scene.
-      #
-      # All ancestors must be shown for the Paint to be displayed on the screen.
-      def set_scenic value = true
-        return if (c = scenic) == (value = block_given? ? yield(c) : value == Not ? !c : value)
-        update_scenic value
-        true
-      end
-
-      # See #set_scenic.
-      def scenic= value
-        set_scenic value
-      end
-      
-      # Get whether Pad is drawn on the scene.
-      def scenic
-        get_scenic
-      end
-
-      # See #scenic.
-      def scenic?
-        !!scenic
-      end
-
       # Get whether [+x+, +y+] is inside Pad area.
-      def include_point? x, y
-        @area.contain? x, y
+      def include_point x, y
+        @area.include_point x, y
       end
 
-      # Get whether mouse pointer is over Pad.
-      def mouse_in?
+      # Get whether mouse pointer events are reaching Pad.
+      def mouse_in
         layer&.layer_check_mouse_in self or false
       end
 
-      # Get whether mouse pointer is directly over Pad.
-      def mouse_top?
+      # Get whether Pad is mouse pointer events target.
+      def mouse_top
         layer&.mouse_pad == self
       end
 
       # Get whether keyboard events are reaching Pad.
-      def keyboard_in?
-        layer&.keyboard_pad&.lower_pad_iterator&.any?{ _1 == self } || false
+      def keyboard_in
+        top = layer&.keyboard_pad
+        top == self || top&.lower_pad_iterator&.any?{ _1 == self } || false
       end
 
-      # Get whether keyboard events are reaching Pad direcly.
-      def keyboard_top?
+      # Get whether Pad is keyboard events target.
+      def keyboard_top
         layer&.keyboard_pad == self
       end
 
       # Get whether mouse pointer is pinned to Pad.
-      def pin_in? button = nil
+      def pin_in button = nil
         layer&.pin_check self, button, false
       end
 
       # Get whether mouse pointer is directly pinned to Pad.
-      def pin_top? button = nil
+      def pin_top button = nil
         layer&.pin_check self, button, true
       end
 
-      # Set whether Pad can be direct keyboard events target.
+      # Set whether Pad can be keyboard events target.
       def set_keyboardy value = true
         return if (c = keyboardy) == (value = block_given? ? yield(c) : value == Not ? !c : value)
         @keyboardy = value
@@ -656,17 +630,12 @@ module Kredki
         set_keyboardy value
       end
       
-      # Get whether Pad can be direct keyboard events target.
+      # Get whether Pad can be keyboard events target.
       def keyboardy
         @keyboardy
       end
-
-      # See #keyboardy.
-      def keyboardy?
-        !!keyboardy
-      end
       
-      # Set whether Pad can be direct mouse events target.
+      # Set whether Pad can be mouse events target.
       def set_mousy value = true
         return if (c = mousy) == (value = block_given? ? yield(c) : value == Not ? !c : value)
         @mousy = value
@@ -678,14 +647,9 @@ module Kredki
         set_mousy value
       end
       
-      # Get whether Pad can be direct mouse events target.
+      # Get whether Pad can be mouse events target.
       def mousy
         @mousy || @mousy.nil?
-      end
-
-      # See #mousy.
-      def mousy?
-        !!mousy
       end
 
       # Set whether is disabled.
@@ -706,9 +670,9 @@ module Kredki
         @disabled
       end
 
-      # See #disabled.
-      def disabled?
-        !!disabled || find_lower(Pad){|it| it.disabled }
+      # Get whether self or any lower is disabled.
+      def in_disabled
+        disabled || find_lower(Pad){|it| it.disabled }
       end
       
       # Start drag.
@@ -758,7 +722,7 @@ module Kredki
         pad_detach transfer
       end
 
-      # Push the feature.
+      # Set a feature recognized by its class.
       def << feature
         case feature
         when Pad, String
@@ -782,8 +746,8 @@ module Kredki
         @lower_pad = nil
         @scene = Scene.new
         initialize_area
-        @clip_scene = @scene.scene!
-        @clip_area = @clip_scene.rectangle! at: false, fill: false
+        @clip_scene = @scene.new_scene
+        @clip_area = @clip_scene.new_rectangle at: false, fill: false
         @pads = []
         @layout = nil
         @pads_layout = Pads.layout
@@ -794,7 +758,7 @@ module Kredki
       end
 
       def initialize_area
-        @area = @scene.rectangle! show: false
+        @area = @scene.new_rectangle scenic: false
       end
 
       def pad_tree
@@ -829,7 +793,7 @@ module Kredki
       end
 
       def keyboard_offer e
-        e.close if keyboardy? && keyboard_request
+        e.close if keyboardy && keyboard_request
       end
 
       def mouse_enter e
@@ -849,7 +813,7 @@ module Kredki
 
       def mouse_release e
         pin_dispose e.button.id
-        if !e.drag && include_point?(*layer.translate(*e.xy, self))
+        if !e.drag && include_point(*layer.translate(*e.xy, self))
           report MouseButtonClickEvent.new e
         end
         e.close
@@ -929,12 +893,8 @@ module Kredki
         end
       end
 
-      def in_pad? pad
+      def in_pad pad
         lower_pad_iterator.include? pad
-      end
-
-      def include_pad? pad
-        pad.in_pad? self
       end
 
       def pad_detach transfer = false
@@ -953,13 +913,13 @@ module Kredki
       def put_pad pad, at = nil
         case at
         when Integer
-          paint_state = @clip_scene.put_paint pad.scene, true
+          paint_state = @clip_scene.put_paint pad.scene, false
           @pads.insert at, pad
         when Pad
-          paint_state = @clip_scene.put_paint pad.scene, true, at.scene
+          paint_state = @clip_scene.put_paint pad.scene, false, at.scene
           @pads.insert @pads.index(at), pad
         else
-          paint_state = @clip_scene.put_paint pad.scene, true
+          paint_state = @clip_scene.put_paint pad.scene, false
           @pads << pad
         end
         layer&.break_layout
@@ -1026,12 +986,12 @@ module Kredki
         margin_x = @margin_xs + @margin_xe
         margin_y = @margin_ys + @margin_ye
         @area.set_size x.floor, y.floor
-        @scene.set_pivot_xy x * 0.5, y * 0.5
+        @scene.set_pivot x * 0.5, y * 0.5
         @clip_area.set_size (x - margin_x).floor, (y - margin_y).floor
       end
 
-      def layout_pads
-        pads.filter{|it| it.layoutic? }
+      def pads_layoutic
+        pads.filter{|it| it.layoutic }
       end
 
       def arranged_pads
@@ -1218,19 +1178,11 @@ module Kredki
       end
 
       def update_scenic scenic
-        @scene.update_show scenic
-      end
-
-      def get_scenic
-        @scene.get_show true
-      end
-
-      def update_show show
-        show_before = show?
-        self.scenic = self.layoutic = show
-        show_after = show?
-        if show_before != show_after
-          if show_after
+        displayed_before = displayed
+        @scene.update_scenic scenic
+        displayed_after = displayed
+        if displayed_before != displayed_after
+          if displayed_after
             report ShowEvent.new, false
             @pads.each &:show_propagate
           else
@@ -1240,26 +1192,26 @@ module Kredki
         end
       end
 
-      def get_show
-        @scene.get_show false
+      def get_scenic
+        @scene.scenic
       end
 
       def show_propagate
-        if get_scenic
+        if scenic
           report ShowEvent.new, false
           @pads.each &:show_propagate
         end
       end
 
       def hide_propagate
-        if get_scenic
+        if scenic
           report HideEvent.new, false
           @pads.each &:hide_propagate
         end
       end
 
       def point_pads x, y, pads, force = false
-        if force || (mousy? && show? && include_point?(x, y))
+        if force || (mousy && scenic && include_point(x, y))
           pads << self
           x -= @clip_scene.x
           y -= @clip_scene.y
@@ -1274,7 +1226,7 @@ module Kredki
       end
 
       def keyboard_dispose
-        layer.update_keyboard_pad if keyboard_in?
+        layer.update_keyboard_pad if keyboard_in
       end
 
       def check_mouse_in pad

@@ -95,65 +95,67 @@ module Kredki
       @fill
     end
 
-    # Set outline features.
-    def set_outline *a, **ka
+    # Set stroke features.
+    def set_stroke *a, **ka
       a.map do |it|
         case it
         when Hash
-          set_outline **it
+          set_stroke **it
         when Numeric
-          set_outline_w it
+          set_stroke_width it
         else
-          send_bundle :set_outline_fill, it
+          send_bundle :set_stroke_fill, it
         end
       end.any? | send_branch(__method__, ka)
     end
     
-    # See #set_outline.
-    def outline= param
-      send_bundle :set_outline, param
+    # See #set_stroke.
+    def stroke= param
+      send_bundle :set_stroke, param
     end
 
-    # Set outline fill.
-    def set_outline_fill *outline_fill
-      return send_bundle :set_outline_fill, yield(self.outline_fill) if block_given?
-      outline_fill = Util.uncover outline_fill
-      return if @outline_fill == outline_fill && outline_fill != :random
-      update_outline outline_fill, @outline_w
-      @outline_fill = outline_fill
+    # Set stroke fill.
+    def set_stroke_fill *stroke_fill
+      return send_bundle :set_stroke_fill, yield(self.stroke_fill) if block_given?
+      stroke_fill = Util.uncover stroke_fill
+      return if @stroke_fill == stroke_fill && stroke_fill != :random
+      update_stroke stroke_fill, @stroke_width
+      @stroke_fill = stroke_fill
       update
     end
 
-    # See #set_outline_fill.
-    def outline_fill= param
-      send_bundle :set_outline_fill, param
+    # See #set_stroke_fill.
+    def stroke_fill= param
+      send_bundle :set_stroke_fill, param
     end
 
-    # Get outline fill.
-    def outline_fill
-      @outline_fill
+    # Get stroke fill.
+    def stroke_fill
+      @stroke_fill
     end
 
-    # Set outline width.
-    def set_outline_w outline_w = @outline_w
-      return set_outline_w yield @outline_w if block_given?
-      return if @outline_w == outline_w
-      update_outline @outline_fill, outline_w
-      @outline_w = outline_w
+    # Set stroke width.
+    def set_stroke_width stroke_width = @stroke_width
+      return set_stroke_width yield @stroke_width if block_given?
+      return if @stroke_width == stroke_width
+      update_stroke @stroke_fill, stroke_width
+      @stroke_width = stroke_width
       update
     end
 
-    # See #set_outline_w.
-    def outline_w= param
-      send_bundle :set_outline_w, param
+    # See #set_stroke_width.
+    def stroke_width= param
+      send_bundle :set_stroke_width, param
     end
 
-    # Get outline width.
-    def outline_w
-      @outline_w
+    # Get stroke width.
+    def stroke_width
+      @stroke_width
     end
 
-    # Get +string+ width rendered with +@font+ and +@size_y+ up to character at +index+. 
+    # Get +string+ width rendered with +@font+ and +@size_y+ up to character at +index+.
+    # If +index+ is +null+ or -1, +string+ width is returned.
+    # If +index+ is equal to string length, +string+ width is returned plus last character rsb.
     def substring_width index = nil, string = @content
       Pastele.text_get_text_width(@pointer, string.to_s, index || -1)
     end
@@ -164,7 +166,7 @@ module Kredki
       Pastele.text_nearest_character_index @pointer, string.to_s, size_max
     end
 
-    # Push the feature.
+    # Set a feature recognized by its class.
     def << feature
       case feature
       in String
@@ -185,9 +187,10 @@ module Kredki
       @content = "TEXT"
       @font = Kredki.font
       @fill = Kredki.color
-      @outline_fill = Kredki.color
-      @outline_w = 0
+      @stroke_fill = Kredki.color
+      @stroke_width = 0
       @size_y = Kredki.text_size
+      
       Pastele.text_set_text @pointer, @content
       Pastele.text_set_font @pointer, @font.name
       Pastele.text_set_size @pointer, @size_y
@@ -199,7 +202,7 @@ module Kredki
       proc{ Pastele.text_delete pointer }
     end
 
-    def pivot_xy
+    def pivot
       [@size_x * 0.5, @size_y * 0.5]
     end
 
@@ -209,7 +212,7 @@ module Kredki
       update
     end
 
-    def update_outline color, width
+    def update_stroke color, width
       c = Kredki.color color
       Pastele.text_set_outline @pointer, width, *c.to_rgb
     end

@@ -29,11 +29,6 @@ module Kredki
         @pressed
       end
 
-      # See #pressed.
-      def pressed?
-        !!pressed
-      end
-
       # Set suit.
       def set_suit *suit
         return send_bundle :set_suit, yield(self.suit) if block_given?
@@ -54,7 +49,7 @@ module Kredki
         @suit
       end
 
-      # Push the feature.
+      # Set a feature recognized by its class.
       def << feature
         case feature
         when String
@@ -80,7 +75,7 @@ module Kredki
         super
 
         set_keyboardy
-        set_outline_w 1
+        set_stroke_width 1
         set_layout :xcc
         set_size Fit
         set_suit :gray
@@ -103,16 +98,16 @@ module Kredki
 
       def repaint event = nil
         color = Kredki.color @suit
-        if disabled?
+        if in_disabled
           set_opacity 3/4r
           set_mouse_cursor nil
           area.set_fill color
-          area.set_outline_fill color.darken
+          area.set_stroke_fill color.darken
         else
           set_opacity 1r
           set_mouse_cursor :pointer
-          area.set_fill pressed? ? color.darken : mouse_in? ? color.lighten : color
-          area.set_outline_fill keyboard_in? ? :outline_focus : color.darken
+          area.set_fill pressed ? color.darken : mouse_in ? color.lighten : color
+          area.set_stroke_fill keyboard_in ? :stroke_focus : color.darken
         end
       end
 
@@ -128,22 +123,22 @@ module Kredki
         end
 
         on_mouse_release :primary do |e|
-          pressed = keyboard_in? && ( Kredki.keyboard.pressed?(:space) || Kredki.keyboard.pressed?(:enter) )
-          report ButtonClickEvent.new e if !pressed && set_pressed(false, e) && !e.drag && include_point?(*layer.translate(*e.xy, self))
+          pressed = keyboard_in && ( Kredki.keyboard.pressed?(:space) || Kredki.keyboard.pressed?(:enter) )
+          report ButtonClickEvent.new e if !pressed && set_pressed(false, e) && !e.drag && include_point(*layer.translate(*e.xy, self))
         end
 
         on_key_release :enter do |e|
-          pressed = pin_top?(:primary) || ( keyboard_in? && Kredki.keyboard.pressed?(:space) )
+          pressed = pin_top(:primary) || ( keyboard_in && Kredki.keyboard.pressed?(:space) )
           report ButtonClickEvent.new e if !pressed && set_pressed(false, e)
         end
 
         on_key_release :space do |e|
-          pressed = pin_top?(:primary) || ( keyboard_in? && Kredki.keyboard.pressed?(:enter) )
+          pressed = pin_top(:primary) || ( keyboard_in && Kredki.keyboard.pressed?(:enter) )
           report ButtonClickEvent.new e if !pressed && set_pressed(false, e)
         end
 
         on_click early: true do |e|
-          e.close if disabled?
+          e.close if in_disabled
         end
       end
 

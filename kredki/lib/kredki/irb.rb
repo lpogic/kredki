@@ -40,7 +40,7 @@ KredkiProc = proc do
   convar = Thread::ConditionVariable.new
   Thread.new do
     app = Kredki.app
-    MainLayer = app.open show: false
+    MainLayer = app.open hidden: true
     module Kredki
       module Extend
         extend Forwardable

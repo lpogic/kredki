@@ -142,8 +142,8 @@ module Kredki
     def initialize
       @button_map = {}
       @buttoncode_map = {}
-      @scroll_speed = 0.3
-      @scroll_speed_alt = 0.06
+      @scroll_speed = 1.0
+      @scroll_speed_alt = 0.5
       @cursor = nil
       @system_cursors = {}
     end

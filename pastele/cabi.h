@@ -162,8 +162,8 @@ CABI void text_set_fill_color(Text* self, uint8_t r, uint8_t g, uint8_t b);
 CABI void text_set_fill_linear_gradient(Text* self, float x, float y, float ex, float ey, const uint8_t* colors, const float* offsets, uint32_t cnt, int spread);
 CABI void text_set_fill_radial_gradient(Text* self, float cx, float cy, float r, float fx, float fy, float fr, const uint8_t* colors, const float* offsets, uint32_t cnt, int spread);
 CABI void text_set_outline(Text* self, float width, uint8_t r, uint8_t g, uint8_t b);
-CABI float text_get_text_width(Text* self, const char* text, int indexRequest);
-CABI int text_nearest_character_index(Text* self, const char* text, float widthRequest);
+CABI float text_get_text_width(Text* self, const char* text, int indexLimit);
+CABI int text_nearest_character_index(Text* self, const char* text, float widthLimit);
 
 CABI int font_load(const char* path);
 CABI int font_unload(const char* path);

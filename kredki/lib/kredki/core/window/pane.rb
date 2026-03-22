@@ -36,13 +36,6 @@ module Kredki
       @fill.fill
     end
 
-    # Get mouse pointer position relative to the window [0, 0].
-    def mouse_xy
-      x, y = Kredki.mouse.xy
-      wx, wy = xy
-      [x - wx, y - wy]
-    end
-
     # Create new job.
     def job run = true, &block
       job = AfterJob.new block, 0
@@ -62,7 +55,7 @@ module Kredki
       end
     end
 
-    # Push the feature.
+    # Set a feature recognized by its class.
     def << feature
       case feature
       when Hash
@@ -89,7 +82,7 @@ module Kredki
       @jobs = {}
       @jobs_mutex = Thread::Mutex.new
       @event_manager = PaneEventManager.new
-      @fill = rectangle! xy: 0
+      @fill = new_rectangle xy: 0
       @sketched = false
     end
 
@@ -98,13 +91,17 @@ module Kredki
     end
 
     def sketch_pane
+      return if @sketched
       @sketched = true
+      sketch
+      presence
+      behavior
+    end
+
+    def sketch
       @fill.size = *window.size
       @last_xy = xy
       set_fill 20, 70, 20
-
-      presence
-      behavior
     end
 
     def behavior
@@ -119,7 +116,7 @@ module Kredki
     end
 
     def service
-      sketch_pane if !@sketched
+      sketch_pane
       self
     end
 
@@ -150,11 +147,6 @@ module Kredki
       else
         [x, y]
       end
-    end
-
-    def screen_translate x, y, target = nil
-      wx, wy = xy
-      translate x - wx, y - wy, target
     end
 
     def put_job job

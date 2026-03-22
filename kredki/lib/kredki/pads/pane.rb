@@ -66,13 +66,10 @@ module Kredki
         @sketch_a = @sketch_ka = nil
       end
 
-      def sketch_pane
+      def sketch
         super
         @mouse_stale = false
         layer!(self.class.sketch_layer).keyboard_request
-      end
-
-      def sketch
       end
 
       def behavior

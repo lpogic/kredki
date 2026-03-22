@@ -42,8 +42,8 @@ module Kredki
     end
 
     # Set pivot point position along X and Y axes.
-    def set_pivot_xy pivot_x = @pivot_x, pivot_y = pivot_x
-      return send_bundle :set_pivot_xy, yield(self.pivot_xy) if block_given?
+    def set_pivot pivot_x = @pivot_x, pivot_y = pivot_x
+      return send_bundle :set_pivot, yield(self.pivot) if block_given?
       return if @pivot_x == pivot_x && @pivot_y == pivot_y
       @pivot_x = pivot_x
       @pivot_y = pivot_y
@@ -51,56 +51,58 @@ module Kredki
       update
     end
 
-    # See #set_pivot_xy.
-    def pivot_xy= param
-      send_bundle :set_pivot_xy, param
+    # See #set_pivot.
+    def pivot= param
+      send_bundle :set_pivot, param
     end
 
     # Get pivot point position along X and Y axes.
-    def pivot_xy
+    def pivot
       [@pivot_x, @pivot_y]
     end
 
     # Create new attached Kredki::Shape.
-    def shape! ...
+    def new_shape ...
       new_paint(Shape, ...)
     end
 
     # Create new attached Kredki::Rectangle.
-    def rectangle! ...
+    def new_rectangle ...
       new_paint(Rectangle, ...)
     end
 
     # Create new attached Kredki::Ellipse.
-    def ellipse! ...
+    def new_ellipse ...
       new_paint(Ellipse, ...)
     end
 
     # Create new attached Kredki::Picture.
-    def picture! ...
+    def new_picture ...
       new_paint(Picture, ...)
     end
 
     # Create new attached Kredki::Text.
-    def text! ...
+    def new_text ...
       new_paint(Text, ...)
     end
 
     # Create new attached Kredki::Scene.
-    def scene! ...
+    def new_scene ...
       new_paint(Scene, ...)
     end
 
     # Create new attached Kredki::Animation.
-    def animation! ...
-      new_animation(...)
+    def new_animation *a, hidden: false, at: nil, **ka, &b
+      Animation.new.attach(self, hidden, at).set(*a, **ka, &b)
     end
 
+    # Clear all scene effects.
     def clear_effects
       Pastele.scene_clear_effects @pointer
       update
     end
 
+    # Add gaussian blur scene effect.
     def gaussian_blur sigma, direction = :both, border = :wrap, quality = 100
       direction = case direction
       when :both, 0 then 0
@@ -116,21 +118,25 @@ module Kredki
       update
     end
 
-    def drop_shadow color:, angle: 135, distance: 10, blur: 5, quality: 100
+    # Add drop shadow scene effect.
+    def drop_shadow color:, angle: 135, distance: 10, blur: 5, quality: 10
       Pastele.scene_add_drop_shadow @pointer, *Kredki.color(color).to_rgba, angle, distance, blur, quality
       update
     end
 
+    # Add fill scene effect.
     def fill *a
       Pastele.scene_add_fill @pointer, *Kredki.color(a.uncover).to_rgba
       update
     end
 
+    # Add tint scene effect.
     def tint black:, white:, intensity: 100.0
       Pastele.scene_add_tint @pointer, *Kredki.color(black).to_rgb, *Kredki.color(white).to_rgb, intensity
       update
     end
 
+    # Add tritone scene effect.
     def tritone shadow:, midtone:, highlight:, blend: 255
       Pastele.scene_add_tritone @pointer, *Kredki.color(shadow).to_rgb, *Kredki.color(midtone).to_rgb, *Kredki.color(highlight).to_rgb, blend
       update
@@ -154,17 +160,17 @@ module Kredki
 
     class PaintState
 
-      def initialize paint, before, after, shown
+      def initialize paint, before, after, hidden
         @paint = paint
         @before = before
         @after = after
-        @shown = shown
+        @hidden = hidden
       end
       
       attr_accessor :paint
       attr_accessor :before
       attr_accessor :after
-      attr_accessor :shown
+      attr_accessor :hidden
 
       def inspect
         "#{self.class}:#{self.object_id}"
@@ -183,12 +189,8 @@ module Kredki
       proc{ Pastele.scene_delete pointer }
     end
 
-    def new_paint klass, *a, show: true, at: nil, **ka, &b
-      put_paint(klass.new, show, at).paint.set(*a, **ka, &b)
-    end
-
-    def new_animation *a, show: true, at: nil, **ka, &b
-      Animation.new.attach(self, show, at).set(*a, **ka, &b)
+    def new_paint klass, *a, hidden: false, at: nil, **ka, &b
+      put_paint(klass.new, hidden, at).paint.set(*a, **ka, &b)
     end
 
     def each_paint &b
@@ -205,27 +207,27 @@ module Kredki
       @scene&.update_paint self
     end
 
-    def put_paint paint, show = true, at = nil
+    def put_paint paint, hidden = false, at = nil
       paint.detach if paint.scene
       paint.scene = self
-      if show
+      unless hidden
         Pastele.scene_add @pointer, paint.pointer, next_shown(at)&.pointer
         update
       end
       ats = @paints[at] || @paints[nil]
-      ats.before = ats.before.after = @paints[paint] = PaintState.new paint, ats.before, ats, show
+      ats.before = ats.before.after = @paints[paint] = PaintState.new paint, ats.before, ats, hidden
     end
 
     def next_shown at
       state = @paints[at]
-      state = state.after while state&.paint && !state.shown
+      state = state.after while state&.paint && state.hidden
       state&.paint
     end
 
     def remove_paint paint
       if (state = @paints.delete paint)
         paint.scene = nil
-        if state.shown
+        unless state.hidden
           Pastele.scene_remove @pointer, paint.pointer
           update
         end
@@ -236,38 +238,40 @@ module Kredki
     end
 
     def hide_paint paint
-      if (state = @paints[paint])&.shown
+      state = @paints[paint]
+      if state && !state.hidden
         Pastele.scene_remove @pointer, paint.pointer
         update
-        state.shown = false
+        state.hidden = true
       end
     end
 
     def show_paint paint
       state = @paints[paint]
-      if state && !state.shown
-        at = Enumerator.new do |e|
-          n = state.after
-          while n.paint
-            e << n
-            n = n.after
-          end
-        end.find{ _1.shown }
-        Pastele.scene_add @pointer, paint.pointer, at&.paint&.pointer
+      if state && state.hidden
+        at = state
+        at = at.after while at.after&.hidden
+        Pastele.scene_add @pointer, paint.pointer, at.after&.paint&.pointer
         update
-        state.shown = true
+        state.hidden = false
       end
     end
 
     def renew_paint paint, old_pointer, new_pointer
-      if @paints[paint]&.shown
+      state = @paints[paint]
+      if state && !state.hidden
         Pastele.scene_add @pointer, new_pointer, old_pointer
         Pastele.scene_remove @pointer, old_pointer
       end
     end
 
-    def paint_shown paint, direct
-      !!@paints[paint]&.shown && (direct || get_show)
+    def paint_scenic paint
+      state = @paints[paint]
+      state && !state.hidden
+    end
+
+    def paint_displayed paint
+      paint_scenic paint and displayed
     end
   end
 end

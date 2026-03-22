@@ -6,7 +6,7 @@ Pad.circle! do
   pad! do
     set_area do |sx, sy|
       s = [sx, sy].min
-      ellipse! s, s
+      ellipse s, s
     end
   end
 end
@@ -20,13 +20,13 @@ end
 Pad.car_body! do
   pad! do
     set_area do |sx, sy|
-      xy! sx * 0.0, sy * 0.75
-      line! sx * 0.0, sy * 0.45
-      line! sx * 0.25, sy * 0.3
-      line! sx * 0.4, sy * 0.0
-      line! sx * 0.8, sy * 0.0
-      line! sx * 1.0, sy * 0.4
-      line! sx * 1.0, sy * 0.75
+      jump sx * 0.0, sy * 0.75
+      line sx * 0.0, sy * 0.45
+      line sx * 0.25, sy * 0.3
+      line sx * 0.4, sy * 0.0
+      line sx * 0.8, sy * 0.0
+      line sx * 1.0, sy * 0.4
+      line sx * 1.0, sy * 0.75
     end
   end
 end

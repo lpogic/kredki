@@ -97,7 +97,7 @@ module Kredki
         @verse.verse_layout
       end
 
-      # Push the feature.
+      # Set a feature recognized by its class.
       def << feature
         case feature
         when String
@@ -141,7 +141,7 @@ module Kredki
         set_layout NoteLayout.new(Start, Center)
         set_mousy
         set_keyboardy
-        set_outline_w 1
+        set_stroke_width 1
         set_margin 2
         set_suit :gray
         set_size_y Fit
@@ -171,7 +171,7 @@ module Kredki
         end
 
         on_edit early: true do |e|
-          e.close if disabled?
+          e.close if in_disabled
         end
       end
 
@@ -196,16 +196,16 @@ module Kredki
         color = Kredki.color @suit
         kb_top = keyboard_top?
 
-        if disabled?
+        if in_disabled
           set_opacity 3/4r
           set_mouse_cursor nil
           area.set_fill color
-          area.set_outline_fill color
+          area.set_stroke_fill color
         else
           set_opacity 1r
           set_mouse_cursor :text
-          area.set_fill kb_top ? color.darken : mouse_in? ? color.lighten : color
-          area.set_outline_fill kb_top ? :outline_focus : color
+          area.set_fill kb_top ? color.darken : mouse_in ? color.lighten : color
+          area.set_stroke_fill kb_top ? :stroke_focus : color
         end
         verse.selection.each_paint{|it| it.set_fill kb_top ? :text_selection : :text_selection_inactive }
       end

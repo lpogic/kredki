@@ -41,9 +41,9 @@ window.size! 400, 200
 ellipse! xy: 50, size: 100, fill: :red
 rectangle! x: 150, y: 50, size: 100, fill: :green
 shape! x: 250, y: 50, size: 100, fill: :blue do |sx, sy|
-  xy! 0, sy
-  line! sx / 2, 0
-  line! sx, sy
+  jump 0, sy
+  line sx / 2, 0
+  line sx, sy
 end
 ```
 
@@ -54,15 +54,14 @@ end
 ```RUBY
 require 'kredki'
 
-window.size! 400, 250
-layout! :xcc
-spacer! 10
+window.set_size 400, 250
+set layout: :xcc, spacer: 10
 
 label! "Enter name:"
-n = note! w: 100, text: "world"
+note! size_x: 100, text: "world"
 button! "Submit", suit: :orange do
   on_click do
-    puts "Hello #{n}!"
+    puts "Hello #{ pane.note?.text }!"
   end
 end
 ```
@@ -82,10 +81,10 @@ decision = Kredki.app do
       item! "perhaps"
     end
     space! size: 5
-    button! "Submit", :$btn, size_x: 1r
+    button! "Submit", size_x: 1r
   end
 
-  $btn.on_click{ app.return find_upper(:item!, :checked?).subject }
+  button?.on_click{ app.return item?(checked: true).subject }
 end
 
 puts decision # => yes/no/perhaps

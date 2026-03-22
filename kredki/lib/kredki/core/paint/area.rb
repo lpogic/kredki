@@ -60,7 +60,7 @@ module Kredki
     end
 
     # Check wheather [+x+, +y+] is inside the Area.
-    def contain? x, y
+    def include_point x, y
       x <= @size_x && y <= @size_y && x >= 0 && y >= 0
     end
   end

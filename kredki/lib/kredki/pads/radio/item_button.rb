@@ -67,17 +67,17 @@ module Kredki
           super
           
           @check = put ShapePad, mousy: false, keyboardy: false, fill: :text, size: 1r do
-            set_area @scene.ellipse!
-            set_show false
+            set_area @scene.new_ellipse
+            set_scenic false
           end
         end
 
         def sketch
           super
 
-          set area: @scene.ellipse!
+          set area: @scene.new_ellipse
           set keyboardy: true
-          set outline_w: 1
+          set stroke_width: 1
           set layout: :zcc
           set size: 16
           set margin: 3
@@ -100,12 +100,12 @@ module Kredki
 
         def repaint event = nil
           color = Kredki.color @suit
-          if disabled?
+          if in_disabled
             area.set fill: color
-            area.set outline_fill: color.darken
+            area.set stroke_fill: color.darken
           else
-            area.set fill: pin_top? ? color.darken : mouse_in? ? color.lighten : color
-            area.set outline_fill: keyboard_in? ? :outline_focus : color.darken
+            area.set fill: pin_top ? color.darken : mouse_in ? color.lighten : color
+            area.set stroke_fill: keyboard_in ? :stroke_focus : color.darken
           end
         end
 
@@ -117,7 +117,7 @@ module Kredki
           end
 
           on_change early: true do |e|
-            e.close if disabled? || set_checked(e.value).not
+            e.close if in_disabled || set_checked(e.value).not
           end
 
           on_key_press do |e|
@@ -131,7 +131,7 @@ module Kredki
 
         def update_checked checked
           @checked = checked
-          @check.set_show checked
+          @check.set_scenic checked
         end
       end
     end

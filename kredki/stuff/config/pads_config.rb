@@ -31,7 +31,7 @@ require 'kredki/pads/toolbar/pad'
 
 module Kredki
 
-  color! :outline_focus, 255, 255, 255, 255
+  color! :stroke_focus, 255, 255, 255, 255
   color! :text_selection, 80, 90, 122, 255
   color! :text_selection_inactive, 70, 80, 92, 155
   color! :text, 255, 255, 255, 255
@@ -42,8 +42,8 @@ module Kredki
       rectangle! RectanglePad
       def ellipse! ...
         put(ShapePad, __method__, ...).set do
-          set_area do |w, h|
-            ellipse! w, h
+          set_area do |sx, sy|
+            ellipse sx, sy
           end
         end
       end
@@ -101,6 +101,5 @@ module Kredki
     end#Pad
   end#Pads
 
-  Window.default_pane = Pads::Pane
-
+  Kredki.app = Pads::Application
 end#Kredki

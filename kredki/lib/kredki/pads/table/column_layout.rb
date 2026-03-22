@@ -43,7 +43,7 @@ module Kredki
         def measure_arrange pad
           csx = @table.clip_size_x
 
-          @spans = pad.layout_pads.zip(@columns, @spans).map do |p1, column, span|
+          @spans = pad.pads_layoutic.zip(@columns, @spans).map do |p1, column, span|
             n = get_span p1, column.size, column.limit, csx
             span ? [n[0], a = [n[1], span[1]].max, [n[2], span[2]].min, a] : n
           end
@@ -54,7 +54,7 @@ module Kredki
           client_size_x = @table.clip_size_x
           size_x = @size_x
 
-          pad.layout_pads.zip @measurement do |p1, measured|
+          pad.pads_layoutic.zip @measurement do |p1, measured|
             if measured
               sx = measured
             else

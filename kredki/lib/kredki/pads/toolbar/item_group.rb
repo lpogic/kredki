@@ -14,7 +14,7 @@ module Kredki
         # :section: LEVEL 2
 
         def mouse_enter pad
-          pad.keyboard_request if lower.keyboard_in? && find_upper(Item){|it| it.keyboard_in? } != pad
+          pad.keyboard_request if lower.keyboard_in && find_upper(Item){|it| it.keyboard_in } != pad
         end
       end
     end

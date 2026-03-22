@@ -1,12 +1,12 @@
 module Kredki
-  # Graphical object with custom fill and outline.
+  # Graphical object with custom fill and stroke.
   class Shape < Paint
 
     # Helper for creating Shape path.
     class Crayon
 
       # Set [+x+, +y+] as crayon position.
-      def xy! x, y = x
+      def jump x, y = x
         Pastele.shape_move_to @shape.pointer, x, y
         @x = x
         @y = y
@@ -14,7 +14,7 @@ module Kredki
       end
   
       # Make line from crayon position to [+x+, +y+] then set [+x+, +y+] as crayon position.
-      def line! x, y
+      def line x, y
         Pastele.shape_line_to @shape.pointer, x, y
         @shape.update if @autoupdate
         @x = x
@@ -23,7 +23,7 @@ module Kredki
       end
   
       # Make bezier curve from crayon position to [+x+, +y+] with control points [+cx1+, +cy1+] and [+cx2+, +cy2+]. Then set [+x+, +y+] as crayon position.
-      def curve! x, y, cx1, cy1, cx2, cy2
+      def curve x, y, cx1, cy1, cx2, cy2
         Pastele.shape_cubic_to @shape.pointer, cx1, cy1, cx2, cy2, x, y
         @shape.update if @autoupdate
         @x = x
@@ -31,23 +31,23 @@ module Kredki
         self
       end
 
-      # Make ellipse of +w+ width and +h+ height with the center at crayon position.
-      def ellipse! w, h = w
-        Pastele.shape_append_circle @shape.pointer, @x, @y, w * 0.5, h * 0.5
+      # Make ellipse of +size_x+ and +size_y+ with the center at crayon position.
+      def ellipse size_x, size_y = size_x
+        Pastele.shape_append_circle @shape.pointer, @x, @y, size_x * 0.5, size_y * 0.5
         @shape.update if @autoupdate
         self
       end
 
       # Make rectangle of +w+ width and +h+ height with +corner_ss+, +corner_es+, +corner_se+ and +corner_ee+ corners. 
       # The rectangle is placed at crayon position.
-      def rectangle! w, h = w, corner_ss = 0, corner_es = corner_ss, corner_se = corner_ss, corner_ee = corner_ss
+      def rectangle w, h = w, corner_ss = 0, corner_es = corner_ss, corner_se = corner_ss, corner_ee = corner_ss
         Pastele.shape_append_round_rect @shape.pointer, @x - w * 0.5, @y - h * 0.5, w, h, corner_ss, corner_es, corner_se, corner_ee
         @shape.update if @autoupdate
         self
       end
   
       # Make line from the crayon position to the first path position.
-      def close!
+      def close
         Pastele.shape_close @shape.pointer
         @shape.update if @autoupdate
         self
@@ -59,7 +59,7 @@ module Kredki
         @shape = shape
         @autoupdate = true
         Pastele.shape_reset @shape.pointer if reset
-        xy! x, y
+        jump x, y
       end
 
       attr_accessor :autoupdate
@@ -114,8 +114,11 @@ module Kredki
 
     # Available fill rules.
     class FillRule
-      def self.winding = 0
-      def self.even_odd = 1
+      class << self
+        # Default fill rule.
+        def winding = 0 
+        def even_odd = 1
+      end
     end
     
     # Set fill rule.
@@ -137,31 +140,31 @@ module Kredki
       @fill_rule
     end
 
-    # Set outline features.
-    def set_outline *a, **ka
+    # Set stroke features.
+    def set_stroke *a, **ka
       a.map do |it|
         case it
         when Hash
-          set_outline **it
+          set_stroke **it
         when Numeric
-          set_outline_w it
+          set_stroke_width it
         else
-          send_bundle :set_outline_fill, it
+          send_bundle :set_stroke_fill, it
         end
       end.any? | send_branch(__method__, ka)
     end
     
-    # See #set_outline.
-    def outline= param
-      send_bundle :set_outline, param
+    # See #set_stroke.
+    def stroke= param
+      send_bundle :set_stroke, param
     end
 
-    # Set outline fill.
-    def set_outline_fill *outline_fill
-      return send_bundle :set_outline_fill, yield(self.outline_fill) if block_given?
-      outline_fill = Util.uncover outline_fill
-      return if @outline_fill == outline_fill && outline_fill != :random
-      case f = Kredki.fill outline_fill
+    # Set stroke fill.
+    def set_stroke_fill *stroke_fill
+      return send_bundle :set_stroke_fill, yield(self.stroke_fill) if block_given?
+      stroke_fill = Util.uncover stroke_fill
+      return if @stroke_fill == stroke_fill && stroke_fill != :random
+      case f = Kredki.fill stroke_fill
       when Color
         Pastele.shape_set_stroke_color @pointer, *f
       when LinearGradient
@@ -169,172 +172,181 @@ module Kredki
       when RadialGradient
         Pastele.shape_set_stroke_radial_gradient @pointer, *f.ffi
       end
-      @outline_fill = outline_fill
+      @stroke_fill = stroke_fill
       update
     end
 
-    # See #set_outline_fill.
-    def outline_fill= param
-      send_bundle :set_outline_fill, param
+    # See #set_stroke_fill.
+    def stroke_fill= param
+      send_bundle :set_stroke_fill, param
     end
 
-    # Get outline fill.
-    def outline_fill
-      @outline_fill
+    # Get stroke fill.
+    def stroke_fill
+      @stroke_fill
     end
 
-    # Set outline width.
-    def set_outline_w outline_w = @outline_w
-      return set_outline_w yield @outline_w if block_given?
-      return if @outline_w == outline_w
-      Pastele.shape_set_stroke_width @pointer, outline_w.to_f
-      @outline_w = outline_w
+    # Set stroke width.
+    def set_stroke_width stroke_width = @stroke_width
+      return set_stroke_width yield @stroke_width if block_given?
+      return if @stroke_width == stroke_width
+      update_stroke_width stroke_width
       update
     end
 
-    # See #set_outline_w.
-    def outline_w= param
-      send_bundle :set_outline_w, param
+    def update_stroke_width stroke_width
+      Pastele.shape_set_stroke_width @pointer, stroke_width.to_f
+      @stroke_width = stroke_width
     end
 
-    # Get outline width.
-    def outline_w
-      @outline_w
+    # See #set_stroke_width.
+    def stroke_width= param
+      send_bundle :set_stroke_width, param
     end
 
-    # Available path ending methods.
-    class OutlineCap
-      def self.square = 0
-      def self.round = 1
-      def self.butt = 2
+    # Get stroke width.
+    def stroke_width
+      @stroke_width
     end
 
-    # Set outline path ending method.
-    def set_outline_cap outline_cap = @outline_cap
-      return set_outline_cap yield @outline_cap if block_given?
-      return if @outline_cap == outline_cap
-      Pastele.shape_set_stroke_cap @pointer, OutlineCap.send(outline_cap || :square)
-      @outline_cap = outline_cap
-      update
-    end
-
-    # See #set_outline_cap.
-    def outline_cap= param
-      send_bundle :set_outline_cap, param
-    end
-
-    # Get outline path ending method.
-    def outline_cap
-      @outline_cap
-    end
-
-    # Available path connection methods.
-    class OutlineJoin
-      # Bevel path connection method (default).
-      def self.bevel = 0
-      def self.round = 1
-      # def self.miter = 2 ### miter is set when join is numeric
-    end
-
-    # Set outline path connection method.
-    def set_outline_join outline_join = @outline_join
-      return set_outline_join yield @outline_join if block_given?
-      return if @outline_join == outline_join
-      if outline_join.is_a? Numeric
-        Pastele.shape_set_stroke_join @pointer, 2
-        Pastele.shape_set_stroke_miterlimit @pointer, outline_join
-      else
-        Pastele.shape_set_stroke_join @pointer, OutlineJoin.send(outline_join || :bevel)
+    # Available stroke path ending methods.
+    class StrokeCap
+      class << self
+        # Default stroke cap.
+        def square = 0
+        def round = 1
+        def butt = 2
       end
-      @outline_join = outline_join
+    end
+
+    # Set stroke path ending method.
+    def set_stroke_cap stroke_cap = @stroke_cap
+      return set_stroke_cap yield @stroke_cap if block_given?
+      return if @stroke_cap == stroke_cap
+      Pastele.shape_set_stroke_cap @pointer, StrokeCap.send(stroke_cap || :square)
+      @stroke_cap = stroke_cap
       update
     end
 
-    # See #set_outline_join.
-    def outline_join= param
-      send_bundle :set_outline_join, param
+    # See #set_stroke_cap.
+    def stroke_cap= param
+      send_bundle :set_stroke_cap, param
     end
 
-    # Get outline path connection method.
-    def outline_join
-      @outline_join
+    # Get stroke path ending method.
+    def stroke_cap
+      @stroke_cap
     end
 
-    # Set outline dash pattern.
-    def set_outline_pattern *outline_pattern
-      return send_bundle :set_outline_pattern, yield(self.outline_pattern) if block_given?
-      return if @outline_pattern == outline_pattern
-      Pastele.shape_set_stroke_dash @pointer, Fiddle::Pointer[outline_pattern.pack "f*"], outline_pattern.length, 0
-      @outline_pattern = outline_pattern
+    # Available stroke connection methods.
+    class StrokeJoin
+      class << self
+        # Default stroke join.
+        def bevel = 0
+        def round = 1
+        # def miter = 2 ### intentional commented out; miter is set when join is numeric
+      end
+    end
+
+    # Set stroke connection method.
+    def set_stroke_join stroke_join = @stroke_join
+      return set_stroke_join yield @stroke_join if block_given?
+      return if @stroke_join == stroke_join
+      if stroke_join.is_a? Numeric
+        Pastele.shape_set_stroke_join @pointer, 2
+        Pastele.shape_set_stroke_miterlimit @pointer, stroke_join
+      else
+        Pastele.shape_set_stroke_join @pointer, StrokeJoin.send(stroke_join || :bevel)
+      end
+      @stroke_join = stroke_join
       update
     end
 
-    # See #set_outline_pattern.
-    def outline_pattern= param
-      send_bundle :set_outline_pattern, param
+    # See #set_stroke_join.
+    def stroke_join= param
+      send_bundle :set_stroke_join, param
     end
 
-    # Get outline dash pattern.
-    def outline_pattern
-      @outline_pattern
+    # Get stroke connection method.
+    def stroke_join
+      @stroke_join
     end
 
-    # Set whether outline is drawn behind the fill.
-    def set_outline_behind value = true
-      return if (c = outline_behind) == (value = block_given? ? yield(c) : value == Not ? !c : value)
+    # Set stroke dash pattern.
+    def set_stroke_pattern *stroke_pattern
+      return send_bundle :set_stroke_pattern, yield(self.stroke_pattern) if block_given?
+      return if @stroke_pattern == stroke_pattern
+      Pastele.shape_set_stroke_dash @pointer, Fiddle::Pointer[stroke_pattern.pack "f*"], stroke_pattern.length, 0
+      @stroke_pattern = stroke_pattern
+      update
+    end
+
+    # See #set_stroke_pattern.
+    def stroke_pattern= param
+      send_bundle :set_stroke_pattern, param
+    end
+
+    # Get stroke dash pattern.
+    def stroke_pattern
+      @stroke_pattern
+    end
+
+    # Set whether stroke is drawn behind the fill.
+    def set_stroke_behind value = true
+      return if (c = stroke_behind) == (value = block_given? ? yield(c) : value == Not ? !c : value)
       Pastele.shape_set_paint_order @pointer, value ? 1 : 0
-      @outline_behind = value
+      @stroke_behind = value
       true
     end
 
-    # See #set_outline_behind.
-    def outline_behind= value
-      set_outline_behind value
+    # See #set_stroke_behind.
+    def stroke_behind= value
+      set_stroke_behind value
     end
     
-    # Get whether outline is drawn behind the fill.
-    def outline_behind
-      @outline_behind
+    # Get whether stroke is drawn behind the fill.
+    def stroke_behind
+      @stroke_behind
     end
 
-    # See #outline_behind.
-    def outline_behind?
-      !!outline_behind
+    # See #stroke_behind.
+    def stroke_behind?
+      !!stroke_behind
     end
 
-    # Set outline displayed part.
-    def set_outline_trim *outline_trim
-      return send_bundle :set_outline_trim, yield(self.outline_trim) if block_given?
-      outline_trim = Util.uncover outline_trim
-      return if @outline_trim == outline_trim
-      start, finish, simultaneous = *OutlineTrim[outline_trim].to_a
+    # Set stroke displayed part.
+    def set_stroke_trim *stroke_trim
+      return send_bundle :set_stroke_trim, yield(self.stroke_trim) if block_given?
+      stroke_trim = Util.uncover stroke_trim
+      return if @stroke_trim == stroke_trim
+      start, finish, simultaneous = *StrokeTrim[stroke_trim].to_a
       Pastele.shape_set_stroke_trim @pointer, start, finish, simultaneous ? 1 : 0
-      @outline_trim = outline_trim
+      @stroke_trim = stroke_trim
       update
     end
 
-    # See #set_outline_trim.
-    def outline_trim= param
-      send_bundle :set_outline_trim, param
+    # See #set_stroke_trim.
+    def stroke_trim= param
+      send_bundle :set_stroke_trim, param
     end
 
-    # Get outline displayed part.
-    def outline_trim
-      @outline_trim
+    # Get stroke displayed part.
+    def stroke_trim
+      @stroke_trim
     end
 
     # Get features.
     def to_hash
       super.merge({
         fill: @fill,
-        outline_w: @outline_w,
-        outline_fill: @outline_fill
+        stroke_width: @stroke_width,
+        stroke_fill: @stroke_fill
       })
     end
 
     # :section: LEVEL 2
 
-    class OutlineTrim
+    class StrokeTrim
 
       def initialize start, finish, simultaneous
         @start = start
@@ -350,8 +362,7 @@ module Kredki
           self.new start, finish, false
         in [start, finish, simultaneous]
           self.new start, finish, simultaneous
-        else
-          raise ArgumentError.new "#{param}"
+        else raise_ia param
         end
       end
 
@@ -364,12 +375,12 @@ module Kredki
       super pointer || Pastele.shape_new
       ObjectSpace.define_finalizer(self, Shape.finalizer(@pointer)) unless pointer
 
-      @outline_w = 0
-      set_outline_join :bevel
+      @stroke_width = 0
+      set_stroke_join :bevel
       @fill = Kredki.color
       Pastele.shape_set_fill_color @pointer, *@fill
-      @outline_fill = Kredki.color
-      Pastele.shape_set_stroke_color @pointer, *@outline_fill
+      @stroke_fill = Kredki.color
+      Pastele.shape_set_stroke_color @pointer, *@stroke_fill
       @is_mask = false
       update unless extended
     end

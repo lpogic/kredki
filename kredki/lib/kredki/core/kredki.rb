@@ -36,8 +36,6 @@ module Kredki
   end
 end
 
-load Kredki.config
-
 require_relative 'pastele/pastele'
 
 require_relative 'event/event'
@@ -55,8 +53,6 @@ require_relative 'event/family/exit_event'
 require_relative 'event/family/text_event'
 require_relative 'event/family/window_event'
 require_relative 'event/family/joystick_event'
-
-require_relative 'application'
 
 require_relative 'paint/paint'
 require_relative 'paint/shape'
@@ -82,3 +78,8 @@ require_relative 'event/joystick_event_manager'
 
 require_relative 'window/pane'
 require_relative 'window/window'
+require_relative 'application'
+
+Kredki.app = Kredki::Application
+
+load Kredki.config

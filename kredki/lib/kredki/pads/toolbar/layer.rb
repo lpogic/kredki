@@ -9,8 +9,8 @@ module Kredki
         def initialize
           super
 
-          @context_pad = put Context::Pad, outline: [1, :dark_gray] do
-          scene.drop_shadow color: :black
+          @context_pad = put Context::Pad, stroke: [1, :dark_gray] do
+          scene.drop_shadow color: :black # this is too expensive at the moment
         end
           @item_group = @context_pad.put Context::ItemGroup
         end

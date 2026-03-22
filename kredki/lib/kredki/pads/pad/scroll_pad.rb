@@ -38,7 +38,7 @@ module Kredki
         end
 
         on_mouse_scroll do |e|
-          ps = layout_pads
+          ps = pads_layoutic
           if !ps.empty?
             size_x, size_y = p0.area_size
             xo, yo = if size_x < @layout_size_x && size_y < @layout_size_y
@@ -136,7 +136,7 @@ module Kredki
             @clip_size_y_offset -= slide_size_x if xscroll
             return arrange false
           end
-          @xslide.show = xscroll
+          @xslide.set_scenic xscroll
           pad_x = 0
           if xscroll
             xs = yscroll ? asx + @clip_size_x_offset : asx
@@ -146,7 +146,7 @@ module Kredki
             pad_x += ((xs - @layout_size_x) * @xslide.value).round - offset_x
           end
           
-          @yslide.show = yscroll
+          @yslide.set_scenic yscroll
           pad_y = 0
           if yscroll
             ys = xscroll ? asy + @clip_size_y_offset : asy
@@ -161,13 +161,13 @@ module Kredki
             py = p1.y == Auto ? p1.sy + pad_y : p1.sy
             p1.update_xy px.ceil, py.ceil
           end
-          if @corner.show = xscroll && yscroll
+          if @corner.scenic = xscroll && yscroll
             @corner.update_xy asx - slide_size_x, asy - slide_size_y
           end
         else
-          @xslide.set_show false
-          @yslide.set_show false
-          @corner.set_show false
+          @xslide.set_scenic false
+          @yslide.set_scenic false
+          @corner.set_scenic false
         end
       end
 

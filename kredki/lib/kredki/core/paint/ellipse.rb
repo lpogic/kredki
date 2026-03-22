@@ -11,10 +11,10 @@ module Kredki
     end
 
     def redraw
-      draw(true, @size_x * 0.5, @size_y * 0.5).ellipse! @size_x - @outline_w, @size_y - @outline_w
+      draw(true, @size_x * 0.5, @size_y * 0.5).ellipse @size_x - @stroke_width, @size_y - @stroke_width
     end
 
-    def update_outline_w ...
+    def update_stroke_width ...
       super
       @redraw_flag = true
     end

@@ -6,7 +6,7 @@ module Kredki
       def set_subject subject = @subject, cursor_position = 0, &b
         if super(subject, &b) && @selection.size != @verses.size
           @selection.clear
-          @verses.each{ @selection.rectangle! fill: :text_selection, size_x: 0 }
+          @verses.each{ @selection.new_rectangle fill: :text_selection, size_x: 0 }
         end
         update_cursor cursor_position
       end
@@ -123,8 +123,8 @@ module Kredki
         super
 
         @cursor_position = @selection_min = @selection_max = 0
-        @selection = @scene.scene!
-        @cursor = @scene.rectangle! fill: :text, size_x: 1, show: false
+        @selection = @scene.new_scene
+        @cursor = @scene.new_rectangle fill: :text, size_x: 1, scenic: false
       end
 
       def mouse_press e
@@ -136,11 +136,11 @@ module Kredki
 
       def update_size x, y # update_size must be called before get_x/get_y
         super
-        update_cursor_location if @cursor.show?
+        update_cursor_location if @cursor.displayed
       end
 
       def get_x clip_size, size, ax
-        if @cursor.show?
+        if @cursor.displayed
           cx = @cursor.x + @cursor.size_x
           if sx + cx > size
             size - cx - @cursor.size_x / 2
@@ -155,7 +155,7 @@ module Kredki
       end
 
       def get_y clip_size, size, ay
-        if @cursor.show?
+        if @cursor.displayed
           cy = cursor.y + cursor.size_y
           if sy + cy > size
             size - cy
@@ -184,11 +184,11 @@ module Kredki
       def cursor_position_for_coordinates x, y
         total = 0
         last = @verses.last
-        @verses.each do |v|
-          if v.y + v.size_y < y && v != last
-            total += v.content.length + 1
+        @verses.each do |verse|
+          if verse.y + verse.size_y < y && verse != last
+            total += verse.content.length + 1
           else
-            return total + v.nearest_character_index(x - v.x)
+            return total + verse.nearest_character_index(x - verse.x + 2)
           end
         end
         total > 0 ? total - 1 : 0

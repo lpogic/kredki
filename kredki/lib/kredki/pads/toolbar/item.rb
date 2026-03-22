@@ -74,7 +74,7 @@ module Kredki
         def mouse_enter e
           super
           layer = find_upper PrimaryLayer
-          layer.update_keyboart_pad nil if layer&.loaded?
+          layer.update_keyboard_pad nil if layer&.loaded?
         end
 
       end#Item

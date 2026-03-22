@@ -20,8 +20,8 @@ module Kredki
         def initialize
           super
 
-          @items = put Pad, outline: [1, :dark_gray] do
-            scene.drop_shadow color: :black
+          @items = put Pad, stroke: [1, :dark_gray] do
+            scene.drop_shadow color: :black # this is too expensive at the moment
           end
           @item_group = @items.put ItemGroup
         end

@@ -19,6 +19,7 @@
 # This way 'custom_config.rb' will be loaded instead of the current file.
 
 module Kredki
+
   color! nil, 211, 211, 211, 255
   color! false, 0, 0, 0, 0
   color! 0, 0, 0, 0, 0

@@ -112,12 +112,12 @@ module Kredki
       def repaint event = nil
         color = Kredki.color @suit
 
-        if disabled?
+        if in_disabled
           set_opacity 3/4r
           handle.area.set_fill color.darken
         else
           set_opacity 1r
-          handle.area.set_fill mouse_in? ? color.lighten : color.darken
+          handle.area.set_fill mouse_in ? color.lighten : color.darken
         end
       end
 
@@ -125,8 +125,10 @@ module Kredki
         super
 
         on_mouse_scroll do |e|
-          jump = Kredki.keyboard.alt? ? Kredki.mouse.scroll_speed_alt : Kredki.mouse.scroll_speed
-          v = (@value - jump * e.xy.max{|it| it.abs }).clamp(0..1)
+          v, y = Kredki.relative_scroll *e.xy
+          v = y if v.abs < y.abs
+          jump = 0.1
+          v = (@value - jump * v).clamp(0..1)
           report EditEvent.new(v, e)
           e.close
         end
@@ -139,7 +141,7 @@ module Kredki
         end
 
         on_edit early: true do |e|
-          e.close if disabled?
+          e.close if in_disabled
         end
 
         on_edit do |e|

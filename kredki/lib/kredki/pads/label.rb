@@ -41,7 +41,7 @@ module Kredki
         @text.content
       end
 
-      # Push the feature.
+      # Set a feature recognized by its class.
       def << arg
         case arg
         when String
@@ -66,7 +66,7 @@ module Kredki
         super
 
         set_size Fit, 24
-        set_for proc{|it| it.lower_pad&.find{|it| it.keyboardy? } }
+        set_for proc{|it| it.lower_pad&.find{|it| it.keyboardy } }
         set_keyboardy false
         area.set_fill false
 

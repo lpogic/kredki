@@ -3,17 +3,7 @@ module Kredki
     # Pad with picture area.
     class PicturePad < Pad
 
-      # Find shape of the picture.
-      def find_shape ...
-        @area.find_shape(...)
-      end
-
-      # Traverse shape tree of the picture.
-      def each_shape ...
-        @area.each_shape(...)
-      end
-
-      # Push the feature.
+      # Set a feature recognized by its class.
       def << arg
         case arg
         when String
@@ -26,7 +16,7 @@ module Kredki
       # :section: LEVEL 2
 
       def initialize_area
-        @area = @scene.picture!
+        @area = @scene.new_picture
       end
 
       def min_size_x_value margin

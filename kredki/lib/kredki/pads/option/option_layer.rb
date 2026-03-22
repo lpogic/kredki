@@ -16,7 +16,7 @@ module Kredki
         super
 
         @scroll = put ScrollPad, layout: :yss do
-          scene.drop_shadow color: :black
+          # scene.drop_shadow color: :black # this is too expensive at the moment
         end
         @pad = @scroll.put RectanglePad, fill: :gray, layout: :yss, size_y: Fit
         @item_group = @pad.put ItemGroup

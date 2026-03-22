@@ -29,7 +29,7 @@ module Kredki
           button.checked?
         end
 
-        # Push the feature.
+        # Set a feature recognized by its class.
         def << feature
           case feature
           when String
@@ -56,14 +56,14 @@ module Kredki
         def sketch
           super
 
-          set size_y: Fit
-          set spacer: 8
-          set layout: :xsc
+          set_size_y Fit
+          set_spacer 8
+          set_layout :xsc
           
         end
 
         def repaint event = nil
-          set opacity: disabled? ? 3/4r : 1r
+          set_opacity in_disabled ? 3/4r : 1r
         end
       end
     end

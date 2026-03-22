@@ -174,7 +174,7 @@ module Kredki
       # :section: LEVEL 2
 
       def initialize_area
-        @area = @scene.rectangle!
+        @area = @scene.new_rectangle
       end
     end
   end

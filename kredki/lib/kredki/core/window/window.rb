@@ -1,12 +1,8 @@
 module Kredki
   class Window
 
-    def set_show show = true
-      if show
-        Pastele.window_show @pointer
-      else
-        Pastele.window_hide @pointer
-      end
+    def show
+      Pastele.window_show @pointer
     end
 
     def hide
@@ -33,26 +29,26 @@ module Kredki
       Pastele.window_restore @pointer
     end
 
-    # Set whether the window has an outline.
-    def set_outline value = true
-      return if (c = outline) == (value = block_given? ? yield(c) : value == Not ? !c : value)
+    # Set whether the window has an stroke.
+    def set_stroke value = true
+      return if (c = stroke) == (value = block_given? ? yield(c) : value == Not ? !c : value)
       Pastele.window_set_bordered @pointer, value ? 1 : 0
       true
     end
 
-    # See #set_outline.
-    def outline= value
-      set_outline value
+    # See #set_stroke.
+    def stroke= value
+      set_stroke value
     end
     
-    # Get whether the window has an outline.
-    def outline
+    # Get whether the window has an stroke.
+    def stroke
       Pastele.window_get_flags(@pointer) & 0x10 == 0
     end
 
-    # See #outline.
-    def outline?
-      !!outline
+    # See #stroke.
+    def stroke?
+      !!stroke
     end
 
     # Set whether fullscreen mode is on.
@@ -350,11 +346,6 @@ module Kredki
       @mouse_in.nil? ? Kredki.mouse.get_cursor_position != [0, 0] : @mouse_in
     end
 
-    # See #mouse_in.
-    def mouse_in?
-      !!mouse_in
-    end
-
     # Get whether capture mode is on.
     def mouse_capture
       Pastele.window_get_flags(@pointer) & 0x4000 != 0
@@ -373,17 +364,17 @@ module Kredki
         update_pane pane
         pane.service.set(*a, **ka, &b)
       when String
-        bc = set_pane Window.default_pane
+        bc = set_pane default_pane
         bc.set{ eval File.read pane }
         bc.window.set *a, **ka
         bc.set &b
       when nil
-        set_pane(Window.default_pane, *a, **ka, &b)
+        set_pane(default_pane, *a, **ka, &b)
       when Pane
         update_pane pane
         pane.service.set(*a, **ka, &b)
       else # switch or other
-        set_pane Window.default_pane, pane, *a, **ka, &b
+        set_pane default_pane, pane, *a, **ka, &b
       end
     end
 
@@ -455,16 +446,10 @@ module Kredki
 
     # :section: LEVEL 2
 
-    def initialize size_x = 400, size_y = 400, engine: :sw
-      @pointer = case engine
-      when :sw
-        @pointer = Pastele.window_new_sw size_x, size_y
-      # when :gl
-      #   @pointer = Pastele.window_new_gl size_x, size_y
-      else
-        raise_ia engine
-      end
+    def initialize *a
+      @pointer = default_pointer *a
       @app = nil
+      @sketched = false
       @update_thread = nil
       @update_queue = Thread::Queue.new
       @update_timestamp = 0
@@ -475,20 +460,34 @@ module Kredki
       ObjectSpace.define_finalizer(self, Window.finalizer(@pointer))
     end
 
-    class << self
-      attr_accessor :default_pane
-
-      def finalizer pointer
-        proc{ Pastele.window_delete pointer }
-      end
+    def self.finalizer pointer
+      proc{ Pastele.window_delete pointer }
     end
 
-    self.default_pane = Pane
+    def default_pointer size_x = 400, size_y = 400
+      Pastele.window_new_sw size_x, size_y
+    end
+
+    def default_pane
+      Pane.new
+    end
     
     attr :pointer
 
+    def sketch_window
+      return if @sketched
+      @sketched = true
+      sketch
+    end
+
+    def sketch
+      set_resizable true
+      set_text_input true
+    end
+
     def attach app
       @app = app
+      sketch_window
       @update_thread = Thread.new do
         loop do
           Pastele.window_update_request window.pointer
@@ -508,8 +507,10 @@ module Kredki
     end
 
     def update_complete event
-      @update_queue << if @fps_limit
-        update_delay (event.timestamp - @update_timestamp) / 1000000000.0, 1.0 / @fps_limit
+      if @fps_limit
+        @update_queue.push (update_delay (event.timestamp - @update_timestamp) / 1000000000.0, 1.0 / @fps_limit)
+      else
+        @update_queue.push nil
       end
       @update_timestamp = event.timestamp
     end
@@ -555,7 +556,7 @@ module Kredki
       @pane = pane
     end
 
-    def paint_shown pane, direct
+    def paint_displayed pane
       @pane == pane && !!@app
     end
 

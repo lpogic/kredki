@@ -24,6 +24,10 @@ module Kredki
 
         attr :context_layer
 
+        def items
+          @context_layer.items
+        end
+
         # Add new item.
         def item! ...
           @context_layer.item_group.item!(...)

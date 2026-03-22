@@ -3,7 +3,7 @@ module Kredki
     # Pad with animation area.
     class AnimationPad < Pad
 
-      # Push the feature.
+      # Set a feature recognized by its class.
       def << arg
         case arg
         when String
@@ -32,7 +32,7 @@ module Kredki
       # :section: LEVEL 2
 
       def initialize_area
-        @area = @scene.animation!
+        @area = @scene.new_animation
       end
 
       def update_subject subject

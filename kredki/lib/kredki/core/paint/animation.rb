@@ -2,6 +2,7 @@ module Kredki
   # Picture that may change over time.
   class Animation
 
+    # Set animation content.
     def set_content ...
       if @picture.set_content(...)
         @duration = (Pastele.animation_get_duration(@pointer) * 1000).to_i
@@ -81,21 +82,6 @@ module Kredki
       @picture.turn
     end
 
-    # Set zoom.
-    def set_zoom ...
-      @picture.set_zoom(...)
-    end
-
-    # See: #set_zoom
-    def zoom= param
-      @picture.zoom = param
-    end
-
-    # Get zoom.
-    def zoom
-      @picture.zoom
-    end
-
     # Set zoom in the X axis.
     def set_zoom_x ...
       @picture.set_zoom_x(...)
@@ -126,9 +112,24 @@ module Kredki
       @picture.zoom_y
     end
 
+    # Set zoom.
+    def set_zoom ...
+      @picture.set_zoom(...)
+    end
+
+    # See: #set_zoom
+    def zoom= param
+      @picture.zoom = param
+    end
+
+    # Get zoom.
+    def zoom
+      @picture.zoom
+    end
+
     # Check wheather [+x+, +y+] is inside.
-    def contain? ...
-      @picture.contain?(...)
+    def include_point ...
+      @picture.include_point(...)
     end
 
     # Set current animation frame ms.
@@ -160,42 +161,37 @@ module Kredki
       Pastele.animation_set_segment @pointer, *segment
     end
 
-    # Attach animation and related Kredki::Picture to the Kredki::Scene.
-    def attach scene, show = true, at = nil
-      @picture.attach scene, show, at
+    # Attach related Kredki::Picture to the Kredki::Scene.
+    def attach scene, scenic = true, at = nil
+      @picture.attach scene, scenic, at
       self
     end
 
-    # Detach animation and related Kredki::Picture from the Kredki::Scene.
+    # Detach related Kredki::Picture from the Kredki::Scene.
     def detach
       @picture.detach
     end
 
-    # Set whether Animation is drawn on the scene.
+    # Set whether Animation is scenic.
     #
-    # Containing Kredki::Scene and all lower level Scenes must be shown for the Paint to be displayed on the screen.
-    def set_show value = true
-      return if (c = show) == (value = block_given? ? yield(c) : value == Not ? !c : value)
-      update_show value
+    # All lower level Scenes must be scenic for the Animation to be displayed.
+    def set_scenic value = true
+      return if (c = scenic) == (value = block_given? ? yield(c) : value == Not ? !c : value)
+      update_scenic value
       true
     end
 
-    # See #set_show.
-    def show= value
-      set_show value
+    # See #set_scenic.
+    def scenic= value
+      set_scenic value
     end
     
-    # Get whether Animation is drawn on the screen.
-    def show
-      get_show
+    # Get whether Animation is scenic.
+    def scenic
+      get_scenic
     end
 
-    # See #show.
-    def show?
-      !!show
-    end
-
-    # Push the feature.
+    # Set a feature recognized by its class.
     def << feature
       case feature
       in [x, y]
@@ -257,12 +253,12 @@ module Kredki
       @picture.scene = scene
     end
 
-    def update_show show
-      @picture.update_show show
+    def update_scenic scenic
+      @picture.update_scenic scenic
     end
   
-    def get_show
-      @picture.get_show
+    def get_scenic
+      @picture.get_scenic
     end
 
     def update_frame frame_index

@@ -11,7 +11,7 @@ module Kredki
     end
 
     def setup
-      @layer = Kredki.app.open show: false
+      @layer = Kredki.app.open hidden: true
     end
 
     def assert_png

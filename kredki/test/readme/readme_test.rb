@@ -9,9 +9,9 @@ class HelloTest < Kredki::Test
     ellipse! xy: 50, size: 100, fill: :red
     rectangle! x: 150, y: 50, size: 100, fill: :green
     shape! x: 250, y: 50, size: 100, fill: :blue do |sx, sy|
-      xy! 0, sy
-      line! sx / 2, 0
-      line! sx, sy
+      jump 0, sy
+      line sx / 2, 0
+      line sx, sy
     end
 
     assert_png
@@ -19,14 +19,13 @@ class HelloTest < Kredki::Test
 
   def test_enter
     window.set_size 400, 250
-    set_layout :xcc
-    set_spacer 10
+    set layout: :xcc, spacer: 10
 
     label! "Enter name:"
-    n = note! size_x: 100, text: "world"
+    note! size_x: 100, text: "world"
     button! "Submit", suit: :orange do
       on_click do
-        puts "Hello #{n}!"
+        puts "Hello #{ note?.text }!"
       end
     end
 
@@ -34,21 +33,17 @@ class HelloTest < Kredki::Test
   end
 
   def test_decision
-    set layout: :ycc
-    
-    space! size_x: 100, layout: :ysc do
+    ysc! size_x: 100 do
       radio! do
         item! "yes", checked: true
         item! "no"
         item! "perhaps"
       end
       space! size: 5
-      button! "Submit", size_x: 1r do
-        on_click do
-          app.return find_upper(:item!, :checked?).subject
-        end
-      end
+      button! "Submit", size_x: 1r
     end
+
+    button?.on_click{ app.return item?(checked: true).subject }
 
     assert_png
   end

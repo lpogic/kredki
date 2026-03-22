@@ -89,7 +89,7 @@ module Kredki
 
         on_mouse_click do |e|
           if e.combo == 2 && !Kredki.keyboard.shift?
-            sl = text.content.to_s.length
+            sl = text.text.to_s.length
             unless text.cursor_position == sl && text.selection_min == 0 && sl == text.selection_max
               text.select 0, sl
               e.close
@@ -98,13 +98,13 @@ module Kredki
         end
 
         on_focus_leave do |e|
-          text.cursor.set_show false
+          text.cursor.set_scenic false
           layer&.break_layout
           e.close
         end
 
         on_focus_enter do |e|
-          text.cursor.set_show
+          text.cursor.set_scenic
           e.close
         end
       end

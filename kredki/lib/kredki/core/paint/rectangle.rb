@@ -191,10 +191,10 @@ module Kredki
     end
 
     def redraw
-      draw(true, @size_x * 0.5 , @size_y * 0.5).rectangle! @size_x - @outline_w, @size_y - @outline_w, @corner_ss, @corner_es, @corner_se, @corner_ee
+      draw(true, @size_x * 0.5 , @size_y * 0.5).rectangle @size_x - @stroke_width, @size_y - @stroke_width, @corner_ss, @corner_es, @corner_se, @corner_ee
     end
 
-    def update_outline_w ...
+    def update_stroke_width ...
       super
       @redraw_flag = true
     end

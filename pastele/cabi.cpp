@@ -698,9 +698,9 @@ CABI float text_get_text_width(Text* self, const char* text, int indexLimit) {
     return width;
 }
 
-CABI int text_nearest_character_index(Text* self, const char* text, float widthRequest) {
+CABI int text_nearest_character_index(Text* self, const char* text, float widthLimit) {
     int index;
-    self->measure(text, 2, widthRequest, -1, nullptr, &index);
+    self->measure(text, 2, widthLimit, -1, nullptr, &index);
     return index;
 }
 

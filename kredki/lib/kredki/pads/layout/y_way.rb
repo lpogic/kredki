@@ -42,10 +42,10 @@ module Kredki
 
         def arrange pad
           csx, csy = pad.clip_size
-          sp = pad.layout_pads.map{|it| get_span it, it.size_y, it.size_y_limit, csy }
+          sp = pad.pads_layoutic.map{|it| get_span it, it.size_y, it.size_y_limit, csy }
           measurement, sy = spans sp, csy, pad.spacer || 0
           
-          pad.layout_pads.zip measurement do |p1, measured|
+          pad.pads_layoutic.zip measurement do |p1, measured|
             psx = p1.get_size_x csx, measured
             p1.update_size psx, measured
           end
@@ -73,7 +73,7 @@ module Kredki
           lx = lxm = ly = lym = 0
 
           pads.each do |p1|
-            if p1.layoutic?
+            if p1.layoutic
               psx, psy, px, py = arrange_layoutic p1, csx, csy, cy
               cy += psy + spacer
               lx = [lx, px].min
@@ -100,13 +100,13 @@ module Kredki
         
         def fit_size_y pad
           spacer = pad.spacer || 0
-          pad.layout_pads.map{|p1| p1.min_size_y }.reduce{ _1 + spacer + _2 } || 0
+          pad.pads_layoutic.map{|p1| p1.min_size_y }.reduce{ _1 + spacer + _2 } || 0
         end
 
         def get_size_y_rational p0, psy, p1, r
-          index = p0.layout_pads.find_index{|it| it == p1 }
+          index = p0.pads_layoutic.find_index{|it| it == p1 }
           if index
-            sp = p0.layout_pads.map{|it| get_span it, it.size_y, it.size_y_limit, psy }
+            sp = p0.pads_layoutic.map{|it| get_span it, it.size_y, it.size_y_limit, psy }
             measurement, sy = spans sp, psy, p0.spacer || 0
             measurement[index]
           else

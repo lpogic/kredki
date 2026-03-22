@@ -53,7 +53,7 @@ module Kredki
           p1.update_xy px, py
           p1.update_margin
           p1.arrange
-          if p1.layoutic?
+          if p1.layoutic
             lx = [lx, px].min
             ly = [ly, py].min
             lsx = [lsx, psx].max
@@ -65,11 +65,11 @@ module Kredki
       end
 
       def fit_size_x pad
-        pad.layout_pads.map{|p1| p1.min_size_x }.max || 0
+        pad.pads_layoutic.map{|p1| p1.min_size_x }.max || 0
       end
 
       def fit_size_y pad
-        pad.layout_pads.map{|p1| p1.min_size_y }.max || 0
+        pad.pads_layoutic.map{|p1| p1.min_size_y }.max || 0
       end
 
       def get_size_x_rational p0, p0w, p1, r

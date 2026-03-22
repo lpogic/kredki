@@ -5,7 +5,7 @@ class PadTest < Kredki::Test
 
   def test_basic
     pad! size_x: 100, size_y: 1/2r, fill: :yellow, corner: [10, ee: 30] do
-      set_outline 15, :red, cap: :round, pattern: [10, 20], behind: true
+      set_stroke 15, :red, cap: :round, pattern: [10, 20], behind: true
       set_turn 1/4r
       set_zoom 3/4r
     end

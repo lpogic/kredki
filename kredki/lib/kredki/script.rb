@@ -4,7 +4,7 @@ require_relative 'module'
 if defined? IRB
   require_relative 'irb'
 else
-  MainLayer = Kredki.app.open show: false
+  MainLayer = Kredki.app.open hidden: true
   module Kredki
     module Extend
       extend Forwardable
@@ -19,8 +19,8 @@ else
   include Kredki::Pads
 
   window.set do
-    set_resizable
-    set_text_input
+    set_resizable true
+    set_text_input true
     pane.set_fill 20, 70, 20
     pane.exit_on_esc
     set_title $0

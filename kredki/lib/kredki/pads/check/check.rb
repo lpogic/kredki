@@ -30,7 +30,7 @@ module Kredki
         button.checked?
       end
 
-      # Push the feature.
+      # Set a feature recognized by its class.
       def << feature
         case feature
         when String
@@ -63,7 +63,7 @@ module Kredki
       end
 
       def repaint event = nil
-        set opacity: disabled? ? 3/4r : 1r
+        set opacity: in_disabled ? 3/4r : 1r
       end
 
     end

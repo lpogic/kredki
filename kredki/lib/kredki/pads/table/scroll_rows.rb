@@ -7,7 +7,7 @@ module Kredki
           fit = super
           if lower_pad.pads.last == self
             yslide = find_lower(ScrollRows)&.yslide
-            fit += yslide.get_size_x + lower_pad.margin_xe if yslide.scenic?
+            fit += yslide.get_size_x + lower_pad.margin_xe if yslide.displayed
           end
           fit
         end
@@ -15,7 +15,7 @@ module Kredki
         def update_size x, y
           if lower_pad.pads.last == self
             yslide = find_lower(ScrollRows)&.yslide
-            return super(x - yslide.get_size_x - lower_pad.margin_xe, y) if yslide.scenic?
+            return super(x - yslide.get_size_x - lower_pad.margin_xe, y) if yslide.displayed
           end
           super
         end

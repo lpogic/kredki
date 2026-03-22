@@ -34,7 +34,7 @@ module Kredki
         @fill
       end
 
-      # Push the feature.
+      # Set a feature recognized by its class.
       def << arg
         case arg
         when Symbol

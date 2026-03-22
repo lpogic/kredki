@@ -22,11 +22,6 @@ module Kredki
           @selected
         end
 
-        # See #selected.
-        def selected?
-          !!selected
-        end
-
         # Set suit.
         def set_suit *suit
           return send_bundle :set_suit, yield(self.suit) if block_given?
@@ -66,20 +61,20 @@ module Kredki
         def repaint event = nil
           color = Kredki.color @suit
 
-          if disabled?
+          if in_disabled
             set_opacity 3/4r
             area.set_fill color
-            area.set_outline_w 0
-            area.set_outline_fill color
+            area.set_stroke_width 0
+            area.set_stroke_fill color
           else
             set_opacity 1r
-            area.set_fill selected? ? mouse_in? ? Kredki.color(:text_selection).lighten : :text_selection : mouse_in? ? color.lighten : color
-            if keyboard_in?
-              area.set_outline_w 1
-              area.set_outline_fill :outline_focus
+            area.set_fill selected ? mouse_in ? Kredki.color(:text_selection).lighten : :text_selection : mouse_in ? color.lighten : color
+            if keyboard_in
+              area.set_stroke_width 1
+              area.set_stroke_fill :stroke_focus
             else
-              area.set_outline_w 0
-              area.set_outline_fill color
+              area.set_stroke_width 0
+              area.set_stroke_fill color
             end
           end
         end

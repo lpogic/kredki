@@ -3,7 +3,7 @@ module Kredki
     # Pad that occupy some space.
     class SpacePad < Pad
 
-      # Push the feature.
+      # Set a feature recognized by its class.
       def << feature
         case feature
         in Numeric

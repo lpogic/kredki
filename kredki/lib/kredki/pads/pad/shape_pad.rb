@@ -18,130 +18,130 @@ module Kredki
         @area.fill
       end
 
-      # Set outline.
-      def set_outline ...
-        @area.set_outline(...)
+      # Set stroke.
+      def set_stroke ...
+        @area.set_stroke(...)
       end
 
-      # See #set_outline.
-      def outline= param
-        send_bundle :set_outline, param
+      # See #set_stroke.
+      def stroke= param
+        send_bundle :set_stroke, param
       end
 
-      # Set outline width.
-      def set_outline_w ...
-        @area.set_outline_w(...)
+      # Set stroke width.
+      def set_stroke_width ...
+        @area.set_stroke_width(...)
       end
 
-      # See #set_outline_w.
-      def outline_w= param
-        send_bundle :set_outline_w, param
+      # See #set_stroke_width.
+      def stroke_width= param
+        send_bundle :set_stroke_width, param
       end
 
-      # Get outline width.
-      def outline_w
-        @area.outline_w
+      # Get stroke width.
+      def stroke_width
+        @area.stroke_width
       end
 
-      # Set outline fill.
-      def set_outline_fill ...
-        @area.set_outline_fill(...)
+      # Set stroke fill.
+      def set_stroke_fill ...
+        @area.set_stroke_fill(...)
       end
 
-      # See #set_outline_fill.
-      def outline_fill= param
-        send_bundle :set_outline_fill, param
+      # See #set_stroke_fill.
+      def stroke_fill= param
+        send_bundle :set_stroke_fill, param
       end
 
-      # Get outline fill.
-      def outline_fill
-        @area.outline_fill
+      # Get stroke fill.
+      def stroke_fill
+        @area.stroke_fill
       end
       
-      # Set outline join.
-      def set_outline_join ...
-        @area.set_outline_join(...)
+      # Set stroke join.
+      def set_stroke_join ...
+        @area.set_stroke_join(...)
       end
 
-      # See #set_outline_join.
-      def outline_join= param
-        send_bundle :set_outline_join, param
+      # See #set_stroke_join.
+      def stroke_join= param
+        send_bundle :set_stroke_join, param
       end
 
-      # Get outline join.
-      def outline_join
-        @area.outline_join
+      # Get stroke join.
+      def stroke_join
+        @area.stroke_join
       end
 
-      # Set outline cap.
-      def set_outline_cap ...
-        @area.set_outline_cap(...)
+      # Set stroke cap.
+      def set_stroke_cap ...
+        @area.set_stroke_cap(...)
       end
 
-      # See #set_outline_cap.
-      def outline_cap= param
-        send_bundle :set_outline_cap, param
+      # See #set_stroke_cap.
+      def stroke_cap= param
+        send_bundle :set_stroke_cap, param
       end
 
-      # Get outline cap.
-      def outline_cap
-        @area.outline_cap
+      # Get stroke cap.
+      def stroke_cap
+        @area.stroke_cap
       end
 
-      # Set outline dash pattern.
-      def set_outline_pattern ...
-        @area.set_outline_pattern(...)
+      # Set stroke dash pattern.
+      def set_stroke_pattern ...
+        @area.set_stroke_pattern(...)
       end
 
-      # See #set_outline_pattern.
-      def outline_pattern= param
-        send_bundle :set_outline_pattern, param
+      # See #set_stroke_pattern.
+      def stroke_pattern= param
+        send_bundle :set_stroke_pattern, param
       end
 
-      # Get outline dash pattern.
-      def outline_pattern
-        @area.outline_pattern
+      # Get stroke dash pattern.
+      def stroke_pattern
+        @area.stroke_pattern
       end
 
-      # Set outline trim.
-      def set_outline_trim ...
-        @area.set_outline_trim(...)
+      # Set stroke trim.
+      def set_stroke_trim ...
+        @area.set_stroke_trim(...)
       end
 
-      # See #set_outline_trim.
-      def outline_trim= param
-        send_bundle :set_outline_trim, param
+      # See #set_stroke_trim.
+      def stroke_trim= param
+        send_bundle :set_stroke_trim, param
       end
 
-      # Get outline trim.
-      def outline_trim
-        @area.outline_trim
+      # Get stroke trim.
+      def stroke_trim
+        @area.stroke_trim
       end
 
-      # Set whether outline is behind fill.
-      def set_outline_behind ...
-        @area.set_outline_behind(...)
+      # Set whether stroke is behind fill.
+      def set_stroke_behind ...
+        @area.set_stroke_behind(...)
       end
 
-      # See #set_outline_behind.
-      def outline_behind= param
-        send_bundle :set_outline_behind, param
+      # See #set_stroke_behind.
+      def stroke_behind= param
+        send_bundle :set_stroke_behind, param
       end
 
-      # Get whether outline is behind fill.
-      def outline_behind
-        @area.outline_behind
+      # Get whether stroke is behind fill.
+      def stroke_behind
+        @area.stroke_behind
       end
 
-      # See #outline_behind.
-      def outline_behind?
-        @area.outline_behind?
+      # See #stroke_behind.
+      def stroke_behind?
+        @area.stroke_behind?
       end
 
       # :section: LEVEL 2
 
       def initialize_area
-        @area = @scene.rectangle!
+        @area = @scene.new_rectangle
       end
     end
   end

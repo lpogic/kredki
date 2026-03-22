@@ -14,7 +14,7 @@ module Kredki
         def set_open value = true, &block
           return if (c = open) == (value = block ? block[c] : value == Not ? !c : value)
           @open = value
-          lower.update_show
+          lower.update_open
           true
         end
 

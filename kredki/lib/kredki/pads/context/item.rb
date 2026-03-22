@@ -26,11 +26,11 @@ module Kredki
           put SpacePad, size: [:y, 1r]
           put TextPad, "", mousy: false
           put RectanglePad, :end_icon, mousy: false, keyboardy: false, fill: 0, x: End, size: [:y, 1r] do
-            set_outline fill: :text, w: 2, cap: :round
+            set_stroke fill: :text, width: 2, cap: :round
             set_area do |sx, sy|
-              xy! sx * 0.5, sy * 0.35
-              line! sx * 0.65, sy * 0.5
-              line! sx * 0.5, sy * 0.65
+              jump sx * 0.5, sy * 0.35
+              line sx * 0.65, sy * 0.5
+              line sx * 0.5, sy * 0.65
             end
             set_scenic false
           end

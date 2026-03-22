@@ -139,7 +139,7 @@ module Kredki
         job
       end
 
-      # Push the feature.
+      # Set a feature recognized by its class.
       def << feature
         case feature
         when Symbol

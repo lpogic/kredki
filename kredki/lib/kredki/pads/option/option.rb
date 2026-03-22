@@ -50,14 +50,14 @@ module Kredki
 
         @note = put Note
         @arrow = @note.put Button, size: [20, 1r] do
-          set outline_w: 0
+          set stroke_width: 0
           set keyboardy: false
           put RectanglePad, mousy: false, keyboardy: false, fill: 0, size: 1r do
-            set_outline fill: :text, w: 2, cap: :round
+            set_stroke fill: :text, width: 2, cap: :round
             set_area do |sx, sy|
-              xy! sx * 0.2, sy * 0.35
-              line! sx * 0.5, sy * 0.65
-              line! sx * 0.8, sy * 0.35
+              jump sx * 0.2, sy * 0.35
+              line sx * 0.5, sy * 0.65
+              line sx * 0.8, sy * 0.35
             end
           end
         end
@@ -72,7 +72,7 @@ module Kredki
 
         on_key :enter do |e|
           if @dropdown.loaded?
-            item?(keyboard_in?: true)&.report Item::PickEvent.new e
+            item?(keyboard_in: true)&.report Item::PickEvent.new e
           else
             @dropdown.load self
           end

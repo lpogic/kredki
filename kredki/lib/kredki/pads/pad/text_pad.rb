@@ -26,58 +26,58 @@ module Kredki
         @area.fill
       end
 
-      # Set outline features.
-      def set_outline *a, **ka
+      # Set stroke features.
+      def set_stroke *a, **ka
         a.map do |it|
           case it
           when Hash
-            set_outline **it
+            set_stroke **it
           when Numeric
-            set_outline_w it
+            set_stroke_width it
           else
-            send_bundle :set_outline_fill, it
+            send_bundle :set_stroke_fill, it
           end
         end.any? | send_branch(__method__, ka)
       end
       
-      # See #set_outline.
-      def outline= param
-        send_bundle :set_outline, param
+      # See #set_stroke.
+      def stroke= param
+        send_bundle :set_stroke, param
       end
 
-      # Set outline fill.
-      def set_outline_fill *outline_fill
-        return send_bundle :set_outline_fill, yield(self.outline_fill) if block_given?
-        return unless @area.set_outline_fill *outline_fill
-        @verses.each{|it| it.set_outline_fill *outline_fill }
+      # Set stroke fill.
+      def set_stroke_fill *stroke_fill
+        return send_bundle :set_stroke_fill, yield(self.stroke_fill) if block_given?
+        return unless @area.set_stroke_fill *stroke_fill
+        @verses.each{|it| it.set_stroke_fill *stroke_fill }
         true
       end
 
-      # See #set_outline_fill.
-      def outline_fill= param
-        send_bundle :set_outline_fill, param
+      # See #set_stroke_fill.
+      def stroke_fill= param
+        send_bundle :set_stroke_fill, param
       end
 
-      # Get outline fill.
-      def outline_fill
+      # Get stroke fill.
+      def stroke_fill
         @area.fill
       end
 
-      # Set outline width.
-      def set_outline_w outline_w = @outline_w
-        return send_bundle :set_outline_w, yield(self.outline_w) if block_given?
-        return unless @area.set_outline_w *outline_w
-        @verses.each{|it| it.set_outline_w *outline_w }
+      # Set stroke width.
+      def set_stroke_width stroke_width = @stroke_width
+        return send_bundle :set_stroke_width, yield(self.stroke_width) if block_given?
+        return unless @area.set_stroke_width *stroke_width
+        @verses.each{|it| it.set_stroke_width *stroke_width }
         true
       end
 
-      # See #set_outline_w.
-      def outline_w= param
-        send_bundle :set_outline_w, param
+      # See #set_stroke_width.
+      def stroke_width= param
+        send_bundle :set_stroke_width, param
       end
 
-      # Get outline width.
-      def outline_w
+      # Get stroke width.
+      def stroke_width
         @area.fill
       end
 
@@ -155,7 +155,7 @@ module Kredki
         @verse_size
       end
 
-      # Push the feature.
+      # Set a feature recognized by its class.
       def << feature
         case feature
         when String
@@ -187,7 +187,7 @@ module Kredki
         font = @verses.first&.font || Kredki.font
         @verses&.each{|it| it.detach }
         @verses = "#{subject}\n".each_line(chomp: true).map do |line|
-          @scene.text! line.chomp, fill: @area.fill, font: font
+          @scene.new_text line.chomp, fill: @area.fill, font: font
         end
         arrange_verses
         layer&.break_layout

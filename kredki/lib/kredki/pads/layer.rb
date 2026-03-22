@@ -26,11 +26,11 @@ module Kredki
               .lazy
               .drop_while{|p1| p0 != p1 }
               .drop(1)
-              .filter{|it| it.keyboardy? && !it.disabled? && it.show? }
+              .filter{|it| it.keyboardy && !it.in_disabled && it.displayed }
               .first
           end || upper_pad_iterator(reverse: event.shift?, deep: true)
             .lazy
-            .filter{|it| it.keyboardy? && !it.disabled? && it.show? }
+            .filter{|it| it.keyboardy && !it.in_disabled && it.displayed }
             .first
           next_pad&.keyboard_request
         end
@@ -131,7 +131,7 @@ module Kredki
       end
 
       def keyboard_event event
-        if !event.closed? && show? && (kp = keyboard_pad)
+        if !event.closed? && displayed && (kp = keyboard_pad)
           event.target = kp
           kp.report event
         end
@@ -221,7 +221,7 @@ module Kredki
       end
 
       def point_pads x, y, pads, force = false
-        if force || (mousy? && show? && include_point?(x, y))
+        if force || (mousy && displayed && include_point(x, y))
           pads << self
           x -= @clip_scene.x
           y -= @clip_scene.y
@@ -248,13 +248,13 @@ module Kredki
       end
 
       def mouse_press e
-        keyboard_request if keyboardy?
+        keyboard_request if keyboardy
         pin_request e.xy, e.button.id
       end
 
       def mouse_release e
         pin_dispose e.button.id
-        if !e.drag && include_point?(e.x, e.y)
+        if !e.drag && include_point(e.x, e.y)
           report MouseButtonClickEvent.new e
         end
       end
@@ -292,7 +292,7 @@ module Kredki
       def pin_check pad, button, top_only
         return if button != @pin_data&.button
         return @pin_data&.pad == pad if top_only
-        @pin_data&.pad&.in_pad? pad
+        @pin_data&.pad&.in_pad pad
       end
       
       def update_pin_pad pad, xy = nil, button = nil, drag = false

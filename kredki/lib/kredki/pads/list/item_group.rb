@@ -15,7 +15,7 @@ module Kredki
           bound = 0
           each_upper(Item).each_set do
             bound += 1 if self == pad
-            bound += 1 if keyboard_in?
+            bound += 1 if keyboard_in
             set_selected if bound > 0
             break if bound > 1
           end

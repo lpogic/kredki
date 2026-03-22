@@ -10,6 +10,7 @@ require_relative 'linear_gradient'
 require_relative 'radial_gradient'
 
 module Kredki
+  Not = :not
 
   class << self
 
@@ -19,18 +20,22 @@ module Kredki
     end
  
     # Run the app or get the app if it is already running.
-    def app scene = nil, *a, **ka, &block
+    def app opened = nil, *a, **ka, &block
       if !@init
         Pastele.thorvg_engine_init 2, 4
         Pastele.sdl_init joystick ? 1 : 0
         @init = true
       end
-      @app = Application.new if !@app
-      if scene || block
-        @app.open scene, *a, **ka, &block
+      @app = @app_class.new if !@app
+      if opened || block
+        @app.open opened, *a, **ka, &block
         return @app.run
       end
       @app
+    end
+
+    def app= app_class
+      @app_class = app_class
     end
 
     # Milliseconds since SDL was initialized.
