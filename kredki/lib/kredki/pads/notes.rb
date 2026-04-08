@@ -16,7 +16,7 @@ module Kredki
       end
 
       def initialize_verse
-        @verse = put EditableTextVerses, size: 1r
+        @verse = put EditableTextVerses, size: 1r, mousy: false
       end
 
       def sketch_verse

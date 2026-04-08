@@ -98,7 +98,7 @@ module Kredki
 
         def update_lower lower, at = nil
           if super
-            @lower_events&.each{ _1.detach }
+            @lower_events&.each{ _1.cancel }
 
             secondary_mouse_click = lower.on_mouse_click :secondary do |e|
               @context_layer.load *e.xy

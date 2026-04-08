@@ -10,8 +10,9 @@ module Kredki
 
         def load item
           item.layer&.arrange
+          arrange
           window_sx, window_sy = lower.window.size
-          x, y = *item.translate(item.area_size_x, 0)
+          x, y = *item.translate(item.area_size_x, -1)
           if x + @items.area_size_x > window_sx
             x = [x - item.area_size_x - @items.area_size_x, 0].max
           end
@@ -36,18 +37,18 @@ module Kredki
 
         def update_lower lower, at = nil
           if super
-            @lower_events&.each{|it| it.detach }
+            @lower_events&.each{|it| it.cancel }
 
             focus_enter = lower.on_focus_enter do |e|
               load lower
             end
 
             focus_leave = lower.on_focus_leave do |e|
-              unload if loaded?
+              unload if loaded
             end
             
             left_key_press = on_key_press :left do |e|
-              if loaded?
+              if loaded
                 unload
                 e.close
               end
@@ -59,7 +60,7 @@ module Kredki
 
         def grand_detach
           super
-          unload if loaded?
+          unload if loaded
         end
 
       end#SecondaryLayer

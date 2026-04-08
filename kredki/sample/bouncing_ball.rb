@@ -2,7 +2,6 @@ require 'kredki'
 
 # A bouncing ball simulation.
 
-window.fps_limit = false
 ball = ellipse! size: 100, xy: 100
 
 v = 0

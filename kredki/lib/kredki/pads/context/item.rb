@@ -41,7 +41,7 @@ module Kredki
 
           on_key_press :right do |e|
             if layer = find_upper SecondaryLayer
-              layer.load self if layer.loaded?
+              layer.load self if layer.loaded
               layer.find_upper(Item)&.keyboard_request and e.close
             end
           end
@@ -51,7 +51,7 @@ module Kredki
         def mouse_enter e
           super
           layer = find_upper SecondaryLayer
-          layer.update_keyboard_pad nil if layer&.loaded?
+          layer.update_keyboard_pad nil if layer&.loaded
         end
         
       end#Item

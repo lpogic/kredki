@@ -157,7 +157,7 @@ module Kredki
     # If +index+ is +null+ or -1, +string+ width is returned.
     # If +index+ is equal to string length, +string+ width is returned plus last character rsb.
     def substring_width index = nil, string = @content
-      Pastele.text_get_text_width(@pointer, string.to_s, index || -1)
+      Pastele.text_get_text_width(@pointer, string.to_s, index || -1).ceil
     end
 
     # Get index of nearest character for +string+ rendered with +@font+ and +@size_y+, truncated to +size_max+.

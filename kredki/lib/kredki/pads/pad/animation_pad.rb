@@ -13,10 +13,6 @@ module Kredki
         end
       end
 
-      def step ...
-        @area.step(...)
-      end
-
       def set_frame ...
         @area.set_frame(...)
       end
@@ -27,6 +23,11 @@ module Kredki
 
       def frame
         @area.frame
+      end
+
+      # Get duration.
+      def duration
+        @area.duration
       end
 
       # :section: LEVEL 2

@@ -43,7 +43,7 @@ module Kredki
 
         def update_lower lower, at = nil
           if super
-            @lower_events&.each{ _1.detach }
+            @lower_events&.each{ _1.cancel }
             @lower_events = []
 
 
@@ -52,7 +52,7 @@ module Kredki
             end
 
             focus_leave = lower.on_focus_leave do |e|
-              unload if loaded?
+              unload if loaded
             end
             
             @lower_events = [focus_enter, focus_leave]

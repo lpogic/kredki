@@ -2,49 +2,51 @@ module Kredki
   # Job reaction methods.
   module EventManagerJobs
 
-    # Create and attach Kredki::AfterJob.
+    # Create and attach job after.
     def after delay = 0, &block
-      job = AfterJob.new block, delay
-      attach job
-      job
+      case delay
+      when Numeric
+        job = AfterJob.new block, delay
+        attach job
+        job
+      when Job
+        attach delay
+        delay
+      when Proc
+        job = AfterJob.new delay, 0
+        attach job
+        job
+      else raise_ia delay
+      end
     end
 
     # Create and attach Kredki::LoopJob.
     def loop period = 0, &block
-      job = LoopJob.new block, period
-      attach job
-      job
+      after LoopJob.new block, period
     end
 
     # Create and attach Kredki::SideJob.
     def side &block
-      job = SideJob.new block
-      attach job
-      job
+      after SideJob.new block
     end
 
-    # Create and attach animation job.
-    def animate subject, loop = false, &block
+    # Create and attach play job.
+    def play subject, speed: 1, &block
       case subject
       when Numeric
-        if loop
-          self.loop do |it|
-            it.release if block.call it.total_ms, subject
-          end
-        else
-          self.loop do |it|
-            if it.total_ms < subject
-              block.call it.total_ms, subject
-            else
-              it.release
-              block.call subject, subject
-            end
-          end
-        end
+        after PlayJob.new block, subject, speed
       else
-        self.loop do |it|
-          it.release if subject.step it.total_ms, loop, &block
-        end
+        after PlayAnimationJob.new block, subject, speed
+      end
+    end
+
+    # Create and attach play in loop job.
+    def play_loop subject, speed: 1, &block
+      case subject
+      when Numeric
+        after PlayLoopJob.new block, subject, speed
+      else
+        after PlayLoopAnimationJob.new block, subject, speed
       end
     end
   end

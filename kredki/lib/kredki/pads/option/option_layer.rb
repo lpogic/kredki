@@ -54,7 +54,7 @@ module Kredki
           [psx, fit_size_x].max
         end
 
-        note.pane.push_layer self
+        note.pane.put self
         @pad.find_upper(Item)&.keyboard_request
       end
 
@@ -63,7 +63,7 @@ module Kredki
         @note = nil
       end
 
-      def loaded?
+      def loaded
         !!@note
       end
 

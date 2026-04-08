@@ -60,21 +60,21 @@ module Kredki
 
           on_key_press :down, :up, :enter, :space do |e|
             if layer = find PrimaryLayer
-              layer.load self unless layer.loaded?
+              layer.load self unless layer.loaded
               layer.find_upper(Context::Item)&.keyboard_request and e.close
             end
           end
 
           on_mouse_click do |e|
             layer = find_upper PrimaryLayer
-            layer.load self if layer && !layer.loaded?
+            layer.load self if layer && !layer.loaded
           end
         end
 
         def mouse_enter e
           super
           layer = find_upper PrimaryLayer
-          layer.update_keyboard_pad nil if layer&.loaded?
+          layer.update_keyboard_pad nil if layer&.loaded
         end
 
       end#Item

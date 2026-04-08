@@ -24,28 +24,28 @@ module Kredki
           @suit
         end
         
-        # Set whether is checked.
-        def set_checked value = true
-          return if (c = checked) == (value = block_given? ? yield(c) : value == Not ? !c : value)
-          update_group_checked value
+        # Set whether is selected.
+        def set_selected value = true
+          return if (c = selected) == (value = block_given? ? yield(c) : value == Not ? !c : value)
+          update_group_selected value
         end
 
-        # See #set_checked.
-        def checked= param
-          send_bundle :set_checked, param
+        # See #set_selected.
+        def selected= param
+          send_bundle :set_selected, param
         end
 
-        # Get whether is checked.
-        def checked
-          @checked
+        # Get whether is selected.
+        def selected
+          @selected
         end
 
-        # See #checked.
-        def checked?
-          !!checked
+        # See #selected.
+        def selected?
+          !!selected
         end
 
-        class ChangeEvent < Event
+        class SelectEvent < Event
           def initialize value
             @value = value
           end
@@ -53,12 +53,12 @@ module Kredki
           attr_accessor :value
         end
 
-        def on_change ...
-          on(ChangeEvent, ...)
+        def on_select ...
+          on(SelectEvent, ...)
         end
 
-        def on_change= param
-          on_change do: param
+        def on_select= param
+          on_select do: param
         end
 
         # :section: LEVEL 2
@@ -113,11 +113,11 @@ module Kredki
           super
 
           Event.each on_mouse_click, on_key(:space, :enter) do |e|
-            report ChangeEvent.new true if !checked
+            report SelectEvent.new true if !selected
           end
 
-          on_change early: true do |e|
-            e.close if in_disabled || set_checked(e.value).not
+          on_select early: true do |e|
+            e.close if in_disabled || set_selected(e.value).not
           end
 
           on_key_press do |e|
@@ -125,13 +125,13 @@ module Kredki
           end
         end
 
-        def update_group_checked checked
-          find_lower(Group)&.update_checked self, checked or update_checked checked
+        def update_group_selected selected
+          find_lower(Group)&.update_selected self, selected or update_selected selected
         end
 
-        def update_checked checked
-          @checked = checked
-          @check.set_scenic checked
+        def update_selected selected
+          @selected = selected
+          @check.set_scenic selected
         end
       end
     end

@@ -18,9 +18,6 @@ module Kredki
         end
       end
 
-      class ChangeEvent < Event
-      end
-
       # Set value.
       def set_value value = @value
         return send_bundle :set_value, yield(self.value) if block_given?
@@ -67,16 +64,6 @@ module Kredki
       # See #on_edit.
       def on_edit= param
         on_edit do: param
-      end
-
-      # Create and attach change event reaction.
-      def on_change ...
-        on(ChangeEvent, ...)
-      end
-
-      # See #on_change.
-      def on_change= param
-        on_change do: param
       end
 
       # :section: LEVEL 2
@@ -146,10 +133,6 @@ module Kredki
 
         on_edit do |e|
           set_value e.value
-        end
-
-        @handle.on_mouse_release do |e|
-          report ChangeEvent.new
         end
 
         @handle.on_mouse_press do |e|

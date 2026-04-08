@@ -9,8 +9,8 @@ module Kredki
         def initialize
           super
 
-          @context_pad = put Context::Pad, stroke: [1, :dark_gray] do
-          scene.drop_shadow color: :black # this is too expensive at the moment
+          @context_pad = put Context::Pad, stroke: [1, :dark_gray], margin: 1 do
+          # scene.drop_shadow color: :black # this is too expensive at the moment
         end
           @item_group = @context_pad.put Context::ItemGroup
         end
@@ -19,7 +19,7 @@ module Kredki
 
         def load_common x, y
           @context_pad.set_xy x, y
-          lower.pane.push_layer self
+          lower.pane.put self
           break_layout
         end
         
@@ -28,7 +28,7 @@ module Kredki
           pad_detach
         end
 
-        def loaded?
+        def loaded
           !!@lower_pad
         end
 

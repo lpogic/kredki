@@ -60,7 +60,7 @@ module Kredki
       def attach lower, at: nil
         raise "service loop detected" if find_lower self
         detach true if @lower
-        lower&.push_service self, at: at
+        lower&.put_service self, at: at
       end
 
       # Detach self.
@@ -188,13 +188,13 @@ module Kredki
 
       def put klass, *a, at: nil, **ka, &b
         service = klass.new
-        push_service service, at: at if at != false
+        put_service service, at: at if at != false
         service.sketch_service
         service.set *a, **ka, &b
         service
       end
 
-      def push_service service, at: nil
+      def put_service service, at: nil
         service.update_lower self, at
         case at
         when Integer

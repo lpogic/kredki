@@ -71,7 +71,7 @@ module Kredki
         super
 
         on_key :enter do |e|
-          if @dropdown.loaded?
+          if @dropdown.loaded
             item?(keyboard_in: true)&.report Item::PickEvent.new e
           else
             @dropdown.load self
@@ -83,11 +83,11 @@ module Kredki
         # end
 
         on_mouse_click :primary do
-          @dropdown.load self unless @dropdown.loaded?
+          @dropdown.load self unless @dropdown.loaded
         end
 
         @arrow.on_mouse_click :primary do |e|
-          if @dropdown.loaded?
+          if @dropdown.loaded
             @dropdown.unload
           else
             @dropdown.load self

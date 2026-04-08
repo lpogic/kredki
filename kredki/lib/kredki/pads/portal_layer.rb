@@ -1,5 +1,6 @@
 module Kredki
   module Pads
+    # A layer which translates all mouse pointer events.
     class PortalLayer < Layer
 
       # :section: LEVEL 2

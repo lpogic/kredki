@@ -1,9 +1,9 @@
 require 'kredki'
 
-# A GUI-mode sample overview. This also showcases more advanced library usage.
+# A GUI-mode sample overview.
 
 class ListPane < Pane
-  layer do
+  layer! do
     pane.close_on_esc
     set_layout :yss
 
@@ -19,7 +19,7 @@ class ListPane < Pane
         end
 
         Dir["*.rb"].each_with_index do |file, index| 
-          item! "#{index + 1}. #{file}", subject: file, suit: [20, 70, 20], margin_xs: 3, spacer: 5 do
+          item! "#{index + 1}. #{file}", subject: file, suit: [20, 70, 20], spacer: 5 do
             glyph! :media_play, fill: :text, scenic: false, mouse_cursor: :pointer do
               on_mouse_enter{ set_zoom 1.2 }
               on_mouse_leave{ set_zoom 1.0 }
@@ -28,22 +28,17 @@ class ListPane < Pane
             on_mouse_enter{ glyph?.set_scenic true }
             on_mouse_leave{ glyph?.set_scenic false }
             on_mouse_click{|event| go_sample.call subject if event.combo == 2 }
-            on_key_press :enter do
-              go_sample.call subject
-            end
           end
         end
 
       end
     end
-
-    list?.item?.keyboard_request
   end
 end
 
 
 class SampleCodePane < Pane
-  layer do |file, list_pane|
+  layer! do |file, list_pane|
     pane.close_on_esc
     set_layout :yss
 
@@ -51,23 +46,26 @@ class SampleCodePane < Pane
     xec! size_x: 1r, size_y: Fit, spacer: 10, margin: 10 do
       button! "Back", on_click: proc{ window.set list_pane }
       button! "Run", suit: :orange do
-        on_click{ app.open RunSamplePane.new(file, "#{pane.notes?.text}") }
+        on_click{ app.open RunSamplePane.new(file, pane.notes?.text) }
       end
     end
   end
 end
 
 class RunSamplePane < Pane
-  layer do |file, code|
+  layer! do |file, code|
     window.set resizable: true, title: file
     pane.close_on_esc
 
     begin
       eval code
     rescue Exception => e
-      window.set_pane do
+      window.pane! do
         set_fill :red
+        set_layout :ycc
         text! "#{e.class}"
+        message = e.message.split(" ").each_slice(5).map{|it| it.join " " }.join("\n") 
+        text! message, verse: [16, layout: :ycc]
       end
     end
   end

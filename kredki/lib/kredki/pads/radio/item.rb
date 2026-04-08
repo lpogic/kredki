@@ -9,24 +9,19 @@ module Kredki
           @button
         end
 
-        # Set whether is checked.
-        def set_checked ...
-          button.set_checked(...)
+        # Set whether is selected.
+        def set_selected ...
+          button.set_selected(...)
         end
 
-        # See #set_checked.
-        def checked= param
-          button.checked = param
+        # See #set_selected.
+        def selected= param
+          button.selected = param
         end
 
-        # Get whether is checked.
-        def checked
-          button.checked
-        end
-
-        # See #checked.
-        def checked?
-          button.checked?
+        # Get whether is selected.
+        def selected
+          button.selected
         end
 
         # Set a feature recognized by its class.
@@ -34,7 +29,7 @@ module Kredki
           case feature
           when String
             (find Label or put Label) << feature
-            set_subject feature
+            self.subject ||= feature
           else
             super
           end
@@ -65,6 +60,11 @@ module Kredki
         def repaint event = nil
           set_opacity in_disabled ? 3/4r : 1r
         end
+
+        def default_text text
+          put Label
+        end
+
       end
     end
   end

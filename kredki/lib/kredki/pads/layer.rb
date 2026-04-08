@@ -5,8 +5,17 @@ module Kredki
 
       # Get repeated click counter value. The counter is reset when the next click occurs after a specified time interval, 
       # or the click target is a different pad, or the click location is beyond a specified distance limit from the previous one.
-      def mouse_click_combo
-        @click_data&.combo || 0
+      def mouse_click_combo event = nil
+        return 0 if !@click_data
+        if !event || (
+          @click_data.pad == event.target && 
+          !event.target.drag_check(@click_data.xy, event.xy) && 
+          event.timestamp - @click_data.timestamp < 200000000
+        )
+        then
+          return @click_data.combo
+        end
+        return 0
       end
 
       # Detach from pane.
@@ -19,6 +28,7 @@ module Kredki
         super
       end
 
+      # Enable carry focus on tab event resolver.
       def carry_focus_on_tab
         on_key_press :tab do |event|
           next_pad = layer.keyboard_pad&.then do |p0|
@@ -67,7 +77,6 @@ module Kredki
         attr_accessor :xy
         attr_accessor :timestamp
         attr_accessor :combo
-
       end
 
       def initialize
@@ -77,6 +86,13 @@ module Kredki
         @keyboard_pads = []
         @mouse_pads = []
         @click_data = nil
+        @sketched = false
+      end
+
+      def sketch_service
+        return if @sketched
+        @sketched = true
+        super
       end
 
       def sketch
@@ -109,6 +125,7 @@ module Kredki
 
       def arrange
         return unless @layout_broken
+        update_margin
         @pads_layout.arrange self
         @layout_broken = false
         true
@@ -260,15 +277,7 @@ module Kredki
       end
 
       def mouse_click event
-        if @click_data && 
-          @click_data.pad == event.target && 
-          !event.target.drag_check(@click_data.xy, event.xy) && 
-          event.timestamp - @click_data.timestamp < 200000000
-        then
-          combo = @click_data.combo + 1
-        else
-          combo = 1
-        end
+        combo = mouse_click_combo(event) + 1
         event.combo = combo
         @click_data = ClickData.new event.target, event.xy, event.timestamp, combo
       end
@@ -319,9 +328,10 @@ module Kredki
         @lower = lower
       end
 
-      def pad_attach pad
-        return if @lower_pad == pad
-        @lower_pad = pad
+      def pad_attach lower, at = nil
+        return if @lower_pad == lower
+        @lower_pad = lower
+        @lower = lower if !@lower
       end
     end
   end

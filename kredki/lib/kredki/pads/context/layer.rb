@@ -11,7 +11,7 @@ module Kredki
           pad_detach
         end
 
-        def loaded?
+        def loaded
           !!@lower_pad
         end
 
@@ -20,15 +20,15 @@ module Kredki
         def initialize
           super
 
-          @items = put Pad, stroke: [1, :dark_gray] do
-            scene.drop_shadow color: :black # this is too expensive at the moment
+          @items = put Pad, stroke: [1, :dark_gray], margin: 1 do
+            # scene.drop_shadow color: :black # this is too expensive at the moment
           end
           @item_group = @items.put ItemGroup
         end
 
         def load_common x, y
           @items.set_xy x, y
-          lower.pane.push_layer self
+          lower.pane.put self
           break_layout
         end
 

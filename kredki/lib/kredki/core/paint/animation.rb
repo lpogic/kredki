@@ -6,7 +6,7 @@ module Kredki
     def set_content ...
       if @picture.set_content(...)
         @duration = (Pastele.animation_get_duration(@pointer) * 1000).to_i
-        @frame_ms_to_index = Pastele.animation_get_total_frames(@pointer) / @duration
+        @total_frames = Pastele.animation_get_total_frames @pointer
         @frame = 0
         true
       end
@@ -136,7 +136,7 @@ module Kredki
     def set_frame frame = @frame
       return set_frame yield @frame if block_given?
       return if @frame == frame
-      update_frame frame * @frame_ms_to_index
+      update_frame frame * @total_frames
       @frame = frame
       true
     end
@@ -205,28 +205,6 @@ module Kredki
       end
     end
 
-    def step ms, loop = false, &block
-      if loop
-        if block
-          value = block.call ms, @duration
-          return true if !value
-          set_frame value
-        else
-          set_frame ms % @duration
-        end
-      else
-        if block
-          value = block.call ms, @duration
-          return true if !value || value < 0 || value > @duration
-          set_frame value
-        else
-          return true if ms > @duration
-          set_frame ms
-        end
-      end
-      false
-    end
-
     # :section: LEVEL 2
 
     def initialize
@@ -234,7 +212,7 @@ module Kredki
       ObjectSpace.define_finalizer(self, Animation.finalizer(@pointer))
 
       @picture = Picture.new Pastele.animation_get_picture @pointer
-      @frame_ms_to_index = nil
+      @total_frames = nil
       @duration = nil
     end
 

@@ -119,7 +119,7 @@ module Kredki
     end
 
     # Add drop shadow scene effect.
-    def drop_shadow color:, angle: 135, distance: 10, blur: 5, quality: 10
+    def drop_shadow color:, angle: 0, distance: 0, blur: 5, quality: 10
       Pastele.scene_add_drop_shadow @pointer, *Kredki.color(color).to_rgba, angle, distance, blur, quality
       update
     end

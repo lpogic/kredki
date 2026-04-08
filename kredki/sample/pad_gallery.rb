@@ -13,7 +13,7 @@ toolbar! do
   end
 end
 
-context! do
+context_menu! do
   item! "Cut"
   item! "Copy"
   item! "Paste"
@@ -25,18 +25,17 @@ end
 
 xss! margin: 10, spacer: 10 do
   yss! spacer: 10 do
-    note! size_x: 1r
+    note! "single line of editable text", size_x: 1r
     list! size_x: 1r, size_y: Fit do
       item! "First"
       item! "Second"
       item! "Third"
     end
     xss! spacer: 10 do
-      yslide!
+      slider_y!
       yss! spacer: 10 do
-        margin[5]
         text! "Some text"
-        xslide!
+        slider_x!
         button! "Button"
       end
       tree! do
@@ -53,7 +52,7 @@ xss! margin: 10, spacer: 10 do
     end
   end
   yss! size_x: 1/2r, spacer: 10 do
-    notes! size_x: 1r
+    notes! "multiple lines\nof editable\ntext", size_x: 1r
     option! size_x: 1r do
       item! "Red"
       item! "Green", disabled: true
@@ -61,8 +60,8 @@ xss! margin: 10, spacer: 10 do
       item! "test", subject: :test
       item! "1234", subject: 1234
     end
-    check! "Check A"
-    check! "Check B"
+    checkbox! "Checkbox A"
+    checkbox! "Checkbox B"
     radio! do
       item! "Radio 1"
       item! "Radio 2"
@@ -70,7 +69,7 @@ xss! margin: 10, spacer: 10 do
     end
     exploding_star = "#{Kredki.dir}/sample/stuff/1643-exploding-star.json"
     animation! exploding_star, size: [1r, limit: Ratio], x: Center do
-      job.animate self, true
+      job.play_loop self
     end
   end
 end

@@ -7,12 +7,8 @@ module Kredki
       include ServiceFilter
       
       # Add new layer.
-      def layer! klass = Layer, *a, **ka, &b
-        layer = klass.new
-        put_pad layer
-        layer.sketch_service
-        layer.set *a, **ka, &b
-        layer
+      def layer! ...
+        put(Layer, ...)
       end
 
       # Match self with +filter+.
@@ -39,7 +35,7 @@ module Kredki
       class << self
         attr_accessor :sketch_layer
 
-        def layer &block
+        def layer! &block
           self.sketch_layer = Class.new Layer
           sketch_layer.define_method :sketch do
             super()
@@ -69,7 +65,7 @@ module Kredki
       def sketch
         super
         @mouse_stale = false
-        layer!(self.class.sketch_layer).keyboard_request
+        put(self.class.sketch_layer).keyboard_request
       end
 
       def behavior
@@ -204,24 +200,63 @@ module Kredki
         end
       end
 
-      def put_pad pad
-        pad.update_lower self
-        push_layer pad
+      def put subject, *a, at: nil, **ka, &b
+        case subject
+        when Class
+          put subject.new, *a, at: at, **ka, &b
+        else
+          layer = subject
+          put_layer layer, at if at != false
+          layer.set *a, **ka, &b
+          layer
+        end
       end
 
-      def push_layer layer
-        return if layer.lower_pad == self
-        layer.window&.remove_pad layer
-        put_paint layer.scene
-        layer.pad_attach self
+      def put_layer layer, at = nil
+        layer.pad_attach self, at
+        case at
+        when Integer
+          paint_state = put_paint layer.scene, false
+          @services.insert at, pad
+        when Layer
+          paint_state = put_paint layer.scene, false, at.scene
+          @services.insert @services.index(at), layer
+        else
+          paint_state = put_paint layer.scene, false
+          @services << layer
+        end
+        layer.sketch_service
         sx, sy = window.size
         layer.update_xy 0, 0
         layer.set_size sx, sy
         layer.update_size sx, sy
-        @services << layer
+        layer&.break_layout
         @mouse_stale = true
         layer
       end
+
+      def layers
+        @services
+      end
+
+      # def put_pad pad
+      #   pad.update_lower self
+      #   push_layer pad
+      # end
+
+      # def push_layer layer
+      #   return if layer.lower_pad == self
+      #   layer.pane&.remove_pad layer
+      #   put_paint layer.scene
+      #   layer.pad_attach self
+      #   sx, sy = window.size
+      #   layer.update_xy 0, 0
+      #   layer.set_size sx, sy
+      #   layer.update_size sx, sy
+      #   @services << layer
+      #   @mouse_stale = true
+      #   layer
+      # end
 
       def remove_upper upper, transfer = false
         @services.delete upper

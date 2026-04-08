@@ -1,7 +1,7 @@
 require 'kredki'
 
 class SpawnPane < Pane
-  layer do |path, color|
+  layer! do |path, color|
     window.set title: path
     pane.set fill: color
     pane.close_on_esc

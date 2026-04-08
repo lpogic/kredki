@@ -194,7 +194,7 @@ module Kredki
 
       def repaint event = nil
         color = Kredki.color @suit
-        kb_top = keyboard_top?
+        kb_top = keyboard_top
 
         if in_disabled
           set_opacity 3/4r

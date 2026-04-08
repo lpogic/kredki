@@ -4,7 +4,7 @@ module Kredki
 
       # Create and attach button click event reaction.
       def on_click ...
-        on(ButtonClickEvent, ...)
+        on(ClickEvent, ...)
       end
 
       def on_click= param
@@ -15,7 +15,7 @@ module Kredki
       def set_pressed value = true, event = nil
         return if (c = pressed) == (value = block_given? ? yield(c) : value == Not ? !c : value)
         @pressed = value
-        report (@pressed ? ButtonPressEvent.new(event) : ButtonReleaseEvent.new(event)) if event
+        report (@pressed ? PressEvent.new(event) : ReleaseEvent.new(event)) if event
         true
       end
 
@@ -53,7 +53,7 @@ module Kredki
       def << feature
         case feature
         when String
-          set_subject feature
+          set_subject{|it| it || feature }
           text?&.set feature or super
         else
           super
@@ -62,19 +62,19 @@ module Kredki
 
       # :section: LEVEL 2
 
-      class ButtonClickEvent < Event
+      class ClickEvent < Event
       end
 
-      class ButtonPressEvent < Event
+      class PressEvent < Event
       end
 
-      class ButtonReleaseEvent < Event
+      class ReleaseEvent < Event
       end
 
       def sketch
         super
 
-        set_keyboardy
+        set_keyboardy true
         set_stroke_width 1
         set_layout :xcc
         set_size Fit
@@ -90,8 +90,8 @@ module Kredki
           on_focus_leave, 
           on_mouse_enter, 
           on_mouse_leave, 
-          on(ButtonPressEvent), 
-          on(ButtonReleaseEvent),
+          on(PressEvent), 
+          on(ReleaseEvent),
           do: method(:repaint)
         )
       end
@@ -124,17 +124,12 @@ module Kredki
 
         on_mouse_release :primary do |e|
           pressed = keyboard_in && ( Kredki.keyboard.pressed?(:space) || Kredki.keyboard.pressed?(:enter) )
-          report ButtonClickEvent.new e if !pressed && set_pressed(false, e) && !e.drag && include_point(*layer.translate(*e.xy, self))
-        end
-
-        on_key_release :enter do |e|
-          pressed = pin_top(:primary) || ( keyboard_in && Kredki.keyboard.pressed?(:space) )
-          report ButtonClickEvent.new e if !pressed && set_pressed(false, e)
+          report ClickEvent.new e if !pressed && set_pressed(false, e) && !e.drag && include_point(*layer.translate(*e.xy, self))
         end
 
         on_key_release :space do |e|
           pressed = pin_top(:primary) || ( keyboard_in && Kredki.keyboard.pressed?(:enter) )
-          report ButtonClickEvent.new e if !pressed && set_pressed(false, e)
+          report ClickEvent.new e if !pressed && set_pressed(false, e)
         end
 
         on_click early: true do |e|
@@ -142,8 +137,8 @@ module Kredki
         end
       end
 
-      def default_text feature
-        put TextPad, :text!, feature do
+      def default_text text
+        put TextPad, :text!, text do
           set_mousy false
           set_size_y Fit
           set_verse_size Kredki.text_size

@@ -62,10 +62,10 @@ module Kredki
         put NavigableTextPad, __method__, *a, keyboardy: true, **ka, &b
       end
       glyph! GlyphPad
-      xslide! HorizontalSlide
-      yslide! VerticalSlide
+      slider_x! HorizontalSlide
+      slider_y! VerticalSlide
       button! Button
-      check! Check
+      checkbox! Check
       note! Note
       notes! Notes
       label! Label
@@ -74,7 +74,7 @@ module Kredki
       list! List::Pad
       tree! Tree::Pad
       radio! Radio::Group
-      context! Context::Menu
+      context_menu! Context::Menu
       toolbar! Toolbar::Pad
 
       Pads.layout! nil, Layout::Align.new(Center, Center)
@@ -97,6 +97,10 @@ module Kredki
             put SpacePad, __method__, *a, layout: :#{z}, **ka, &b
           end
         RUBY
+      end
+
+      def service! *a, **ka, &b
+        put(Class.new(Service, &b), __method__, *a, **ka)
       end
     end#Pad
   end#Pads

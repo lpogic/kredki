@@ -26,7 +26,6 @@ module Kredki
     self.layout_map = {}
     self.config = "#{Kredki.dir}/stuff/config/pads_config.rb"
 
-    Not = :not
     Auto = :auto
     Fit = :fit
     Ratio = :ratio

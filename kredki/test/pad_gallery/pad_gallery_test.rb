@@ -17,7 +17,7 @@ class PadGalleryTest < Kredki::Test
       end
     end
 
-    context! do
+    context_menu! do
       item! "Cut"
       item! "Copy"
       item! "Paste"
@@ -36,11 +36,11 @@ class PadGalleryTest < Kredki::Test
           item! "Third"
         end
         xss! spacer: 10 do
-          yslide!
+          slider_y!
           yss! spacer: 10 do
             margin[5]
             text! "Some text"
-            xslide!
+            slider_x!
             button! "Button"
           end
           tree! do
@@ -65,8 +65,8 @@ class PadGalleryTest < Kredki::Test
           item! "test", subject: :test
           item! "1234", subject: 1234
         end
-        check! "Check A"
-        check! "Check B"
+        checkbox! "Check A"
+        checkbox! "Check B"
         radio! do
           item! "Radio 1"
           item! "Radio 2"
@@ -74,7 +74,7 @@ class PadGalleryTest < Kredki::Test
         end
         exploding_star = "#{Kredki.dir}/sample/stuff/1643-exploding-star.json"
         animation! exploding_star, size: [1r, limit: Ratio], x: Center do
-          job.animate self, true
+          job.play_loop self, true
         end
       end
     end

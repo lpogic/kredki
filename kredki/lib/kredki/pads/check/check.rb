@@ -5,11 +5,6 @@ module Kredki
     # Check.
     class Check < SpacePad
 
-      # Get item button.
-      def button
-        @button
-      end
-
       # Set whether is checked.
       def set_checked ...
         button.set_checked(...)
@@ -25,11 +20,6 @@ module Kredki
         button.checked
       end
 
-      # See #checked.
-      def checked?
-        button.checked?
-      end
-
       # Set a feature recognized by its class.
       def << feature
         case feature
@@ -42,23 +32,17 @@ module Kredki
 
       # :section: LEVEL 2
 
-      def initialize
-        super
-
-        @button = nil
-      end
-
       def sketch
         super
 
-        @button = put CheckButton do
+        put CheckButton, :button! do
           on_click do
             set_checked Not
           end
         end
 
-        set size_y: Fit
-        set spacer: 8
+        set size: Fit
+        set spacer: 5
         set layout: :xsc
       end
 

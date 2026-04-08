@@ -3,11 +3,6 @@ module Kredki
     # Item group member.
     class Item < RectanglePad
 
-      # Get whether is leaf.
-      def leaf?
-        true
-      end
-
       # Get whether is pressed.
       def pressed keyboard_in = nil
         keyboard_in = self.keyboard_in if keyboard_in.nil?
@@ -69,10 +64,11 @@ module Kredki
       def sketch
         super
 
-        set keyboardy: true
-        set layout: :xsc
-        set suit: :gray
+        set_keyboardy true
+        set_layout :xsc
+        set_suit :gray
         set_size Fit, 24
+        set_margin_x 4
       end
 
       def presence

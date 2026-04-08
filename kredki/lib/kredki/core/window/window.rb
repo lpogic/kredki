@@ -356,25 +356,23 @@ module Kredki
       !!mouse_capture
     end
 
-    # Set and build current pane.
-    def set_pane pane = nil, *a, **ka, &b
+    # Set default pane.
+    def pane! ...
+      set_pane(default_pane).set(...)
+    end
+
+    # Set pane.
+    def set_pane pane = default_pane
       case pane
       when Class
-        pane = pane.new
-        update_pane pane
-        pane.service.set(*a, **ka, &b)
+        set_pane pane.new
       when String
-        bc = set_pane default_pane
-        bc.set{ eval File.read pane }
-        bc.window.set *a, **ka
-        bc.set &b
-      when nil
-        set_pane(default_pane, *a, **ka, &b)
+        pane_service = set_pane
+        pane_service.set{ eval File.read pane }
       when Pane
         update_pane pane
-        pane.service.set(*a, **ka, &b)
-      else # switch or other
-        set_pane default_pane, pane, *a, **ka, &b
+        pane.service
+      else raise_ia pane
       end
     end
 
@@ -383,7 +381,7 @@ module Kredki
       send_bundle :set_pane, param
     end
 
-    # Get current pane.
+    # Get pane.
     def pane
       @pane
     end
@@ -412,7 +410,7 @@ module Kredki
       [bounds.w, bounds.h]
     end
 
-    # Set update rate.
+    # Set fps limit.
     def set_fps_limit fps_limit = @fps_limit
       return set_fps_limit yield(@fps_limit) if block_given?
       return if @fps_limit == fps_limit
@@ -425,7 +423,7 @@ module Kredki
       send_bundle :set_fps_limit, param
     end
 
-    # Get update rate.
+    # Get fps limit.
     def fps_limit
       @fps_limit
     end
@@ -453,6 +451,7 @@ module Kredki
       @update_thread = nil
       @update_queue = Thread::Queue.new
       @update_timestamp = 0
+      @update_error = 0
       @fps_limit = 100
       @expose_timestamp = 0
       @pane = nil
@@ -516,7 +515,9 @@ module Kredki
     end
 
     def update_delay last, target
-      e = 3 * target - 2 * last
+      return target if last > 2 * target
+      @update_error += (target - last) * 0.01
+      e = target + @update_error
       e < 0 ? target : e
     end
 
@@ -529,7 +530,8 @@ module Kredki
           delay = (event.timestamp - @expose_timestamp) / 1000000000.0
           rate_delay = 1.0 / @fps_limit
           delay >= rate_delay
-        else true end
+        else true 
+        end
         if update
           @expose_timestamp = event.timestamp
           @pane&.report(event, ...)
@@ -549,7 +551,7 @@ module Kredki
     end
 
     def update_pane pane, &block
-      pane&.window&.set_pane nil
+      pane&.window&.update_pane nil
       pane&.window = self
       Pastele.window_set_scene @pointer, pane&.pointer
       update_paint pane if pane

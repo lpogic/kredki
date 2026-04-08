@@ -14,11 +14,12 @@ module Kredki
       case opened
       when Window
         window = opened
-        result = put_window(window).set_pane(*a, **ka, &b)
+        result = put_window(window).pane!.set(*a, **ka, &b)
         window.show unless hidden
       else
         window = default_window
-        result = put_window(window).set_pane(opened, *a, **ka, &b)
+        pane = opened || window.default_pane
+        result = put_window(window).set_pane(pane).set(*a, **ka, &b)
         window.show unless hidden
       end
       result
