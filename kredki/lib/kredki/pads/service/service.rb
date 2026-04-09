@@ -10,7 +10,7 @@ module Kredki
       extend ServiceInherited
       include ServiceFilter
 
-      # Get ancestors.
+      # Get lower services.
       def lower_iterator include_self = true
         Enumerator.new do |e|
           c = include_self ? self : lower
@@ -41,14 +41,14 @@ module Kredki
         window&.app
       end
 
-      # Get whether +ancestor+ contains self.
-      def in? ancestor
-        lower_iterator(false).include? ancestor
+      # Get whether +lower+ is lower service of +self+.
+      def in? lower
+        lower_iterator(false).include? lower
       end
 
-      # Get whether self contains +descedant+.
-      def include? descedant
-        descedant.in? self
+      # Get whether +upper+ is upper service of +self+.
+      def include? upper
+        upper.in? self
       end
      
       # Get lower service.
@@ -122,11 +122,6 @@ module Kredki
         @tags[tag]
       end
 
-      # See #tag.
-      def tag? tag
-        !!tag
-      end
-
       # Get tags.
       def tags
         @tags.keys
@@ -144,8 +139,8 @@ module Kredki
         case feature
         when Symbol
           set_tag feature
-          eval "#{feature} = WeakRef.new self" if feature.start_with? "$"
-          lower&.instance_variable_set feature, self if feature.start_with? "@"
+          # eval "#{feature} = WeakRef.new self" if feature.start_with? "$"
+          # lower&.instance_variable_set feature, self if feature.start_with? "@"
         when Hash
           set **feature
         when Array
@@ -186,8 +181,8 @@ module Kredki
         @services.map{|it| [it, it.service_tree] }.to_h
       end
 
-      def put klass, *a, at: nil, **ka, &b
-        service = klass.new
+      def put service_class, *a, at: nil, **ka, &b
+        service = service_class.new
         put_service service, at: at if at != false
         service.sketch_service
         service.set *a, **ka, &b
@@ -228,8 +223,8 @@ module Kredki
         @services.each{|it| it.update_lower self }
       end
 
-      def grand_detach
-        @services.each{ _1.grand_detach }
+      def lower_pad_detached
+        @services.each{ _1.lower_pad_detached }
       end
       
       def report event, path = false, instant = false

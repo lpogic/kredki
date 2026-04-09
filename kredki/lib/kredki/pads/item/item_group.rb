@@ -1,4 +1,4 @@
-require_relative 'y_item'
+require_relative 'item_y'
 
 module Kredki
   module Pads
@@ -7,7 +7,7 @@ module Kredki
 
       # Add new item.
       def item!(...)
-        put(YItem, :item!, ...)
+        put(ItemY, __method__, ...)
       end
       
       # :section: LEVEL 2
@@ -16,20 +16,27 @@ module Kredki
         pad.keyboard_request if find_upper(Item){|it| it.keyboard_in } != pad
       end
 
-      def update_selected_item item
-        case item
-        when :previous
-          items = each(Item).to_a 
-          index = items.index{|it| it.keyboard_in } || 1
-          index > 0 && (item = (0..index - 1).map{|i| items[index - 1 - i]}.find{|i| !i.in_disabled }) ? update_selected_item(item) : items[index]
-        when :next
-          items = each(Item).to_a 
-          index = items.index{|it| it.keyboard_in } || -1
-          index < items.length - 1 && (item = (index + 1..items.length - 1).map{|i| items[i]}.find{|i| !i.in_disabled }) ? update_selected_item(item) : items[index]
-        else
-          item&.keyboard_request
-          item
-        end
+      def select_next
+        items = each(Item).to_a 
+        index = items.index{|it| it.keyboard_in } || -1
+        return items[index] if index >= items.length - 1
+        item = (index + 1..items.length - 1).lazy.map{|i| items[i] }.find{|it| !it.in_disabled }
+        return items[index] if !item
+        select item
+      end
+
+      def select_previous
+        items = each(Item).to_a 
+        index = items.index{|it| it.keyboard_in } || 1
+        return items[index] if index <= 0
+        item = (0..index - 1).lazy.map{|i| items[index - 1 - i]}.find{|it| !it.in_disabled }
+        return items[index] if !item
+        select item
+      end
+
+      def select item
+        item&.keyboard_request
+        item
       end
 
     end#ItemGroup

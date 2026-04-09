@@ -28,7 +28,7 @@ module Kredki
       end
 
       # Get whether any text is selected.
-      def selection?
+      def any_selected
         @selection_min != @selection_max
       end
 

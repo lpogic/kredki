@@ -5,17 +5,17 @@ module Kredki
 
         # Add new item.
         def item!(...)
-          put(Item, :item!, ...)
+          put(Item, __method__, ...)
         end
 
         # :section: LEVEL 2
 
-        def selected_up_to pad
+        def select_up_to pad
           bound = 0
-          each_upper(Item).each_set do
-            bound += 1 if self == pad
-            bound += 1 if keyboard_in
-            set_selected if bound > 0
+          each_upper(Item).each do |it|
+            bound += 1 if it == pad
+            bound += 1 if it.keyboard_in
+            it.set_selected if bound > 0
             break if bound > 1
           end
         end
@@ -26,33 +26,46 @@ module Kredki
 
         def update_open
           hide_level = 0
-          each_upper(Item).each_set do
+          each_upper(Item).each do |it|
+            level = it.level
             if level <= hide_level
-              set_scenic
-              hide_level = open? ? level + 1 : level
+              it.set_scenic
+              hide_level = it.open ? level + 1 : level
             else
-              set_scenic false
+              it.set_scenic false
             end
           end
         end
 
-        def update_selected_item item
-          case item
-          when :previous, :next
-            kb = nil
-            each_upper(Item, reverse: item == :previous).each do |it|
-              if kb
-                return update_selected_item it if it.displayed
-              elsif it.keyboard_in
-                kb = it
-              end
+        def select_previous
+          kb = nil
+          each_upper(Item, reverse: true).each do |it|
+            if kb
+              return select it if it.displayed
+            elsif it.keyboard_in
+              kb = it
             end
-            return update_selected_item kb if kb
-            find_upper(Item){|it| it.displayed }&.then{|it| update_selected_item it }
-          else
-            item&.keyboard_request
-            item
           end
+          return select kb if kb
+          find_upper(Item){|it| it.displayed }&.then{|it| select it }
+        end
+
+        def select_next
+          kb = nil
+          each_upper(Item).each do |it|
+            if kb
+              return select it if it.displayed
+            elsif it.keyboard_in
+              kb = it
+            end
+          end
+          return select kb if kb
+          find_upper(Item){|it| it.displayed }&.then{|it| select it }
+        end
+
+        def select item
+          item&.keyboard_request
+          item
         end
       end#ItemGroup
     end#Tree

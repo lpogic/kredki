@@ -18,10 +18,10 @@ module Kredki
     attr :reactions
 
     def report event
-      @reactions.reverse_each{|it| it.call event }
+      @reactions.each{|it| it.call event }
     end
 
-    def attach attached = nil, always: false, last: false, &block
+    def attach attached = nil, always: false, at: true, &block
       attached ||= block
       reaction = case attached
       when Proc
@@ -30,14 +30,20 @@ module Kredki
         MethodEventReaction.new attached, self, always
       when Job
         JobEventReaction.new attached, self, always
-      when BlockEventReaction, MethodEventReaction, JobEventReaction
+      when EventReaction
         attached.attach self, always
       else raise_is attached
       end
-      if last
+      case at
+      when true
         @reactions.prepend reaction
-      else
+      when Integer
+        @reactions.insert at, service
+      when EventReaction
+        @reactions.insert @reactions.index(at), service
+      when :last
         @reactions.append reaction
+      else raise_ia at
       end
       reaction
     end

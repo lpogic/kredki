@@ -15,14 +15,14 @@ module Kredki
           find(ItemGroup).item!(...)
         end
 
-        # Create and attach item pick event reaction.
-        def on_pick ...
-          on(Item::PickEvent, ...)
+        # Create and attach item select event reaction.
+        def on_select ...
+          on(Item::SelectEvent, ...)
         end
 
-        # See #on_pick.
-        def on_pick= param
-          on_pick do: param
+        # See #on_select.
+        def on_select= param
+          on_select do: param
         end
 
         # :section: LEVEL 2
@@ -40,7 +40,7 @@ module Kredki
         def behavior
           super
 
-          on_pick do |e|
+          on_select do |e|
             keyboard_dispose unless e.target.find_upper Context::Item
           end
         end

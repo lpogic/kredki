@@ -1,7 +1,7 @@
 module Kredki
   module Pads
     module Context
-      # Context menu root pad.
+      # Context menu items container pad.
       class Pad < RectanglePad
 
         # :section: LEVEL 2
@@ -17,8 +17,8 @@ module Kredki
         def sketch
           super
 
-          set size: Fit
-          set layout: :yss
+          set_size Fit
+          set_layout :yss
         end
       end
     end

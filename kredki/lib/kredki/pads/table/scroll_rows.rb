@@ -6,16 +6,16 @@ module Kredki
         def fit_size_x
           fit = super
           if lower_pad.pads.last == self
-            yslide = find_lower(ScrollRows)&.yslide
-            fit += yslide.get_size_x + lower_pad.margin_xe if yslide.displayed
+            slider_y = find_lower(ScrollRows)&.slider_y
+            fit += slider_y.get_size_x + lower_pad.margin_xe if slider_y.displayed
           end
           fit
         end
 
         def update_size x, y
           if lower_pad.pads.last == self
-            yslide = find_lower(ScrollRows)&.yslide
-            return super(x - yslide.get_size_x - lower_pad.margin_xe, y) if yslide.displayed
+            slider_y = find_lower(ScrollRows)&.slider_y
+            return super(x - slider_y.get_size_x - lower_pad.margin_xe, y) if slider_y.displayed
           end
           super
         end
@@ -23,7 +23,7 @@ module Kredki
 
       class ScrollRow < Row
         def cell! ...
-          put(ScrollCell, :cell!, ...)
+          put(ScrollCell, __method__, ...)
         end
       end
 
@@ -32,7 +32,7 @@ module Kredki
 
         # Add new row.
         def row! ...
-          put(ScrollRow, :row!, lower.row, ...)
+          put(ScrollRow, __method__, lower.row, ...)
         end
 
         # :section: LEVEL 2

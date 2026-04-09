@@ -11,33 +11,37 @@ module Kredki
           @item_group.item! *a, size_x: 1r, **ka, &b
         end
         
-        # Create and attach pick event reaction.
-        def on_pick ...
-          on(Item::PickEvent, ...)
+        # Create and attach select event reaction.
+        def on_select ...
+          on(Item::SelectEvent, ...)
         end
 
-        # See #on_pick.
-        def on_pick= param
-          on_pick do: param
+        # See #on_select.
+        def on_select= param
+          on_select do: param
         end
 
         # :section: LEVEL 2
 
+        def initialize
+          super
+
+          @item_group = put ItemGroup
+        end
+
         def sketch
           super
 
-          set keyboardy: true
-          set fill: :gray
-          set layout: :yss
-          set size_y: Fit
-
-          @item_group = put ItemGroup
+          set_keyboardy true
+          set_fill :gray
+          set_layout :yss
+          set_size_y Fit
         end
 
         def behavior
           super
 
-          on Item::PickEvent do |e|
+          on Item::SelectEvent do |e|
             item = e.target
             kb = Kredki.keyboard
             if kb.shift?
@@ -45,7 +49,7 @@ module Kredki
             elsif kb.ctrl?
               item.set_selected Not
             else
-              each_upper(Item).each_set{|it| set_selected it == item }
+              each_upper(Item).each{|it| it.set_selected it == item }
             end
           end
 

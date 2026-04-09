@@ -1,9 +1,9 @@
-require_relative '../item/x_item'
+require_relative '../item/item_x'
 
 module Kredki
   module Pads
     module Toolbar
-      class Item < Pads::XItem
+      class Item < Pads::ItemX
 
         # Add submenu item.
         def item!(...)
@@ -40,11 +40,6 @@ module Kredki
         # Get whether is directory.
         def dir
           @dir
-        end
-
-        # See #dir.
-        def dir?
-          !!dir
         end
 
         # :section: LEVEL 2

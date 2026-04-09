@@ -12,14 +12,14 @@ module Kredki
           @item_group.item! *a, size_x: 1r, **ka, &b
         end
 
-        # Create and attach pick event reaction.
-        def on_pick ...
-          on(Item::PickEvent, ...)
+        # Create and attach select event reaction.
+        def on_select ...
+          on(Item::SelectEvent, ...)
         end
 
-        # See #on_pick.
-        def on_pick= param
-          on_pick do: param
+        # See #on_select.
+        def on_select= param
+          on_select do: param
         end
 
         # :section: LEVEL 2
@@ -37,15 +37,15 @@ module Kredki
         def behavior
           super
 
-          on Item::PickEvent do |it|
+          on Item::SelectEvent do |it|
             item = it.target
             source = it.source
-            if source.is_a? KeyEvent
+            if source.is_a? KeyClickEvent
               if source.key.id == :enter
                 item.set_open Not
               else
                 if source.shift?
-                  item.set_select Not
+                  item.set_selected Not
                 else
                   each_upper(Item).each_set{|it| set_selected it == item }
                 end
@@ -61,7 +61,7 @@ module Kredki
               elsif kb.ctrl?
                 item.set_selected Not
               else
-                each_upper(Item).each_set{|it| set_selected it == item }
+                each_upper(Item).each{|it| it.set_selected it == item }
                 item.set_open Not
               end
             end

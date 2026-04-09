@@ -1,7 +1,7 @@
 module Kredki
   module Pads
     # A base class for controls that allows you to set a value by dragging a handle.
-    class Slide < RectanglePad
+    class Slider < RectanglePad
 
       class EditEvent < Event
         def initialize value, ...
@@ -139,82 +139,6 @@ module Kredki
           @handle.start_drag e.xy, e.button.id
           e.close
         end
-      end
-    end
-
-    # A control that allows you to set a value by dragging a handle horizontally.
-    class HorizontalSlide < Slide
-
-      # :section: LEVEL 2
-
-      def process_drag e, speed = 1
-        hsx = @handle.area_size_x
-        max_x = area_size_x - hsx
-        @c0 = @handle.sx if e.start?
-        start_x = layer.pin_xy[0]
-        x = [[0, @c0 + (e.x - start_x) * speed].max, max_x].min
-        report EditEvent.new(1.0 * x / max_x, e) if max_x > 0
-      end
-
-      def sketch
-        super
-
-        set_size_y 10
-      end
-
-      def behavior
-        super
-
-        on_mouse_press :primary do |e|
-          @handle.start_drag @handle.translate(@handle.area_size_x * 0.5, 0), :primary
-          e.close
-        end
-      end
-
-      def arrange request_size_x = nil
-        csx = clip_size_x
-        request_size_x ||= 3 * csx
-        size_x = (csx.to_f / request_size_x * csx).clamp 20, [csx - 20, 20].max
-        @handle.update_size size_x, area_size_y
-        @handle.update_xy ((csx - size_x) * @value.to_f.then{|it| it.nan? ? 0 : it.clamp(0..1) }).ceil, 0
-      end
-    end
-
-    # A control that allows you to set a value by dragging a handle vertically.
-    class VerticalSlide < Slide
-
-      # :section: LEVEL 2
-
-      def process_drag e, speed = 1
-        hsy = @handle.area_size_y
-        max_y = area_size_y - hsy
-        @c0 = @handle.sy if e.start?
-        start_y = layer.pin_xy[1]
-        y = [[0, @c0 + (e.y - start_y) * speed].max, max_y].min
-        report EditEvent.new(1.0 * y / max_y, e) if max_y > 0
-      end
-
-      def sketch
-        super
-
-        set_size_x 10
-      end
-
-      def behavior
-        super
-
-        on_mouse_press :primary do |e|
-          @handle.start_drag @handle.translate(0, @handle.area_size_x * 0.5), :primary
-          e.close
-        end
-      end
-
-      def arrange request_size_y = nil
-        csy = clip_size_y
-        request_size_y ||= 3 * csy
-        size_y = (csy.to_f / request_size_y * csy).clamp 20, [csy - 20, 20].max
-        @handle.update_size area_size_x, size_y
-        @handle.update_xy 0, ((csy - size_y) * @value.to_f.then{|it| it.nan? ? 0 : it.clamp(0..1) }).ceil
       end
     end
   end

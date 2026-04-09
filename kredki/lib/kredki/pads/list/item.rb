@@ -2,7 +2,7 @@ module Kredki
   module Pads
     module List
       # List item model.
-      class Item < YItem
+      class Item < ItemY
 
         # Set whether is selected.
         def set_selected value = true, &block
@@ -84,7 +84,7 @@ module Kredki
 
           on_key_press :up do |e|
             set_selected if e.shift?
-            item = lower.update_selected_item(:previous)
+            item = lower.select_previous
             if item
               item.set_selected if e.shift?
               item.request_vision
@@ -94,7 +94,7 @@ module Kredki
 
           on_key_press :down do |e|
             set_selected if e.shift?
-            item = lower.update_selected_item(:next)
+            item = lower.select_next
             if item
               item.set_selected if e.shift?
               item.request_vision
@@ -107,7 +107,7 @@ module Kredki
         end
 
         def mouse_press e
-          lower.selected_up_to self if Kredki.keyboard.mod_pass? shift: true
+          lower.select_up_to self if Kredki.keyboard.mod_pass? shift: true
           super
         end
 

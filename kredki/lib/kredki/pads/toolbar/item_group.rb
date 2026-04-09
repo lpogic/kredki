@@ -8,7 +8,7 @@ module Kredki
 
         # Add menu item.
         def item! *a, **ka, &b
-          put Item, :item!, *a, size_x: Fit, **ka, &b
+          put Item, __method__, *a, size_x: Fit, **ka, &b
         end
 
         # :section: LEVEL 2

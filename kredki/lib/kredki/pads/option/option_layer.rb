@@ -12,7 +12,7 @@ module Kredki
 
       # :section: LEVEL 2
 
-      def sketch
+      def initialize
         super
 
         @scroll = put ScrollPad, layout: :yss do
@@ -20,12 +20,6 @@ module Kredki
         end
         @pad = @scroll.put RectanglePad, fill: :gray, layout: :yss, size_y: Fit
         @item_group = @pad.put ItemGroup
-      end
-
-      def behavior
-        on Item::PickEvent do |e|
-          lower.report e
-        end
       end
 
       def arrange

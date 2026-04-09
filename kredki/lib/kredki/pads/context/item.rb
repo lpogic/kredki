@@ -1,9 +1,9 @@
-require_relative '../item/y_item'
+require_relative '../item/item_y'
 
 module Kredki
   module Pads
     module Context
-      class Item < YItem
+      class Item < ItemY
 
         # Add new item.
         def item!(...)
@@ -12,10 +12,7 @@ module Kredki
 
         # Create/Update dropdown layer.
         def dropdown! ...
-          find SecondaryLayer or begin
-            find(:end_icon).set_scenic
-            put SecondaryLayer
-          end.set(...)
+          (find SecondaryLayer or dropdown_enable).set(...)
         end
 
         # :section: LEVEL 2
@@ -23,25 +20,16 @@ module Kredki
         def initialize
           super
           
-          put SpacePad, size: [:y, 1r]
-          put TextPad, "", mousy: false
-          put RectanglePad, :end_icon, mousy: false, keyboardy: false, fill: 0, x: End, size: [:y, 1r] do
-            set_stroke fill: :text, width: 2, cap: :round
-            set_area do |sx, sy|
-              jump sx * 0.5, sy * 0.35
-              line sx * 0.65, sy * 0.5
-              line sx * 0.5, sy * 0.65
-            end
-            set_scenic false
-          end
+          @start = put SpacePad, size: [:y, 1r]
+          @end = put SpacePad, size: [:y, 1r], x: End
         end
 
         def behavior
           super
 
           on_key_press :right do |e|
-            if layer = find_upper SecondaryLayer
-              layer.load self if layer.loaded
+            if layer = find SecondaryLayer
+              layer.load self
               layer.find_upper(Item)&.keyboard_request and e.close
             end
           end
@@ -50,8 +38,24 @@ module Kredki
 
         def mouse_enter e
           super
-          layer = find_upper SecondaryLayer
+          layer = find SecondaryLayer
           layer.update_keyboard_pad nil if layer&.loaded
+        end
+
+        def dropdown_enable
+          @end.put RectanglePad, mousy: false, keyboardy: false, fill: 0, size: 1r do
+            set_stroke fill: :text, width: 2, cap: :round
+            set_area do |sx, sy|
+              jump sx * 0.5, sy * 0.35
+              line sx * 0.65, sy * 0.5
+              line sx * 0.5, sy * 0.65
+            end
+          end
+          put SecondaryLayer
+        end
+
+        def default_text text
+          put TextPad, text, mousy: false, at: 1
         end
         
       end#Item

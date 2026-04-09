@@ -1,4 +1,4 @@
-require_relative 'text/navigable_text'
+require_relative 'text/navigable_text_pad'
 require_relative 'portal_layer'
 
 module Kredki
@@ -28,8 +28,8 @@ module Kredki
       def << feature
         case feature
         when String
-          set_subject{|it| it || feature }
           text?&.set feature or super
+          self.subject ||= feature
         else
           super
         end

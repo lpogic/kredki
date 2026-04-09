@@ -33,59 +33,14 @@ module Kredki
           @context_layer.item_group.item!(...)
         end
 
-        # Create and attach pick event reaction.
-        def on_pick ...
-          on(Item::PickEvent, ...)
+        # Create and attach select event reaction.
+        def on_select ...
+          on(Item::SelectEvent, ...)
         end
 
-        # See #on_pick.
-        def on_pick= param
-          on_pick do: param
-        end
-
-        # Set primary pad size in the X axis.
-        def set_size_x ...
-          @context_layer.items.set_size_x(...)
-        end
-
-        # See #set_size_x.
-        def size_x= param
-          send_bundle :set_size_x, param
-        end
-
-        # Get primary pad size in the X axis.
-        def size_x
-          @context_layer.items.size_x
-        end
-
-        # Set primary pad size in the Y axis.
-        def set_size_y ...
-          @context_layer.items.set_size_y(...)
-        end
-
-        # See #set_size_y.
-        def size_y= param
-          send_bundle :set_size_y, param
-        end
-
-        # Get primary pad size in the Y axis.
-        def size_y
-          @context_layer.items.size_y
-        end
-
-        # Set primary pad size.
-        def set_size ...
-          @context_layer.items.set_size(...)
-        end
-
-        # See #set_size.
-        def size= param
-          send_bundle :set_size, param
-        end
-
-        # Get primary pad width and height.
-        def size
-          @context_layer.items.size
+        # See #on_select.
+        def on_select= param
+          on_select do: param
         end
 
         # :section: LEVEL 2

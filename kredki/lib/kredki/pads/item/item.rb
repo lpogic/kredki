@@ -34,22 +34,22 @@ module Kredki
         @suit
       end
 
-      # Create and attach pick event reaction.
-      def on_pick ...
-        on(PickEvent, ...)
+      # Create and attach select event reaction.
+      def on_select ...
+        on(SelectEvent, ...)
       end
 
-      # See #on_pick.
-      def on_pick= param
-        on_pick do: param
+      # See #on_select.
+      def on_select= param
+        on_select do: param
       end
 
       # Set a feature recognized by its class.
       def << feature
         case feature
         when String
-          set_subject feature
           find(TextPad)&.set feature or default_text feature
+          self.subject ||= feature
           self
         else
           super
@@ -58,7 +58,10 @@ module Kredki
       
       # :section: LEVEL 2
 
-      class PickEvent < Event
+      class SelectEvent < Event
+        def param
+          target.subject
+        end
       end
 
       def sketch
@@ -100,15 +103,15 @@ module Kredki
         super
 
         on_mouse_click :primary do |e|
-          report PickEvent.new e
+          report SelectEvent.new(e), lower_iterator.to_a.reverse
         end
 
         on_key :space, :enter do |e|
-          report PickEvent.new e
+          report SelectEvent.new(e), lower_iterator.to_a.reverse
           e.close
         end
 
-        on_pick do |e|
+        on_select do |e|
           e.close if in_disabled
         end
       end

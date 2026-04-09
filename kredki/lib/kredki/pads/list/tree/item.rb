@@ -4,7 +4,7 @@ module Kredki
       # Tree list item model.
       class Item < List::Item
 
-        # Add new item.
+        # Add new subitem.
         def item! *a, **ka, &b
           lower.item! *a, size_x: 1r, at: pad_index + 1, level: level + 1, **ka, &b
           set_dir
@@ -14,7 +14,7 @@ module Kredki
         def set_open value = true, &block
           return if (c = open) == (value = block ? block[c] : value == Not ? !c : value)
           @open = value
-          lower.update_open
+          lower&.update_open
           true
         end
 
@@ -26,11 +26,6 @@ module Kredki
         # Get whether is opened.
         def open
           @open || @open.nil?
-        end
-
-        # See #open.
-        def open?
-          !!open
         end
 
         # Set whether is directory.
@@ -48,11 +43,6 @@ module Kredki
         # Get whether is directory.
         def dir
           @dir
-        end
-
-        # See #dir.
-        def dir?
-          !!dir
         end
 
         # Set level.

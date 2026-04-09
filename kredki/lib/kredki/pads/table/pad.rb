@@ -91,9 +91,9 @@ module Kredki
         def sketch
           super 
 
-          set fill: false
-          set layout: :yss
-          set size_y: Fit
+          set_fill false
+          set_layout :yss
+          set_size_y Fit
         end
 
         def arrange

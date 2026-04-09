@@ -22,7 +22,7 @@ else
     set_resizable true
     set_text_input true
     pane.set_fill 20, 70, 20
-    pane.exit_on_esc
+    pane.close_on_esc
     set_title $0
   end
   MainLayer.carry_focus_on_tab

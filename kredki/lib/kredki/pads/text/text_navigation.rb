@@ -57,7 +57,7 @@ module Kredki
         end
 
         on_key_press :c do |e|
-          if e.ctrl? && text.selection?
+          if e.ctrl? && text.any_selected
             Kredki.clipboard.content = text.selected_content
             e.close
           end

@@ -445,7 +445,7 @@ module Kredki
         return send_bundle :set_mouse_cursor, yield(self.mouse_cursor) if block_given?
         return if @mouse_cursor == mouse_cursor
         @mouse_cursor = mouse_cursor
-        pane.mouse_stale = true
+        pane&.mouse_stale = true
         true
       end
 
@@ -902,7 +902,7 @@ module Kredki
         if @lower_pad
           @lower_pad.remove_pad self, transfer
           @lower_pad = nil
-          grand_detach
+          lower_pad_detached
         end
       end
 

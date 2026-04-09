@@ -8,7 +8,7 @@ module Kredki
         return send_bundle :set_subject, yield(self.subject) if block_given?
         return if @subject == subject && subject != :random
         if update_subject Kredki.glyph(subject)
-          update_color @color if @color
+          update_color if @fill
         end
         @subject = subject
         true
@@ -19,8 +19,8 @@ module Kredki
         return send_bundle :set_fill, yield(self.fill) if block_given?
         fill = Util.uncover fill
         return if @fill == fill && fill != :random
-        update_color Kredki.color fill
         @fill = fill
+        update_color
         true
       end
 
@@ -49,8 +49,8 @@ module Kredki
 
       def initialize ...
         super
+
         @fill = nil
-        @color = nil
       end
 
       def sketch
@@ -59,8 +59,8 @@ module Kredki
         set_size Kredki.text_size
       end
 
-      def update_color color
-        @color = color
+      def update_color
+        color = Kredki.color @fill
         @area.each_shape do |shape|
           Pastele.shape_set_fill_color shape.pointer, *color
         end

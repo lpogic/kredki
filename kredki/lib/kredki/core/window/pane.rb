@@ -44,14 +44,14 @@ module Kredki
     end
 
     def exit_on_esc
-      on_key_press :escape do |event|
-        app.return
+      on_key_press.attach at: :last do |event|
+        app.return if event.key.id == :escape
       end
     end
 
     def close_on_esc
-      on_key_press :escape do |event|
-        window.close
+      on_key_press.attach at: :last do |event|
+        window.close if event.key.id == :escape
       end
     end
 

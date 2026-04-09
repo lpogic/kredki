@@ -7,6 +7,7 @@ module Kredki
         on(ClickEvent, ...)
       end
 
+      # See #on_click=.
       def on_click= param
         on_click do: param
       end
@@ -53,8 +54,8 @@ module Kredki
       def << feature
         case feature
         when String
-          set_subject{|it| it || feature }
           text?&.set feature or super
+          self.subject ||= feature
         else
           super
         end

@@ -59,9 +59,9 @@ module Kredki
         end
 
         on_key_press :x do |e|
-          if e.ctrl? && (text.selection? || e.shift?)
+          if e.ctrl? && (text.any_selected || e.shift?)
             s = e.shift? ? clipboard.content : ""
-            Kredki.clipboard.content = text.selected_content if text.selection?
+            Kredki.clipboard.content = text.selected_content if text.any_selected
             text.paste s
             e.close
           end

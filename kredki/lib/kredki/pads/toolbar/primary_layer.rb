@@ -22,7 +22,7 @@ module Kredki
         def behavior
           super
 
-          on Item::PickEvent do |e|
+          on Item::SelectEvent do |e|
             if e.target.find_upper Item
               e.close
             else

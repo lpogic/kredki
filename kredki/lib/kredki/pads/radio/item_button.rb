@@ -40,17 +40,16 @@ module Kredki
           @selected
         end
 
-        # See #selected.
-        def selected?
-          !!selected
-        end
-
         class SelectEvent < Event
           def initialize value
             @value = value
           end
 
-          attr_accessor :value
+          attr :value
+
+          def param
+            @target.subject
+          end
         end
 
         def on_select ...
@@ -66,22 +65,19 @@ module Kredki
         def initialize
           super
           
-          @check = put ShapePad, mousy: false, keyboardy: false, fill: :text, size: 1r do
-            set_area @scene.new_ellipse
-            set_scenic false
-          end
+          @check = default_check 
         end
 
         def sketch
           super
 
-          set area: @scene.new_ellipse
-          set keyboardy: true
-          set stroke_width: 1
-          set layout: :zcc
-          set size: 16
-          set margin: 3
-          set suit: :gray
+          set_area @scene.new_ellipse
+          set_keyboardy true
+          set_stroke_width 1
+          set_layout :zcc
+          set_size 16
+          set_margin 3
+          set_suit :gray
         end
 
         def presence
@@ -133,6 +129,14 @@ module Kredki
           @selected = selected
           @check.set_scenic selected
         end
+
+        def default_check
+          put ShapePad, mousy: false, keyboardy: false, fill: :text, size: 1r do
+            set_area @scene.new_ellipse
+            set_scenic false
+          end
+        end
+
       end
     end
   end

@@ -6,7 +6,7 @@ module Kredki
 
         # Add new cell.
         def cell! ...
-          put(Cell, :cell!, ...)
+          put(Cell, __method__, ...)
         end
 
         # :section: LEVEL 2

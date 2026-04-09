@@ -25,12 +25,10 @@ module Kredki
         def behavior
           super
           
-          on Item::PickEvent do |e|
-            if e.target.find_upper Item
+          on_key_press :left do |e|
+            if loaded
+              unload
               e.close
-            else
-              lower.report e
-              pad_detach
             end
           end
         end
@@ -46,19 +44,12 @@ module Kredki
             focus_leave = lower.on_focus_leave do |e|
               unload if loaded
             end
-            
-            left_key_press = on_key_press :left do |e|
-              if loaded
-                unload
-                e.close
-              end
-            end
 
-            @lower_events = [focus_enter, focus_leave, left_key_press]
+            @lower_events = [focus_enter, focus_leave]
           end
         end
 
-        def grand_detach
+        def lower_pad_detached
           super
           unload if loaded
         end

@@ -13,13 +13,15 @@ require 'kredki/pads/pad/picture_pad'
 require 'kredki/pads/pad/glyph_pad'
 require 'kredki/pads/pad/text_pad'
 require 'kredki/pads/pad/animation_pad'
-require 'kredki/pads/slide'
+require 'kredki/pads/slider/slider'
+require 'kredki/pads/slider/slider_x'
+require 'kredki/pads/slider/slider_y'
 require 'kredki/pads/pad/scroll_pad'
-require 'kredki/pads/text/navigable_text'
+require 'kredki/pads/text/navigable_text_pad'
 require 'kredki/pads/note'
 require 'kredki/pads/notes'
 require 'kredki/pads/button'
-require 'kredki/pads/check/check'
+require 'kredki/pads/checkbox/checkbox'
 require 'kredki/pads/radio/group'
 require 'kredki/pads/label'
 require 'kredki/pads/option/option'
@@ -62,10 +64,10 @@ module Kredki
         put NavigableTextPad, __method__, *a, keyboardy: true, **ka, &b
       end
       glyph! GlyphPad
-      slider_x! HorizontalSlide
-      slider_y! VerticalSlide
+      slider_x! SliderX
+      slider_y! SliderY
       button! Button
-      checkbox! Check
+      checkbox! Checkbox
       note! Note
       notes! Notes
       label! Label

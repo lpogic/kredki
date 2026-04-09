@@ -20,15 +20,7 @@ module Kredki
         def behavior
           super
 
-          on Item::PickEvent, early: true do |e|
-            if e.target.find_upper Item
-              e.close
-            else
-              pad_detach
-            end
-          end
-
-          on_key :escape do |e|
+          on_key_press :escape do |e|
             pad_detach
             e.close
           end

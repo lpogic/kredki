@@ -12,7 +12,7 @@ module Kredki
       end
 
       def backspace
-        if selection?
+        if any_selected
           new_content = content_after_edit "", @selection_min, @selection_max
           report TextEdition::EditEvent.new @selection_min, @selection_max, new_content, "", :backspace
         elsif @cursor_position > 0
@@ -23,7 +23,7 @@ module Kredki
 
       def delete
         length = subject.length
-        if selection?
+        if any_selected
           new_content = content_after_edit "", @selection_min, @selection_max
           report TextEdition::EditEvent.new @selection_min, @selection_max, new_content, "", :delete
         elsif @cursor_position < length
@@ -45,13 +45,13 @@ module Kredki
       end
 
       def content_after_edit inset, from, to
-        txt = text
-        txt = if txt == ""
+        string = text
+        if string == ""
           inset
-        elsif to < txt.length
-          txt[...from] + inset + txt[to..]
+        elsif to < string.length
+          string[...from] + inset + string[to..]
         else
-          txt[...from] + inset
+          string[...from] + inset
         end
       end
     end

@@ -20,7 +20,7 @@ module Kredki
         def initialize
           super
 
-          @items = put Pad, stroke: [1, :dark_gray], margin: 1 do
+          @items = put Pad, fill: :dark_gray, margin: 1 do
             # scene.drop_shadow color: :black # this is too expensive at the moment
           end
           @item_group = @items.put ItemGroup
@@ -37,6 +37,14 @@ module Kredki
 
           on_key :up, :down do |e|
             e.close
+          end
+
+          on Item::SelectEvent do |e|
+            if e.target.find_upper Item
+              e.close
+            else
+              pad_detach
+            end
           end
         end
 

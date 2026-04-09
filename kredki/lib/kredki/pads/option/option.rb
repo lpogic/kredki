@@ -3,13 +3,8 @@ require_relative 'option_layer'
 
 module Kredki
   module Pads
-    # Control to pick option from list.
+    # Control to select option from list.
     class Option < Pad
-
-      # Get picked option value.
-      def picked
-        @picked
-      end
 
       # Add new item.
       def item! ...
@@ -18,7 +13,7 @@ module Kredki
 
       # Create/Update dropdown.
       def dropdown! ...
-        @dropdown ||= put OptionLayer
+        @dropdown ||= default_dropdown_layer
         @dropdown.set(...)
       end
 
@@ -27,14 +22,14 @@ module Kredki
         @dropdown
       end
 
-      # Create and attach pick event reaction.
-      def on_pick ...
-        on(Item::PickEvent, ...)
+      # Create and attach select event reaction.
+      def on_select ...
+        on(Item::SelectEvent, ...)
       end
 
-      # See #on_pick.
-      def on_pick= param
-        on_pick do: param
+      # See #on_select.
+      def on_select= param
+        on_select do: param
       end
 
       # :section: LEVEL 2
@@ -42,28 +37,14 @@ module Kredki
       def initialize
         super
 
-        @picked = nil
+        @note = put Note, size: 1r
+        @arrow = default_arrow_button
       end
 
       def sketch
         super
-
-        @note = put Note
-        @arrow = @note.put Button, size: [20, 1r] do
-          set stroke_width: 0
-          set keyboardy: false
-          put RectanglePad, mousy: false, keyboardy: false, fill: 0, size: 1r do
-            set_stroke fill: :text, width: 2, cap: :round
-            set_area do |sx, sy|
-              jump sx * 0.2, sy * 0.35
-              line sx * 0.5, sy * 0.65
-              line sx * 0.8, sy * 0.35
-            end
-          end
-        end
-
+        
         set_size_y 24
-        @note.set_size 1r
         dropdown!
       end
 
@@ -72,15 +53,11 @@ module Kredki
 
         on_key :enter do |e|
           if @dropdown.loaded
-            item?(keyboard_in: true)&.report Item::PickEvent.new e
+            item?(keyboard_in: true)&.report Item::SelectEvent.new e
           else
             @dropdown.load self
           end
         end
-
-        # Event.each on_move, on_resize do |e|
-        #   @dropdown.break_layout
-        # end
 
         on_mouse_click :primary do
           @dropdown.load self unless @dropdown.loaded
@@ -101,9 +78,10 @@ module Kredki
           end
         end
 
-        on_pick do |e|
+        on_select do |e|
           @dropdown.unload
           subject = e.target.find_upper(TextPad).subject
+          set_subject subject
           @note.set_text subject
           @note.verse.update_cursor subject.to_s.length
         end
@@ -115,6 +93,25 @@ module Kredki
 
         on_focus_leave do
           @dropdown.unload
+        end
+      end
+
+      def default_dropdown_layer
+        put OptionLayer
+      end
+
+      def default_arrow_button
+        @note.put Button, size: [20, 1r] do
+          set stroke_width: 0
+          set keyboardy: false
+          put RectanglePad, mousy: false, keyboardy: false, fill: 0, size: 1r do
+            set_stroke fill: :text, width: 2, cap: :round
+            set_area do |sx, sy|
+              jump sx * 0.2, sy * 0.35
+              line sx * 0.5, sy * 0.65
+              line sx * 0.8, sy * 0.35
+            end
+          end
         end
       end
     end

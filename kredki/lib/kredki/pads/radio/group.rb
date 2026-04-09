@@ -9,7 +9,7 @@ module Kredki
 
         # Add new radio item.
         def item! ...
-          put(Item, :item!, ...)
+          put(Item, __method__, ...)
         end
 
         # :section: LEVEL 2

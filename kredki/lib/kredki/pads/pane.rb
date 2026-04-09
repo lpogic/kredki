@@ -8,7 +8,7 @@ module Kredki
       
       # Add new layer.
       def layer! ...
-        put(Layer, ...)
+        put(Layer, __method__, ...)
       end
 
       # Match self with +filter+.
@@ -238,25 +238,6 @@ module Kredki
       def layers
         @services
       end
-
-      # def put_pad pad
-      #   pad.update_lower self
-      #   push_layer pad
-      # end
-
-      # def push_layer layer
-      #   return if layer.lower_pad == self
-      #   layer.pane&.remove_pad layer
-      #   put_paint layer.scene
-      #   layer.pad_attach self
-      #   sx, sy = window.size
-      #   layer.update_xy 0, 0
-      #   layer.set_size sx, sy
-      #   layer.update_size sx, sy
-      #   @services << layer
-      #   @mouse_stale = true
-      #   layer
-      # end
 
       def remove_upper upper, transfer = false
         @services.delete upper

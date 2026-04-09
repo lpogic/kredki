@@ -177,10 +177,10 @@ module Kredki
       def sketch
         super
 
-        set size: Fit
-        set verse_layout: :ysc
-        set verse_size: Kredki.text_size
-        set subject: "TEXT"
+        set_size Fit
+        set_verse_layout :ysc
+        set_verse_size Kredki.text_size
+        set_subject "TEXT"
       end
 
       def update_subject subject
