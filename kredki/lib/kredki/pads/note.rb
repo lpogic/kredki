@@ -1,10 +1,12 @@
 require_relative 'text/editable_text_verse'
+require_relative 'suit_parameter'
 
 module Kredki
   module Pads
     # Control with text entry.
     class Note < RectanglePad
       include TextEdition
+      include SuitParameter
 
       # Set text content.
       def set_text text = ""
@@ -124,19 +126,13 @@ module Kredki
       def initialize
         super
       
-        @verse = nil
+        @verse = default_verse
       end
 
       attr :verse
 
-      def initialize_verse
-        @verse = put EditableTextVerse, "", size_x: 1r, mousy: false, verse_size: Kredki.text_size
-      end
-
       def sketch
         super
-
-        initialize_verse
 
         set_layout NoteLayout.new(Start, Center)
         set_mousy
@@ -208,6 +204,10 @@ module Kredki
           area.set_stroke_fill kb_top ? :stroke_focus : color
         end
         verse.selection.each_paint{|it| it.set_fill kb_top ? :text_selection : :text_selection_inactive }
+      end
+
+      def default_verse
+        put EditableTextVerse, "", size_x: 1r, mousy: false, verse_size: Kredki.text_size
       end
     end
   end

@@ -1,6 +1,6 @@
 .vscode
 kredki/*.gem
-kredki/test/tmp
+kredki/test/output
 pastele/CMakeLists.txt
 pastele/cmaked
 sketch

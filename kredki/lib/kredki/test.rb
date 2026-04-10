@@ -15,7 +15,8 @@ module Kredki
     end
 
     def assert_png
-      path = "#{Kredki.dir}/test/tmp/#{self.class}_#{name}.png"
+      local_path = dir.delete_prefix("#{Kredki.dir}/test/").gsub("/", "__")
+      path = "#{Kredki.dir}/test/output/#{local_path}__#{name}.png"
       @layer.window.to_png path
       expected = File.expand_path "#{dir}/#{name}.png"
       of = File.new path, "rb"

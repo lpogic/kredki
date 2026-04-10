@@ -18,14 +18,14 @@ class HelloTest < Kredki::Test
   end
 
   def test_enter
-    window.set_size 400, 250
+    window.set_size 400, 150
     set layout: :xcc, spacer: 10
 
     label! "Enter name:"
     note! size_x: 100, text: "world"
     button! "Submit", suit: :orange do
       on_click do
-        puts "Hello #{ note?.text }!"
+        puts "Hello #{ pane.note?.text }!"
       end
     end
 
@@ -35,7 +35,7 @@ class HelloTest < Kredki::Test
   def test_decision
     ysc! size_x: 100 do
       radio! do
-        item! "yes", checked: true
+        item! "yes", selected: true
         item! "no"
         item! "perhaps"
       end
@@ -43,7 +43,7 @@ class HelloTest < Kredki::Test
       button! "Submit", size_x: 1r
     end
 
-    button?.on_click{ app.return item?(checked: true).subject }
+    button?.on_click{ app.return item?(selected: true).subject }
 
     assert_png
   end

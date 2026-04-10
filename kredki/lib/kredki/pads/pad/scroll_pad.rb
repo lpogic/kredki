@@ -157,8 +157,8 @@ module Kredki
           end
           
           ps.each do |p1|
-            px = p1.x == Auto ? p1.sx + pad_x : p1.sx
-            py = p1.y == Auto ? p1.sy + pad_y : p1.sy
+            px = p1.x == Auto ? p1.area_x + pad_x : p1.area_x
+            py = p1.y == Auto ? p1.area_y + pad_y : p1.area_y
             p1.update_xy px.ceil, py.ceil
           end
           if @corner.scenic = xscroll && yscroll

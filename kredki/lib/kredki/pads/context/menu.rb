@@ -62,7 +62,7 @@ module Kredki
             end
       
             context_key = lower.on_key :context do |e|
-              @context_layer.load *lower.translate(lower.sx / 2, lower.sy / 2)
+              @context_layer.load *lower.translate(lower.area_x / 2, lower.area_y / 2)
               @context_layer.find_upper(Item)&.keyboard_request
               e.close
             end

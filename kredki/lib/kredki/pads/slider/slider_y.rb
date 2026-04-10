@@ -8,7 +8,7 @@ module Kredki
       def process_drag e, speed = 1
         hsy = @handle.area_size_y
         max_y = area_size_y - hsy
-        @c0 = @handle.sy if e.start?
+        @c0 = @handle.area_y if e.start?
         start_y = layer.pin_xy[1]
         y = [[0, @c0 + (e.y - start_y) * speed].max, max_y].min
         report EditEvent.new(1.0 * y / max_y, e) if max_y > 0

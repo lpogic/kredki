@@ -142,12 +142,12 @@ module Kredki
       def get_x clip_size, size, ax
         if @cursor.displayed
           cx = @cursor.x + @cursor.size_x
-          if sx + cx > size
+          if area_x + cx > size
             size - cx - @cursor.size_x / 2
-          elsif sx + @cursor.x < 0
+          elsif area_x + @cursor.x < 0
             @cursor.size_x / 2 - @cursor.x
           else
-            sx
+            area_x
           end
         else
           super
@@ -157,12 +157,12 @@ module Kredki
       def get_y clip_size, size, ay
         if @cursor.displayed
           cy = cursor.y + cursor.size_y
-          if sy + cy > size
+          if area_y + cy > size
             size - cy
-          elsif sy + cursor.y < 0
+          elsif area_y + cursor.y < 0
             -cursor.y
           else
-            sy
+            area_y
           end
         else
           super

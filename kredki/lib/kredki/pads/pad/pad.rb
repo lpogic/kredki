@@ -828,16 +828,16 @@ module Kredki
       def update_subject subject
       end
 
-      def sx
+      def area_x
         @scene.x
       end
 
-      def sy
+      def area_y
         @scene.y
       end
 
-      def sxy
-        [sx, sy]
+      def area_xy
+        [area_x, area_y]
       end
 
       def area_size_x
@@ -852,16 +852,16 @@ module Kredki
         [area_size_x, area_size_y]
       end
 
-      def cx
+      def clip_x
         @clip_scene.x
       end
 
-      def cy
+      def clip_y
         @clip_scene.y
       end
 
-      def cxy
-        [cx, cy]
+      def clip_xy
+        [clip_x, clip_y]
       end
       
       def clip_size_x
@@ -1215,7 +1215,7 @@ module Kredki
           pads << self
           x -= @clip_scene.x
           y -= @clip_scene.y
-          @pads.reverse_each.find{ _1.point_pads x - _1.sx, y - _1.sy, pads }
+          @pads.reverse_each.find{ _1.point_pads x - _1.area_x, y - _1.area_y, pads }
           return true
         end
         return false
@@ -1254,11 +1254,11 @@ module Kredki
         case target
         when self
         when nil
-          return lower.translate x + sx, y + sy, false if lower
+          return lower.translate x + area_x, y + area_y, false if lower
         when false
-          return lower.translate x + sx + cx, y + sy + cy, false if lower
+          return lower.translate x + area_x + clip_x, y + area_y + clip_y, false if lower
         else
-          xy = lower.translate x + sx + cx, y + sy + cy
+          xy = lower.translate x + area_x + clip_x, y + area_y + clip_y
           xy = target.translate -xy[0], -xy[1]
           return [-xy[0], -xy[1]]
         end

@@ -15,16 +15,16 @@ module Kredki
         set_verse_layout :yss
       end
 
-      def initialize_verse
-        @verse = put EditableTextVerses, size: 1r, mousy: false
-      end
-
       def sketch_verse
         text_edition @verse, true
       end
 
       def mouse_scroll event
         @verse.scroll *Kredki.relative_scroll(*event.xy)
+      end
+
+      def default_verse
+        put EditableTextVerses, size: 1r, mousy: false
       end
 
     end

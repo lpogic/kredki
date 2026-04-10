@@ -5,9 +5,9 @@ Vector graphics & GUI toolkit for [Ruby](https://www.ruby-lang.org/). For creati
 ## How it works:
 
 The project is based on the [ThorVG](https://www.thorvg.org/) library for rendering and the [SDL](https://www.libsdl.org/) library for connecting with hardware and operating system. Main features:
-- no template languages, no style sheets - everything is written in Ruby
-- redraws after scene changes only - saves computing power
+- created from scratch and deeply integrated with [Ruby](https://www.ruby-lang.org/)
 - high level, object oriented API
+- configurable and extendible
 
 ## Installation:
 
@@ -27,16 +27,12 @@ rake install
 
 ## Usage:
 
-<table><tr><th>
-Code
-</th><th>
-Output
-</th></tr><tr><td>
+Code:
 
 ```RUBY
 require 'kredki'
 
-window.size! 400, 200
+window.set_size 400, 200
 
 ellipse! xy: 50, size: 100, fill: :red
 rectangle! x: 150, y: 50, size: 100, fill: :green
@@ -47,14 +43,18 @@ shape! x: 250, y: 50, size: 100, fill: :blue do |sx, sy|
 end
 ```
 
-</td><td>
+Output:
+
 <img src="./.github/shape.png">
-</td></tr><tr><td>
+
+<hr>
+
+Code:
 
 ```RUBY
 require 'kredki'
 
-window.set_size 400, 250
+window.set_size 400, 150
 set layout: :xcc, spacer: 10
 
 label! "Enter name:"
@@ -66,33 +66,15 @@ button! "Submit", suit: :orange do
 end
 ```
 
-</td><td>
+Output:
+
 <img src="./.github/enter.png">
-</td></tr><tr><td>
 
-```RUBY
-require 'kredki/module' # embedded mode
-
-decision = Kredki.app do
-  ysc! size_x: 100 do
-    radio! do
-      item! "yes", checked: true
-      item! "no"
-      item! "perhaps"
-    end
-    space! size: 5
-    button! "Submit", size_x: 1r
-  end
-
-  button?.on_click{ app.return item?(checked: true).subject }
-end
-
-puts decision # => yes/no/perhaps
+```SHELL
+#> Hello world!
 ```
 
-</td><td>
-<img src="./.github/module.png">
-</td></tr></table>
+<hr>
 
 For more check out [kredki/sample](./kredki/sample/).
 

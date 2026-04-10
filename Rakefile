@@ -49,6 +49,26 @@ Minitest::TestTask.create(:test) do |t|
   t.test_globs = ["kredki/test/**/*_test.rb"]
 end
 
+namespace :test do
+  desc "Commit tests output to expected output"
+  task :commit do
+    chdir "kredki/test" do
+      Dir["*.png", base: "output"].each do |file|
+        cp "output/#{file}", file.gsub("__", "/")
+      end
+    end
+  end
+
+  desc "Clean tests output"
+  task :clean do
+    chdir "kredki/test/output" do
+      Dir["*"].each do |file|
+        rm_rf file
+      end
+    end
+  end
+end
+
 def check_vars *vars, file: true
   vars.each do |v|
     value = eval "#{v}"

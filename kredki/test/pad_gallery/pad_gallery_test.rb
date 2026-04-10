@@ -65,8 +65,8 @@ class PadGalleryTest < Kredki::Test
           item! "test", subject: :test
           item! "1234", subject: 1234
         end
-        checkbox! "Check A"
-        checkbox! "Check B"
+        checkbox! "Checkbox A"
+        checkbox! "Checkbox B"
         radio! do
           item! "Radio 1"
           item! "Radio 2"
@@ -74,7 +74,7 @@ class PadGalleryTest < Kredki::Test
         end
         exploding_star = "#{Kredki.dir}/sample/stuff/1643-exploding-star.json"
         animation! exploding_star, size: [1r, limit: Ratio], x: Center do
-          job.play_loop self, true
+          job.play_loop self
         end
       end
     end

@@ -47,7 +47,7 @@ module Kredki
           nil
         when :yes, :yec, :yee
           v = @verses.first
-          @scene.x = sx >= 0 && v.size_x > area_size_x ? @scene.x + v.size_x - initial_size_x : 0
+          @scene.x = area_x >= 0 && v.size_x > area_size_x ? @scene.x + v.size_x - initial_size_x : 0
         when :ycs, :ycc, :yce
           @scene.x = 0
         else raise_is @verse_layout

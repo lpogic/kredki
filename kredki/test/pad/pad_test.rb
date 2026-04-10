@@ -15,7 +15,7 @@ class PadTest < Kredki::Test
   def test_clip
     pad! fill: :white, turn: 1/5r do
       set_area do |sx, sy|
-        ellipse! sx, sy
+        ellipse sx, sy
       end
       pad! fill: :black, size: 4/5r
     end

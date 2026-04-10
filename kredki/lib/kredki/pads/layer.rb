@@ -131,18 +131,6 @@ module Kredki
         true
       end
 
-      def sx
-        0
-      end
-
-      def sy
-        0
-      end
-
-      def sxy
-        [0, 0]
-      end
-
       def keyboard_pad
         @keyboard_pads.last
       end
@@ -242,7 +230,7 @@ module Kredki
           pads << self
           x -= @clip_scene.x
           y -= @clip_scene.y
-          return true if @pads.reverse_each.find{|it| it.point_pads x - it.sx, y - it.sy, pads }
+          return true if @pads.reverse_each.find{|it| it.point_pads x - it.area_x, y - it.area_y, pads }
         end
         return false
       end
