@@ -1,6 +1,7 @@
 require 'kredki'
 
 # An animation running in several play modes.
+# Require: stuff/1643-exploding-star.json
 
 animation_file = "#{Kredki.dir}/sample/stuff/1643-exploding-star.json"
 

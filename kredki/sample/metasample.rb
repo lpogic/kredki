@@ -1,6 +1,7 @@
 require 'kredki'
 
 # A GUI-mode sample overview.
+# Require: other samples in the same directory
 
 class ListPane < Pane
   layer! do

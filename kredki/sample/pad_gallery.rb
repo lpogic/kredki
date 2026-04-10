@@ -1,5 +1,8 @@
 require 'kredki'
 
+# Standard pads overview.
+# Require: stuff/1643-exploding-star.json, stuff/test.png
+
 set layout: :yss
 
 toolbar! do

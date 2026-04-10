@@ -12,3 +12,5 @@ rake sample
 # run selected sample:
 rake sample[pad_gallery] 
 ```
+
+Or copy sample code and run it locally. However, some samples use resources from the "stuff" directory and will not run without them.

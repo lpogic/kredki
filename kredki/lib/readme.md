@@ -24,7 +24,7 @@ end
 How to use setup:
 ```
 require 'kredki/setup'
-Kredki.sdl = "./custom_binaries/libSDL3.so"
+Kredki.sdl = "/path_to/custom_binaries/libSDL3.so"
 require 'kredki'
 
 button! "OK"
