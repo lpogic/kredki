@@ -72,8 +72,8 @@ Output:
 
 In terminal after "Submit" click:
 
-```SHELL
-#> Hello world!
+```
+Hello world!
 ```
 
 <hr>
@@ -87,17 +87,17 @@ For more check out [kredki/sample](./kredki/sample/).
 If you develop kredki API only, you can use `rake run` task to test your changes. This command creates sketch/sketch.rb file (if missing) and runs it using draft _kredki_ version.
 
 If you develop _kredki_ dependencies for Windows/Linux, you can make steps below:
-1. Call `rake config`, which generates OS dependent configuration template. Then open it, install/clone nessesary utilities and customize paths.
-1. Call `rake sdl:build` to build SDL binary.
-1. Call `rake thorvg:build` to build ThorVG binary.
-1. Call `rake build` to build Pastele binary and update _kredki_ binaries.
+1. Run `rake config`, which generates OS dependent configuration template. Then open it, install/clone nessesary utilities and customize paths.
+1. `rake sdl:build` to build SDL binary.
+1. `rake thorvg:build` to build ThorVG binary.
+1. `rake build` to build Pastele binary and update _kredki_ binaries.
 1. The last step is usually `rake run` or just `rake` to check if everything is ok.
 
 If you are developing _kredki_ dependencies for a different environment, you can create custom build tasks based on those for Windows or Linux.
 
-## Updates
+## Last updates
 
-- Work in progress
+- [2026-04-13] Changing repository access to public.
 
 ## Contact
 
