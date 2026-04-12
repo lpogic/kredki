@@ -62,6 +62,7 @@ class RunSamplePane < Pane
       eval code
     rescue Exception => e
       window.pane! do
+        pane.close_on_esc
         set_fill :red
         set_layout :ycc
         text! "#{e.class}"

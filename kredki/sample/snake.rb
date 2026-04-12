@@ -88,7 +88,7 @@ end
 job.loop 50 do |job|
   snake = snake?
   food = food?
-  case move_result = snake.move food.xy
+  case move_result = snake.move(food.xy)
   when :self_collision
     snake.body.each do |x, y|
       yss?(pad_index: x).pad?(pad_index: y).set fill: :gray

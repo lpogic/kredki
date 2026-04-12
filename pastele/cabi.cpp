@@ -362,7 +362,7 @@ CABI void paint_set_blend_method(Paint* self, int method) {
 }
 
 CABI void paint_accessor_traverse(Paint* self, int(*callback)(const tvg::Paint* paint, void* data)) {
-    auto accessor = unique_ptr<Accessor>(Accessor::gen());
+    auto accessor = Accessor::gen();
     accessor->set(self, callback, nullptr);
 }
 

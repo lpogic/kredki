@@ -37,7 +37,8 @@ module Kredki
           super
 
           on_key_press :down, :up, :enter, :space do |e|
-            if layer = find PrimaryLayer
+            layer = find PrimaryLayer
+            if layer
               layer.load self unless layer.loaded
               layer.find_upper(Context::Item)&.keyboard_request and e.close
             end

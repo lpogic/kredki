@@ -28,7 +28,8 @@ module Kredki
           super
 
           on_key_press :right do |e|
-            if layer = find SecondaryLayer
+            layer = find SecondaryLayer
+            if layer
               layer.load self
               layer.find_upper(Item)&.keyboard_request and e.close
             end

@@ -294,7 +294,7 @@ when /linux/
       chdir $thorvg do
         rm_rf "builddir"
         sh "#$meson setup builddir " + {
-          engines: "sw",
+          engines: "cpu",
           loaders: "all",
           savers: "all",
           simd: false,

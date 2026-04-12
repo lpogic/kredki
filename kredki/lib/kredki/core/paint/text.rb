@@ -73,13 +73,14 @@ module Kredki
       return send_bundle :set_fill, yield(self.fill) if block_given?
       fill = Util.uncover fill
       return if @fill == fill && fill != :random
-      case f = Kredki.fill fill
+      norm_fill = Kredki.fill fill
+      case norm_fill
       when Color
-        Pastele.text_set_fill_color @pointer, *f.to_rgb
+        Pastele.text_set_fill_color @pointer, *norm_fill.to_rgb
       when LinearGradient
-        Pastele.text_set_fill_linear_gradient @pointer, *f.ffi
+        Pastele.text_set_fill_linear_gradient @pointer, *norm_fill.ffi
       when RadialGradient
-        Pastele.text_set_fill_radial_gradient @pointer, *f.ffi
+        Pastele.text_set_fill_radial_gradient @pointer, *norm_fill.ffi
       end
       @fill = fill
       update

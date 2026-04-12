@@ -90,13 +90,14 @@ module Kredki
       return send_bundle :set_fill, yield(self.fill) if block_given?
       fill = Util.uncover fill
       return if @fill == fill && fill != :random
-      case f = Kredki.fill fill
+      norm_fill = Kredki.fill fill
+      case norm_fill
       when Color
-        Pastele.shape_set_fill_color @pointer, *f
+        Pastele.shape_set_fill_color @pointer, *norm_fill
       when LinearGradient
-        Pastele.shape_set_fill_linear_gradient @pointer, *f.ffi
+        Pastele.shape_set_fill_linear_gradient @pointer, *norm_fill.ffi
       when RadialGradient
-        Pastele.shape_set_fill_radial_gradient @pointer, *f.ffi
+        Pastele.shape_set_fill_radial_gradient @pointer, *norm_fill.ffi
       end
       @fill = fill
       update
@@ -164,13 +165,14 @@ module Kredki
       return send_bundle :set_stroke_fill, yield(self.stroke_fill) if block_given?
       stroke_fill = Util.uncover stroke_fill
       return if @stroke_fill == stroke_fill && stroke_fill != :random
-      case f = Kredki.fill stroke_fill
+      norm_fill = Kredki.fill stroke_fill
+      case norm_fill
       when Color
-        Pastele.shape_set_stroke_color @pointer, *f
+        Pastele.shape_set_stroke_color @pointer, *norm_fill
       when LinearGradient
-        Pastele.shape_set_stroke_linear_gradient @pointer, *f.ffi
+        Pastele.shape_set_stroke_linear_gradient @pointer, *norm_fill.ffi
       when RadialGradient
-        Pastele.shape_set_stroke_radial_gradient @pointer, *f.ffi
+        Pastele.shape_set_stroke_radial_gradient @pointer, *norm_fill.ffi
       end
       @stroke_fill = stroke_fill
       update
