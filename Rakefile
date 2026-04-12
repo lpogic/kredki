@@ -92,15 +92,16 @@ when /cygwin|mswin|mingw|bccwin|wince|emx/
 
     if generate
       File.write "rake-config.rb", <<~xx
+        # Before building kredki depedencies, install nessesary tools and setup their locations:
         $make =     "cmake" # (https://cmake.org/download/)
         $msbuild =  "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/MSBuild.exe" # MS Visual Studio build utility
         $vcvars =   "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Auxiliary/Build/vcvars64.bat"
         $vcpkg =    "C:/Program Files/vcpkg/scripts/buildsystems/vcpkg.cmake" (https://learn.microsoft.com/pl-pl/vcpkg/get_started/get-started?pivots=shell-powershell)
         $sdl =      "C:/Users/user/Projects/SDL" # sdl project root folder (git clone https://github.com/libsdl-org/SDL.git --depth 1)
-        $thorvg =   "C:/Users/user/Projects/thorvg" # thorvg project root folder (git clone https://github.com/lpogic/thorvg.git -b thorvg-gui)
+        $thorvg =   "C:/Users/user/Projects/thorvg" # thorvg project (lpogic fork) root folder (git clone https://github.com/lpogic/thorvg.git -b thorvg-gui)
         $meson =    "meson" # required for building thorvg (https://mesonbuild.com/Getting-meson.html)
       xx
-      puts "rake-config.rb created succesfully. Customize it then call 'rake build' to update project binaries."
+      puts "rake-config.rb created succesfully. Customize it before build kredki depedencies."
     end
   end
 
@@ -123,7 +124,7 @@ when /cygwin|mswin|mingw|bccwin|wince|emx/
         system $vcvars
         rm_rf "builddir"
         sh "#$meson setup builddir --backend vs " + {
-          engines: "['sw','gl']",
+          engines: "['cpu']",
           loaders: "all",
           savers: "all",
           simd: false,
@@ -263,13 +264,15 @@ when /linux/
 
     if generate
       File.write "rake-config.rb", <<~xx
+        # Before building kredki depedencies, install nessesary tools and setup their locations:
+
         $make =     "cmake"        
-        $sdl =      "/home/user/SDL" # sdl project root folder
-        $thorvg =   "/home/user/thorvg" # thorvg project root folder
-        $meson =    "meson" # for thorvg building
-        $ninja =    "ninja" # for thorvg building
+        $sdl =      "/home/user/SDL" # sdl project root folder (git clone https://github.com/libsdl-org/SDL.git --depth 1)
+        $thorvg =   "/home/user/thorvg" # thorvg project (lpogic fork) root folder (git clone https://github.com/lpogic/thorvg.git -b thorvg-gui)
+        $meson =    "meson" # required for building thorvg
+        $ninja =    "ninja" # required for building thorvg
       xx
-      puts "rake-config.rb created succesfully. Edit it and call 'rake build' to update project binaries."
+      puts "rake-config.rb created succesfully. Customize it before build kredki depedencies."
     end
   end
 

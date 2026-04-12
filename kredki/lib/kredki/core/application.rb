@@ -38,7 +38,7 @@ module Kredki
     # Break event loop.
     def return result = nil
       @result = result
-      @windows.each_value{|it| remove_window it, false }
+      @windows.each_value{|it| delete_window it, false }
       Pastele.application_exit @pointer
     end
 
@@ -135,7 +135,7 @@ module Kredki
         window_event abi.window_id, WindowCloseEvent.new(abi) do |event|
           unless event.closed?
             window = @windows[abi.window_id]
-            remove_window window if window
+            delete_window window if window
             event.close
           end
         end
@@ -283,7 +283,7 @@ module Kredki
       window
     end
 
-    def remove_window window, last_exit = true
+    def delete_window window, last_exit = true
       window.hide
       window_id = Pastele.application_erase_window(@pointer, window.pointer)
       @windows.delete window_id

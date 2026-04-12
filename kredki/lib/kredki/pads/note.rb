@@ -1,12 +1,10 @@
 require_relative 'text/editable_text_verse'
-require_relative 'suit_parameter'
 
 module Kredki
   module Pads
     # Control with text entry.
     class Note < RectanglePad
       include TextEdition
-      include SuitParameter
 
       # Set text content.
       def set_text text = ""

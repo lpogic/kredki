@@ -13,17 +13,17 @@ module Kredki
 
         # :section: LEVEL 2
 
-        def initialize selection_min, selection_max, string, inset, action
+        def initialize selection_start, selection_end, string, inset, action
           super()
-          @selection_min = selection_min
-          @selection_max = selection_max
+          @selection_start = selection_start
+          @selection_end = selection_end
           @string = string
           @inset = inset
           @action = action
         end
 
-        attr_accessor :selection_min
-        attr_accessor :selection_max
+        attr_accessor :selection_start
+        attr_accessor :selection_end
         attr_accessor :string
         attr_accessor :inset
         attr_accessor :action        
@@ -80,7 +80,7 @@ module Kredki
         end
 
         on_edit early: true do |e|
-          cursor_position = e.inset.length + e.selection_min
+          cursor_position = e.inset.length + e.selection_start
           text.edit e.string, cursor_position
         end
 

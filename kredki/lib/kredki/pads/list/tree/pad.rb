@@ -22,6 +22,16 @@ module Kredki
           on_select do: param
         end
 
+        # Get all items.
+        def items
+          @item_group.items
+        end
+
+        # Get selected items.
+        def selected_items
+          @item_group.selected_items
+        end
+
         # :section: LEVEL 2
 
         def sketch
@@ -44,7 +54,7 @@ module Kredki
               if source.key.id == :enter
                 item.set_open Not
               else
-                if source.shift?
+                if source.ctrl?
                   item.set_selected Not
                 else
                   each_upper(Item).each_set{|it| set_selected it == item }
@@ -62,7 +72,9 @@ module Kredki
                 item.set_selected Not
               else
                 each_upper(Item).each{|it| it.set_selected it == item }
-                item.set_open Not
+                if source.target.is(:@catalog_icon) || layer.mouse_click_combo > 1
+                  item.set_open Not
+                end
               end
             end
           end
@@ -70,6 +82,10 @@ module Kredki
           on_focus_leave do
             each_upper(Item).each_set selected: false
           end
+        end
+
+        def put_pad pad, at = nil
+          super
         end
 
       end#List

@@ -8,15 +8,15 @@ module Kredki
         super
 
         on_key_press :left do |e|
-          lower.select_previous&.request_vision
+          lower.focus_previous&.request_vision
           e.close
         end
 
         on_key_press :right do |e|
-          lower.select_next&.request_vision
+          lower.focus_next&.request_vision
           e.close
         end
       end
-    end
-  end
-end
+    end#ItemX
+  end#Pads
+end#Kredki

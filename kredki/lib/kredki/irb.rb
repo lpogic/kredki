@@ -57,8 +57,8 @@ KredkiProc = proc do
     window.set do
       set_resizable
       set_text_input
-      set_fill 20, 70, 20
       set_top
+      pane.set_fill 20, 70, 20
       pane.close_on_esc
     end
     MainLayer.carry_focus_on_tab

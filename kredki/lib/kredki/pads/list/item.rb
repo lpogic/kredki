@@ -84,7 +84,7 @@ module Kredki
 
           on_key_press :up do |e|
             set_selected if e.shift?
-            item = lower.select_previous
+            item = lower.focus_previous
             if item
               item.set_selected if e.shift?
               item.request_vision
@@ -94,7 +94,7 @@ module Kredki
 
           on_key_press :down do |e|
             set_selected if e.shift?
-            item = lower.select_next
+            item = lower.focus_next
             if item
               item.set_selected if e.shift?
               item.request_vision

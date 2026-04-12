@@ -52,8 +52,10 @@ module Kredki
         super
 
         on_key :enter do |e|
+          p e
+          p @dropdown.loaded
           if @dropdown.loaded
-            item?(keyboard_in: true)&.report Item::SelectEvent.new e
+            item?(keyboard_in: true)&.report_selected e
           else
             @dropdown.load self
           end

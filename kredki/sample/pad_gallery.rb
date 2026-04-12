@@ -42,10 +42,10 @@ xss! margin: 10, spacer: 10 do
         button! "Button"
       end
       tree! do
-        item! "Branch"
+        item! "Leaf"
         item! "Branch" do
           item! "Branch" do
-            item! "Branch"
+            item! "Leaf"
           end
         end
       end

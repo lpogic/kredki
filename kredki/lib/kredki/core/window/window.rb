@@ -1,10 +1,12 @@
 module Kredki
   class Window
 
+    # Show a window.
     def show
       Pastele.window_show @pointer
     end
 
+    # Hide a window.
     def hide
       Pastele.window_hide @pointer
     end
@@ -371,7 +373,7 @@ module Kredki
         pane_service.set{ eval File.read pane }
       when Pane
         update_pane pane
-        pane.service
+        pane.context_service
       else raise_ia pane
       end
     end

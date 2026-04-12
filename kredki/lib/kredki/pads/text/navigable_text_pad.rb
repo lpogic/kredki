@@ -29,47 +29,47 @@ module Kredki
 
       # Get whether any text is selected.
       def any_selected
-        @selection_min != @selection_max
+        @selection_start != @selection_end
       end
 
       # Get selected content.
       def selected_content
-        text[@selection_min...@selection_max]
+        text[@selection_start...@selection_end]
       end
 
       # Set select range.
       def select min, max
-        @selection_min = min
-        @selection_max = @cursor_position = max
+        @selection_start = min
+        @selection_end = @cursor_position = max
         layer&.break_layout
       end
 
       # :section: LEVEL 2
 
-      attr :selection_min, :selection_max, :cursor
+      attr :selection_start, :selection_end, :cursor
       attr_accessor :cursor_position
 
       def update_cursor position = 0
-        @cursor_position = @selection_min = @selection_max = position
+        @cursor_position = @selection_start = @selection_end = position
         layer&.break_layout
       end
 
       def drag x, y
         cursor_position = cursor_position_for_coordinates x, y
         if cursor_position != @cursor_position
-          if @cursor_position == @selection_min
-            if cursor_position <= @selection_max
-              @selection_min = @cursor_position = cursor_position
+          if @cursor_position == @selection_start
+            if cursor_position <= @selection_end
+              @selection_start = @cursor_position = cursor_position
             else
-              @selection_min = @selection_max
-              @selection_max = @cursor_position = cursor_position
+              @selection_start = @selection_end
+              @selection_end = @cursor_position = cursor_position
             end
-          elsif @cursor_position == @selection_max
-            if cursor_position >= @selection_min
-              @selection_max = @cursor_position = cursor_position
+          elsif @cursor_position == @selection_end
+            if cursor_position >= @selection_start
+              @selection_end = @cursor_position = cursor_position
             else
-              @selection_max = @selection_min
-              @selection_min = @cursor_position = cursor_position
+              @selection_end = @selection_start
+              @selection_start = @cursor_position = cursor_position
             end
           end
           layer&.break_layout
@@ -79,18 +79,18 @@ module Kredki
       def cursor_left shift
         if shift
           if @cursor_position > 0
-            if @cursor_position == @selection_min
-              @selection_min = @cursor_position -= 1
-            elsif @cursor_position == @selection_max
-              @selection_max = @cursor_position -= 1
+            if @cursor_position == @selection_start
+              @selection_start = @cursor_position -= 1
+            elsif @cursor_position == @selection_end
+              @selection_end = @cursor_position -= 1
             end
           end
         else
-          if @selection_min == @selection_max            
+          if @selection_start == @selection_end            
             @cursor_position -= 1 if @cursor_position > 0
-            @selection_min = @selection_max = @cursor_position
+            @selection_start = @selection_end = @cursor_position
           else
-            @cursor_position = @selection_max = @selection_min
+            @cursor_position = @selection_end = @selection_start
           end
         end
         layer&.break_layout
@@ -100,18 +100,18 @@ module Kredki
         length = text.length
         if shift
           if @cursor_position < length
-            if @cursor_position == @selection_max
-              @selection_max = @cursor_position += 1
-            elsif @cursor_position == @selection_min
-              @selection_min = @cursor_position += 1
+            if @cursor_position == @selection_end
+              @selection_end = @cursor_position += 1
+            elsif @cursor_position == @selection_start
+              @selection_start = @cursor_position += 1
             end
           end
         else
-          if @selection_min == @selection_max            
+          if @selection_start == @selection_end            
             @cursor_position += 1 if @cursor_position < length
-            @selection_min = @selection_max = @cursor_position
+            @selection_start = @selection_end = @cursor_position
           else
-            @cursor_position = @selection_min = @selection_max
+            @cursor_position = @selection_start = @selection_end
           end
         end
         layer&.break_layout
@@ -122,7 +122,7 @@ module Kredki
       def initialize
         super
 
-        @cursor_position = @selection_min = @selection_max = 0
+        @cursor_position = @selection_start = @selection_end = 0
         @selection = @scene.new_scene
         @cursor = @scene.new_rectangle fill: :text, size_x: 1, scenic: false
       end
@@ -270,22 +270,22 @@ module Kredki
         @verses.zip @selection.each_paint do |v, s|
           total += 1
           next_total = total + v.content.length
-          if @selection_min == @selection_max || @selection_min > next_total || @selection_max <= total
+          if @selection_start == @selection_end || @selection_start > next_total || @selection_end <= total
             s.set_size_x 0
-          elsif @selection_min <= total && @selection_max >= next_total
+          elsif @selection_start <= total && @selection_end >= next_total
             s.set_size *v.size
             s.set_xy *v.xy
-          elsif @selection_max >= next_total
-            x1 = v.substring_width @selection_min - total
+          elsif @selection_end >= next_total
+            x1 = v.substring_width @selection_start - total
             s.set_size v.size_x - x1, v.size_y
             s.set_xy v.x + x1, v.y
-          elsif @selection_min <= total
-            x1 = v.substring_width @selection_max - total
+          elsif @selection_start <= total
+            x1 = v.substring_width @selection_end - total
             s.set_size x1, v.size_y
             s.set_xy *v.xy
           else
-            x1 = v.substring_width @selection_min - total
-            x2 = v.substring_width @selection_max - total
+            x1 = v.substring_width @selection_start - total
+            x2 = v.substring_width @selection_end - total
             s.set_size x2 - x1, v.size_y
             s.set_xy v.x + x1, v.y
           end
@@ -304,19 +304,19 @@ module Kredki
           total + v.content.length
         end
         if shift
-          if @cursor_position == @selection_min
-            @selection_min = @cursor_position = cursor_position
-          elsif cursor_position >= @selection_min
-            @selection_max = @cursor_position = cursor_position
+          if @cursor_position == @selection_start
+            @selection_start = @cursor_position = cursor_position
+          elsif cursor_position >= @selection_start
+            @selection_end = @cursor_position = cursor_position
           else
-            @selection_max = @selection_min
-            @selection_min = @cursor_position = cursor_position
+            @selection_end = @selection_start
+            @selection_start = @cursor_position = cursor_position
           end
         else
-          if @selection_min == @selection_max            
-            @selection_min = @selection_max = @cursor_position = cursor_position
+          if @selection_start == @selection_end            
+            @selection_start = @selection_end = @cursor_position = cursor_position
           else
-            @cursor_position = @selection_max = @selection_min
+            @cursor_position = @selection_end = @selection_start
           end
         end
         @scene.x = 0
@@ -332,19 +332,19 @@ module Kredki
           total + v.content.length
         end
         if shift
-          if @cursor_position == @selection_max
-            @selection_max = @cursor_position = cursor_position
-          elsif cursor_position <= @selection_max
-            @selection_min = @cursor_position = cursor_position
+          if @cursor_position == @selection_end
+            @selection_end = @cursor_position = cursor_position
+          elsif cursor_position <= @selection_end
+            @selection_start = @cursor_position = cursor_position
           else
-            @selection_min = @selection_max
-            @selection_max = @cursor_position = cursor_position
+            @selection_start = @selection_end
+            @selection_end = @cursor_position = cursor_position
           end
         else
-          if @selection_min == @selection_max            
-            @selection_min = @selection_max = @cursor_position = cursor_position
+          if @selection_start == @selection_end            
+            @selection_start = @selection_end = @cursor_position = cursor_position
           else
-            @cursor_position = @selection_min = @selection_max
+            @cursor_position = @selection_start = @selection_end
           end
         end
         @scene.x = 0
@@ -364,15 +364,15 @@ module Kredki
         end
 
         if shift
-          if @cursor_position == @selection_max
-            if cursor_position <= @selection_min
-              @selection_max = @selection_min
-              @selection_min = cursor_position
+          if @cursor_position == @selection_end
+            if cursor_position <= @selection_start
+              @selection_end = @selection_start
+              @selection_start = cursor_position
             else
-              @selection_max = cursor_position
+              @selection_end = cursor_position
             end
           else
-            @selection_min = cursor_position
+            @selection_start = cursor_position
           end
           @cursor_position = cursor_position
           layer&.break_layout
@@ -392,15 +392,15 @@ module Kredki
         end
 
         if shift
-          if @cursor_position == @selection_min
-            if cursor_position >= @selection_max
-              @selection_min = @selection_max
-              @selection_max = cursor_position
+          if @cursor_position == @selection_start
+            if cursor_position >= @selection_end
+              @selection_start = @selection_end
+              @selection_end = cursor_position
             else
-              @selection_min = cursor_position
+              @selection_start = cursor_position
             end
           else
-            @selection_max = cursor_position
+            @selection_end = cursor_position
           end
           @cursor_position = cursor_position
           layer&.break_layout

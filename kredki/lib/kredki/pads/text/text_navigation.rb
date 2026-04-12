@@ -69,7 +69,7 @@ module Kredki
           else
             if layer.mouse_click_combo(e) == 1
               sl = text.text.to_s.length
-              unless text.cursor_position == sl && text.selection_min == 0 && sl == text.selection_max
+              unless text.cursor_position == sl && text.selection_start == 0 && sl == text.selection_end
                 text.select 0, sl
                 e.close
               end

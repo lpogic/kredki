@@ -353,7 +353,7 @@ module Kredki
         send_bundle :set_spacer, param
       end
 
-      # Get inner margin.
+      # Get layout spacer.
       def spacer
         @spacer
       end
@@ -900,7 +900,7 @@ module Kredki
       def pad_detach transfer = false
         @scene.detach
         if @lower_pad
-          @lower_pad.remove_pad self, transfer
+          @lower_pad.delete_pad self, transfer
           @lower_pad = nil
           lower_pad_detached
         end
@@ -926,12 +926,12 @@ module Kredki
         pad
       end
 
-      def remove_pad pad, transfer
-        removed = @pads.delete pad
-        if removed
+      def delete_pad pad, transfer
+        deleted = @pads.delete pad
+        if deleted
           layer&.break_layout
         end
-        removed
+        deleted
       end
 
       def update_xy x, y
@@ -1079,6 +1079,8 @@ module Kredki
           @area.size_x
         when :y
           size_y || get_size_y
+        when :y_2
+          (size_y || get_size_y) * 0.5
         when Numeric
           size_x < 0 ? (reference_size_x || @lower_pad.get_size_x) + size_x : size_x
         else

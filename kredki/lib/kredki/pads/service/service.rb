@@ -65,7 +65,7 @@ module Kredki
 
       # Detach self.
       def detach transfer = false
-        @lower&.remove_upper self
+        @lower&.delete_upper self
         @lower = nil
       end
 
@@ -206,7 +206,7 @@ module Kredki
         @services.index service
       end
 
-      def remove_upper upper
+      def delete_upper upper
         @services.delete upper
       end
 

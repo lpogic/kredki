@@ -3,10 +3,10 @@ require_relative 'portal_layer'
 
 module Kredki
   module Pads
-    # Control with text transfering click events to selected pad.
+    # Control with text transfering mouse events to related pad.
     class Label < Pad
 
-      # Set selector for click event target.
+      # Set selector for mouse events target.
       def set_for new_for = @for
         return send_bundle :set_for, yield(self.for) if block_given?
         return if @for == new_for
@@ -19,7 +19,7 @@ module Kredki
         send_bundle :set_for, param
       end
 
-      # Get selector for click event target.
+      # Get selector for mouse events target.
       def for
         @for
       end

@@ -115,7 +115,7 @@ module Kredki
     def presence
     end
 
-    def service
+    def context_service
       sketch_pane
       self
     end
@@ -155,7 +155,7 @@ module Kredki
       end
     end
 
-    def remove_job job
+    def delete_job job
       @jobs_mutex.synchronize do
         @jobs.delete job
       end
@@ -172,7 +172,7 @@ module Kredki
     def tick event
       ms = event.timestamp * 0.000001 - app.run_ms
       jobs = {**@jobs}
-      jobs.each_key{|it| remove_job it unless it.tick ms }
+      jobs.each_key{|it| delete_job it unless it.tick ms }
     end
   end
 end

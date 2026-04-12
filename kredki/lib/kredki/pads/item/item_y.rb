@@ -11,7 +11,7 @@ module Kredki
         super
 
         on_key_press :up do |e|
-          item = lower.select_previous
+          item = lower.focus_previous
           if item
             item.request_vision
             e.close
@@ -19,13 +19,13 @@ module Kredki
         end
 
         on_key_press :down do |e|
-          item = lower.select_next
+          item = lower.focus_next
           if item
             item.request_vision
             e.close
           end
         end
       end
-    end
-  end
-end
+    end#ItemY
+  end#Pads
+end#Kredki

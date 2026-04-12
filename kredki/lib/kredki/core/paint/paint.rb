@@ -292,13 +292,13 @@ module Kredki
 
     # Detach the Paint from the containing Kredki::Scene.
     def detach
-      @scene&.remove_paint self
+      @scene&.delete_paint self
       @scene = nil
     end
 
     # Attach the Paint to the Kredki::Scene.
     def attach scene, hidden = false, at = nil
-      @scene&.remove_paint self
+      @scene&.delete_paint self
       scene.put_paint self, scenic, at
       @scene = scene
     end
@@ -358,7 +358,7 @@ module Kredki
     end
 
     def update_masking scene
-      @scene&.remove_paint self unless @is_mask
+      @scene&.delete_paint self unless @is_mask
       @scene = scene
       @is_mask = true
     end

@@ -16,25 +16,25 @@ module Kredki
         pad.keyboard_request if find_upper(Item){|it| it.keyboard_in } != pad
       end
 
-      def select_next
+      def focus_next
         items = each(Item).to_a 
         index = items.index{|it| it.keyboard_in } || -1
         return items[index] if index >= items.length - 1
         item = (index + 1..items.length - 1).lazy.map{|i| items[i] }.find{|it| !it.in_disabled }
         return items[index] if !item
-        select item
+        focus item
       end
 
-      def select_previous
+      def focus_previous
         items = each(Item).to_a 
         index = items.index{|it| it.keyboard_in } || 1
         return items[index] if index <= 0
         item = (0..index - 1).lazy.map{|i| items[index - 1 - i]}.find{|it| !it.in_disabled }
         return items[index] if !item
-        select item
+        focus item
       end
 
-      def select item
+      def focus item
         item&.keyboard_request
         item
       end

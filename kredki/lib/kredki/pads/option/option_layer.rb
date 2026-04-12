@@ -1,4 +1,4 @@
-require_relative '../item/item_group'
+require_relative 'option_item_group'
 
 module Kredki
   module Pads
@@ -19,7 +19,16 @@ module Kredki
           # scene.drop_shadow color: :black # this is too expensive at the moment
         end
         @pad = @scroll.put RectanglePad, fill: :gray, layout: :yss, size_y: Fit
-        @item_group = @pad.put ItemGroup
+        @item_group = @pad.put OptionItemGroup
+      end
+
+      def behavior
+        super
+
+        on_key_press :escape do |e|
+          unload
+          e.close
+        end
       end
 
       def arrange
@@ -62,7 +71,7 @@ module Kredki
       end
 
       def mouse_press e
-        unload
+        # unload
       end
 
       def mouse_release e

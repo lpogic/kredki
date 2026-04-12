@@ -27,7 +27,7 @@ module Kredki
     def cancel event = nil
       @thread&.kill
       @thread = nil
-      @host&.remove_job self
+      @host&.delete_job self
       @event_manager.report event || CancelEvent.new
       @host = nil
     end

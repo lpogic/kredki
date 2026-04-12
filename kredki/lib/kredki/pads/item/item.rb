@@ -103,17 +103,25 @@ module Kredki
         super
 
         on_mouse_click :primary do |e|
-          report SelectEvent.new(e), lower_iterator.to_a.reverse
+          report_selected e
         end
 
-        on_key :space, :enter do |e|
-          report SelectEvent.new(e), lower_iterator.to_a.reverse
-          e.close
-        end
+        behavior_on_key
 
         on_select do |e|
           e.close if in_disabled
         end
+      end
+
+      def behavior_on_key
+        on_key :space, :enter do |e|
+          report_selected e
+          e.close
+        end
+      end
+
+      def report_selected e
+        report SelectEvent.new(e), lower_iterator.to_a.reverse
       end
 
       def mouse_enter e
@@ -127,6 +135,6 @@ module Kredki
       def default_text text
         put TextPad, text, mousy: false
       end
-    end
-  end
-end
+    end#Item
+  end#Pads
+end#Kredki

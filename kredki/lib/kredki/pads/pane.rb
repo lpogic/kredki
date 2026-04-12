@@ -27,7 +27,7 @@ module Kredki
         end
       end
 
-      # Get lower services iterator.
+      # Get lower services iterator - empty because Pane is always the lowest.
       def lower_iterator include_self = false
         []
       end
@@ -35,6 +35,7 @@ module Kredki
       class << self
         attr_accessor :sketch_layer
 
+        # Define custom base layer for this Pane subclass.
         def layer! &block
           self.sketch_layer = Class.new Layer
           sketch_layer.define_method :sketch do
@@ -44,15 +45,16 @@ module Kredki
         end
       end
 
-      self.sketch_layer = Layer
-
       # :section: LEVEL 2
+
+      self.sketch_layer = Layer
 
       def initialize *a, **ka
         super()
         
         @event_queue = EventQueue.new
         @services = []
+        @mouse_stale = false
         @sketch_a = a
         @sketch_ka = ka
       end
@@ -64,15 +66,15 @@ module Kredki
 
       def sketch
         super
-        @mouse_stale = false
+        
         put(self.class.sketch_layer).keyboard_request
       end
 
       def behavior
         super
-        on_mouse_move do: method(:update_mouse_location)
-        @event_manager.manager MousePointerEnterEvent, proc{|e| update_mouse_location }
-        @event_manager.manager MousePointerLeaveEvent, proc{|e| update_mouse_location }
+        on_mouse_move do: method(:mouse_move_event)
+        on_mouse_enter do: method(:mouse_enter_event)
+        on_mouse_leave do: method(:mouse_leave_event)
         on_mouse_press do: method(:mouse_event)
         on_mouse_release do: method(:mouse_event)
         on_mouse_scroll do: method(:mouse_event)
@@ -86,7 +88,7 @@ module Kredki
         on_joystick_switch do: method(:joystick_event)
       end
 
-      def service
+      def context_service
         super
         @services.last
       end
@@ -165,6 +167,18 @@ module Kredki
         end
       end
 
+      def mouse_move_event event
+        update_mouse_location event
+      end
+
+      def mouse_enter_event event
+        update_mouse_location
+      end
+
+      def mouse_leave_event event
+        update_mouse_location
+      end
+
       def update_mouse_location event = nil
         event ||= PositionEvent.new *window.mouse_xy
         xy = event.xy
@@ -239,12 +253,12 @@ module Kredki
         @services
       end
 
-      def remove_upper upper, transfer = false
+      def delete_upper upper
         @services.delete upper
         @mouse_stale = true
       end
 
-      def remove_pad pad, transfer = false
+      def delete_pad pad, transfer = false
         @services.delete pad
         @mouse_stale = true
       end

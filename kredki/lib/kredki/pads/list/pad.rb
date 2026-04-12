@@ -21,6 +21,16 @@ module Kredki
           on_select do: param
         end
 
+        # Get all items.
+        def items
+          @item_group.items
+        end
+
+        # Get selected items.
+        def selected_items
+          @item_group.selected_items
+        end
+
         # :section: LEVEL 2
 
         def initialize

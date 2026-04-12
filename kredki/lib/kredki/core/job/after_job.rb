@@ -13,7 +13,7 @@ module Kredki
 
     # Cancel job and all subjobs.
     def cancel event = nil
-      @host&.remove_job self
+      @host&.delete_job self
       @event_manager.report event || CancelEvent.new
       @host = nil
     end

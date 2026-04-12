@@ -25,23 +25,6 @@ module Kredki
           find PrimaryLayer
         end
 
-        # Set whether is directory.
-        def set_dir value = true, set_icon = true, &block
-          return if (c = dir) == (value = block ? block[c] : value == Not ? !c : value)
-          @dir = value
-          true
-        end
-
-        # See #set_dir.
-        def dir= param
-          send_bundle :set_dir, param
-        end
-
-        # Get whether is directory.
-        def dir
-          @dir
-        end
-
         # :section: LEVEL 2
 
         def sketch

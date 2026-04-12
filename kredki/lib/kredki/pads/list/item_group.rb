@@ -9,6 +9,16 @@ module Kredki
           put(Item, __method__, ...)
         end
 
+        # Get all items.
+        def items
+          each_upper(Item).to_a
+        end
+
+        # Get selected items.
+        def selected_items
+          each_upper(Item, selected: true).to_a
+        end
+
         # :section: LEVEL 2
 
         def select_up_to pad

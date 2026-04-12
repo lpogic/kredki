@@ -224,7 +224,7 @@ module Kredki
       state&.paint
     end
 
-    def remove_paint paint
+    def delete_paint paint
       if (state = @paints.delete paint)
         paint.scene = nil
         unless state.hidden
