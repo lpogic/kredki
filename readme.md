@@ -2,14 +2,14 @@
 
 Vector graphics & GUI toolkit for [Ruby](https://www.ruby-lang.org/). For creating images, simulations, simple games and applications.
 
-## How it works:
+## How it works
 
 The project is based on the [ThorVG](https://www.thorvg.org/) library for rendering and the [SDL](https://www.libsdl.org/) library for connecting with hardware and operating system. Main features:
 - created from scratch and deeply integrated with [Ruby](https://www.ruby-lang.org/)
 - high level, object oriented API
 - configurable and extendible
 
-## Installation:
+## Installation
 
 Ruby 3.3 or newer is required.
 
@@ -25,7 +25,7 @@ cd kredki
 rake install 
 ```
 
-## Usage:
+## Usage
 
 Code:
 
@@ -70,6 +70,8 @@ Output:
 
 <img src="./.github/enter.png">
 
+In terminal after "Submit" click:
+
 ```SHELL
 #> Hello world!
 ```
@@ -93,11 +95,10 @@ If you develop _kredki_ dependencies for Windows/Linux, you can make steps below
 
 If you are developing _kredki_ dependencies for a different environment, you can create custom build tasks based on those for Windows or Linux.
 
-## Updates:
+## Updates
 
 - Work in progress
 
 ## Contact
 
 - discord: https://discord.gg/NNrcXKgB
-- mail: oficjalnyadreslukasza@gmail.com

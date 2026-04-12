@@ -5,7 +5,7 @@ module Kredki
     module ModifiersDecoder
       
       # Get whether key modifiers match given criteria.
-      def mod_pass? shift: false, alt: false, ctrl: false, windows: false, num_lock: :any, caps_lock: :any, scroll_lock: :any
+      def match shift: false, alt: false, ctrl: false, windows: false, num_lock: :any, caps_lock: :any, scroll_lock: :any
         mod = modifiers
 
         case shift

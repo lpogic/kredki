@@ -107,7 +107,7 @@ module Kredki
         end
 
         def mouse_press e
-          lower.select_up_to self if Kredki.keyboard.mod_pass? shift: true
+          lower.select_up_to self if Kredki.keyboard.match shift: true
           super
         end
 
