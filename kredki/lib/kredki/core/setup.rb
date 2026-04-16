@@ -206,6 +206,10 @@ module Kredki
     self.sdl = "#{dir}/stuff/so/libSDL3.so"
     self.thorvg = "#{dir}/stuff/so/libthorvg-1.so"
     self.pastele = "#{dir}/stuff/so/libpastele.so"
+  when /darwin/
+    self.sdl = "#{dir}/stuff/dylib/libSDL3.0.dylib"
+    self.thorvg = "#{dir}/stuff/dylib/libthorvg-1.1.dylib"
+    self.pastele = "#{dir}/stuff/dylib/libpastele.dylib"
   end
 
   self.engine = :sw
