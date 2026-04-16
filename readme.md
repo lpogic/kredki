@@ -97,7 +97,7 @@ If you are developing _kredki_ dependencies for a different environment, you can
 
 ## Last updates
 
-- [2026-04-13] Changing repository access to public.
+- [2026-04-13] The repository is public now.
 
 ## Contact
 
