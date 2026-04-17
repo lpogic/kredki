@@ -422,7 +422,7 @@ when /linux/
       cp source, target
     end
   end
-case /darwin/
+  when /darwin/
   desc "Generate config template"
   task :config do
     generate = true
