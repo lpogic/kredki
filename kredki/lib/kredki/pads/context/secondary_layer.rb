@@ -37,15 +37,19 @@ module Kredki
           if super
             @lower_events&.each{|it| it.cancel }
 
-            focus_enter = lower.on_focus_enter do |e|
-              load lower
-            end
+            if lower
+              focus_enter = lower.on_focus_enter do |e|
+                load lower
+              end
 
-            focus_leave = lower.on_focus_leave do |e|
-              unload if loaded
-            end
+              focus_leave = lower.on_focus_leave do |e|
+                unload if loaded
+              end
 
-            @lower_events = [focus_enter, focus_leave]
+              @lower_events = [focus_enter, focus_leave]
+            else
+              @lower_events = []
+            end
           end
         end
 

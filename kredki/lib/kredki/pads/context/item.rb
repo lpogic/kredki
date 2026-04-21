@@ -7,7 +7,10 @@ module Kredki
 
         # Add new item.
         def item!(...)
-          dropdown!.item_group.item!(...)
+          item_layer = dropdown!
+          item = item_layer.item_group.item!(...)
+          item_layer.load self if keyboard_top && !item_layer.loaded
+          item
         end
 
         # Create/Update dropdown layer.
@@ -20,8 +23,8 @@ module Kredki
         def initialize
           super
           
-          @start = put SpacePad, size: [:y, 1r]
-          @end = put SpacePad, size: [:y, 1r], x: End
+          @start = put SpacePad, size: Kredki.text_size
+          @end = put SpacePad, size: Kredki.text_size, x: End
         end
 
         def behavior
@@ -34,7 +37,6 @@ module Kredki
               layer.find_upper(Item)&.keyboard_request and e.close
             end
           end
-
         end
 
         def mouse_enter e
@@ -53,6 +55,11 @@ module Kredki
             end
           end
           put SecondaryLayer
+        end
+
+        def dropdown_disable
+          @end.clear
+          find(SecondaryLayer)&.detach
         end
 
         def default_text text

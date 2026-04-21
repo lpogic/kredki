@@ -114,6 +114,10 @@ module Kredki
       end
 
       def behavior_on_key
+        on_key_press :space, :enter do |e|
+          e.close
+        end
+
         on_key :space, :enter do |e|
           report_selected e
           e.close

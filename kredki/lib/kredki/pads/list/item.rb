@@ -58,7 +58,7 @@ module Kredki
           )
         end
 
-        def repaint event = nil
+        def repaint event = nil, keyboard_in_lower = nil
           color = Kredki.color @suit
 
           if in_disabled
@@ -68,7 +68,18 @@ module Kredki
             area.set_stroke_fill color
           else
             set_opacity 1r
-            area.set_fill selected ? mouse_in ? Kredki.color(:text_selection).lighten : :text_selection : mouse_in ? color.lighten : color
+
+            if selected 
+              keyboard_in_lower = lower_pad&.keyboard_in || false if keyboard_in_lower.nil?
+              if mouse_in
+                area.set_fill Kredki.color(keyboard_in_lower ? :text_selection : :text_selection_inactive).lighten
+              else
+                area.set_fill keyboard_in_lower ? :text_selection : :text_selection_inactive
+              end
+            else
+              area.set_fill mouse_in ? color.lighten : color
+            end
+
             if keyboard_in
               area.set_stroke_width 1
               area.set_stroke_fill :stroke_focus

@@ -717,7 +717,7 @@ module Kredki
       end
 
       # Detach from lower.
-      def detach transfer = false
+      def detach transfer = false, system_call = false
         super
         pad_detach transfer
       end
@@ -914,7 +914,7 @@ module Kredki
         case at
         when Integer
           paint_state = @clip_scene.put_paint pad.scene, false
-          @pads.insert at, pad
+          @pads.insert [at, @pads.size].min, pad
         when Pad
           paint_state = @clip_scene.put_paint pad.scene, false, at.scene
           @pads.insert @pads.index(at), pad

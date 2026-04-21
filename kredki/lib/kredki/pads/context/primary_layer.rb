@@ -28,6 +28,7 @@ module Kredki
           on_mouse_press do |e|
             pad_detach
           end
+
         end
 
         def mouse_enter e

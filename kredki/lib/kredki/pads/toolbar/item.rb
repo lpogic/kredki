@@ -7,7 +7,10 @@ module Kredki
 
         # Add submenu item.
         def item!(...)
-          dropdown!.item_group.item!(...)
+          item_layer = dropdown!
+          item = item_layer.item_group.item!(...)
+          item_layer.load self if keyboard_top && !item_layer.loaded
+          item
         end
 
         # Create/Update dropdown.

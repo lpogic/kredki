@@ -133,7 +133,7 @@ module Kredki
       when 0x210
         abi = Pastele::WindowEvent.new event_ptr
         window_event abi.window_id, WindowCloseEvent.new(abi) do |event|
-          unless event.closed?
+          unless event.closed
             window = @windows[abi.window_id]
             delete_window window if window
             event.close
@@ -153,7 +153,7 @@ module Kredki
         if keyboard = Kredki.keyboard
           event = keyboard.key_press_event abi
           window_event abi.window_id, event do |event|
-            @early_close_next_text_event = event.closed? && (32..122).include?(event.code)
+            @early_close_next_text_event = event.closed && (32..122).include?(event.code)
           end
         end
       when 0x301 # SDL_EVENT_KEY_UP
@@ -208,7 +208,7 @@ module Kredki
         abi_event = Pastele::JoyDeviceEvent.new event_ptr
         joystick = (Kredki.joysticks.values - Kredki.opened_joysticks.values).max{ _1.match abi_event.which } || Joystick.new
         application_event JoystickConnectEvent.new(joystick, abi_event) do |event|
-          unless event.closed?
+          unless event.closed
             device_id = Pastele.joystick_open abi_event.which
             Kredki.opened_joysticks[device_id] = joystick
             joystick.device_id = device_id
@@ -220,7 +220,7 @@ module Kredki
         device_id = abi_event.which
         joystick = Kredki.opened_joysticks[device_id]
         application_event JoystickDisconnectEvent.new(joystick, abi_event) do |event|
-          unless event.closed?
+          unless event.closed
             joystick = Kredki.opened_joysticks.delete device_id
             joystick&.device_id = nil
             event.close
@@ -272,7 +272,7 @@ module Kredki
         # puts event_type.to_s 16
         nil
       end
-      event&.closed? ? 1 : 0
+      event&.closed ? 1 : 0
     end
 
     def put_window window

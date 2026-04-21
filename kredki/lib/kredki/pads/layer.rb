@@ -136,7 +136,7 @@ module Kredki
       end
 
       def keyboard_event event
-        if !event.closed? && displayed && (kp = keyboard_pad)
+        if !event.closed && displayed && (kp = keyboard_pad)
           event.target = kp
           kp.report event
         end
@@ -162,7 +162,7 @@ module Kredki
       end
 
       def joystick_event event
-        if !event.closed?
+        if !event.closed
           report event
         end
       end
@@ -314,6 +314,7 @@ module Kredki
       def update_lower lower, at = nil
         return if @lower == lower
         @lower = lower
+        true
       end
 
       def pad_attach lower, at = nil

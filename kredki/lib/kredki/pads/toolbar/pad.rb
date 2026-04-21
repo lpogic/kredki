@@ -41,7 +41,11 @@ module Kredki
           super
 
           on_select do |e|
-            keyboard_dispose unless e.target.find_upper Context::Item
+            if e.target.find_upper Context::Item
+              e.close
+            else
+              keyboard_dispose
+            end
           end
         end
 

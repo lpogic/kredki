@@ -23,7 +23,7 @@ module Kredki
     attr_accessor :block
 
     def call event = nil
-      return if !@always && event&.closed?
+      return if !@always && event&.closed
       event&.reaction = self
       begin
         @block.call event

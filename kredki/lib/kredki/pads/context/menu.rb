@@ -17,6 +17,11 @@ module Kredki
         def item!(...)
           put(Item, :item!, size_x: 1r).set(...)
         end
+
+        def delete_upper upper, system_call
+          super
+          find_lower(Item)&.dropdown_disable if !find(Item)
+        end
       end
       
       # Context menu service.
@@ -51,23 +56,39 @@ module Kredki
           @context_layer = put PrimaryLayer
         end
 
+        def behavior
+          super
+
+          on_select do |e|
+            if e.target.find_upper Context::Item
+              e.close
+            else
+              @context_layer.pad_detach
+            end
+          end
+        end
+
         def update_lower lower, at = nil
           if super
             @lower_events&.each{ _1.cancel }
 
-            secondary_mouse_click = lower.on_mouse_click :secondary do |e|
-              @context_layer.load *e.xy
-              @context_layer.find_upper(Item)&.keyboard_request
-              e.close
-            end
-      
-            context_key = lower.on_key :context do |e|
-              @context_layer.load *lower.translate(lower.area_x / 2, lower.area_y / 2)
-              @context_layer.find_upper(Item)&.keyboard_request
-              e.close
-            end
+            if lower
+              secondary_mouse_click = lower.on_mouse_click :secondary do |e|
+                @context_layer.load *e.xy
+                @context_layer.find_upper(Item)&.keyboard_request
+                e.close
+              end
+        
+              context_key = lower.on_key :context do |e|
+                @context_layer.load *lower.translate(lower.area_x / 2, lower.area_y / 2)
+                @context_layer.find_upper(Item)&.keyboard_request
+                e.close
+              end
 
-            @lower_events = [secondary_mouse_click, context_key]
+              @lower_events = [secondary_mouse_click, context_key]
+            else
+              @lower_events = []
+            end
           end
         end
 

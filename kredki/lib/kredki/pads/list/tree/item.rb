@@ -8,8 +8,14 @@ module Kredki
         def item! *a, **ka, &b
           at = (lower.subitems(self).last || self).pad_index + 1
           open = self.open
-          lower.item! *a, scenic: open, layoutic: open, size_x: 1r, at: at, level: level + 1, **ka, &b
-          set_leaf false if @leaf.nil?
+          item = lower.item! *a, scenic: open, layoutic: open, size_x: 1r, at: at, level: level + 1, **ka, &b
+          set_catalog true if lower_pad.catalogic
+          item
+        end
+
+        # Get subtree items.
+        def items
+          lower.subitems self
         end
 
         # Set whether is opened.
@@ -30,22 +36,22 @@ module Kredki
           @open || @open.nil?
         end
 
-        # Set whether is leaf.
-        def set_leaf value = true, &block
-          return if (c = leaf) == (value = block ? block[c] : value == Not ? !c : value)
-          @leaf = value
+        # Set whether is catalog.
+        def set_catalog value = true, &block
+          return if (c = catalog) == (value = block ? block[c] : value == Not ? !c : value)
+          @catalog = value
           update_icon
           true
         end
 
-        # See #set_leaf.
-        def leaf= param
-          send_bundle :set_leaf, param
+        # See #set_catalog.
+        def catalog= param
+          send_bundle :set_catalog, param
         end
 
-        # Get whether is leaf.
-        def leaf
-          @leaf || @leaf.nil?
+        # Get whether is catalog.
+        def catalog
+          @catalog
         end
 
         # Set level.
@@ -71,13 +77,31 @@ module Kredki
         def initialize
           super
 
-          @icon_space = put SpacePad, size: [:y, 1r]
+          @icon_space = put SpacePad, size: Kredki.text_size
         end
 
         def sketch
           super
 
           update_icon
+        end
+
+        def put subject, *a, **ka, &b
+          case subject
+          when Item
+            tree = [subject, *subject.items]
+            subject.detach
+            at = lower.subitems(self).last || self
+            open = self.open
+            level_offset = level + 1 - subject.level
+            tree.each_with_index do |item, index|
+              lower.put_service item, at: at.pad_index + index + 1
+              item.set(scenic: open, layoutic: open, level: level_offset + item.level)
+            end
+            set_catalog true if lower_pad.catalogic
+            subject.set(*a, **ka, &b)
+          else super
+          end
         end
 
         def update_level
@@ -91,16 +115,22 @@ module Kredki
 
         def update_icon
           @icon_space.clear
-          if leaf
-            default_leaf_icon
-          elsif open
-            default_catalog_open_icon
+          if catalog
+            if open
+              default_icon_catalog_open
+            else
+              default_icon_catalog
+            end
           else
-            default_catalog_icon
+            if open
+              default_icon_open
+            else
+              default_icon
+            end
           end
         end
 
-        def default_leaf_icon
+        def default_icon
           @icon_space.put Pad, size: 1r, fill: :text do
             set_area do
               ellipse 1/5r, 1/5r
@@ -108,7 +138,11 @@ module Kredki
           end
         end
 
-        def default_catalog_icon
+        def default_icon_open
+          default_icon
+        end
+
+        def default_icon_catalog
           @icon_space.put RectanglePad, :@catalog_icon, keyboardy: false, fill: 0, size: 1r do
             set_stroke fill: :text, width: 2, cap: :round
             set_mouse_cursor :pointer
@@ -120,7 +154,7 @@ module Kredki
           end
         end
 
-        def default_catalog_open_icon
+        def default_icon_catalog_open
           @icon_space.put RectanglePad, :@catalog_icon, keyboardy: false, fill: 0, size: 1r do
             set_stroke fill: :text, width: 2, cap: :round
             set_mouse_cursor :pointer

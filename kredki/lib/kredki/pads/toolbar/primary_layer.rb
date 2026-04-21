@@ -21,17 +21,8 @@ module Kredki
 
         def behavior
           super
-
-          on Item::SelectEvent do |e|
-            if e.target.find_upper Item
-              e.close
-            else
-              lower.report e
-              pad_detach
-            end
-          end
         
-          on_key :escape do |e|
+          on_key_press :escape do |e|
             pad_detach
             e.close
           end
@@ -44,18 +35,20 @@ module Kredki
         def update_lower lower, at = nil
           if super
             @lower_events&.each{ _1.cancel }
-            @lower_events = []
 
+            if lower
+              focus_enter = lower.on_focus_enter do |e|
+                load lower
+              end
 
-            focus_enter = lower.on_focus_enter do |e|
-              load lower
+              focus_leave = lower.on_focus_leave do |e|
+                unload if loaded
+              end
+              
+              @lower_events = [focus_enter, focus_leave]
+            else
+              @lower_events = []
             end
-
-            focus_leave = lower.on_focus_leave do |e|
-              unload if loaded
-            end
-            
-            @lower_events = [focus_enter, focus_leave]
           end
         end
       end#PrimaryLayer

@@ -47,7 +47,7 @@ module Kredki
     end
     
     # Get whether event is closed. Closed events are processed only by reactions with always = +true+.
-    def closed?
+    def closed
       @closed
     end
 

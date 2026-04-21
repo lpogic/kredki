@@ -38,14 +38,6 @@ module Kredki
           on_key :up, :down do |e|
             e.close
           end
-
-          on Item::SelectEvent do |e|
-            if e.target.find_upper Item
-              e.close
-            else
-              pad_detach
-            end
-          end
         end
 
         def mouse_press e

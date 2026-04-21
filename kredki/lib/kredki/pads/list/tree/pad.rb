@@ -22,6 +22,23 @@ module Kredki
           on_select do: param
         end
 
+        # Set whether is catalogic. 
+        def set_catalogic value = true, &block
+          return if (c = catalogic) == (value = block ? block[c] : value == Not ? !c : value)
+          @catalogic = value
+          true
+        end
+
+        # See #set_catalogic.
+        def catalogic= param
+          send_bundle :set_catalogic, param
+        end
+
+        # Get whether is catalogic.
+        def catalogic
+          @catalogic || @catalogic.nil?
+        end
+
         # Get all items.
         def items
           @item_group.items
@@ -79,13 +96,31 @@ module Kredki
             end
           end
 
-          on_focus_leave do
-            each_upper(Item).each_set selected: false
-          end
         end
 
-        def put_pad pad, at = nil
+        def presence
           super
+          
+          Event.each(
+            on_focus_enter,
+            on_focus_leave,
+            do: method(:repaint)
+          )
+        end
+
+        def repaint event = nil
+          super
+
+          items.each{|it| it.repaint nil, keyboard_in }
+        end
+
+        def put subject, *a, at: nil, **ka, &b
+          case subject
+          when Item
+            subject.detach
+            @item_group.put_service subject, *a, at: at, **ka, &b
+          else super
+          end
         end
 
       end#List

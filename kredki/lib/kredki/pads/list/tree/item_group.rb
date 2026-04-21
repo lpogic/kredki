@@ -10,15 +10,30 @@ module Kredki
 
         # Get all items.
         def items
-          each_upper(Tree::Item).to_a
+          each(Tree::Item).to_a
         end
 
         # Get selected items.
         def selected_items
-          each_upper(Tree::Item, selected: true).to_a
+          each(Tree::Item, selected: true).to_a
         end
           
         # :section: LEVEL 2
+
+        def delete_upper upper, system_call
+          subitems(upper).each{|it| it.detach false, true } if !system_call
+          super
+          update_catalog if !system_call && lower.catalogic
+        end
+
+        def update_catalog
+          last_level = 0
+          items.reverse_each do |it|
+            level = it.level
+            it.set_catalog last_level > level
+            last_level = level
+          end
+        end
 
         def select_up_to pad
           bound = 0

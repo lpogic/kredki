@@ -62,9 +62,31 @@ module Kredki
               each_upper(Item).each{|it| it.set_selected it == item }
             end
           end
+          
+        end
 
-          on_focus_leave do
-            each_upper(Item).each_set selected: false
+        def presence
+          super
+          
+          Event.each(
+            on_focus_enter,
+            on_focus_leave,
+            do: method(:repaint)
+          )
+        end
+
+        def repaint event = nil
+          super
+
+          items.each{|it| it.repaint nil, keyboard_in }
+        end
+
+        def put subject, *a, at: nil, **ka, &b
+          case subject
+          when Item
+            subject.detach
+            @item_group.put_service subject, *a, at: at, **ka, &b
+          else super
           end
         end
 

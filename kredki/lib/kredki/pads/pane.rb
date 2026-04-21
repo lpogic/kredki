@@ -184,7 +184,7 @@ module Kredki
         xy = event.xy
         cursor = nil
         @services.reverse_each do |layer|
-          if event.closed?
+          if event.closed
             layer.clear_mouse_location xy
           else
             event = layer.update_mouse_location event
@@ -201,7 +201,7 @@ module Kredki
           event.target = nil
           layer.keyboard_event event
           @event_queue.process
-          event.closed?
+          event.closed
         end
       end
 
@@ -210,7 +210,7 @@ module Kredki
           event.target = nil
           layer.joystick_event event
           @event_queue.process
-          event.closed?
+          event.closed
         end
       end
 

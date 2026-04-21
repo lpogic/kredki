@@ -23,7 +23,7 @@ module Kredki
     attr_accessor :job
 
     def call event = nil
-      return if !@always && event&.closed?
+      return if !@always && event&.closed
       event&.reaction = self
       begin
         @job.call event

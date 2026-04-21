@@ -52,8 +52,6 @@ module Kredki
         super
 
         on_key :enter do |e|
-          p e
-          p @dropdown.loaded
           if @dropdown.loaded
             item?(keyboard_in: true)&.report_selected e
           else

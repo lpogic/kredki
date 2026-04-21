@@ -64,9 +64,9 @@ module Kredki
       end
 
       # Detach self.
-      def detach transfer = false
-        @lower&.delete_upper self
-        @lower = nil
+      def detach transfer = false, system_call = false
+        @lower&.delete_upper self, system_call
+        update_lower nil
       end
 
       def on event_type, early: false, always: false, do: nil, &block
@@ -165,9 +165,13 @@ module Kredki
 
       def sketch_service
         sketch
+        behavior
       end
 
       def sketch
+      end
+
+      def behavior
       end
 
       def inspect
@@ -193,9 +197,14 @@ module Kredki
         service.update_lower self, at
         case at
         when Integer
-          @services.insert at, service
+          @services.insert [at, @services.size].min, service
         when Pad
-          @services.insert @services.index(at), service
+          index = @services.index at
+          if index
+            @services.insert index, service
+          else
+            @services << service
+          end
         else
           @services << service
         end
@@ -206,7 +215,7 @@ module Kredki
         @services.index service
       end
 
-      def delete_upper upper
+      def delete_upper upper, system_call
         @services.delete upper
       end
 
