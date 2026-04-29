@@ -179,7 +179,7 @@ module Kredki
       end
       
       Pastele.window_set_size @pointer, size_x, size_y
-      ka.each{ send_bundle "size_#{_1}!", _2 }
+      ka.each{ send_bundle "set_size_#{_1}", _2 }
       report ResizeEvent.new size_x, size_y
       true
     end

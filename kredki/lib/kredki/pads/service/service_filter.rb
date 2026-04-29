@@ -9,7 +9,7 @@ module Kredki
 
       def method_missing name, ...
         if name.end_with? "?"
-          find_upper(name.to_s.tr("?", "!").to_sym, ...)
+          find_upper(name.to_s.tr!("?", "!").to_sym, ...)
         else
           super
         end

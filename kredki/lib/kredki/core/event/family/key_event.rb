@@ -32,6 +32,19 @@ module Kredki
 
   # Event reported on key press.
   class KeyboardKeyPressEvent < KeyEvent
+    def initialize ...
+      super
+      @close_text = false
+    end
+
+    def close close_text = true
+      @closed = true
+      @closed_text = close_text
+    end
+
+    def closed_text
+      @closed_text
+    end
   end
 
   # Event reported on key release.

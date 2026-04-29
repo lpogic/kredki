@@ -51,7 +51,7 @@ module Kredki
 
         on_key_press :a do |e|
           if e.ctrl?
-            text.select 0, text.content.length
+            text.select
             e.close
           end
         end

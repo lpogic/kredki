@@ -10,7 +10,7 @@ module Kredki
         if !event || (
           @click_data.pad == event.target && 
           !event.target.drag_check(@click_data.xy, event.xy) && 
-          event.timestamp - @click_data.timestamp < 200000000
+          event.timestamp - @click_data.timestamp < 300000000
         )
         then
           return @click_data.combo
@@ -266,6 +266,7 @@ module Kredki
 
       def mouse_click event
         combo = mouse_click_combo(event) + 1
+        # p [event, combo]
         event.combo = combo
         @click_data = ClickData.new event.target, event.xy, event.timestamp, combo
       end

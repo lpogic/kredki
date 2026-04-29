@@ -8,6 +8,7 @@
 #   ...
 # This way 'custom_pads_config.rb' will be loaded instead of the current file.
 
+require 'kredki/pads/service/data_service'
 require 'kredki/pads/pad/space_pad'
 require 'kredki/pads/pad/picture_pad'
 require 'kredki/pads/pad/glyph_pad'
@@ -39,6 +40,16 @@ module Kredki
   color! :text, 255, 255, 255, 255
 
   module Pads
+
+    class Service
+      def service! *a, **ka, &b
+        put(Class.new(Service, &b), __method__, *a, **ka)
+      end
+
+      data! DataService
+
+    end#Service
+
     class Pad
 
       rectangle! RectanglePad
@@ -101,9 +112,6 @@ module Kredki
         RUBY
       end
 
-      def service! *a, **ka, &b
-        put(Class.new(Service, &b), __method__, *a, **ka)
-      end
     end#Pad
   end#Pads
 

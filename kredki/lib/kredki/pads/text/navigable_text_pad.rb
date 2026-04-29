@@ -4,11 +4,13 @@ module Kredki
       
       # Set subject.
       def set_subject subject = @subject, cursor_position = 0, &b
-        if super(subject, &b) && @selection.size != @verses.size
+        change = super(subject, &b)
+        if change && @selection.size != @verses.size
           @selection.clear
           @verses.each{ @selection.new_rectangle fill: :text_selection, size_x: 0 }
         end
         update_cursor cursor_position
+        change
       end
 
       # Set font.
@@ -38,9 +40,9 @@ module Kredki
       end
 
       # Set select range.
-      def select min, max
-        @selection_start = min
-        @selection_end = @cursor_position = max
+      def select selection_start = 0, selection_end = nil
+        @selection_start = selection_start
+        @selection_end = @cursor_position = selection_end || text.length
         layer&.break_layout
       end
 

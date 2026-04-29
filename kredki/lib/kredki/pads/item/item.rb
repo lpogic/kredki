@@ -137,7 +137,7 @@ module Kredki
       end
 
       def default_text text
-        put TextPad, text, mousy: false
+        put TextPad, text, :text!, mousy: false
       end
     end#Item
   end#Pads
