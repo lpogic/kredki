@@ -4,40 +4,29 @@ module Kredki
       # List item model.
       class Item < ItemY
 
-        # Set whether is selected.
-        def set_selected value = true, &block
-          return if (c = selected) == (value = block ? block[c] : value == Not ? !c : value)
+        feature :selected
+        
+        def set_selected value = true
+          return if (c = selected) == (value = value == Not ? !c : value)
           @selected = value
           repaint
           true
         end
-
-        # See #set_selected.
-        def selected= param
-          send_bundle :set_selected, param
-        end
-
-        # Get whether is selected.
+        
         def selected
           @selected
         end
 
-        # Set suit.
+        feature :suit # Basic appearance.
+
         def set_suit *suit
-          return send_bundle :set_suit, yield(self.suit) if block_given?
           suit = Util.uncover suit
           return if @suit == suit && suit != :random
           @suit = suit
           repaint
           true
         end
-
-        # See #set_suit.
-        def suit= param
-          send_bundle :set_suit, param
-        end
-
-        # Get suit.
+        
         def suit
           @suit
         end

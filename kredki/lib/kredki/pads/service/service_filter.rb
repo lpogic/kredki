@@ -3,41 +3,32 @@ module Kredki
     # Module to include in service containers.
     module ServiceFilter
 
-      def respond_to? name, include_all = false
-        name.end_with? "?" or super
-      end
-
-      def method_missing name, ...
-        if name.end_with? "?"
-          find_upper(name.to_s.tr!("?", "!").to_sym, ...)
-        else
-          super
-        end
-      end
-
       # Get self if it matches filters.
       def is *filters, **ka, &block
         return self if self =~ [*filters, ka, block]
       end
 
       # Find direct upper service matching filters.
-      def find *filters, last: false, **ka, &block
-        each(*filters, **ka, reverse: last, &block).first
+      def direct_upper *filters, last: false, **ka, &block
+        each_direct_upper(*filters, **ka, reverse: last, &block).first
       end
 
       # Find upper service matching filters.
-      def find_upper *filters, last: false, **ka, &block
+      def upper *filters, last: false, **ka, &block
         each_upper(*filters, **ka, reverse: last, &block).first
       end
 
+      # See #upper.
+      alias_method :[], :upper
+
       # Find lower service matching filters.
-      def find_lower *filters, last: false, **ka, &block
+      def lower *filters, last: false, **ka, &block
         each_lower(*filters, **ka, reverse: last, &block).first
       end
 
-      # Get each direct lower service matching filters.
-      def each *filters, reverse: false, **ka, &block
-        upper_iterator deep: false, reverse:, filter: [*filters, ka, block]
+      # Get each direct upper service matching filters.
+      def each_direct_upper *filters, reverse: false, **ka, &block
+        upper_iterator deep: false, reverse:, direct_call: true, filter: [*filters, ka, block]
       end
       
       # Get each lower service matching filters.
@@ -47,24 +38,23 @@ module Kredki
 
       # Get each upper service matching filters.
       def each_upper *filters, reverse: false, **ka, &block
-        upper_iterator deep: true, reverse:, filter: [*filters, ka, block]
+        upper_iterator deep: true, reverse:, direct_call: true, filter: [*filters, ka, block]
       end
             
       # Get upper services iterator.
-      def upper_iterator enum = nil, reverse: false, deep: true, filter: nil
+      def upper_iterator enum = nil, reverse: false, deep: true, filter: nil, direct_call: false
         if enum
-          method = reverse ? :reverse_each : :each
           case deep
           when false
-            @services.send(method){|it| enum << it if it =~ filter }
+            each_service(reverse, direct_call){|it| enum << it if it =~ filter }
           when :first
-            @services.send method do |it|
+            each_service reverse, direct_call do |it|
               enum << it if it =~ filter 
               it.upper_iterator enum, reverse:, deep:, filter: ;
             end
           else
-            @services.send(method){|it| enum << it if it =~ filter }
-            @services.send(method){|it| it.upper_iterator enum, reverse:, deep:, filter: }
+            each_service(reverse, direct_call){|it| enum << it if it =~ filter }
+            each_service(reverse, direct_call){|it| it.upper_iterator enum, reverse:, deep:, filter: }
           end
           enum
         else
@@ -73,20 +63,19 @@ module Kredki
       end
 
       # Iterate over pad descedants.
-      def upper_pad_iterator enum = nil, reverse: false, deep: true
+      def upper_pad_iterator enum = nil, reverse: false, deep: true, direct_call: false
         if enum
-          method = reverse ? :reverse_each : :each
           case deep
           when false
-            @pads.send(method){ enum << _1 }
+            each_pad(reverse, direct_call){ enum << _1 }
           when :first
-            @pads.send method do
+            each_pad reverse, direct_call do
               enum << _1
               _1.upper_pad_iterator enum, reverse:, deep:;
             end
           else
-            @pads.send(method){ enum << _1 }
-            @pads.send(method){ _1.upper_pad_iterator enum, reverse:, deep: }
+            each_pad(reverse, direct_call){ enum << _1 }
+            each_pad(reverse, direct_call){ _1.upper_pad_iterator enum, reverse:, deep: }
           end
           enum
         else

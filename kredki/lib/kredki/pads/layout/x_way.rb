@@ -8,49 +8,52 @@ module Kredki
 
         # :section: LEVEL 2
 
-        def get_span pad, size_x, limit, lower_clip_size_x
+        def get_size_characteristic pad, size_x, limit, lower_clip_size_x
           case size_x
           when Rational
             case limit
             when nil
-              [size_x, 0, Float::INFINITY, 0]
+              PadSizeCharacteristic.new pad, size_x, 0, Float::INFINITY, 0
             when Range
               sxv = limit.begin&.then{|it| pad.get_size_x_value it, lower_clip_size_x, nil } || 0
               limit_sxv = limit.end&.then{|it| pad.get_size_x_value it, lower_clip_size_x, nil } || Float::INFINITY
-              [size_x, sxv, limit_sxv, sxv]
+              PadSizeCharacteristic.new pad, size_x, sxv, limit_sxv, sxv
             else
               limit_sxv = pad.get_size_x_value limit, lower_clip_size_x, nil
-              [size_x, 0, limit_sxv, 0]
+              PadSizeCharacteristic.new pad, size_x, 0, limit_sxv, 0
             end
           when Auto
             case limit
             when nil
-              [1r, 0, Float::INFINITY, 0]
+              PadSizeCharacteristic.new pad, 1r, 0, Float::INFINITY, 0
             when Range
               sxv = limit.begin&.then{|it| pad.get_size_x_value it, lower_clip_size_x, nil } || 0
               limit_sxv = limit.end&.then{|it| pad.get_size_x_value it, lower_clip_size_x, nil } || Float::INFINITY
-              [1r, sxv, limit_sxv, sxv]
+              PadSizeCharacteristic.new pad, 1r, sxv, limit_sxv, sxv
             else
               limit_sxv = pad.get_size_x_value limit, lower_clip_size_x, nil
-              [1r, 0, limit_sxv, 0]
+              PadSizeCharacteristic.new pad, 1r, 0, limit_sxv, 0
             end
           else
             sxv = pad.get_size_x_limited size_x, limit, lower_clip_size_x
-            [0, sxv, sxv, sxv]
+            PadSizeCharacteristic.new pad, 0, sxv, sxv, sxv
           end
         end
 
         def arrange pad
           csx, csy = pad.clip_size
-          sp = pad.pads_layoutic.map{|it| get_span it, it.size_x, it.size_x_limit, csx }
-          measurement, sx = spans sp, csx, pad.spacer || 0
+          spacer = pad.layout_spacer || 0
+          pad_size_characteristics = pad.pads_layoutic.map{|it| get_size_characteristic it, it.size_x, it.size_x_limit, csx }
+          total_size_x = determine_size_characteristics pad_size_characteristics, csx, spacer
           
-          pad.pads_layoutic.zip measurement do |p1, m|
-            psy = p1.get_size_y csy, m
-            p1.update_size m, psy
+          pad_size_characteristics.each do |it|
+            layoutic_pad = it.pad
+            sx = it.size
+            sy = layoutic_pad.get_size_y csy, sx
+            layoutic_pad.update_size sx, sy
           end
 
-          arrange_pads pad.arranged_pads, sx, csx, csy, pad.spacer || 0
+          arrange_pads pad.arranged_pads, total_size_x, csx, csy, spacer
         end
 
         def arrange_pads pads, sx, csx, csy, spacer
@@ -98,16 +101,16 @@ module Kredki
         end
 
         def fit_size_x pad
-          spacer = pad.spacer || 0
+          spacer = pad.layout_spacer || 0
           pad.pads_layoutic.map{|p1| p1.min_size_x }.reduce{ _1 + spacer + _2 } || 0
         end
 
-        def get_size_x_rational p0, psx, p1, r
-          index = p0.pads_layoutic.find_index{|it| it == p1 }
+        def get_size_x_rational pad, psx, p1, r
+          index = pad.pads_layoutic.find_index{|it| it == p1 }
           if index
-            sp = p0.pads_layoutic.map{|it| get_span it, it.size_x, it.size_x_limit, psx }
-            measurement, sx = spans sp, psx, p0.spacer || 0
-            measurement[index]
+            pad_size_characteristics = pad.pads_layoutic.map{|it| get_size_characteristic it, it.size_x, it.size_x_limit, psx }
+            determine_size_characteristics pad_size_characteristics, psx, pad.layout_spacer || 0
+            pad_size_characteristics[index].size
           else
             r * psx
           end

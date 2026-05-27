@@ -33,36 +33,24 @@ module Kredki
       input.map{ button(_1).code }.uniq
     end
 
-    # Set wheel speed.
-    def set_scroll_speed speed = @scroll_speed
-      return set_scroll_speed yield @scroll_speed if block_given?
+    feature :scroll_speed # Wheel speed.
+
+    def set_scroll_speed speed
       @scroll_speed = speed
       true
     end
-
-    # See #set_scroll_speed.
-    def scroll_speed= param
-      set_scroll_speed param
-    end
-
-    # Get wheel speed.
+    
     def scroll_speed
       @scroll_speed
     end
 
-    # Set alternative wheel speed.
-    def set_scroll_speed_alt speed = @scroll_speed_alt
-      return set_scroll_speed_alt yield @scroll_speed_alt if block_given?
+    feature :scroll_speed_alt # Alternative wheel speed.
+
+    def set_scroll_speed_alt speed
       @scroll_speed_alt = speed
       true
     end
-
-    # See #set_scroll_speed_alt.
-    def scroll_speed_alt= param
-      set_scroll_speed_alt param
-    end
-
-    # Get alternative wheel speed.
+    
     def scroll_speed_alt
       @scroll_speed_alt
     end
@@ -106,33 +94,23 @@ module Kredki
       [point.x, point.y]
     end
 
-    # Set whether capture mode is on.
+    feature :capture # Whether capture mode is on.
+
     def set_capture value = true
-      return if (c = capture) == (value = block_given? ? yield(c) : value == Not ? !c : value)
+      return if (c = capture) == (value = value == Not ? !c : value)
       Pastele.mouse_set_capture capture ? 1 : 0
       true
     end
 
-    # See #set_capture.
-    def capture= param
-      set_caupture param
-    end
+    feature :cursor
 
-    # Set cursor.
-    def set_cursor cursor = @cursor
-      return send_bundle :set_cursor, yield(self.cursor) if block_given?
+    def set_cursor cursor
       return if @cursor == cursor
       @cursor = cursor
       update_cursor cursor
       true
     end
-
-    # See #set_cursor.
-    def cursor= param
-      send_bundle :set_cursor, param
-    end
-
-    # Get cursor.
+    
     def cursor
       @cursor
     end

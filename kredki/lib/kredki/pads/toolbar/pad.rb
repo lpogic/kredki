@@ -12,18 +12,10 @@ module Kredki
 
         # Add menu item.
         def item!(...)
-          find(ItemGroup).item!(...)
+          direct_upper(ItemGroup).item!(...)
         end
 
-        # Create and attach item select event reaction.
-        def on_select ...
-          on(Item::SelectEvent, ...)
-        end
-
-        # See #on_select.
-        def on_select= param
-          on_select do: param
-        end
+        reaction Item::SelectEvent, :on_select
 
         # :section: LEVEL 2
 
@@ -41,7 +33,7 @@ module Kredki
           super
 
           on_select do |e|
-            if e.target.find_upper Context::Item
+            if e.target[Context::Item]
               e.close
             else
               keyboard_dispose

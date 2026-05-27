@@ -18,56 +18,41 @@ module Kredki
           lower.subitems self
         end
 
-        # Set whether is opened.
-        def set_open value = true, &block
-          return if (c = open) == (value = block ? block[c] : value == Not ? !c : value)
+        feature :open
+        
+        def set_open value = true
+          return if (c = open) == (value = value == Not ? !c : value)
           update_open value
           lower&.update_open
           true
         end
 
-        # See #set_open.
-        def open= param
-          send_bundle :set_open, param
-        end
-
-        # Get whether is opened.
         def open
           @open || @open.nil?
         end
 
-        # Set whether is catalog.
-        def set_catalog value = true, &block
-          return if (c = catalog) == (value = block ? block[c] : value == Not ? !c : value)
+        feature :catalog
+        
+        def set_catalog value = true
+          return if (c = catalog) == (value = value == Not ? !c : value)
           @catalog = value
           update_icon
           true
         end
-
-        # See #set_catalog.
-        def catalog= param
-          send_bundle :set_catalog, param
-        end
-
-        # Get whether is catalog.
+        
         def catalog
           @catalog
         end
 
-        # Set level.
+        feature :level
+        
         def set_level level
           return if @level == level
           @level = level
           update_level
           true
         end
-
-        # See #set_level.
-        def level= param
-          send_bundle :set_level, param
-        end
         
-        # Get level
         def level
           @level || 0
         end

@@ -3,9 +3,17 @@ module Kredki
     # Pad with glyph area.
     class GlyphPad < PicturePad
 
-      # Set subject.
+      def mixed_set feature
+        case feature
+        when Symbol
+          set_subject feature if feature =~ /^[a-z_0-9]+$/
+          super
+        else
+          super
+        end
+      end
+
       def set_subject subject = @subject
-        return send_bundle :set_subject, yield(self.subject) if block_given?
         return if @subject == subject && subject != :random
         if update_subject Kredki.glyph(subject)
           update_color if @fill
@@ -14,9 +22,9 @@ module Kredki
         true
       end
 
-      # Set fill.
+      feature :fill
+
       def set_fill *fill
-        return send_bundle :set_fill, yield(self.fill) if block_given?
         fill = Util.uncover fill
         return if @fill == fill && fill != :random
         @fill = fill
@@ -24,25 +32,8 @@ module Kredki
         true
       end
 
-      # See #set_fill.
-      def fill= param
-        send_bundle :set_fill, param
-      end
-
-      # Get fill.
       def fill
         @fill
-      end
-
-      # Set a feature recognized by its class.
-      def << arg
-        case arg
-        when Symbol
-          set_subject arg if arg =~ /^[a-z_0-9]+$/
-          super
-        else
-          super
-        end
       end
 
       # :section: LEVEL 2

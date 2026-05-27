@@ -5,6 +5,7 @@ module Kredki
     # Common event reactions for text edition.
     module TextEdition
       include TextNavigation
+      extend Reactions
 
       class EditEvent < Event
         def param
@@ -28,10 +29,8 @@ module Kredki
         attr_accessor :inset
         attr_accessor :action        
       end
-      
-      def on_edit ...
-        on(EditEvent, ...)
-      end
+
+      reaction EditEvent, :on_edit
 
       def text_edition text, multiline
         text_navigation text

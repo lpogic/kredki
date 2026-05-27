@@ -4,6 +4,6 @@ require_relative 'script'
 
 if run_at_exit
   at_exit do
-    app.run
+    application.run
   end
 end

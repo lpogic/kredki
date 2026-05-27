@@ -41,7 +41,7 @@ end
 
 
 
-ycc! spacer: 60, size: 2/3r do
+ycc! 60, size: 2/3r do
   car! size: 1r, rim: :green, body: :orange
   car! size: 1r, zoom: -1, rim: :red, body: :gray
 end

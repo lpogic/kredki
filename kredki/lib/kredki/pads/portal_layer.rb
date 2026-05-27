@@ -3,8 +3,6 @@ module Kredki
     # A layer which translates all mouse pointer events.
     class PortalLayer < Layer
 
-      # :section: LEVEL 2
-
       module PortalMouseEvent
         def x
           @x

@@ -3,6 +3,17 @@ module Kredki
     # Item group member.
     class Item < RectanglePad
 
+      def mixed_set feature
+        case feature
+        when String
+          self[TextPad]&.set feature or default_text feature
+          self.subject ||= feature
+          self
+        else
+          super
+        end
+      end
+
       # Get whether is pressed.
       def pressed keyboard_in = nil
         keyboard_in = self.keyboard_in if keyboard_in.nil?
@@ -14,55 +25,29 @@ module Kredki
         )
       end
 
-      # Set suit.
+      feature :suit # Basic appearance.
+      
       def set_suit *suit
-        return send_bundle :set_suit, yield(self.suit) if block_given?
         suit = Util.uncover suit
         return if @suit == suit && suit != :random
         @suit = suit
         repaint
         true
       end
-
-      # See #set_suit.
-      def suit= param
-        send_bundle :set_suit, param
-      end
-
-      # Get suit.
+      
       def suit
         @suit
       end
-
-      # Create and attach select event reaction.
-      def on_select ...
-        on(SelectEvent, ...)
-      end
-
-      # See #on_select.
-      def on_select= param
-        on_select do: param
-      end
-
-      # Set a feature recognized by its class.
-      def << feature
-        case feature
-        when String
-          find(TextPad)&.set feature or default_text feature
-          self.subject ||= feature
-          self
-        else
-          super
-        end
-      end
-      
-      # :section: LEVEL 2
 
       class SelectEvent < Event
         def param
           target.subject
         end
       end
+
+      reaction SelectEvent, :on_select
+            
+      # :section: LEVEL 2
 
       def sketch
         super

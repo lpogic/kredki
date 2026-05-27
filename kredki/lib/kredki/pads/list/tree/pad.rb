@@ -12,29 +12,16 @@ module Kredki
           @item_group.item! *a, size_x: 1r, **ka, &b
         end
 
-        # Create and attach select event reaction.
-        def on_select ...
-          on(Item::SelectEvent, ...)
-        end
+        reaction Item::SelectEvent, :on_select
 
-        # See #on_select.
-        def on_select= param
-          on_select do: param
-        end
-
-        # Set whether is catalogic. 
-        def set_catalogic value = true, &block
-          return if (c = catalogic) == (value = block ? block[c] : value == Not ? !c : value)
+        feature :catalogic
+        
+        def set_catalogic value = true
+          return if (c = catalogic) == (value = value == Not ? !c : value)
           @catalogic = value
           true
         end
-
-        # See #set_catalogic.
-        def catalogic= param
-          send_bundle :set_catalogic, param
-        end
-
-        # Get whether is catalogic.
+        
         def catalogic
           @catalogic || @catalogic.nil?
         end
@@ -74,7 +61,7 @@ module Kredki
                 if source.ctrl?
                   item.set_selected Not
                 else
-                  each_upper(Item).each_set{|it| set_selected it == item }
+                  each_upper(Item).each{|it| it.set_selected it == item }
                 end
               end
             else

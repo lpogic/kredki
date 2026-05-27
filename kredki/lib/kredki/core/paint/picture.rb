@@ -5,9 +5,22 @@ module Kredki
   class Picture < Paint
     include Area
 
-    # Set content.
+    def mixed_set feature
+      case feature
+      in [x, y]
+        set_size x, y
+      in Numeric
+        set_size feature
+      in String
+        set_content feature
+      else
+        super
+      end
+    end
+
+    feature :content
+    
     def set_content content, reset_size = false
-      return set_content yield @content if block_given?
       return if @content == content
       string_content = content.to_s
       raise "File \"#{c}\" not found." unless File.exist? string_content
@@ -24,13 +37,7 @@ module Kredki
       end
       update
     end
-
-    # See #set_content.
-    def content= param
-      send_bundle :set_content, param
-    end
-
-    # Get content.
+    
     def content
       @content
     end
@@ -61,20 +68,6 @@ module Kredki
         1
       end
       Pastele.paint_accessor_traverse @pointer, callback
-    end
-
-    # Set a feature recognized by its class.
-    def << feature
-      case feature
-      in [x, y]
-        set_size x, y
-      in Numeric
-        set_size feature
-      in String
-        set_content feature
-      else
-        super
-      end
     end
 
     # :section: LEVEL 2

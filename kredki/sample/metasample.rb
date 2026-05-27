@@ -20,14 +20,14 @@ class ListPane < Pane
         end
 
         Dir["*.rb"].each_with_index do |file, index| 
-          item! "#{index + 1}. #{file}", subject: file, suit: [20, 70, 20], spacer: 5 do
+          item! "#{index + 1}. #{file}", subject: file, suit: [20, 70, 20], layout_spacer: 5 do
             glyph! :media_play, fill: :text, scenic: false, mouse_cursor: :pointer do
               on_mouse_enter{ set_zoom 1.2 }
               on_mouse_leave{ set_zoom 1.0 }
-              on_mouse_click{ app.open RunSamplePane.new(file, File.read(File.expand_path "#{Kredki.dir}/sample/#{file}")) }
+              on_mouse_click{ application.open RunSamplePane.new(file, File.read(File.expand_path "#{Kredki.dir}/sample/#{file}")) }
             end
-            on_mouse_enter{ glyph?.set_scenic true }
-            on_mouse_leave{ glyph?.set_scenic false }
+            on_mouse_enter{ self[:glyph!].set_scenic true }
+            on_mouse_leave{ self[:glyph!].set_scenic false }
             on_mouse_click{|event| go_sample.call subject if event.combo == 2 }
           end
         end
@@ -44,10 +44,10 @@ class SampleCodePane < Pane
     set_layout :yss
 
     notes! File.read(file), verse: [font: :martian_mono, size: 14], size: 1r, suit: [20, 70, 20]
-    xec! size_x: 1r, size_y: Fit, spacer: 10, margin: 10 do
+    xec! size_x: 1r, size_y: Fit, layout_spacer: 10, margin: 10 do
       button! "Back", on_click: proc{ window.set list_pane }
       button! "Run", suit: :orange do
-        on_click{ app.open RunSamplePane.new(file, pane.notes?.text) }
+        on_click{ application.open RunSamplePane.new(file, pane[:notes!].text) }
       end
     end
   end

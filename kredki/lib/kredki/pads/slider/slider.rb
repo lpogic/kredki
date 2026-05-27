@@ -18,27 +18,23 @@ module Kredki
         end
       end
 
-      # Set value.
+      reaction EditEvent, :on_edit
+
+      feature :value # Value between 0 and 1.
+
       def set_value value = @value
-        return send_bundle :set_value, yield(self.value) if block_given?
         return if @value == value
         @value = value
         layer&.break_layout
       end
 
-      # See #set_value.
-      def value= param
-        send_bundle :set_value, param
-      end
-
-      # Get value.
       def value
         @value
       end
 
-      # Set suit.
+      feature :suit # Basic apperance.
+
       def set_suit *suit
-        return send_bundle :set_suit, yield(self.suit) if block_given?
         suit = Util.uncover suit
         return if @suit == suit && suit != :random
         @suit = suit
@@ -46,24 +42,8 @@ module Kredki
         true
       end
 
-      # See #set_suit.
-      def suit= param
-        send_bundle :set_suit, param
-      end
-
-      # Get suit.
       def suit
         @suit
-      end
-
-      # Create and attach edit event reaction.
-      def on_edit ...
-        on(EditEvent, ...)
-      end
-
-      # See #on_edit.
-      def on_edit= param
-        on_edit do: param
       end
 
       # :section: LEVEL 2

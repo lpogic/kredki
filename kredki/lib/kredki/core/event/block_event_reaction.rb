@@ -25,15 +25,15 @@ module Kredki
     def call event = nil
       return if !@always && event&.closed
       event&.reaction = self
-      begin
-        @block.call event
-      rescue => e
-        res = Kredki.app.rescue
-        if res
-          res.call e, event
-        else
-          raise inspect
+      rescuer = Kredki.application.rescue
+      if rescuer
+        begin
+          @block.call event
+        rescue => e
+          rescuer.call e, event
         end
+      else
+        @block.call event
       end
     end
 

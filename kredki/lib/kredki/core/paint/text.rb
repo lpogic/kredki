@@ -1,21 +1,26 @@
 module Kredki
   class Text < Paint
 
-    # Set content.
-    def set_content content = @content
-      return set_content yield @content if block_given?
+    def mixed_set feature
+      case feature
+      in String
+        set_content feature
+      in Numeric
+        set_size_y feature
+      else
+        super
+      end
+    end
+
+    feature :content
+
+    def set_content content
       return if @content == content
       Pastele.text_set_text @pointer, content.to_s
       @content = content
       update_size
     end
 
-    # See #set_content.
-    def content= param
-      send_bundle :set_content, param
-    end
-
-    # Get content.
     def content
       @content
     end
@@ -25,21 +30,15 @@ module Kredki
       @size_x
     end
 
-    # Set size in X axis. It can also affect the size in Y axis.
-    def set_size_y size_y = @size_y
-      return set_size_y yield @size_y if block_given?
+    feature :size_y # Size in X axis.
+    
+    def set_size_y size_y
       return if @size_y == size_y
       Pastele.text_set_size @pointer, size_y
       @size_y = size_y
       update_size
     end
-
-    # See #set_size_y.
-    def size_y= param
-      send_bundle :set_size_y, param
-    end
-
-    # Get size in Y axis.
+    
     def size_y
       @size_y
     end
@@ -49,28 +48,22 @@ module Kredki
       [@size_x, @size_y]
     end
 
-    # Set font.
+    feature :font
+    
     def set_font font
-      return set_font yield @font if block_given?
       return if @font == font
       Pastele.text_set_font @pointer, Kredki.font(font).name
       @font = font
       update_size
     end
-
-    # See #set_font.
-    def font= param
-      send_bundle :set_font, param
-    end
-
-    # Get font.
+    
     def font
       @font
     end
 
-    # Set fill color.
+    feature :fill
+    
     def set_fill *fill
-      return send_bundle :set_fill, yield(self.fill) if block_given?
       fill = Util.uncover fill
       return if @fill == fill && fill != :random
       norm_fill = Kredki.fill fill
@@ -85,71 +78,47 @@ module Kredki
       @fill = fill
       update
     end
-
-    # See #set_fill.
-    def fill= param
-      send_bundle :set_fill, param
-    end
-
-    # Get fill color.
+    
     def fill
       @fill
     end
 
-    # Set stroke features.
+    feature :stroke
+    
     def set_stroke *a, **ka
-      a.map do |it|
+      a.count do |it|
         case it
-        when Hash
-          set_stroke **it
         when Numeric
           set_stroke_width it
         else
-          send_bundle :set_stroke_fill, it
+          mixed_set_stroke_fill it
         end
-      end.any? | send_branch(__method__, ka)
+      end.zero?.not | nest_set(__method__, ka)
     end
     
-    # See #set_stroke.
-    def stroke= param
-      send_bundle :set_stroke, param
-    end
-
-    # Set stroke fill.
+    feature :stroke_fill
+    
     def set_stroke_fill *stroke_fill
-      return send_bundle :set_stroke_fill, yield(self.stroke_fill) if block_given?
       stroke_fill = Util.uncover stroke_fill
       return if @stroke_fill == stroke_fill && stroke_fill != :random
       update_stroke stroke_fill, @stroke_width
       @stroke_fill = stroke_fill
       update
     end
-
-    # See #set_stroke_fill.
-    def stroke_fill= param
-      send_bundle :set_stroke_fill, param
-    end
-
-    # Get stroke fill.
+    
     def stroke_fill
       @stroke_fill
     end
 
-    # Set stroke width.
-    def set_stroke_width stroke_width = @stroke_width
-      return set_stroke_width yield @stroke_width if block_given?
+    feature :stroke_width
+
+    def set_stroke_width stroke_width
       return if @stroke_width == stroke_width
       update_stroke @stroke_fill, stroke_width
       @stroke_width = stroke_width
       update
     end
-
-    # See #set_stroke_width.
-    def stroke_width= param
-      send_bundle :set_stroke_width, param
-    end
-
-    # Get stroke width.
+    
     def stroke_width
       @stroke_width
     end
@@ -165,18 +134,6 @@ module Kredki
     def nearest_character_index size_max, string = @content
       return 0 if size_max <= 0
       Pastele.text_nearest_character_index @pointer, string.to_s, size_max
-    end
-
-    # Set a feature recognized by its class.
-    def << feature
-      case feature
-      in String
-        set_content feature
-      in Numeric
-        set_size_y feature
-      else
-        super
-      end
     end
 
     # :section: LEVEL 2

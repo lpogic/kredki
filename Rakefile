@@ -79,11 +79,11 @@ end
 
 case RUBY_PLATFORM
 when /cygwin|mswin|mingw|bccwin|wince|emx/
-  require 'rake/windows_tasks'
+  require_relative 'rake/windows_tasks'
 when /linux/
-  require 'rake/linux_tasks'
+  require_relative 'rake/linux_tasks'
 when /darwin/
-  require 'rake/macos_tasks'
+  require_relative 'rake/macos_tasks'
 else
   desc "[NOT AVAILABLE] Interactive project configurator"
   task :config do

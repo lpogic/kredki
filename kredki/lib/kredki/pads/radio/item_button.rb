@@ -4,9 +4,9 @@ module Kredki
       # Radio item button model.
       class ItemButton < RectanglePad
 
-        # Set suit.
+        feature :suit # Basic apperance
+        
         def set_suit *suit
-          return send_bundle :set_suit, yield(self.suit) if block_given?
           suit = Util.uncover suit
           return if @suit == suit && suit != :random
           @suit = suit
@@ -14,28 +14,17 @@ module Kredki
           true
         end
 
-        # See #set_suit.
-        def suit= param
-          send_bundle :set_suit, param
-        end
-
-        # Get suit.
         def suit
           @suit
         end
-        
-        # Set whether is selected.
+
+        feature :selected # Whether radio item is the selected one.
+
         def set_selected value = true
-          return if (c = selected) == (value = block_given? ? yield(c) : value == Not ? !c : value)
+          return if (c = selected) == (value = value == Not ? !c : value)
           update_group_selected value
         end
 
-        # See #set_selected.
-        def selected= param
-          send_bundle :set_selected, param
-        end
-
-        # Get whether is selected.
         def selected
           @selected
         end
@@ -52,13 +41,7 @@ module Kredki
           end
         end
 
-        def on_select ...
-          on(SelectEvent, ...)
-        end
-
-        def on_select= param
-          on_select do: param
-        end
+        reaction SelectEvent, :on_select
 
         # :section: LEVEL 2
 
@@ -117,12 +100,12 @@ module Kredki
           end
 
           on_key_press do |e|
-            find_lower(Group).key e, self
+            lower(Group).key e, self
           end
         end
 
         def update_group_selected selected
-          find_lower(Group)&.update_selected self, selected or update_selected selected
+          lower(Group)&.update_selected self, selected or update_selected selected
         end
 
         def update_selected selected

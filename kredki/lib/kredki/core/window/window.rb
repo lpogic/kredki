@@ -31,94 +31,58 @@ module Kredki
       Pastele.window_restore @pointer
     end
 
-    # Set whether the window has an stroke.
+    feature :stroke # Whether the window has an stroke.
+
     def set_stroke value = true
-      return if (c = stroke) == (value = block_given? ? yield(c) : value == Not ? !c : value)
+      return if (c = stroke) == (value = value == Not ? !c : value)
       Pastele.window_set_bordered @pointer, value ? 1 : 0
       true
     end
-
-    # See #set_stroke.
-    def stroke= value
-      set_stroke value
-    end
     
-    # Get whether the window has an stroke.
     def stroke
       Pastele.window_get_flags(@pointer) & 0x10 == 0
     end
 
-    # See #stroke.
-    def stroke?
-      !!stroke
-    end
+    feature :fullscreen # Whether fullscreen mode is on.
 
-    # Set whether fullscreen mode is on.
     def set_fullscreen value = true
-      return if (c = fullscreen) == (value = block_given? ? yield(c) : value == Not ? !c : value)
+      return if (c = fullscreen) == (value = value == Not ? !c : value)
       Pastele.window_set_fullscreen @pointer, value ? 1 : 0
       true
     end
-
-    # See #set_fullscreen.
-    def fullscreen= value
-      set_fullscreen value
-    end
     
-    # Get whether fullscreen mode is on.
     def fullscreen
       Pastele.window_get_flags(@pointer) & 0x1000 != 0
     end
 
-    # See #fullscreen.
-    def fullscreen?
-      !!fullscreen
-    end
+    feature :text_input # Whether text input mode is on.
 
-    # Set whether text input mode is on.
     def set_text_input value = true
-      return if (c = text_input) == (value = block_given? ? yield(c) : value == Not ? !c : value)
+      return if (c = text_input) == (value = value == Not ? !c : value)
       Pastele.window_set_text_input @pointer, value ? 1 : 0
       true
     end
-
-    # See #set_text_input.
-    def text_input= value
-      set_text_input value
-    end
     
-    # Get whether text input mode is on.
     def text_input
       Pastele.window_get_text_input(@pointer) != 0
     end
 
-    # See #text_input.
-    def text_input?
-      !!text_input
-    end
-        
-    # Set opacity.
-    def set_opacity opacity = @opacity
-      return set_opacity yield self.opacity if block_given?
+    feature :opacity
+    
+    def set_opacity opacity
       return if @opacity == opacity
       Pastele.window_set_opacity @pointer, opacity > 1 ? opacity / 255.0 : opacity
       @opacity = opacity
       true
     end
 
-    # See #set_opacity.
-    def opacity= param
-      set_opacity param
-    end
-
-    # Get opacity.
     def opacity
       @opacity
     end
 
-    # Set position along X and Y axes.
+    feature :xy # Position along X and Y axes.
+
     def set_xy x = 0, y = x
-      return send_bundle :set_xy, yield(self.xy) if block_given?
       x = case x
       when Start
         0
@@ -146,22 +110,16 @@ module Kredki
       Pastele.window_set_position @pointer, x, y
       true
     end
-
-    # See #set_xy.
-    def xy= param
-      send_bundle :set_xy, param
-    end
     
-    # Get position along X and Y axes.
     def xy
       point = Pastele::IntPoint.malloc(Fiddle::RUBY_FREE)
       Pastele.window_get_position @pointer, point
       [point.x, point.y]
     end
 
-    # Set size. 
+    feature :size
+    
     def set_size size_x = 400, size_y = size_x, **ka
-      return send_bundle :set_size, yield(self.size) if block_given?
       size_x = case size_x
       when Rational
         display_size[0] * size_x
@@ -179,17 +137,11 @@ module Kredki
       end
       
       Pastele.window_set_size @pointer, size_x, size_y
-      ka.each{ send_bundle "set_size_#{_1}", _2 }
+      nest_set(__method__, ka)
       report ResizeEvent.new size_x, size_y
       true
     end
-
-    # See #set_size.
-    def size= param
-      send_bundle :set_size, param
-    end
-
-    # Get size.
+    
     def size
       point = Pastele::IntPoint.malloc(Fiddle::RUBY_FREE)
       Pastele.window_get_size @pointer, point
@@ -206,22 +158,16 @@ module Kredki
       size[1]
     end
 
-    # Set size limit. 
+    feature :size_limit
+    
     def set_size_limit x, y = x
-      return send_bundle :set_size_limit, yield(self.size_limit) if block_given?
       x_min, x_max = parse_limit x
       y_min, y_max = parse_limit y
       Pastele.window_set_minimum_size @pointer, x_min, y_min
       Pastele.window_set_maximum_size @pointer, x_max, y_max
       true
     end
-
-    # See #set_size_limit.
-    def size_limit= param
-      send_bundle :set_size_limit, param
-    end
-
-    # Get size limit.
+    
     def size_limit
       point = Pastele::IntPoint.malloc(Fiddle::RUBY_FREE)
       Pastele.window_get_minimum_size @pointer, point
@@ -230,68 +176,42 @@ module Kredki
       [x_min..point.x, y_min..point.y]
     end
 
-    # Set whether a window width and height can be customized by dragging its border.
+    feature :resizable # Whether a window width and height can be customized by dragging its border.
+
     def set_resizable value = true
-      return if (c = resizable) == (value = block_given? ? yield(c) : value == Not ? !c : value)
+      return if (c = resizable) == (value = value == Not ? !c : value)
       Pastele.window_set_resizable @pointer, value ? 1 : 0
       true
     end
-
-    # See #set_resizable.
-    def resizable= param
-      set_resizable param
-    end
-
-    # Get whether a window width and height can be customized by dragging its border.
+    
     def resizable
       Pastele.window_get_flags(@pointer) & 0x20 != 0
     end
 
-    # See #resizable.
-    def resizable?
-      !!resizable
-    end
-
-    # Set title.
-    def set_title title = nil
-      return set_title yield self.title if block_given?
+    feature :title
+    
+    def set_title title
       Pastele.window_set_title @pointer, title.to_s
       true
     end
-
-    # See #set_title.
-    def title= param
-      set_title param
-    end
-
-    # Get title.
+    
     def title
       title = Pastele.window_get_title @pointer
       title.to_s.force_encoding "utf-8"
     end
 
-    # Set whether window is always in the foreground.
+    feature :top # Whether window is always in the foreground.
+
     def set_top value = true
-      return if (c = top) == (value = block_given? ? yield(c) : value == Not ? !c : value)
+      return if (c = top) == (value = value == Not ? !c : value)
       Pastele.window_set_always_on_top @pointer, value ? 1 : 0
       true
     end
-
-    # See #set_top.
-    def top= param
-      set_top param
-    end
-
-    # Get whether window is always in the foreground.
+    
     def top
       Pastele.window_get_flags(@pointer) & 0x10000 != 0
     end
-
-    # See #top.
-    def top?
-      !!top
-    end
-
+    
     # Get mouse pointer position relative to the window [0, 0].
     def mouse_xy
       x, y = Kredki.mouse.xy
@@ -299,50 +219,30 @@ module Kredki
       [x - wx, y - wy]
     end
 
-    # Set whether mouse pointer is confined to the window.
+    feature :mouse_grab # Whether mouse pointer is confined to the window.
+
     def set_mouse_grab value = true
-      return if (c = mouse_grab) == (value = block_given? ? yield(c) : value == Not ? !c : value)
+      return if (c = mouse_grab) == (value = value == Not ? !c : value)
       Pastele.window_set_mouse_mouse_grab @pointer, value ? 1 : 0
       true
     end
-
-    # See #set_mouse_grab.
-    def mouse_grab= value
-      set_mouse_grab value
-    end
     
-    # Get whether mouse pointer is confined to the window.
     def mouse_grab
       Pastele.window_get_mouse_grab(@pointer) != 0
     end
 
-    # See #mouse_grab.
-    def mouse_grab?
-      !!mouse_grab
-    end
+    feature :mouse_relative # Whether relative mouse mode is on.
 
-    # Set whether relative mouse mode is on.
     def set_mouse_relative value = true
-      return if (c = relative) == (value = block_given? ? yield(c) : value == Not ? !c : value)
+      return if (c = relative) == (value = value == Not ? !c : value)
       Pastele.window_set_mouse_relative_mode @pointer, value ? 1 : 0
       true
     end
-
-    # See #set_mouse_relative.
-    def mouse_relative= value
-      set_mouse_relative value
-    end
     
-    # Get whether relative mouse mode is on.
     def mouse_relative
       Pastele.window_get_mouse_relative_mode(@pointer) != 0
     end
-
-    # See #mouse_relative.
-    def mouse_relative?
-      !!mouse_relative
-    end
-
+    
     # Get whether mouse pointer is in window.
     def mouse_in
       @mouse_in.nil? ? Kredki.mouse.get_cursor_position != [0, 0] : @mouse_in
@@ -352,18 +252,9 @@ module Kredki
     def mouse_capture
       Pastele.window_get_flags(@pointer) & 0x4000 != 0
     end
-
-    # See #capture.
-    def mouse_capture?
-      !!mouse_capture
-    end
-
-    # Set default pane.
-    def pane! ...
-      set_pane(default_pane).set(...)
-    end
-
-    # Set pane.
+    
+    feature :pane
+    
     def set_pane pane = default_pane
       case pane
       when Class
@@ -377,13 +268,7 @@ module Kredki
       else raise_ia pane
       end
     end
-
-    # See #set_pane.
-    def pane= param
-      send_bundle :set_pane, param
-    end
-
-    # Get pane.
+    
     def pane
       @pane
     end
@@ -393,7 +278,7 @@ module Kredki
       self
     end
 
-    def << feature
+    def mixed_set feature
       case feature
       when Pane
         set_pane feature
@@ -412,20 +297,14 @@ module Kredki
       [bounds.w, bounds.h]
     end
 
-    # Set fps limit.
-    def set_fps_limit fps_limit = @fps_limit
-      return set_fps_limit yield(@fps_limit) if block_given?
+    feature :fps_limit
+    
+    def set_fps_limit fps_limit
       return if @fps_limit == fps_limit
       @fps_limit = fps_limit
       true
     end
-
-    # See #set_fps_limit.
-    def fps_limit= param
-      send_bundle :set_fps_limit, param
-    end
-
-    # Get fps limit.
+    
     def fps_limit
       @fps_limit
     end
@@ -448,7 +327,7 @@ module Kredki
 
     def initialize *a
       @pointer = default_pointer *a
-      @app = nil
+      @application = nil
       @sketched = false
       @update_thread = nil
       @update_queue = Thread::Queue.new
@@ -486,8 +365,8 @@ module Kredki
       set_text_input true
     end
 
-    def attach app
-      @app = app
+    def attach application
+      @application = application
       sketch_window
       @update_thread = Thread.new do
         loop do
@@ -498,13 +377,13 @@ module Kredki
     end
 
     def detach
-      @app = nil
+      @application = nil
       @update_thread&.kill
       @update_thread = nil
     end
 
-    def app
-      @app
+    def application
+      @application
     end
 
     def update_complete event
@@ -561,7 +440,7 @@ module Kredki
     end
 
     def paint_displayed pane
-      @pane == pane && !!@app
+      @pane == pane && !!@application
     end
 
     def update_mouse_in set

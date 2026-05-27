@@ -50,11 +50,9 @@ module Kredki
             else
               [0, 0]
             end
-            if @slider_x.set_value{|it| (it - 0.3 * xo * size_x / @layout_size_x).clamp(0..1) } | 
-              @slider_y.set_value{|it| (it - 0.3 * yo * size_y / @layout_size_y).clamp(0..1) }
-            then
-              e.close
-            end
+            x_change = @slider_x.set_value (@slider_x.value - 0.3 * xo * size_x / @layout_size_x).clamp(0..1)
+            y_change = @slider_y.set_value (@slider_y.value - 0.3 * yo * size_y / @layout_size_y).clamp(0..1)
+            e.close if x_change || y_change
           end
         end
 

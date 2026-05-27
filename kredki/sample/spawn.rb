@@ -9,7 +9,7 @@ class SpawnPane < Pane
     i = 0
     button! "Spawn #{path}.#{i}" do
       on_click do
-        app.open SpawnPane.new("#{path}.#{i}", color.tune(0, -10, 10))
+        application.open SpawnPane.new("#{path}.#{i}", color.tune(0, -10, 10))
         i += 1
         set "Spawn #{path}.#{i}"
       end

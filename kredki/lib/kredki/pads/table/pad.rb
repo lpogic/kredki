@@ -22,62 +22,47 @@ module Kredki
           put(Row, :row!, row, ...)
         end
 
-        # Set spacer in X axis.
-        def set_spacer_x ...
+        feature :layout_spacer_x # Layout spacer in X axis.
+
+        def set_layout_spacer_x ...
           if @column_layout.set_space(...)
             layer&.break_layout
             true
           end
         end
 
-        # See #set_spacer_x.
-        def spacer_x= param
-          send_bundle :set_spacer_x, param
-        end
-
-        # Get spacer in X axis.
-        def spacer_x
+        def layout_spacer_x
           @column_layout.space
         end
 
-        # Set spacer in Y axis.
-        def set_spacer_y spacer_y = @spacer
-          return set_spacer_y yield @spacer if block_given?
-          return if Util.eqr @spacer, spacer_y
-          @spacer = spacer_y
+        feature :layout_spacer_x # Layout spacer in Y axis.
+        
+        def set_layout_spacer_y layout_spacer_y
+          return if Util.eqr @layout_spacer, layout_spacer_y
+          @layout_spacer = layout_spacer_y
           layer&.break_layout
           true
         end
 
-        # See #set_spacer_y.
-        def spacer_y= param
-          send_bundle :set_spacer_y, param
+        def layout_spacer_y
+          @layout_spacer
         end
 
-        # Get spacer in Y axis.
-        def spacer_y
-          @spacer
-        end
+        feature :layout_spacer # Nest of layout spacers.
 
-        # Set spacer value.
-        def set_spacer spacer_x = @column_layout.space, spacer_y = spacer_x
-          return set_spacer yield(self.spacer) if block_given?
-          set_spacer_x(spacer_x) | set_spacer_y(spacer_y)
+        def set_layout_spacer layout_spacer_x = @column_layout.space, layout_spacer_y = layout_spacer_x, **ka
+          set_layout_spacer_x(layout_spacer_x) | 
+          set_layout_spacer_y(layout_spacer_y) |
+          nest_set(__method__, ka)
         end
-
-        # See #set_spacer.
-        def spacer= param
-          send_bundle :set_spacer, param
-        end
-
-        # Get spacer value.
-        def spacer
-          spacer_y
+        
+        def layout_spacer
+          layout_spacer_y
         end
 
         # Add new scroll rows.
         def scroll_rows! ...
-          put(ScrollRows, :scroll_rows!, spacer: spacer_y).set(...)
+          put(ScrollRows, :scroll_rows!, layout_spacer: layout_spacer_y).set(...)
         end
 
         # :section: LEVEL 2

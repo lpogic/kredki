@@ -23,7 +23,7 @@ module Kredki
 
       # Get service layer.
       def layer
-        is Layer or find_lower Layer
+        is Layer or lower Layer
       end
 
       # Get service pane.
@@ -37,8 +37,8 @@ module Kredki
       end
 
       # Get service application.
-      def app
-        window&.app
+      def application
+        window&.application
       end
 
       # Get whether +lower+ is lower service of +self+.
@@ -52,13 +52,14 @@ module Kredki
       end
      
       # Get lower service.
-      def lower
-        @lower
+      def lower *a, **ka, &block
+        return @lower if a.empty? && ka.empty? && !block
+        super
       end
 
       # Attach self to +lower+ service.
       def attach lower, at: nil
-        raise "service loop detected" if find_lower self
+        raise "service loop detected" if lower.lower self
         detach true if @lower
         lower&.put_service self, at: at
       end
@@ -79,11 +80,7 @@ module Kredki
         when nil
           true
         when Symbol
-          if filter.end_with? "?"
-            respond_to? filter and send filter
-          else
-            !!@tags[filter]
-          end
+          !!@tags[filter]
         when Service
           filter == self
         when Module, Proc
@@ -101,45 +98,11 @@ module Kredki
         end
       end
 
-      # Set whether Pad is tagged with +tag+.
-      def set_tag tag, value = true
-        return if (c = self.tag tag) == (value = block_given? ? yield(c) : value == Not ? !c : value)
-        if value
-          @tags[tag] = true
-        else
-          @tags.delete tag
-        end
-        true
-      end
-
-      # See #set_tag.
-      def tag= param
-        send_bundle :set_tag, param
-      end
-
-      # Get whether Pad is tagged with +tag+.
-      def tag tag
-        @tags[tag]
-      end
-
-      # Get tags.
-      def tags
-        @tags.keys
-      end
-
-      # Create new job tree.
-      def job run = true, &block
-        job = AfterJob.new block, 0
-        job.run pane if run
-        job
-      end
-
-      # Set a feature recognized by its class.
-      def << feature
+      def mixed_set feature
         case feature
         when Symbol
           set_tag feature
-          # eval "#{feature} = WeakRef.new self" if feature.start_with? "$"
+          eval "#{feature} = WeakRef.new self" if feature.start_with? "$"
           # lower&.instance_variable_set feature, self if feature.start_with? "@"
         when Hash
           set **feature
@@ -151,6 +114,43 @@ module Kredki
           raise "Unsupported << (#{feature} : #{feature.class})"
         end
         self
+      end
+
+      feature :tag
+
+      # Set whether Service is tagged with +tag+.
+      def set_tag tag, value = true
+        return if (c = @tags[tag] || false) == (value = value == Not ? !c : value)
+        if value
+          @tags[tag] = true
+        else
+          @tags.delete tag
+        end
+        true
+      end
+
+      # Get tags.
+      def tags
+        @tags
+      end
+
+      feature :compact # Compact services don't expose their upper services indirectly.
+
+      def set_compact value = true
+        return if (c = compact) == (value = block_given? ? yield(c) : value == Not ? !c : value)
+        @compact = value
+        true
+      end
+
+      def compact
+        !!@compact
+      end
+
+      # Create new job tree.
+      def job run = true, &block
+        job = AfterJob.new block, 0
+        job.run pane if run
+        job
       end
 
       # :section: LEVEL 2
@@ -183,6 +183,16 @@ module Kredki
 
       def service_tree
         @services.map{|it| [it, it.service_tree] }.to_h
+      end
+
+      def each_service reverse, direct_call, &block
+        if direct_call || !@compact
+          if reverse
+            @services.reverse_each &block
+          else
+            @services.each &block
+          end
+        end
       end
 
       def put service_class, *a, at: nil, **ka, &b

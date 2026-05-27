@@ -3,8 +3,7 @@ module Kredki
     # Pad that occupy some space.
     class SpacePad < Pad
 
-      # Set a feature recognized by its class.
-      def << feature
+      def mixed_set feature
         case feature
         in Numeric
           set_margin feature * 0.5

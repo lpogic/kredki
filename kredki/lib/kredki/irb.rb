@@ -1,9 +1,9 @@
 require 'irb'
 
 class KredkiWorkSpace < IRB::WorkSpace
-  def initialize app, ...
+  def initialize application, ...
     super(...)
-    @app = app
+    @application = application
     @mutex = Thread::Mutex.new
     @convar = Thread::ConditionVariable.new
     @cmd = nil
@@ -25,7 +25,7 @@ class KredkiWorkSpace < IRB::WorkSpace
     @mutex.synchronize do
       if @cmd
         if @cmd == [:exit]
-          @app.return
+          @application.return
         else
           @cmd = oeval *@cmd
         end
@@ -39,8 +39,8 @@ KredkiProc = proc do
   mutex = Thread::Mutex.new
   convar = Thread::ConditionVariable.new
   Thread.new do
-    app = Kredki.app
-    MainLayer = app.open hidden: true
+    application = Kredki.application
+    MainLayer = application.open hidden: true
     module Kredki
       module Extend
         extend Forwardable
@@ -63,13 +63,13 @@ KredkiProc = proc do
     end
     MainLayer.carry_focus_on_tab
 
-    kredki_workspace = KredkiWorkSpace.new app, binding
+    kredki_workspace = KredkiWorkSpace.new application, binding
     IRB.CurrentContext.replace_workspace kredki_workspace
     IRB.conf[:AT_EXIT] << proc{ kredki_workspace.evaluate :exit }
     job.loop{ kredki_workspace.release }
     mutex.synchronize{ convar.signal }
     window.show
-    app.run
+    application.run
   end
 
   mutex.synchronize{ convar.wait mutex }

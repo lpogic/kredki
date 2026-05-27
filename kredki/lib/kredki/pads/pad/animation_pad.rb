@@ -3,8 +3,7 @@ module Kredki
     # Pad with animation area.
     class AnimationPad < Pad
 
-      # Set a feature recognized by its class.
-      def << arg
+      def mixed_set arg
         case arg
         when String
           set_subject arg
@@ -13,12 +12,10 @@ module Kredki
         end
       end
 
+      feature :frame
+
       def set_frame ...
         @area.set_frame(...)
-      end
-
-      def frame= param
-        send_bundle :set_frame, param
       end
 
       def frame

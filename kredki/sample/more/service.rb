@@ -5,29 +5,29 @@ service! do
     @value = 0
   end
 
-  def increment
-    @value += 1
+  def +(value)
+    @value += value
     value_changed
   end
 
-  def decrement
-    @value -= 1
+  def -(value)
+    @value -= value
     value_changed
   end
 
-  def double
-    @value *= 2
+  def *(factor)
+    @value *= factor
     value_changed
   end
 
   def value_changed
-    pane.note?.set "#{@value}"
+    pane[:note!].set "#{@value}"
   end
 end
 
-set layout: :xcc, spacer: 5
+set layout: [:xcc, 5]
 
 note! "0", size_x: 100, verse_layout: :yee
-button! "++", on_click: proc{ service?.increment }
-button! "--", on_click: proc{ service?.decrement }
-button! "*2", on_click: proc{ service?.double }
+button! "++", on_click: proc{ pane[:service!] + 1 }
+button! "--", on_click: proc{ pane[:service!] - 1 }
+button! "*2", on_click: proc{ pane[:service!] * 2 }

@@ -2,6 +2,7 @@ module Kredki
   module Pads
     # Module extended in Kredki::Pads::Service and all inherited classes.
     module ServiceInherited
+      include Reactions
       def self.extended cl
         cl.define_singleton_method :inherited do |cl1|
           cl1.extend ServiceInherited

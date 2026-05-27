@@ -27,17 +27,17 @@ class PadGalleryTest < Kredki::Test
       end
     end
 
-    xss! margin: 10, spacer: 10 do
-      yss! spacer: 10 do
+    xss! 10, margin: 10 do
+      yss! 10 do
         note! size_x: 1r
         list! size_x: 1r, size_y: Fit do
           item! "First"
           item! "Second"
           item! "Third"
         end
-        xss! spacer: 10 do
+        xss! 10 do
           slider_y!
-          yss! spacer: 10 do
+          yss! 10 do
             margin[5]
             text! "Some text"
             slider_x!
@@ -56,7 +56,7 @@ class PadGalleryTest < Kredki::Test
           picture! "#{Kredki.dir}/sample/stuff/test.png"
         end
       end
-      yss! size_x: 1/2r, spacer: 10 do
+      yss! 10, size_x: 1/2r do
         notes! size_x: 1r
         option! size_x: 1r do
           item! "Red"

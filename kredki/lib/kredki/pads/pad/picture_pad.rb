@@ -3,8 +3,7 @@ module Kredki
     # Pad with picture area.
     class PicturePad < Pad
 
-      # Set a feature recognized by its class.
-      def << arg
+      def mixed_set arg
         case arg
         when String
           set_subject arg

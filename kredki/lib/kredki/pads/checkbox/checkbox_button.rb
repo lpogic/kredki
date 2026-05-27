@@ -3,20 +3,15 @@ module Kredki
     # Control which state can be on or off.
     class CheckboxButton < Button
 
-      # Set whether is selected.
+      feature :selected
+      
       def set_selected value = true
-        return if (c = selected) == (value = block_given? ? yield(c) : value == Not ? !c : value)
+        return if (c = selected) == (value = value == Not ? !c : value)
         @check.set_scenic value
         @selected = value
         true
       end
-
-      # See #set_selected.
-      def selected= param
-        send_bundle :set_selected, param
-      end
-
-      # Get whether is selected.
+      
       def selected
         @selected
       end

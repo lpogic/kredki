@@ -8,6 +8,7 @@ require_relative 'color'
 require_relative 'font'
 require_relative 'linear_gradient'
 require_relative 'radial_gradient'
+require_relative 'event/reactions'
 
 module Kredki
   Not = :not
@@ -19,23 +20,23 @@ module Kredki
       File.expand_path "../../../..", __FILE__
     end
  
-    # Run the app or get the app if it is already running.
-    def app opened = nil, *a, **ka, &block
+    # Run the application or get the application if it is already running.
+    def application opened = nil, *a, **ka, &block
       if !@init
         Pastele.thorvg_engine_init 2, 4
         Pastele.sdl_init joystick ? 1 : 0
         @init = true
       end
-      @app = @app_class.new if !@app
+      @application = @application_class.new if !@application
       if opened || block
-        @app.open opened, *a, **ka, &block
-        return @app.run
+        @application.open opened, *a, **ka, &block
+        return @application.run
       end
-      @app
+      @application
     end
 
-    def app= app_class
-      @app_class = app_class
+    def application= application_class
+      @application_class = application_class
     end
 
     # Milliseconds since SDL was initialized.
@@ -115,16 +116,16 @@ module Kredki
     def color param = nil
       case param
       when nil
-        @colors.each_value.first || Color.new(255, 255, 255)
+        @colors.each_value.first || Color.new(Color::CHANNEL_MAX, Color::CHANNEL_MAX, Color::CHANNEL_MAX)
       when Color
         param
       when :random
-        Color.new rand(255), rand(255), rand(255)
+        Color.new rand(Color::CHANNEL_MAX), rand(Color::CHANNEL_MAX), rand(Color::CHANNEL_MAX)
       when Array
         if param.size == 2
           color(param[0]).clarify param[1]
         else
-          Color.new *param
+          Color.parse *param
         end
       else
         @colors[param] or raise "Unknown color #{param}"
@@ -170,8 +171,8 @@ module Kredki
 
     # :section: LEVEL 2
 
-    def clear_app
-      @app = nil
+    def clear_application
+      @application = nil
     end
 
     attr_accessor :joysticks

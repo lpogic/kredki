@@ -6,99 +6,7 @@ module Kredki
     class Note < RectanglePad
       include TextEdition
 
-      # Set text content.
-      def set_text text = ""
-        return send_bundle :set_text, yield(self.text) if block_given?
-        @verse.set_subject text
-      end
-
-      # See #set_text.
-      def text= param
-        send_bundle :set_text, param
-      end
-      
-      # Get text content.
-      def text
-        @verse.text
-      end
-
-      # Set suit.
-      def set_suit *suit
-        return send_bundle :set_suit, yield(self.suit) if block_given?
-        suit = Util.uncover suit
-        return if @suit == suit && suit != :random
-        @suit = suit
-        repaint
-        true
-      end
-
-      # See #set_suit.
-      def suit= param
-        send_bundle :set_suit, param
-      end
-
-      # Get suit.
-      def suit
-        @suit
-      end
-
-      # Set verse features.
-      def set_verse ...
-        send_branch(__method__, ...)
-      end
-
-      # See #set_verse.
-      def verse= param
-        send_bundle :set_verse, param
-      end
-      
-      # Set verse size.
-      def set_verse_size ...
-        @verse.set_verse_size(...)
-      end
-
-      # See #set_verse_size.
-      def verse_size= param
-        send_bundle :set_verse_size, param
-      end
-
-      # Get verse size.
-      def verse_size
-        @verse.verse_size
-      end
-
-      # Set verse font.
-      def set_verse_font ...
-        @verse.set_font(...)
-      end
-
-      # See #set_verse_font.
-      def verse_font= param
-        send_bundle :set_verse_font, param
-      end
-
-      # Get verse font.
-      def verse_font
-        @verse.font
-      end
-
-      # Set verse layout.
-      def set_verse_layout ...
-        @verse.set_verse_layout(...)
-      end
-
-      # See #set_verse_layout.
-      def verse_layout= param
-        send_bundle :set_verse_layout, param
-      end
-
-      # Get verse layout.
-      def verse_layout
-        @verse.verse_layout
-      end
-
-      # Set a feature recognized by its class.
-      def << feature
+      def mixed_set feature
         case feature
         when String
           set_text feature
@@ -107,8 +15,76 @@ module Kredki
         end
       end
 
-      # :section: LEVEL 2
+      feature :suit # Basic appearance.
 
+      def set_suit *suit
+        suit = Util.uncover suit
+        return if @suit == suit && suit != :random
+        @suit = suit
+        repaint
+        true
+      end
+
+      def suit
+        @suit
+      end
+
+      feature :text # Text content.
+
+      def set_text text = ""
+        @verse.set_subject text
+      end
+
+      def text
+        @verse.text
+      end
+
+      feature :verse # Nest of verse features.
+
+      def set_verse *a, **ka
+        a.count do |it| 
+          case it
+          when Numeric
+            set_verse_size it
+          when :yss, :ysc, :yse, :yes, :yec, :yee, :ycs, :ycc, :yce
+            set_verse_layout it
+          else
+            set_verse_font it
+          end
+        end.zero?.not | nest_set(__method__, ka)
+      end
+
+      feature :verse_font # Font family.
+
+      def set_verse_font ...
+        @verse.set_font(...)
+      end
+
+      def verse_font
+        @verse.font
+      end
+
+      feature :verse_layout # Text alignment.
+
+      def set_verse_layout ...
+        @verse.set_verse_layout(...)
+      end
+
+      def verse_layout
+        @verse.verse_layout
+      end
+
+      feature :verse_size # Font size.
+
+      def set_verse_size ...
+        @verse.set_verse_size(...)
+      end
+
+      def verse_size
+        @verse.verse_size
+      end
+
+      
       class NoteLayout < Layout::XWay
         def arrange_layoutic pad, clip_size_x, clip_size_y, cx
           sx, sy = pad.area_size
@@ -147,33 +123,6 @@ module Kredki
         text_edition @verse, false
       end
 
-      def behavior
-        super
-
-        on_mouse_scroll do: method(:mouse_scroll)
-
-        on_mouse_press :scroll do |e|
-          start_drag e.xy, :scroll
-          e.close
-        end
-
-        on_mouse_move do |e|
-          if e.drag? && e.button == :scroll
-            @verse.process_drag e
-            e.close
-          end
-        end
-
-        on_edit early: true do |e|
-          e.close if in_disabled
-        end
-      end
-
-      def mouse_scroll event
-        x, y = Kredki.relative_scroll(*event.xy)
-        @verse.scroll x == 0 ? y : x, y
-      end
-
       def presence
         super
 
@@ -202,6 +151,33 @@ module Kredki
           area.set_stroke_fill kb_top ? :stroke_focus : color
         end
         verse.selection.each_paint{|it| it.set_fill kb_top ? :text_selection : :text_selection_inactive }
+      end
+
+      def behavior
+        super
+
+        on_mouse_scroll do: method(:mouse_scroll)
+
+        on_mouse_press :scroll do |e|
+          start_drag e.xy, :scroll
+          e.close
+        end
+
+        on_mouse_move do |e|
+          if e.drag? && e.button == :scroll
+            @verse.process_drag e
+            e.close
+          end
+        end
+
+        on_edit early: true do |e|
+          e.close if in_disabled
+        end
+      end
+
+      def mouse_scroll event
+        x, y = Kredki.relative_scroll(*event.xy)
+        @verse.scroll x == 0 ? y : x, y
       end
 
       def default_verse

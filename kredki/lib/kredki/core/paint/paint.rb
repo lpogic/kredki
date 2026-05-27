@@ -2,47 +2,49 @@ module Kredki
   # Base class for all graphical objects.
   class Paint
 
-    # Set position along the X axis.
-    def set_x x = @x
-      return set_x yield @x if block_given?
+    def mixed_set feature
+      case feature
+      when Hash
+        set **feature
+      when Array
+        set *feature
+      when Proc
+        set &feature
+      else
+        raise "Unsupported auto set (#{feature} : #{feature.class})"
+      end
+      self
+    end
+
+    feature :x # Position along the X axis.
+
+    def set_x x
       return if @x == x
       @x = x
       update_transform
       update
     end
     
-    # See #set_x.
-    def x= param
-      send_bundle :set_x, param
-    end
-
-    # Get position along the X axis.
     def x
       @x
     end
 
-    # Set position along the Y axis.
-    def set_y y = @y
-      return set_y yield @y if block_given?
+    feature :y # Position along the Y axis.
+
+    def set_y y
       return if @y == y
       @y = y
       update_transform
       update
     end
 
-    # See #set_y.
-    def y= param
-      send_bundle :set_y, param
-    end
-
-    # Get position along the X axis.
     def y
       @y
     end
 
-    # Set position along X and Y axes.
-    def set_xy x = @x, y = x
-      return send_bundle :set_xy, yield(self.xy) if block_given?
+    feature :xy # Position along X and Y axes.
+
+    def set_xy x, y = x
       return if @x == x && @y == y
       @x = x
       @y = y
@@ -50,109 +52,73 @@ module Kredki
       update
     end
     
-    # See #set_xy.
-    def xy= param
-      send_bundle :set_xy, param
-    end
-
-    # Get position along X and Y axes.
     def xy
       [@x, @y]
     end
  
-    # Set turn around the pivot point.
-    def set_turn turn = @turn
-      return set_turn yield @turn if block_given?
+    feature :turn # Turn around the pivot point.
+
+    def set_turn turn
       return if @turn == turn
       @turn = turn
       update_transform
       update
     end
-
-    # See #set_turn.
-    def turn= param
-      send_bundle :set_turn, param
-    end
-
-    # Get turn around the pivot point.
+    
     def turn
       @turn
     end
 
-    # Set zoom in the X axis.
-    def set_zoom_x zoom_x = @zoom_x
-      return set_zoom_x yield @zoom_x if block_given?
+    feature :zoom_x # Zoom in the X axis.
+
+    def set_zoom_x zoom_x
       return if @zoom_x == zoom_x
       @zoom_x = zoom_x
       update_transform
       update
     end
-
-    # See #set_zoom_x.
-    def zoom_x= param
-      send_bundle :set_zoom_x, param
-    end
-
-    # Get zoom in the X axis.
+    
     def zoom_x
       @zoom_x
     end
 
-    # Set zoom in the Y axis.
-    def set_zoom_y zoom_y = @zoom_y
-      return set_zoom_y yield @zoom_y if block_given?
+    feature :zoom_y # Zoom in the Y axis.
+
+    def set_zoom_y zoom_y
       return if @zoom_y == zoom_y
       @zoom_y = zoom_y
       update_transform
       update
     end
-
-    # See #set_zoom_y.
-    def zoom_y= param
-      send_bundle :set_zoom_y, param
-    end
-
-    # Get zoom in the Y axis.
+    
     def zoom_y
       @zoom_y
     end
 
-    # Set zoom in X and Y axes.
+    feature :zoom # Zoom in X and Y axes.
+
     def set_zoom zoom_x = @zoom_x, zoom_y = zoom_x, **ka
-      return send_bundle :set_zoom, yield(self.zoom) if block_given?
       unless @zoom_x == zoom_x && @zoom_y == zoom_y
         @zoom_x = zoom_x
         @zoom_y = zoom_y
         update_transform
         update
-      end | send_branch(__method__, ka)
+      end | nest_set(__method__, ka)
     end
-
-    # See #set_zoom.
-    def zoom= param
-      send_bundle :set_zoom, param
-    end
-
-    # Get zoom in X and Y axes.
+    
     def zoom
       [@zoom_x, @zoom_y]
     end
 
-    # Set opacity degree.
-    def set_opacity opacity = @opacity
-      return set_opacity yield @opacity if block_given?
+    feature :opacity
+    
+    def set_opacity opacity
       return if @opacity == opacity
       Pastele.paint_set_opacity @pointer, opacity.to_i
       @opacity = opacity
       update
     end
-
-    # See #set_opacity.
-    def opacity= param
-      send_bundle :set_opacity, param
-    end
-
-    # Get opacity degree.
+    
     def opacity
       @opacity
     end
@@ -178,21 +144,15 @@ module Kredki
       end
     end
 
-    # Set color blending method.
-    def set_blend blend = @blend
-      return set_blend yield @blend if block_given?
+    feature :blend # Color blending method.
+
+    def set_blend blend
       return if @blend == blend
       Pastele.paint_set_blend_method @pointer, BlendMethod.send(blend || :normal)
       @blend = blend
       update
     end
 
-    # See #set_blend.
-    def blend= param
-      send_bundle :set_blend, param
-    end
-
-    # Get color blending method.
     def blend
       @blend
     end
@@ -215,9 +175,9 @@ module Kredki
       end
     end
 
-    # Set color masking method with +target+.
-    def set_mask mask = @mask, target = nil
-      return send_bundle :set_mask, yield(@mask, @mask_target) if block_given?
+    feature :mask # Color masking method with +target+.
+
+    def set_mask mask, target = nil
       return if @mask == mask && @mask_target == target
       @mask_target&.unset_masking
       target&.update_masking self
@@ -227,31 +187,18 @@ module Kredki
       update
     end
 
-    # See #set_mask.
-    def mask= param
-      send_bundle :set_mask, param
-    end
-
-    # Get color masking method.
     def mask
       @mask
     end
 
-    # Set whether Paint is scenic.
-    #
-    # All lower level Scenes must be scenic for the Paint to be displayed.
+    feature :scenic # Whether Paint is scenic. All lower level Scenes must be scenic for the Paint to be displayed.
+
     def set_scenic value = true
-      return if (c = scenic) == (value = block_given? ? yield(c) : value == Not ? !c : value)
+      return if (c = scenic) == (value = value == Not ? !c : value)
       update_scenic value
       true
     end
-
-    # See #set_scenic.
-    def scenic= value
-      set_scenic value
-    end
     
-    # Get whether Paint is scenic.
     def scenic
       @scene&.paint_scenic self
     end
@@ -261,9 +208,9 @@ module Kredki
       @scene&.paint_displayed self
     end
 
-    # Set the Kredki::Shape to use as the Paint clipping path.
-    def set_clip clip = @clip
-      return yield @clip if block_given?
+    feature :clip # The Kredki::Shape to use as the Paint clipping path.
+
+    def set_clip clip
       clip = nil unless clip
       return if @clip == clip
       @clip&.unset_masking
@@ -273,12 +220,6 @@ module Kredki
       update
     end
 
-    # See #set_clip.
-    def clip= param
-      send_bundle :set_clip, param
-    end
-
-    # Get the Kredki::Shape used as the Paint clipping path.
     def clip
       @clip
     end
@@ -307,22 +248,7 @@ module Kredki
     def window
       @scene&.window
     end
-
-    # Set a feature recognized by its class.
-    def << feature
-      case feature
-      when Hash
-        set **feature
-      when Array
-        set *feature
-      when Proc
-        set &feature
-      else
-        raise "Unsupported << (#{feature} : #{feature.class})"
-      end
-      self
-    end
-
+    
     # Get features.
     def to_hash
       {

@@ -11,15 +11,7 @@ module Kredki
           @item_group.item! *a, size_x: 1r, **ka, &b
         end
         
-        # Create and attach select event reaction.
-        def on_select ...
-          on(Item::SelectEvent, ...)
-        end
-
-        # See #on_select.
-        def on_select= param
-          on_select do: param
-        end
+        reaction Item::SelectEvent, :on_select
 
         # Get all items.
         def items

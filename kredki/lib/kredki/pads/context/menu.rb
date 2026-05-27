@@ -20,7 +20,7 @@ module Kredki
 
         def delete_upper upper, system_call
           super
-          find_lower(Item)&.dropdown_disable if !find(Item)
+          lower(Item)&.dropdown_disable if !self[Item]
         end
       end
       
@@ -38,15 +38,7 @@ module Kredki
           @context_layer.item_group.item!(...)
         end
 
-        # Create and attach select event reaction.
-        def on_select ...
-          on(Item::SelectEvent, ...)
-        end
-
-        # See #on_select.
-        def on_select= param
-          on_select do: param
-        end
+        reaction Item::SelectEvent, :on_select
 
         # :section: LEVEL 2
 
@@ -60,7 +52,7 @@ module Kredki
           super
 
           on_select do |e|
-            if e.target.find_upper Context::Item
+            if e.target[Context::Item]
               e.close
             else
               @context_layer.pad_detach
@@ -75,13 +67,13 @@ module Kredki
             if lower
               secondary_mouse_click = lower.on_mouse_click :secondary do |e|
                 @context_layer.load *e.xy
-                @context_layer.find_upper(Item)&.keyboard_request
+                @context_layer[Item]&.keyboard_request
                 e.close
               end
         
               context_key = lower.on_key :context do |e|
                 @context_layer.load *lower.translate(lower.area_x / 2, lower.area_y / 2)
-                @context_layer.find_upper(Item)&.keyboard_request
+                @context_layer[Item]&.keyboard_request
                 e.close
               end
 

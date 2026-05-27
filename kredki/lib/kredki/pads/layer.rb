@@ -19,7 +19,7 @@ module Kredki
       end
 
       # Detach from pane.
-      def detach transfer = false
+      def detach transfer = false, system_call = false
         unless transfer
           update_keyboard_pad nil
           @pin_data = nil
@@ -28,7 +28,7 @@ module Kredki
         super
       end
 
-      # Enable carry focus on tab event resolver.
+      # Enable carry focus on tab event reaction.
       def carry_focus_on_tab
         on_key_press :tab do |event|
           next_pad = layer.keyboard_pad&.then do |p0|

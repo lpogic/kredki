@@ -2,37 +2,29 @@ module Kredki
   module Pads
     class Button < RectanglePad
 
-      # Create and attach button click event reaction.
-      def on_click ...
-        on(ClickEvent, ...)
+      class PressEvent < Event
       end
 
-      # See #on_click=.
-      def on_click= param
-        on_click do: param
+      class ReleaseEvent < Event
       end
 
-      # Set whether is pressed.
-      def set_pressed value = true, event = nil
-        return if (c = pressed) == (value = block_given? ? yield(c) : value == Not ? !c : value)
-        @pressed = value
-        report (@pressed ? PressEvent.new(event) : ReleaseEvent.new(event)) if event
-        true
+      class ClickEvent < Event
+      end
+      
+      def mixed_set feature
+        case feature
+        when String
+          self[:text!]&.set feature or super
+          self.subject ||= feature
+          self
+        else
+          super
+        end
       end
 
-      # See #set_pressed.
-      def pressed= param
-        send_bundle :set_pressed, param
-      end
-
-      # Get whether is pressed.
-      def pressed
-        @pressed
-      end
-
-      # Set suit.
+      feature :suit # Basic appearance.
+      
       def set_suit *suit
-        return send_bundle :set_suit, yield(self.suit) if block_given?
         suit = Util.uncover suit
         return if @suit == suit && suit != :random
         @suit = suit
@@ -40,37 +32,24 @@ module Kredki
         true
       end
 
-      # See #set_suit.
-      def suit= param
-        send_bundle :set_suit, param
-      end
-
-      # Get suit.
       def suit
         @suit
       end
 
-      # Set a feature recognized by its class.
-      def << feature
-        case feature
-        when String
-          text?&.set feature or super
-          self.subject ||= feature
-        else
-          super
-        end
+      feature :pressed # Whether the Button is in pressed state.
+
+      def set_pressed value = true, event = nil
+        return if (c = pressed) == (value = block_given? ? yield(c) : value == Not ? !c : value)
+        @pressed = value
+        report (@pressed ? PressEvent.new(event) : ReleaseEvent.new(event)) if event
+        true
       end
 
-      # :section: LEVEL 2
-
-      class ClickEvent < Event
+      def pressed
+        !!@pressed
       end
 
-      class PressEvent < Event
-      end
-
-      class ReleaseEvent < Event
-      end
+      reaction ClickEvent, :on_click # Reaction to releasing the Button after pressing it.
 
       def sketch
         super

@@ -2,19 +2,13 @@ module Kredki
   # Clipboard interface.
   class Clipboard
 
-    # Set content.
-    def set_content content = nil
-      return set_content yield self.content if block_given?
+    feature :content
+    
+    def set_content content
       Pastele.clipboard_set_text content.to_s
       true
     end
     
-    # See #set_content.
-    def content= param
-      set_content param
-    end
-    
-    # Get content.
     def content
       ptr = Pastele.clipboard_get_text
       str = ptr.to_s.force_encoding("utf-8")

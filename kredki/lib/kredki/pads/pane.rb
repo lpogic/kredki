@@ -113,7 +113,7 @@ module Kredki
         @services.last
       end
 
-      def lower
+      def lower ...
         nil
       end
 
@@ -253,7 +253,7 @@ module Kredki
         @services
       end
 
-      def delete_upper upper
+      def delete_upper upper, system_call
         @services.delete upper
         @mouse_stale = true
       end
@@ -261,6 +261,14 @@ module Kredki
       def delete_pad pad, transfer = false
         @services.delete pad
         @mouse_stale = true
+      end
+
+      def each_service reverse, direct_call, &block
+        if reverse
+          @services.reverse_each &block
+        else
+          @services.each &block
+        end
       end
     end
   end

@@ -6,7 +6,7 @@ GRID = 40
 
 window.set size: [400 / GRID * GRID + 1, 400 / GRID * GRID + 1], resizable: false
 
-service! :snake! do
+service! :snake do
   DIRECTION_MAP = {
     up: [0, -1],
     down: [0, 1],
@@ -60,7 +60,7 @@ service! :snake! do
   end
 end
 
-service! :food! do
+service! :food do
   def sketch
     @xy = [13, 10]
   end
@@ -75,10 +75,10 @@ service! :food! do
   end
 end
 
-set layout: :xss, spacer: 1, margin: 1
+set layout: [:xss, 1], margin: 1
 
 GRID.times do
-  yss! spacer: 1 do
+  yss! 1 do
     GRID.times do
       pad! size: 400 / GRID - 1, fill: :green
     end
@@ -86,26 +86,26 @@ GRID.times do
 end
 
 job.loop 50 do |job|
-  snake = snake?
-  food = food?
+  snake = pane[:snake]
+  food = pane[:food]
   case move_result = snake.move(food.xy)
   when :self_collision
     snake.body.each do |x, y|
-      yss?(pad_index: x).pad?(pad_index: y).set fill: :gray
+      self[:yss!, pad_index: x][:pad!, pad_index: y].set fill: :gray
     end
     job.cancel
   when :food_consumed
     head = snake.head
-    yss?(pad_index: head[0]).pad?(pad_index: head[1]).set fill: :orange
+    self[:yss!, pad_index: head[0]][:pad!, pad_index: head[1]].set fill: :orange
     food_xy = food.draw snake.body
-    yss?(pad_index: food_xy[0]).pad?(pad_index: food_xy[1]).set fill: :yellow
+    self[:yss!, pad_index: food_xy[0]][:pad!, pad_index: food_xy[1]].set fill: :yellow
   else
     head = snake.head
-    yss?(pad_index: move_result[0]).pad?(pad_index: move_result[1]).set fill: :green
-    yss?(pad_index: head[0]).pad?(pad_index: head[1]).set fill: :orange
+    self[:yss!, pad_index: move_result[0]][:pad!, pad_index: move_result[1]].set fill: :green
+    self[:yss!, pad_index: head[0]][:pad!, pad_index: head[1]].set fill: :orange
   end
 end
 
 on_key_press :up, :down, :left, :right, :w, :s, :a, :d do |event|
-  snake?.set_direction event.key.id
+  pane[:snake].set_direction event.key.id
 end

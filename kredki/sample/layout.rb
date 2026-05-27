@@ -17,11 +17,11 @@ end
 
 pane.layer! do
   button! do
-    text! pane.service?.button_text_input(layouts.first)
+    text! pane[:service!].button_text_input(layouts.first)
 
     on_click do
       layouts.rotate!
-      set pane.service?.button_text_input(layouts.first)
+      set pane[:service!].button_text_input(layouts.first)
       base_layer.set_layout layouts.first
     end
   end

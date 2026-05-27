@@ -25,12 +25,12 @@ module Kredki
         object.is_a?(Array) ? object : [object]
       end
 
-      def sin01 value, offset = 0
-        Math.sin(0.5 * Math::PI * value) + offset
+      def sin01 value
+        Math.sin(0.5 * Math::PI * value)
       end
   
-      def cos01 value, offset = 0
-        Math.cos(0.5 * Math::PI * value) + offset
+      def cos01 value
+        Math.cos(0.5 * Math::PI * value)
       end
     end
   end
@@ -65,6 +65,7 @@ require_relative 'paint/rectangle'
 require_relative 'paint/text'
 require_relative 'paint/picture'
 require_relative 'paint/animation'
+require_relative 'paint/scene_area'
 
 require_relative 'job/job'
 require_relative 'job/after_job'
@@ -84,6 +85,6 @@ require_relative 'window/pane'
 require_relative 'window/window'
 require_relative 'application'
 
-Kredki.app = Kredki::Application
+Kredki.application = Kredki::Application
 
 load Kredki.config

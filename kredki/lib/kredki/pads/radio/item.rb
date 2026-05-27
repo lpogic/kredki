@@ -4,30 +4,24 @@ module Kredki
       # Radio item.
       class Item < SpacePad
 
-        # Set whether is selected.
-        def set_selected ...
-          @button.set_selected(...)
-        end
-
-        # See #set_selected.
-        def selected= param
-          @button.selected = param
-        end
-
-        # Get whether is selected.
-        def selected
-          @button.selected
-        end
-
-        # Set a feature recognized by its class.
-        def << feature
+        def mixed_set feature
           case feature
           when String
-            find(Label)&.set feature or default_text feature
+            direct_upper(Label)&.set feature or default_text feature
             self.subject ||= feature
           else
             super
           end
+        end
+
+        feature :selected # Whether radio item is the selected one.
+
+        def set_selected ...
+          @button.set_selected(...)
+        end
+
+        def selected
+          @button.selected
         end
 
         # :section: LEVEL 2
@@ -47,8 +41,7 @@ module Kredki
           super
 
           set_size_y Fit
-          set_spacer 8
-          set_layout :xsc
+          set_layout :xsc, 8
         end
 
         def repaint event = nil

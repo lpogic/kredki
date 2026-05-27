@@ -5,26 +5,20 @@ module Kredki
     # Checkbox.
     class Checkbox < SpacePad
 
-      # Set whether is selected.
+      feature :selected
+      
       def set_selected ...
         @button.set_selected(...)
       end
-
-      # See #set_selected.
-      def selected= param
-        @button.selected = param
-      end
-
-      # Get whether is selected.
+      
       def selected
         @button.selected
       end
-
-      # Set a feature recognized by its class.
-      def << feature
+      
+      def mixed_set feature
         case feature
         when String
-          (find Label or default_label) << feature
+          (self[Label] or default_label).set feature
           self.subject ||= feature
         else
           super
@@ -43,8 +37,7 @@ module Kredki
         super
 
         set_size Fit
-        set_spacer 5
-        set_layout :xsc
+        set_layout :xsc, 5
       end
 
       def repaint event = nil

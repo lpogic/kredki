@@ -4,7 +4,7 @@ require_relative 'module'
 if defined? IRB
   require_relative 'irb'
 else
-  MainLayer = Kredki.app.open hidden: true
+  MainLayer = Kredki.application.open hidden: true
   module Kredki
     module Extend
       extend Forwardable

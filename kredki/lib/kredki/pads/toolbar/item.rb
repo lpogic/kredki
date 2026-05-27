@@ -15,17 +15,12 @@ module Kredki
 
         # Create/Update dropdown.
         def dropdown! ...
-          (find PrimaryLayer or put PrimaryLayer).set(...)
-        end
-
-        # See #dropdown!.
-        def dropdown= param
-          send_bundle :dropdown!, param
+          (direct_upper PrimaryLayer or put PrimaryLayer).set(...)
         end
 
         # Get dropdown.
         def dropdown
-          find PrimaryLayer
+          direct_upper PrimaryLayer
         end
 
         # :section: LEVEL 2
@@ -40,22 +35,22 @@ module Kredki
           super
 
           on_key_press :down, :up, :enter, :space do |e|
-            layer = find PrimaryLayer
+            layer = direct_upper PrimaryLayer
             if layer
               layer.load self unless layer.loaded
-              layer.find_upper(Context::Item)&.keyboard_request and e.close
+              layer[Context::Item]&.keyboard_request and e.close
             end
           end
 
           on_mouse_click do |e|
-            layer = find_upper PrimaryLayer
+            layer = self[PrimaryLayer]
             layer.load self if layer && !layer.loaded
           end
         end
 
         def mouse_enter e
           super
-          layer = find_upper PrimaryLayer
+          layer = self[PrimaryLayer]
           layer.update_keyboard_pad nil if layer&.loaded
         end
 

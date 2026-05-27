@@ -19,7 +19,7 @@ text! "", verse_layout: :ycc
 job.side do |side_job|
   lorem.each_char do |char|
     # Use Job::report to update GUI state (GUI state should be updated in main thread only).
-    side_job.report{ text?.subject += char } 
+    side_job.report{ self[:text!].subject += char } 
     sleep rand 0.0..0.1
   end
 end

@@ -5,7 +5,7 @@ module Kredki
     def run
       @run_ms = Kredki.ms
       Pastele.application_run @pointer
-      Kredki.clear_app
+      Kredki.clear_application
       @result
     end
 

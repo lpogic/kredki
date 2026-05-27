@@ -85,9 +85,9 @@ module Kredki
       crayon
     end
 
-    # Set fill.
+    feature :fill
+
     def set_fill *fill
-      return send_bundle :set_fill, yield(self.fill) if block_given?
       fill = Util.uncover fill
       return if @fill == fill && fill != :random
       norm_fill = Kredki.fill fill
@@ -103,12 +103,6 @@ module Kredki
       update
     end
 
-    # See #set_fill.
-    def fill= param
-      send_bundle :set_fill, param
-    end
-
-    # Get fill.
     def fill
       @fill
     end
@@ -122,47 +116,35 @@ module Kredki
       end
     end
     
-    # Set fill rule.
-    def set_fill_rule rule = @fill_rule
-      return set_fill_rule yield @fill_rule if block_given?
+    feature :fill_rule
+
+    def set_fill_rule rule
       return if @fill_rule == rule
       Pastele.shape_set_fill_rule @pointer, FillRule.send(rule || :winding)
       @fill_rule = rule
       update
     end
-
-    # See #set_fill_rule.
-    def fill_rule= param
-      send_bundle :set_fill_rule, param
-    end
-
-    # Get fill rule.
+    
     def fill_rule
       @fill_rule
     end
 
-    # Set stroke features.
+    feature :stroke
+    
     def set_stroke *a, **ka
-      a.map do |it|
+      a.count do |it|
         case it
-        when Hash
-          set_stroke **it
         when Numeric
           set_stroke_width it
         else
-          send_bundle :set_stroke_fill, it
+          mixed_set_stroke_fill it
         end
-      end.any? | send_branch(__method__, ka)
+      end.zero?.not | nest_set(__method__, ka)
     end
     
-    # See #set_stroke.
-    def stroke= param
-      send_bundle :set_stroke, param
-    end
-
-    # Set stroke fill.
+    feature :stroke_fill
+    
     def set_stroke_fill *stroke_fill
-      return send_bundle :set_stroke_fill, yield(self.stroke_fill) if block_given?
       stroke_fill = Util.uncover stroke_fill
       return if @stroke_fill == stroke_fill && stroke_fill != :random
       norm_fill = Kredki.fill stroke_fill
@@ -178,35 +160,18 @@ module Kredki
       update
     end
 
-    # See #set_stroke_fill.
-    def stroke_fill= param
-      send_bundle :set_stroke_fill, param
-    end
-
-    # Get stroke fill.
     def stroke_fill
       @stroke_fill
     end
 
-    # Set stroke width.
-    def set_stroke_width stroke_width = @stroke_width
-      return set_stroke_width yield @stroke_width if block_given?
+    feature :stroke_width
+
+    def set_stroke_width stroke_width
       return if @stroke_width == stroke_width
       update_stroke_width stroke_width
       update
     end
 
-    def update_stroke_width stroke_width
-      Pastele.shape_set_stroke_width @pointer, stroke_width.to_f
-      @stroke_width = stroke_width
-    end
-
-    # See #set_stroke_width.
-    def stroke_width= param
-      send_bundle :set_stroke_width, param
-    end
-
-    # Get stroke width.
     def stroke_width
       @stroke_width
     end
@@ -221,21 +186,15 @@ module Kredki
       end
     end
 
-    # Set stroke path ending method.
-    def set_stroke_cap stroke_cap = @stroke_cap
-      return set_stroke_cap yield @stroke_cap if block_given?
+    feature :stroke_cap # Stroke path ending method.
+
+    def set_stroke_cap stroke_cap
       return if @stroke_cap == stroke_cap
       Pastele.shape_set_stroke_cap @pointer, StrokeCap.send(stroke_cap || :square)
       @stroke_cap = stroke_cap
       update
     end
-
-    # See #set_stroke_cap.
-    def stroke_cap= param
-      send_bundle :set_stroke_cap, param
-    end
-
-    # Get stroke path ending method.
+    
     def stroke_cap
       @stroke_cap
     end
@@ -250,9 +209,9 @@ module Kredki
       end
     end
 
-    # Set stroke connection method.
-    def set_stroke_join stroke_join = @stroke_join
-      return set_stroke_join yield @stroke_join if block_given?
+    feature :stroke_join # Stroke connection method.
+
+    def set_stroke_join stroke_join
       return if @stroke_join == stroke_join
       if stroke_join.is_a? Numeric
         Pastele.shape_set_stroke_join @pointer, 2
@@ -264,61 +223,39 @@ module Kredki
       update
     end
 
-    # See #set_stroke_join.
-    def stroke_join= param
-      send_bundle :set_stroke_join, param
-    end
-
-    # Get stroke connection method.
     def stroke_join
       @stroke_join
     end
 
-    # Set stroke dash pattern.
+    feature :stroke_pattern # Stroke dash pattern.
+
     def set_stroke_pattern *stroke_pattern
-      return send_bundle :set_stroke_pattern, yield(self.stroke_pattern) if block_given?
       return if @stroke_pattern == stroke_pattern
       Pastele.shape_set_stroke_dash @pointer, Fiddle::Pointer[stroke_pattern.pack "f*"], stroke_pattern.length, 0
       @stroke_pattern = stroke_pattern
       update
     end
 
-    # See #set_stroke_pattern.
-    def stroke_pattern= param
-      send_bundle :set_stroke_pattern, param
-    end
-
-    # Get stroke dash pattern.
     def stroke_pattern
       @stroke_pattern
     end
 
-    # Set whether stroke is drawn behind the fill.
+    feature :stroke_behind # Whether stroke is drawn behind the fill.
+
     def set_stroke_behind value = true
-      return if (c = stroke_behind) == (value = block_given? ? yield(c) : value == Not ? !c : value)
+      return if (c = stroke_behind) == (value = value == Not ? !c : value)
       Pastele.shape_set_paint_order @pointer, value ? 1 : 0
       @stroke_behind = value
       true
     end
-
-    # See #set_stroke_behind.
-    def stroke_behind= value
-      set_stroke_behind value
-    end
     
-    # Get whether stroke is drawn behind the fill.
     def stroke_behind
       @stroke_behind
     end
 
-    # See #stroke_behind.
-    def stroke_behind?
-      !!stroke_behind
-    end
+    feature :stroke_trim # Stroke displayed part.
 
-    # Set stroke displayed part.
     def set_stroke_trim *stroke_trim
-      return send_bundle :set_stroke_trim, yield(self.stroke_trim) if block_given?
       stroke_trim = Util.uncover stroke_trim
       return if @stroke_trim == stroke_trim
       start, finish, simultaneous = *StrokeTrim[stroke_trim].to_a
@@ -327,12 +264,6 @@ module Kredki
       update
     end
 
-    # See #set_stroke_trim.
-    def stroke_trim= param
-      send_bundle :set_stroke_trim, param
-    end
-
-    # Get stroke displayed part.
     def stroke_trim
       @stroke_trim
     end
@@ -389,6 +320,11 @@ module Kredki
 
     def self.finalizer pointer
       proc{ Pastele.shape_delete pointer }
+    end
+
+    def update_stroke_width stroke_width
+      Pastele.shape_set_stroke_width @pointer, stroke_width.to_f
+      @stroke_width = stroke_width
     end
   end
 end 

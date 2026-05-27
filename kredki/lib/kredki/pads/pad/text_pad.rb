@@ -3,166 +3,117 @@ module Kredki
     # Pad with text area.
     class TextPad < Pad
 
-      # Get text content.
-      def text
-        @subject.to_s
-      end
-
-      # Set fill.
-      def set_fill *fill
-        return send_bundle :set_fill, yield(self.fill) if block_given?
-        return unless @area.set_fill *fill
-        @verses.each{|it| it.set_fill *fill }
-        true
-      end
-      
-      # See #set_fill.
-      def fill= param
-        send_bundle :set_fill, param
-      end
-
-      # Get fill.
-      def fill
-        @area.fill
-      end
-
-      # Set stroke features.
-      def set_stroke *a, **ka
-        a.map do |it|
-          case it
-          when Hash
-            set_stroke **it
-          when Numeric
-            set_stroke_width it
-          else
-            send_bundle :set_stroke_fill, it
-          end
-        end.any? | send_branch(__method__, ka)
-      end
-      
-      # See #set_stroke.
-      def stroke= param
-        send_bundle :set_stroke, param
-      end
-
-      # Set stroke fill.
-      def set_stroke_fill *stroke_fill
-        return send_bundle :set_stroke_fill, yield(self.stroke_fill) if block_given?
-        return unless @area.set_stroke_fill *stroke_fill
-        @verses.each{|it| it.set_stroke_fill *stroke_fill }
-        true
-      end
-
-      # See #set_stroke_fill.
-      def stroke_fill= param
-        send_bundle :set_stroke_fill, param
-      end
-
-      # Get stroke fill.
-      def stroke_fill
-        @area.fill
-      end
-
-      # Set stroke width.
-      def set_stroke_width stroke_width = @stroke_width
-        return send_bundle :set_stroke_width, yield(self.stroke_width) if block_given?
-        return unless @area.set_stroke_width *stroke_width
-        @verses.each{|it| it.set_stroke_width *stroke_width }
-        true
-      end
-
-      # See #set_stroke_width.
-      def stroke_width= param
-        send_bundle :set_stroke_width, param
-      end
-
-      # Get stroke width.
-      def stroke_width
-        @area.fill
-      end
-
-      # Set verse features.
-      def set_verse *a, **ka
-        a.map do |it|
-          case it
-          when Hash
-            set_verse **it
-          when Numeric, :auto
-            set_verse_size it
-          else
-            set_verse_layout it
-          end
-        end.any? | send_branch(__method__, ka)
-      end
-
-      # See #set_verse.
-      def verse= param
-        send_bundle :set_verse, param
-      end
-
-      # Set verse layout.
-      def set_verse_layout layout = nil
-        return send_bundle :set_verse_layout, yield(self.verse_layout) if block_given?
-        return if @verse_layout == layout
-        @verse_layout = layout
-        arrange_verses
-      end
-
-      # See #set_verse_layout.
-      def verse_layout= param
-        send_bundle :set_verse_layout, param
-      end
-
-      # Get verse layout.
-      def verse_layout
-        @verse_layout
-      end
-
-      # Set space between verses.
-      def set_verse_space verse_space = @verse_space
-        return send_bundle :set_verse_space, yield(self.verse_space) if block_given?
-        return if @verse_space == verse_space
-        @verse_space = verse_space
-        layer&.break_layout
-        true
-      end
-      
-      # See #set_verse_space.
-      def verse_space= param
-        send_bundle :set_verse_space, param
-      end
-      
-      # Get space between verses.
-      def verse_space
-        @verse_space || 0
-      end
-
-      # Set verse size.
-      def set_verse_size verse_size = @verse_size
-        return send_bundle :set_verse_size, yield(self.verse_size) if block_given?
-        return if @verse_size == verse_size
-        @verse_size = verse_size
-        arrange_verses
-      end
-
-      # See #set_verse_size.
-      def verse_size= param
-        send_bundle :set_verse_size, param
-      end
-
-      # Get verse size.
-      def verse_size
-        @verse_size
-      end
-
-      # Set a feature recognized by its class.
-      def << feature
+      def mixed_set feature
         case feature
         when String
           set_subject feature
         else
           super
         end
+      end
+      
+      # Get text content.
+      def text
+        @subject.to_s
+      end
+
+      feature :fill
+      
+      def set_fill *fill
+        return unless @area.set_fill *fill
+        @verses.each{|it| it.set_fill *fill }
+        true
+      end
+      
+      def fill
+        @area.fill
+      end
+
+      feature :stroke
+      
+      def set_stroke *a, **ka
+        a.count do |it|
+          case it
+          when Numeric
+            set_stroke_width it
+          else
+            mixed_set_stroke_fill it
+          end
+        end.zero?.not | nest_set(__method__, ka)
+      end
+      
+      feature :stroke_fill
+      
+      def set_stroke_fill *stroke_fill
+        return unless @area.set_stroke_fill *stroke_fill
+        @verses.each{|it| it.set_stroke_fill *stroke_fill }
+        true
+      end
+
+      def stroke_fill
+        @area.fill
+      end
+
+      feature :stroke_width
+      
+      def set_stroke_width stroke_width
+        return unless @area.set_stroke_width *stroke_width
+        @verses.each{|it| it.set_stroke_width *stroke_width }
+        true
+      end
+
+      def stroke_width
+        @area.fill
+      end
+
+      feature :verse
+      
+      def set_verse *a, **ka
+        a.count do |it|
+          case it
+          when Numeric, :auto
+            set_verse_size it
+          else
+            set_verse_layout it
+          end
+        end.zero?.not | nest_set(__method__, ka)
+      end
+
+      feature :verse_layout
+      
+      def set_verse_layout layout
+        return if @verse_layout == layout
+        @verse_layout = layout
+        arrange_verses
+      end
+      
+      def verse_layout
+        @verse_layout
+      end
+
+      feature :verse_space # Space between verses.
+
+      def set_verse_space verse_space
+        return if @verse_space == verse_space
+        @verse_space = verse_space
+        layer&.break_layout
+        true
+      end
+      
+      def verse_space
+        @verse_space || 0
+      end
+
+      feature :verse_size
+      
+      def set_verse_size verse_size
+        return if @verse_size == verse_size
+        @verse_size = verse_size
+        arrange_verses
+      end
+      
+      def verse_size
+        @verse_size
       end
 
       # :section: LEVEL 2

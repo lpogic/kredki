@@ -3,9 +3,9 @@ require_relative 'area'
 
 module Kredki
   # Base class for Shape's with defined size.
-  class ShapeArea < Shape
+  class SceneArea < Scene
     include Area
-
+    
     def mixed_set feature
       case feature
       in [x, y]
@@ -34,15 +34,6 @@ module Kredki
       super
     end
 
-    def pivot
-      [@size_x * 0.5, @size_y * 0.5]
-    end
-
-    def update_stroke_width ...
-      super
-      @redraw_flag = true
-    end
-
     def update
       if @redraw_flag
         @redraw_flag = false
@@ -52,5 +43,17 @@ module Kredki
         super
       end
     end
+
+    def draw &block
+      @block = block
+      @redraw_flag = true
+      update
+    end
+
+    def redraw
+      clear
+      instance_exec @size_x, @size_y, &@block if @block
+    end
+
   end
 end

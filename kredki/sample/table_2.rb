@@ -3,7 +3,7 @@ require 'kredki'
 table! size: [3/4r, y_limit: 400] do
   set fill: :black
   set margin: 1
-  set spacer: 1
+  set layout_spacer: 1
   set corner: 10
 
   column! 100 # constant width 100px

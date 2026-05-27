@@ -3,47 +3,35 @@ require_relative 'paint'
 module Kredki
   class Scene < Paint
 
-    # Set pivot point position along the X axis.
-    def set_pivot_x pivot_x = @pivot_x
-      return set_pivot_x yield @pivot_x if block_given?
+    feature :pivot_x # Pivot point position along the X axis.
+
+    def set_pivot_x pivot_x
       return if @pivot_x == pivot_x
       @pivot_x = pivot_x
       update_transform
       update
     end
-
-    # See #set_pivot_x.
-    def pivot_x= param
-      send_bundle :set_pivot_x, param
-    end
-
-    # Get pivot point position along the X axis.
+    
     def pivot_x
       @pivot_x
     end
 
-    # Set pivot point position along the Y axis.
-    def set_pivot_y pivot_y = @pivot_y
-      return set_pivot_y yield @pivot_y if block_given?
+    feature :pivot_y # Pivot point position along the Y axis.
+
+    def set_pivot_y pivot_y
       return if @pivot_y == pivot_y
       @pivot_y = pivot_y
       update_transform
       update
     end
 
-    # See #set_pivot_y.
-    def pivot_y= param
-      send_bundle :set_pivot_y, param
-    end
-
-    # Get pivot point position along the Y axis.
     def pivot_y
       @pivot_y
     end
 
-    # Set pivot point position along X and Y axes.
-    def set_pivot pivot_x = @pivot_x, pivot_y = pivot_x
-      return send_bundle :set_pivot, yield(self.pivot) if block_given?
+    feature :pivot # Pivot point position along X and Y axes.
+
+    def set_pivot pivot_x, pivot_y = pivot_x
       return if @pivot_x == pivot_x && @pivot_y == pivot_y
       @pivot_x = pivot_x
       @pivot_y = pivot_y
@@ -51,12 +39,6 @@ module Kredki
       update
     end
 
-    # See #set_pivot.
-    def pivot= param
-      send_bundle :set_pivot, param
-    end
-
-    # Get pivot point position along X and Y axes.
     def pivot
       [@pivot_x, @pivot_y]
     end

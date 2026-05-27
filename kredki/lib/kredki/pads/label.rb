@@ -3,51 +3,38 @@ require_relative 'portal_layer'
 
 module Kredki
   module Pads
-    # Control with text transfering mouse events to related pad.
+    # Control with text, transfering mouse events to related pad.
     class Label < Pad
 
-      # Set selector for mouse events target.
-      def set_for new_for = @for
-        return send_bundle :set_for, yield(self.for) if block_given?
-        return if @for == new_for
-        @for = new_for
-        true
-      end
-
-      # See #set_for.
-      def for= param
-        send_bundle :set_for, param
-      end
-
-      # Get selector for mouse events target.
-      def for
-        @for
-      end
-
-      # Set a feature recognized by its class.
-      def << feature
+      def set_feature feature
         case feature
         when String
-          text?&.set feature or super
+          self[:text!]&.set feature or super
           self.subject ||= feature
         else
           super
         end
       end
+
+      feature :for # Selector for a Pad which the Label describes.
       
-      # :section: LEVEL 2
+      def set_for new_for = @for
+        return if @for == new_for
+        @for = new_for
+        true
+      end
+      
+      def for
+        @for
+      end
 
       def sketch
         super
 
         set_size Fit, 24
-        set_for proc{|it| it.lower_pad&.find{|it| it.keyboardy } }
+        set_for proc{|it| it.lower_pad[Pad, keyboardy: true] }
         set_keyboardy false
         area.set_fill false
-      end
-
-      def for_pad
-        @for.call self
       end
 
       def behavior
@@ -58,6 +45,10 @@ module Kredki
           @portal_layer.entry = self
           @portal_layer.exit = for_pad
         end
+      end
+
+      def for_pad
+        @for.call self
       end
 
       def default_text text

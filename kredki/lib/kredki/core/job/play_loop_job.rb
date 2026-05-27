@@ -13,22 +13,8 @@ module Kredki
     end
 
     # Get play progress.
-    def progress period = nil
-      if period == true
-        @total_ms * @speed % @duration / @duration
-      else
-        total_progress = @total_ms * @speed / @duration
-        period ? total_progress - (total_progress / period).floor * period : total_progress
-      end
-    end
-
-    # Get animation progress
-    def progress clamp = false
-      if clamp
-        @total_ms % @duration / @duration
-      else
-        @total_ms / @duration
-      end
+    def progress
+      @total_ms * @speed / @duration
     end
 
     # Release job.
@@ -42,7 +28,7 @@ module Kredki
       cancel
       @host = host
       @event = event || RunEvent.new(nil, nil, self)
-      @next_ms = @host.app.ms
+      @next_ms = @host.application.ms
       @total_ms = 0
       @host.put_job self
       release if @duration <= 0

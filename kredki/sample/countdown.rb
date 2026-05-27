@@ -22,7 +22,7 @@ button! "Countdown" do
 
       # first loop
       blink_loop = it.loop 500 do # in loop with period 500 ms
-        text?.set_fill{|it| it != :blue ? :blue : :red }
+        self[:text!].set_fill{|it| it != :blue ? :blue : :red }
       end
 
       # second loop
@@ -31,7 +31,7 @@ button! "Countdown" do
         it.release if counter < 2 # mark this iteration as final one
       end.after 1000 do # after 1000 ms
         blink_loop.cancel
-        text?.set "Bye Bye", fill: :white
+        self[:text!].set "Bye Bye", fill: :white
       end.after 1000 do
         window.close
       end

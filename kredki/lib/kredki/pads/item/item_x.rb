@@ -2,6 +2,7 @@ module Kredki
   module Pads
     # Part of X axis aligned item group.
     class ItemX < Item
+      
       # :section: LEVEL 2
 
       def behavior

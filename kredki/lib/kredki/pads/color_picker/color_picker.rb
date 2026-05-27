@@ -1,14 +1,22 @@
 require_relative '../note'
-require_relative 'option_layer'
+require_relative 'color_picker_layer'
+require_relative 'color_picker_pad'
 
 module Kredki
   module Pads
     # Control to select option from list.
-    class Option < Pad
+    class ColorPicker < Pad
 
-      # Add new item.
-      def item! ...
-        dropdown!.item!(size_x: 1r).set(...)
+      feature :color
+
+      def set_color color
+        return if @color == color
+        @color = color
+        self[ColorPickerPad].set_color Kredki.color color
+      end
+
+      def color
+        @color
       end
 
       # Create/Update dropdown.
@@ -22,15 +30,13 @@ module Kredki
         @dropdown
       end
 
-      reaction Item::SelectEvent, :on_select
-
       # :section: LEVEL 2
 
       def initialize
         super
 
         @note = put Note, size: 1r
-        @arrow = default_arrow_button
+        @button = default_picker_button
       end
 
       def sketch
@@ -45,7 +51,7 @@ module Kredki
 
         on_key :enter do |e|
           if @dropdown.loaded
-            self[:item!, keyboard_in: true]&.report_selected e
+            # self[:item!, keyboard_in: true]&.report_selected e
           else
             @dropdown.load self
           end
@@ -55,7 +61,7 @@ module Kredki
           @dropdown.load self unless @dropdown.loaded
         end
 
-        @arrow.on_mouse_click :primary do |e|
+        @button.on_mouse_click :primary do |e|
           if @dropdown.loaded
             @dropdown.unload
           else
@@ -64,20 +70,20 @@ module Kredki
           e.close
         end
 
-        @arrow.on_mouse_move do |it|
+        @button.on_mouse_move do |it|
           if it.drag?
             it.close
           end
         end
 
-        on_select do |e|
-          @dropdown.unload
-          subject = e.target[TextPad].subject
-          set_subject subject
-          @note.set_text subject
-          @note.verse.update_cursor subject.to_s.length
+        @note.on_edit do
+          begin
+            color = Color.parse @note.text
+            self[ColorPickerPad].set_color color, update_note: false
+          rescue
+          end
         end
-
+        
         @dropdown.on_key :escape do |it|
           @dropdown.unload
           it.close
@@ -89,21 +95,27 @@ module Kredki
       end
 
       def default_dropdown_layer
-        put OptionLayer
+        put ColorPickerLayer
       end
 
-      def default_arrow_button
+      def default_picker_button
         @note.put Button, size: [20, 1r] do
           set stroke_width: 0
           set keyboardy: false
-          put RectanglePad, mousy: false, keyboardy: false, fill: 0, size: 1r do
-            set_stroke fill: :text, width: 2, cap: :round
+          set layout: :zcc
+          put RectanglePad, size: 1r do
             set_area do |sx, sy|
-              jump sx * 0.2, sy * 0.35
-              line sx * 0.5, sy * 0.65
-              line sx * 0.8, sy * 0.35
+              rx = (sx + 16) / 16
+              ry = (sy + 8) / 8
+              rx.times do |i|
+                ry.times do |j|
+                  jump i * 16 + (j % 2 == 0 ? 4 : 12), j * 8 + 4
+                  rectangle 8, 8
+                end
+              end
             end
           end
+          put RectanglePad, :color, mousy: false, keyboardy: false, size: 1r, margin: 3, stroke: [1, :white]
         end
       end
     end

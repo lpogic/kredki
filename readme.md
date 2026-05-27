@@ -55,13 +55,13 @@ Code:
 require 'kredki'
 
 window.set_size 400, 150
-set layout: :xcc, spacer: 10
+set layout: [:xcc, 10]
 
 label! "Enter name:"
 note! size_x: 100, text: "world"
 button! "Submit", suit: :orange do
   on_click do
-    puts "Hello #{ pane.note?.text }!"
+    puts "Hello #{ pane[:note!].text }!"
   end
 end
 ```

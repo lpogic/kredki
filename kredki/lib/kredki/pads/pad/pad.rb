@@ -6,66 +6,48 @@ module Kredki
     class Pad < Service
       include PadEvents
 
-      # Set subject.
+      feature :subject
+
       def set_subject subject = @subject
-        return send_bundle :set_subject, yield(self.subject) if block_given?
         return if @subject == subject
         @subject = subject
         update_subject subject
         true
       end
-
-      # See #set_subject.
-      def subject= param
-        send_bundle :set_subject, param
-      end
-
-      # Get subject.
+      
       def subject
         @subject
       end
 
-      # Set position along the X axis.
+      feature :x # Position along the X axis.
+
       def set_x x = @x
-        return set_x yield @x if block_given?
         return if Util.eqr @x, x
         @x = x
         layer&.break_layout
         true
       end
       
-      # See #set_x.
-      def x= param
-        send_bundle :set_x, param
-      end
-
-      # Get position along the X axis.
       def x
         @x
       end
 
-      # Set position along the Y axis.
+      feature :y # Position along the Y axis.
+
       def set_y y = @y
-        return set_y yield @y if block_given?
         return if Util.eqr @y, y
         @y = y
         layer&.break_layout
         true
       end
 
-      # See #set_y.
-      def y= param
-        send_bundle :set_y, param
-      end
-
-      # Get position along the X axis.
       def y
         @y
       end
 
-      # Set position along X and Y axes.
-      def set_xy x = @x, y = x
-        return send_bundle :set_xy, yield(self.xy) if block_given?
+      feature :xy # Position along X and Y axes.
+
+      def set_xy x, y = x
         return if (Util.eqr @y, y) && (Util.eqr @x, x)
         @x = x
         @y = y
@@ -73,80 +55,56 @@ module Kredki
         true
       end
       
-      # See #set_xy.
-      def xy= param
-        send_bundle :set_xy, param
-      end
-
-      # Get position along X and Y axes.
       def xy
         [@x, @y]
       end
 
-      # Set size in the X axis.
+      feature :size_x # Size in the X axis.
+
       def set_size_x size_x = @size_x, **ka
-        return set_size_x yield self.size_x if block_given?
         unless Util.eqr @size_x, size_x
           @size_x = size_x
           layer&.break_layout
           true
-        end | send_branch(__method__, ka)
+        end | nest_set(__method__, ka)
       end
 
-      # See #set_size_x.
-      def size_x= param
-        send_bundle :set_size_x, param
-      end
-
-      # Get size in the X axis.
       def size_x
         @size_x
       end
+
+      feature :size_y # Size in the Y axis.
       
-      # Set size in the Y axis.
       def set_size_y size_y = @size_y, **ka
-        return set_size_y yield self.size_y if block_given?
         unless Util.eqr @size_y, size_y
           @size_y = size_y
           layer&.break_layout
           true
-        end | send_branch(__method__, ka)
+        end | nest_set(__method__, ka)
       end
 
-      # See #set_size_y.
-      def size_y= param
-        send_bundle :set_size_y, param
-      end
-
-      # Get size in the Y axis.
       def size_y
         @size_y
       end
 
-      # Set size.
+      feature :size
+      
       def set_size size_x = @size_x, size_y = size_x, **ka
-        return send_bundle :set_size, yield(self.size) if block_given?
-        if @size_x != size_x || @size_y != size_y
+        if !Util.eqr(@size_x, size_x) || !Util.eqr(@size_y, size_y)
           @size_x = size_x
           @size_y = size_y
           layer&.break_layout
           true
-        end | send_branch(__method__, ka)
+        end | nest_set(__method__, ka)
       end
 
-      # See #set_size.
-      def size= param
-        send_bundle :set_size, param
-      end
-      
-      # Get size.
       def size
         [@size_x, @size_y]
       end
 
-      # Set size limit in the X axis.
-      def set_size_x_limit size_x_limit = @size_x_limit
-        return set_size_x_limit yield self.size_x_limit if block_given?
+      feature :size_x_limit # Size limit in the X axis.
+
+      def set_size_x_limit size_x_limit
         raise_ia size_x_limit, "Rational limit disabled." if Rational === size_x_limit
         return if @size_x_limit = size_x_limit
         @size_x_limit = size_x_limit
@@ -154,19 +112,13 @@ module Kredki
         true
       end
 
-      # See #set_size_x_limit.
-      def size_x_limit= param
-        set_size_x_limit param
-      end
-
-      # Get size limit in the X axis.
       def size_x_limit
         @size_x_limit
       end
+
+      feature :size_y_limit # Size limit in the Y axis.
       
-      # Set size limit in the Y axis.
-      def set_size_y_limit size_y_limit = @size_y_limit
-        return set_size_y_limit yield self.size_y_limit if block_given?
+      def set_size_y_limit size_y_limit
         raise_ia size_y_limit, "Rational limit disabled." if Rational === size_y_limit
         return if @size_y_limit = size_y_limit
         @size_y_limit = size_y_limit
@@ -174,151 +126,103 @@ module Kredki
         true
       end
 
-      # See #set_size_y_limit.
-      def size_y_limit= param
-        set_size_y_limit param
-      end
-
-      # Get size limit in the Y axis.
       def size_y_limit
         @size_y_limit
       end
 
-      # Set size limit.
-      def set_size_limit x_limit = @x_limit, y_limit = x_limit
-        return send_bundle :set_size_limit, yield(self.size_limit) if block_given?
+      feature :size_limit
+      
+      def set_size_limit x_limit, y_limit = x_limit
         set_size_x_limit(x_limit) | set_size_y_limit(y_limit)
       end
 
-      # See #set_size_limit.
-      def size_limit= param
-        send_bundle :set_size_limit, param
-      end
-
-      # Get size limit.
       def size_limit
-        [@w_limit, @h_limit]
+        [@size_x_limit, @size_y_limit]
       end
 
-      # Set X start margin.
-      def set_margin_xs m = @margin_xs
-        return set_margin_xs yield @margin_xs if block_given?
+      feature :margin_xs # X start margin.
+
+      def set_margin_xs m
         return if Util.eqr @margin_xs, m
         @margin_xs = m
         layer&.break_layout
         true
       end
-
-      # See #set_margin_xs.
-      def margin_xs= param
-        send_bundle :set_margin_xs, param
-      end
-
-      # Get X start margin.
+      
       def margin_xs
         @margin_xs
       end
 
-      # Set X end margin.
-      def set_margin_xe m = @margin_xe
-        return set_margin_xe yield @margin_xe if block_given?
+      feature :margin_xe # X end margin.
+      
+      def set_margin_xe m
         return if Util.eqr @margin_xe, m
         @margin_xe = m
         layer&.break_layout
         true
       end
 
-      # See #set_margin_xe.
-      def margin_xe= param
-        send_bundle :set_margin_xe, param
-      end
-
-      # Get X end margin.
       def margin_xe
         @margin_xe
       end
 
-      # Set Y start margin.
-      def set_margin_ys m = @margin_ys
-        return set_margin_ys yield @margin_ys if block_given?
+      feature :margin_ys # Y start margin.
+      
+      def set_margin_ys m
         return if Util.eqr @margin_ys, m
         @margin_ys = m
         layer&.break_layout
         true
       end
 
-      # See #set_margin_ys.
-      def margin_ys= param
-        send_bundle :set_margin_ys, param
-      end
-
-      # Get Y start margin.
       def margin_ys
         @margin_ys
       end
 
-      # Set Y end margin.
-      def set_margin_ye m = @margin_ye
-        return set_margin_ye yield @margin_ye if block_given?
+      feature :margin_ye # Y end margin.
+
+      def set_margin_ye m
         return if Util.eqr @margin_ye, m
         @margin_ye = m
         layer&.break_layout
         true
       end
 
-      # See #set_margin_ye.
-      def margin_ye= param
-        send_bundle :set_margin_ye, param
-      end
-
-      # Get Y end margin.
       def margin_ye
         @margin_ye
       end
 
-      # Set X start and X end margin.
-      def set_margin_x mxs = @margin_xs, mxe = mxs
-        return send_bundle :set_margin_x, yield(self.margin_x) if block_given?
-        return if (Util.eqr @margin_xs, mxs) && (Util.eqr @margin_xe, mxe)
-        @margin_xs = mxs
-        @margin_xe = mxe
+      feature :margin_x # X start and X end margin.
+
+      def set_margin_x margin_xs, margin_xe = margin_xs
+        return if (Util.eqr @margin_xs, margin_xs) && (Util.eqr @margin_xe, margin_xe)
+        @margin_xs = margin_xs
+        @margin_xe = margin_xe
         layer&.break_layout
         true
       end
 
-      # See #set_margin_x.
-      def margin_x= param
-        send_bundle :set_margin_x, param
-      end
-
-      # Get X start and X end margin.
       def margin_x
         [@margin_xs, @margin_xe]
       end
 
-      # Set Y start and X end margin.
-      def set_margin_y margin_ys = @margin_ys, margin_ye = margin_ys
-        return send_bundle :set_margin_y, yield(self.margin_y) if block_given?
+      feature :margin_y # Y start and Y end margin.
+      
+      def set_margin_y margin_ys, margin_ye = margin_ys
         return if (Util.eqr @margin_ys, margin_ys) && (Util.eqr @margin_ye, margin_ye)
         @margin_ys = margin_ys
         @margin_ye = margin_ye
         layer&.break_layout
         true
       end
-
-      # See #set_margin_y.
-      def margin_y= param
-        send_bundle :set_margin_y, param
-      end
-
-      # Get Y start and Y end margin.
+      
       def margin_y
         [@margin_ys, @margin_ye]
       end
 
-      # Set X and Y start and X and Y end margin.
+      feature :margin # Margin feature nest.
+
       def set_margin margin_xs = @margin_xs, margin_ys = margin_xs, margin_xe = margin_xs, margin_ye = margin_ys, **ka
-        return send_bundle :set_margin, yield(self.m) if block_given?
         unless (Util.eqr @margin_xs, margin_xs) && (Util.eqr @margin_xe, margin_xe) && (Util.eqr @margin_ys, margin_ys) && (Util.eqr @margin_ye, margin_ye)
           @margin_xs = margin_xs
           @margin_xe = margin_xe
@@ -326,138 +230,95 @@ module Kredki
           @margin_ye = margin_ye
           layer&.break_layout
           true
-        end | send_branch(__method__, ka)
+        end | nest_set(__method__, ka)
       end
-
-      # See #set_margin.
-      def margin= param
-        send_bundle :set_margin, param
-      end
-
-      # Get X and Y start and X and Y end margin.
+      
       def margin
         [@margin_xs, @margin_ys, @margin_xe, @margin_ye]
       end
 
-      # Set layout spacer.
-      def set_spacer spacer = @spacer
-        return set_spacer yield @spacer if block_given?
-        return if Util.eqr @spacer, spacer
-        @spacer = spacer
+      feature :layout_spacer
+      
+      def set_layout_spacer layout_spacer
+        return if Util.eqr @layout_spacer, layout_spacer
+        @layout_spacer = layout_spacer
         layer&.break_layout
         true
       end
-
-      # See #set_spacer.
-      def spacer= param
-        send_bundle :set_spacer, param
+      
+      def layout_spacer
+        @layout_spacer
       end
 
-      # Get layout spacer.
-      def spacer
-        @spacer
-      end
+      feature :turn # Turn around the pivot point.
 
-      # Set turn around the pivot point.
-      def set_turn turn = @turn
-        return set_turn yield @turn if block_given?
+      def set_turn turn
         return if @turn == turn
         @turn = turn
         @scene.set_turn turn
       end
-
-      # See #set_turn.
-      def turn= param
-        send_bundle :set_turn, param
-      end
-
-      # Get turn around the pivot point.
+      
       def turn
         @turn
       end
 
-      # Set zoom in the X axis.
+      feature :zoom_x # Zoom in the X axis.
+
       def set_zoom_x ...
         @scene.set_zoom_x(...)
       end
-
-      # See #set_zoom_x.
-      def zoom_x= value
-        @scene.zoom_x = value
-      end
-
-      # Get zoom in the X axis.
+      
       def zoom_x
         @scene.zoom_x
       end
 
-      # Set zoom in the Y axis.
+      feature :zoom_y # Zoom in the Y axis.
+      
       def set_zoom_y ...
         @scene.set_zoom_y(...)
       end
-
-      # See #set_zoom_y.
-      def zoom_y= value
-        @scene.zoom_y = value
-      end
-
-      # Get zoom in the Y axis.
+      
       def zoom_y
         @scene.zoom_y
       end
 
-      # Set zoom in X and Y axes.
+      feature :zoom # Zoom in X and Y axes.
+
       def set_zoom ...
         @scene.set_zoom(...)
       end
-
-      # See #set_zoom.
-      def zoom= value
-        @scene.zoom = value
-      end
-
-      # Get zoom in X and Y axes.
+      
       def zoom
         @scene.zoom
       end
 
-      # Set opacity.
-      def set_opacity opacity = @opacity
-        return set_opacity yield @opacity if block_given?
+      feature :opacity
+      
+      def set_opacity opacity
         return if @opacity == opacity
         @opacity = opacity
         opacity *= 255 if opacity.is_a? Rational
         @scene.set_opacity opacity
       end
 
-      # See #set_opacity.
-      def opacity= param
-        send_bundle :set_opacity, param
-      end
-
-      # Get opacity.
       def opacity
         @opacity
       end
 
-      # Set mouse cursor.
-      def set_mouse_cursor mouse_cursor = @mouse_cursor
-        return send_bundle :set_mouse_cursor, yield(self.mouse_cursor) if block_given?
+      feature :mouse_cursor # Mouse cursor when pad is mouse top.
+
+      def set_mouse_cursor mouse_cursor
         return if @mouse_cursor == mouse_cursor
         @mouse_cursor = mouse_cursor
         pane&.mouse_stale = true
         true
       end
-
-      # See #set_mouse_cursor.
-      def mouse_cursor= param
-        send_bundle :set_mouse_cursor, param
-      end
-
-      # Get mouse_cursor.
+      
       def mouse_cursor
         @mouse_cursor
       end
+
+      feature :area
 
       # [Create] and attach area and optionally clip area.
       def set_area area = BlockShapeArea, clip: :auto, &block
@@ -485,16 +346,12 @@ module Kredki
           set_clip_area area, &block
         end
       end
-
-      # See #set_area.
-      def area= param
-        send_bundle :set_area, param
-      end
-
-      # Get area.
+      
       def area
         @area
       end
+
+      feature :clip_area
 
       # [Create] and attach clip area.
       def set_clip_area area = nil, &block
@@ -506,53 +363,35 @@ module Kredki
         true
       end
 
-      # See #set_clip_area.
-      def clip_area= param
-        send_bundle :set_clip_area, param
-      end
-
-      # Get clip_area.
       def clip_area
         @clip_area
       end
 
-      # Set layout.
-      def set_layout layout = nil
-        return set_layout yield @layout if block_given?
-        return if @layout == layout
-        @layout = layout
-        layout = Pads.layout layout
-        return true if @pads_layout == layout
-        @pads_layout = layout
-        layer&.break_layout
-        true
+      feature :layout
+      
+      def set_layout *a, **ka
+        a.count do |it|
+          case it
+          when Numeric
+            set_layout_spacer it
+          else
+            update_layout it
+          end
+        end.zero?.not | nest_set(__method__, ka)
       end
 
-      # See #set_layout.
-      def layout= param
-        send_bundle :set_layout, param
-      end
-
-      # Get layout.
       def layout
         @layout
       end
 
-      # Set whether Pad is scenic.
-      #
-      # All lower pads must also be scenic for the Pad to be displayed.
+      feature :scenic # Whether Pad is scenic. All lower pads must also be scenic for the Pad to be displayed.
+
       def set_scenic value = true
-        return if (c = scenic) == (value = block_given? ? yield(c) : value == Not ? !c : value)
+        return if (c = scenic) == (value = value == Not ? !c : value)
         update_scenic value
         true
       end
 
-      # See #set_scenic.
-      def scenic= value
-        set_scenic value
-      end
-      
-      # Get whether Pad is scenic.
       def scenic
         get_scenic
       end
@@ -562,22 +401,15 @@ module Kredki
         @scene.displayed
       end
 
-      # Set whether Pad is layoutic.
-      #
-      # Layoutic pad occupy place in layout even if it is not scenic.
+      feature :layoutic # Whether Pad is layoutic. Layoutic pad occupy place in layout even if it is not scenic.
+
       def set_layoutic value = true
-        return if (c = layoutic) == (value = block_given? ? yield(c) : value == Not ? !c : value)
+        return if (c = layoutic) == (value = value == Not ? !c : value)
         layer&.break_layout
         @layoutic = value
         true
       end
-
-      # See #set_layoutic.
-      def layoutic= value
-        set_layoutic value
-      end
       
-      # Get whether Pad is layoutic.
       def layoutic
         @layoutic || @layoutic.nil?
       end
@@ -618,61 +450,46 @@ module Kredki
         layer&.pin_check self, button, true
       end
 
-      # Set whether Pad can be keyboard events target.
+      feature :keyboardy # Whether Pad can be keyboard events target.
+
       def set_keyboardy value = true
-        return if (c = keyboardy) == (value = block_given? ? yield(c) : value == Not ? !c : value)
+        return if (c = keyboardy) == (value = value == Not ? !c : value)
         @keyboardy = value
         true
       end
 
-      # See #set_keyboardy.
-      def keyboardy= value
-        set_keyboardy value
-      end
-      
-      # Get whether Pad can be keyboard events target.
       def keyboardy
         @keyboardy
       end
       
-      # Set whether Pad can be mouse events target.
+      feature :mousy # Whether Pad can be mouse events target.
+
       def set_mousy value = true
-        return if (c = mousy) == (value = block_given? ? yield(c) : value == Not ? !c : value)
+        return if (c = mousy) == (value = value == Not ? !c : value)
         @mousy = value
         true
       end
-
-      # See #set_mousy.
-      def mousy= value
-        set_mousy value
-      end
       
-      # Get whether Pad can be mouse events target.
       def mousy
         @mousy || @mousy.nil?
       end
 
-      # Set whether is disabled.
+      feature :disabled
+      
       def set_disabled value = true
-        return if (c = disabled) == (value = block_given? ? yield(c) : value == Not ? !c : value)
+        return if (c = disabled) == (value = value == Not ? !c : value)
         @disabled = value
         repaint
         true
       end
-
-      # See #set_disabled.
-      def disabled= value
-        set_disabled value
-      end
       
-      # Get whether is disabled.
       def disabled
         @disabled
       end
 
       # Get whether self or any lower is disabled.
       def in_disabled
-        disabled || find_lower(Pad){|it| it.disabled }
+        disabled || lower(Pad){|it| it.disabled }
       end
       
       # Start drag.
@@ -700,7 +517,7 @@ module Kredki
           subject.split("\x1e").each do |part|
             if pad_mode
               id = part.to_i
-              pad = find{|c| c.object_id == id }
+              pad = direct_upper{|c| c.object_id == id }
               put pad if pad
               pad_mode = false
             else
@@ -722,8 +539,7 @@ module Kredki
         pad_detach transfer
       end
 
-      # Set a feature recognized by its class.
-      def << feature
+      def mixed_set feature
         case feature
         when Pad, String
           put feature
@@ -1232,7 +1048,7 @@ module Kredki
       end
 
       def check_mouse_in pad
-        is pad or find_lower pad
+        is pad or lower pad
       end
 
       def pin_request xy = nil, button = nil, drag = false
@@ -1273,13 +1089,23 @@ module Kredki
 
       def c_set_lower at
         return if @lower_pad
-        pad = @lower.is(Pad) || @lower.find_lower(Pad)
+        pad = @lower.is(Pad) || @lower.lower(Pad)
         pad_attach pad, at
       end
 
       def pad_attach lower, at
         @lower_pad = lower
         @lower_pad&.put_pad self, at
+      end
+
+      def update_layout layout = nil
+        return if @layout == layout
+        @layout = layout
+        pads_layout = Pads.layout layout
+        return true if @pads_layout == pads_layout
+        @pads_layout = pads_layout
+        layer&.break_layout
+        true
       end
 
       def default_text text

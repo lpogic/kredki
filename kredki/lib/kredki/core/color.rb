@@ -1,6 +1,7 @@
 module Kredki
   # Immutable color model
   class Color
+    CHANNEL_MAX = 255
 
     # Get red channel value.
     def r
@@ -24,23 +25,27 @@ module Kredki
 
     # Get color copy with RGB channels saturation increased by a +level+.
     def lighten level = 10
-      Color.new *to_a(:rgb).map{ (_1 + level).clamp(0, 255) }, @a
+      Color.new *to_a(:rgb).map{ (_1 + level).clamp(0, CHANNEL_MAX) }, @a
     end
 
     # Get color copy with RGB channels saturation decreased by a +level+.
     def darken level = 10
-      Color.new *to_a(:rgb).map{ (_1 - level).clamp(0, 255) }, @a
+      Color.new *to_a(:rgb).map{ (_1 - level).clamp(0, CHANNEL_MAX) }, @a
     end
 
     # Get color copy with changed Alpha channel saturation.
-    def clarify a = 255
-      a = (255 * a).to_i if a.is_a? Rational
+    def clarify a = CHANNEL_MAX
+      a = (CHANNEL_MAX * a).to_i if a.is_a? Rational
       Color.new *to_a(:rgb), a
     end
 
     # Get color copy with tuned RGB channels saturation.
     def tune r = 0, g = 0, b = 0
-      Color.new (@r + r).clamp(0, 255), (@g + g).clamp(0, 255), (@b + b).clamp(0, 255), @a
+      Color.new (@r + r).clamp(0, CHANNEL_MAX), (@g + g).clamp(0, CHANNEL_MAX), (@b + b).clamp(0, CHANNEL_MAX), @a
+    end
+
+    def negate
+      Color.new CHANNEL_MAX - @r, CHANNEL_MAX - @g, CHANNEL_MAX - @b, @a
     end
 
     # Get textual representation.
@@ -50,7 +55,7 @@ module Kredki
 
     # :section: LEVEL 2
 
-    def initialize r, g, b, a = 255
+    def initialize r, g, b, a = CHANNEL_MAX
       @r = r
       @g = g
       @b = b
@@ -61,10 +66,10 @@ module Kredki
       case a = Util.uncover(a)
       when String
         a = a[1..] if a.start_with? "#"
-        alpha = a.length > 6 ? a[6...8].to_i(16) : 255
+        alpha = a.length > 6 ? a[6...8].to_i(16) : CHANNEL_MAX
         Color.new a[0...2].to_i(16), a[2...4].to_i(16), a[4...6].to_i(16), alpha
       when Array
-        Color.new *a
+        Color.new *a.map{|it| Rational === it ? CHANNEL_MAX * it : it }
       else raise_ia a
       end
     end

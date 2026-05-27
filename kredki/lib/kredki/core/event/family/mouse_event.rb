@@ -155,7 +155,7 @@ module Kredki
     end
   end
 
-  # Event reported on mouse pointer enter.
+  # Event reported on mouse pointer leave.
   class MousePointerLeaveEvent < MouseEvent
 
     # Get whether it is move sourced event.

@@ -19,7 +19,7 @@ class HelloTest < Kredki::Test
 
   def test_enter
     window.set_size 400, 150
-    set layout: :xcc, spacer: 10
+    set layout: [:xcc, 10]
 
     label! "Enter name:"
     note! size_x: 100, text: "world"
@@ -43,7 +43,7 @@ class HelloTest < Kredki::Test
       button! "Submit", size_x: 1r
     end
 
-    button?.on_click{ app.return item?(selected: true).subject }
+    self[:button!].on_click{ application.return self[:item!, selected: true].subject }
 
     assert_png
   end

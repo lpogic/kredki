@@ -3,126 +3,89 @@ require_relative 'shape_area'
 module Kredki
   class Rectangle < ShapeArea
 
-    # Set X start Y start corner.
-    def set_corner_ss corner_ss = @corner_ss
-      return set_corner_ss yield @corner_ss if block_given?
+    feature :corner_ss # X start Y start corner.
+
+    def set_corner_ss corner_ss
       return if @corner_ss == corner_ss
       @corner_ss = corner_ss
       @redraw_flag = true
       update
     end
-
-    # See #set_corner_ss.
-    def corner_ss= param
-      send_bundle :set_corner_ss, param
-    end
-
-    # Get X start Y start corner.
+    
     def corner_ss
       @corner_ss
     end
 
-    # Set X start Y end corner.
-    def set_corner_se corner_se = @corner_se
-      return set_corner_se yield @corner_se if block_given?
+    feature :corner_se # X start Y end corner.
+    
+    def set_corner_se corner_se
       return if @corner_se == corner_se
       @corner_se = corner_se
       @redraw_flag = true
       update
     end
 
-    # See #set_corner_se.
-    def corner_se= param
-      send_bundle :set_corner_se, param
-    end
-
-    # Get X start Y end corner.
     def corner_se
       @corner_se
     end
 
-    # Set X end Y start corner.
-    def set_corner_es corner_es = @corner_es
-      return set_corner_es yield @corner_es if block_given?
+    feature :corner_es # X end Y start corner.
+    
+    def set_corner_es corner_es
       return if @corner_es == corner_es
       @corner_es = corner_es
       @redraw_flag = true
       update
     end
-
-    # See #set_corner_es.
-    def corner_es= param
-      send_bundle :set_corner_es, param
-    end
-
-    # Get X end Y start corner.
+    
     def corner_es
       @corner_es
     end
 
-    # Set X end Y end corner.
-    def set_corner_ee corner_ee = @corner_ee
-      return set_corner_ee yield @corner_ee if block_given?
+    feature :corner_ee # X end Y end corner.
+
+    def set_corner_ee corner_ee
       return if @corner_ee == corner_ee
       @corner_ee = corner_ee
       @redraw_flag = true
       update
     end
-
-    # See #set_corner_ee.
-    def corner_ee= param
-      send_bundle :set_corner_ee, param
-    end
-
-    # Get X end Y end corner.
+    
     def corner_ee
       @corner_ee
     end
 
-    # Set X start corners.
-    def set_corner_xs corner_ss = @corner_ss, corner_se = corner_ss
-      return send_bundle :set_corner_xs, yield(self.corner_xs) if block_given?
+    feature :corner_xs # X start corners.
+    
+    def set_corner_xs corner_ss, corner_se = corner_ss
       return if @corner_ss == corner_ss && @corner_se == corner_se
       @corner_ss = corner_ss
       @corner_se = corner_se
       @redraw_flag = true
       update
     end
-
-    # See #set_corner_xs.
-    def corner_xs= param
-      send_bundle :set_corner_xs, param
-    end
-
-    # Get X start corners.
+    
     def corner_xs
       [@corner_ss, @corner_se]
     end
 
-    # Set X end corners.
-    def set_corner_xe corner_es = @corner_es, corner_ee = corner_es
-      return send_bundle :set_corner_xe, yield(self.corner_xe) if block_given?
+    feature :corner_xe # X end corners.
+    
+    def set_corner_xe corner_es, corner_ee = corner_es
       return if @corner_es == corner_es && @corner_ee == corner_ee
       @corner_es = corner_es
       @corner_ee = corner_ee
       @redraw_flag = true
       update
     end
-
-    # See #set_corner_xe.
-    def corner_xe= param
-      send_bundle :set_corner_xe, param
-    end
-
-    # Get X end corners.
+    
     def corner_xe
       [@corner_es, @corner_ee]
     end
 
+    feature :corner_ys # Y start corners.
 
-    # Set Y start corners.
-    def set_corner_ys corner_ss = @corner_ss, corner_es = corner_ss
-      return send_bundle :set_corner_ys, yield(self.corner_ys) if block_given?
+    def set_corner_ys corner_ss, corner_es = corner_ss
       return if @corner_ss == corner_ss && @corner_es == corner_es
       @corner_ss = corner_ss
       @corner_es = corner_es
@@ -130,19 +93,13 @@ module Kredki
       update
     end
     
-    # See #set_corner_ys.
-    def corner_ys= param
-      send_bundle :set_corner_ys, param
-    end
-
-    # Get Y start corners.
     def corner_ys
       [@corner_ss, @corner_es]
     end
 
-    # Set Y end corners.
-    def set_corner_ye corner_se = @corner_se, corner_ee = corner_se
-      return send_bundle :set_corner_ye, yield(self.corner_ye) if block_given?
+    feature :corner_ye # Y end corners.
+    
+    def set_corner_ye corner_se, corner_ee = corner_se
       return if @corner_se == corner_se && @corner_ee == corner_ee
       @corner_se = corner_se
       @corner_ee = corner_ee
@@ -150,34 +107,23 @@ module Kredki
       update
     end
     
-    # See #set_corner_ye.
-    def corner_ye= param
-      send_bundle :set_corner_ye, param
-    end
-
-    # Get Y end corners.
     def corner_ye
       [@corner_se, @corner_ee]
     end
     
-    # Set corners.
-    def set_corner corner_ss = @corner_ss, corner_es = corner_ss, corner_se = corner_ss, corner_ee = corner_es
-      return send_bundle :set_corner, yield(self.corner) if block_given?
-      return if @corner_ss == corner_ss && @corner_es == corner_es && @corner_se == corner_se && @corner_ee == corner_ee
-      @corner_ss = corner_ss
-      @corner_es = corner_es
-      @corner_se = corner_se
-      @corner_ee = corner_ee
-      @redraw_flag = true
-      update
-    end
-
-    # See #set_corner.
-    def corner= param
-      send_bundle :set_corner, param
+    feature :corner
+    
+    def set_corner corner_ss = @corner_ss, corner_es = corner_ss, corner_se = corner_ss, corner_ee = corner_es, **ka
+      unless @corner_ss == corner_ss && @corner_es == corner_es && @corner_se == corner_se && @corner_ee == corner_ee
+        @corner_ss = corner_ss
+        @corner_es = corner_es
+        @corner_se = corner_se
+        @corner_ee = corner_ee
+        @redraw_flag = true
+        update
+      end | nest_set(__method__, ka)
     end
     
-    # Get corners.
     def corner
       [@corner_ss, @corner_es, @corner_se, @corner_ee]
     end

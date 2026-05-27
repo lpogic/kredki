@@ -13,18 +13,12 @@ module Kredki
         change
       end
 
-      # Set font.
-      def set_font font = @verses.first.font
-        return send_bundle :set_font, yield(self.font) if block_given?
-        @verses.count{ _1.set_font font }.nonzero?
+      feature :font
+      
+      def set_font font
+        @verses.count{ _1.set_font font }.zero?.not
       end
       
-      # See #set_font.
-      def font= param
-        send_bundle :set_font, param
-      end
-
-      # Get font
       def font
         @verses.first.text.font
       end

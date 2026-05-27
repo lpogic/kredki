@@ -17,21 +17,16 @@ module Kredki
     end
 
     # Get application.
-    def app
-      window&.app
+    def application
+      window&.application
     end
 
-    # Set background fill.
+    feature :fill # Background fill.
+
     def set_fill ...
       @fill.set_fill(...)
     end
-
-    # See #set_fill.
-    def fill= param
-      send_bundle :set_fill, param
-    end
-
-    # Get background fill.
+    
     def fill
       @fill.fill
     end
@@ -45,7 +40,7 @@ module Kredki
 
     def exit_on_esc
       on_key_press.attach at: :last do |event|
-        app.return if event.key.id == :escape
+        application.return if event.key.id == :escape
       end
     end
 
@@ -54,9 +49,8 @@ module Kredki
         window.close if event.key.id == :escape
       end
     end
-
-    # Set a feature recognized by its class.
-    def << feature
+    
+    def mixed_set feature
       case feature
       when Hash
         set **feature
@@ -67,7 +61,7 @@ module Kredki
       when Class, String, Pane
         window.pane = feature
       else
-        raise "Unsupported << (#{feature} : #{feature.class})"
+        raise "Unsupported auto set (#{feature} : #{feature.class})"
       end
       self
     end
@@ -170,7 +164,7 @@ module Kredki
     end
 
     def tick event
-      ms = event.timestamp * 0.000001 - app.run_ms
+      ms = event.timestamp * 0.000001 - application.run_ms
       jobs = {**@jobs}
       jobs.each_key{|it| delete_job it unless it.tick ms }
     end

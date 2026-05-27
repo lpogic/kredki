@@ -23,7 +23,7 @@ module Kredki
       cancel
       @host = host
       @event = event || RunEvent.new(nil, nil, self)
-      @next_ms = @host.app.ms
+      @next_ms = @host.application.ms
       @total_ms = 0
       @host.put_job self
     end

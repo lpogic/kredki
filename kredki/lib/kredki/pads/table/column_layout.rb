@@ -8,20 +8,15 @@ module Kredki
         def column! ...
           @columns << Column.new.set(...)
         end
-        
-        # Set space between columns.
+
+        feature :space # Space between columns.
+
         def set_space space = @space
           return if @space == space
           @space = space
           true
         end
 
-        # See #set_space.
-        def space= param
-          send_bundle :set_space, param
-        end
-
-        # Get space between columns.
         def space
           @space
         end
@@ -32,20 +27,27 @@ module Kredki
           super(x, y)
           @table = table
           @columns = []
-          @measurement = nil
-          @spans = nil
+          @measure_phase = true
+          @pad_size_characteristics = nil
         end
   
         def arrange pad
-          @measurement ? proper_arrange(pad) : measure_arrange(pad)
+          @measure_phase ? measure_arrange(pad) : proper_arrange(pad)
         end
 
         def measure_arrange pad
           csx = @table.clip_size_x
 
-          @spans = pad.pads_layoutic.zip(@columns, @spans).map do |p1, column, span|
-            n = get_span p1, column.size, column.limit, csx
-            span ? [n[0], a = [n[1], span[1]].max, [n[2], span[2]].min, a] : n
+          @pad_size_characteristics = pad.pads_layoutic.zip(@columns, @pad_size_characteristics).map do |p1, column, last_characteristic|
+            new_characteristic = get_size_characteristic p1, column&.size || Auto, column&.limit, csx
+
+            if last_characteristic
+              min = [new_characteristic.min, last_characteristic.min].max
+              max = [new_characteristic.max, last_characteristic.max].min
+              PadSizeCharacteristic.new p1, new_characteristic.span, min, max, min
+            else
+              new_characteristic
+            end
           end
         end
 
@@ -54,9 +56,9 @@ module Kredki
           client_size_x = @table.clip_size_x
           size_x = @size_x
 
-          pad.pads_layoutic.zip @measurement do |p1, measured|
-            if measured
-              sx = measured
+          pad.pads_layoutic.zip @pad_size_characteristics do |p1, characteristic|
+            if characteristic
+              sx = characteristic.size
             else
               sx = client_size_x - size_x
               size_x = client_size_x
@@ -69,17 +71,17 @@ module Kredki
         end
   
         def prepare
-          @measurement = nil
-          @spans = []
+          @measure_phase = true
+          @pad_size_characteristics = []
         end
   
         def designate
-          @measurement, @size_x = spans @spans, @table.clip_size_x, @space || 0
+          @size_x = determine_size_characteristics @pad_size_characteristics, @table.clip_size_x, @space || 0
+          @measure_phase = false
         end
   
         def release
-          @measurement = nil
-          @spans = nil
+          @pad_size_characteristics = nil
         end
         
       end

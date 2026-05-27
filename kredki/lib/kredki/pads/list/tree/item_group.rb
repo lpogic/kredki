@@ -10,12 +10,12 @@ module Kredki
 
         # Get all items.
         def items
-          each(Tree::Item).to_a
+          each_direct_upper(Tree::Item).to_a
         end
 
         # Get selected items.
         def selected_items
-          each(Tree::Item, selected: true).to_a
+          each_direct_upper(Tree::Item, selected: true).to_a
         end
           
         # :section: LEVEL 2
@@ -46,7 +46,7 @@ module Kredki
         end
 
         def subitems item
-          each(Item).drop_while{|it| it != item }.drop(1).take_while{|it| it.level > item.level }
+          each_direct_upper(Item).drop_while{|it| it != item }.drop(1).take_while{|it| it.level > item.level }
         end
 
         def update_open
@@ -75,7 +75,7 @@ module Kredki
             end
           end
           return focus kb if kb
-          find_upper(Item, displayed: true, disabled: false)&.then{|it| focus it }
+          self[Item, displayed: true, disabled: false]&.then{|it| focus it }
         end
 
         def focus_next
@@ -88,7 +88,7 @@ module Kredki
             end
           end
           return focus kb if kb
-          find_upper(Item, displayed: true, disabled: false)&.then{|it| focus it }
+          self[Item, displayed: true, disabled: false]&.then{|it| focus it }
         end
 
         def focus item

@@ -5,8 +5,7 @@ mouse_in_zoom = proc do
   on_mouse_leave.play(400){|it| set_zoom 1.15 - 0.15 * Util.sin01(it.progress) }
 end
 
-set_layout :xcc
-set_spacer 10
+set_layout :xcc, 10
 
 button! "One", mouse_in_zoom
 button! "Hello", mouse_in_zoom

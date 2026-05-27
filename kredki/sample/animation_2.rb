@@ -16,14 +16,13 @@ set_layout :yss
 
 xss! do
   star! name: "loop"
-  star! name: "back\nloop", run: proc{|job| 1 - job.progress(true) }
-  star! name: "bounce\nloop", run: proc{|job| 1 - (job.progress(2) - 1).abs }
+  star! name: "back\nloop", run: proc{|job| 1 - job.progress.modulo(1) }
+  star! name: "bounce\nloop", run: proc{|job| 1 - (job.progress.modulo(2) - 1).abs }
 end
 xss! do
-  # Util.sin01 is a helper method which calculates sine function value 
-  # of first argument scaled with PI/2 and adds second argument to the result.
+  # Util.sin01 is a helper method which calculates sine function value of first argument scaled with PI/2.
   star! name: "sin", run: proc{|job| Util.sin01(job.progress) * 0.5 + 0.5 }, speed: 2
-  # Util.cos01 is like Util.sin01 but with cosine function.
+  # Util.cos01 is like Util.sin01 but for cosine function.
   star! name: "cos", run: proc{|job| Util.cos01(job.progress) * 0.5 + 0.5 }, speed: 2
   space! size: 1r
 end

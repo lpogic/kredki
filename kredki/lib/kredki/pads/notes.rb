@@ -5,8 +5,6 @@ module Kredki
     # A multiline text control.
     class Notes < Note
 
-      # :section: LEVEL 2
-
       def sketch
         super
 
