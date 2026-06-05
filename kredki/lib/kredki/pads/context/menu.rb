@@ -20,7 +20,7 @@ module Kredki
 
         def delete_upper upper, system_call
           super
-          lower(Item)&.dropdown_disable if !self[Item]
+          lower(Item)&.dropdown_disable if !upper(Item)
         end
       end
       

@@ -43,7 +43,7 @@ class HelloTest < Kredki::Test
       button! "Submit", size_x: 1r
     end
 
-    self[:button!].on_click{ application.return self[:item!, selected: true].subject }
+    upper(:button!).on_click{ application.return upper(:item!, selected: true).subject }
 
     assert_png
   end

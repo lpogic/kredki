@@ -42,6 +42,8 @@ module Kredki
       Pastele.application_exit @pointer
     end
 
+    alias_method :exit, :return
+
     # General event exception handler.
     def rescue &block
       @rescue = block if block

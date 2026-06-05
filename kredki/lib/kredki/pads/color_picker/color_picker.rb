@@ -12,7 +12,7 @@ module Kredki
       def set_color color
         return if @color == color
         @color = color
-        self[ColorPickerPad].set_color Kredki.color color
+        upper(ColorPickerPad).set_color Kredki.color color
       end
 
       def color
@@ -79,7 +79,7 @@ module Kredki
         @note.on_edit do
           begin
             color = Color.parse @note.text
-            self[ColorPickerPad].set_color color, update_note: false
+            upper(ColorPickerPad).set_color color, update_note: false
           rescue
           end
         end
@@ -103,19 +103,19 @@ module Kredki
           set stroke_width: 0
           set keyboardy: false
           set layout: :zcc
-          put RectanglePad, size: 1r do
-            set_area do |sx, sy|
-              rx = (sx + 16) / 16
-              ry = (sy + 8) / 8
-              rx.times do |i|
-                ry.times do |j|
-                  jump i * 16 + (j % 2 == 0 ? 4 : 12), j * 8 + 4
-                  rectangle 8, 8
-                end
-              end
-            end
-          end
-          put RectanglePad, :color, mousy: false, keyboardy: false, size: 1r, margin: 3, stroke: [1, :white]
+          # put RectanglePad, size: 1r do
+          #   set_area do |sx, sy|
+          #     rx = (sx + 16) / 16
+          #     ry = (sy + 8) / 8
+          #     rx.times do |i|
+          #       ry.times do |j|
+          #         jump i * 16 + (j % 2 == 0 ? 4 : 12), j * 8 + 4
+          #         rectangle 8, 8
+          #       end
+          #     end
+          #   end
+          # end
+          put RectanglePad, :color, mousy: false, keyboardy: false, size: 1r, margin: 3, stroke: [2, :white]
         end
       end
     end

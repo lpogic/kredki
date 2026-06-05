@@ -36,7 +36,7 @@ class Window
 {
     protected:
 
-    set<tvg::Paint*> toUpdate;
+    bool needUpdate = false;
     bool needResize = false;
     bool needDraw = true;
     bool needSync = false;
@@ -74,7 +74,6 @@ class Window
     void setScene(tvg::Scene* scene);
     void sync(void);
     bool update(tvg::Canvas* canvas);
-    bool paintDelete(tvg::Paint* paint);
     void planDelete(void);
     void planClose(void);
     void updateRequest(void);

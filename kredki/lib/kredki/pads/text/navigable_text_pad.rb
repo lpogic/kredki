@@ -263,7 +263,7 @@ module Kredki
         end
 
         total = -1
-        @verses.zip @selection.each_paint do |v, s|
+        @verses.zip @selection.paints do |v, s|
           total += 1
           next_total = total + v.content.length
           if @selection_start == @selection_end || @selection_start > next_total || @selection_end <= total

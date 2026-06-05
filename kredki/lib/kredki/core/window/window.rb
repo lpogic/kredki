@@ -163,6 +163,7 @@ module Kredki
     def set_size_limit x, y = x
       x_min, x_max = parse_limit x
       y_min, y_max = parse_limit y
+      p [x_min, y_min, x_max, y_max]
       Pastele.window_set_minimum_size @pointer, x_min, y_min
       Pastele.window_set_maximum_size @pointer, x_max, y_max
       true
@@ -271,6 +272,10 @@ module Kredki
     
     def pane
       @pane
+    end
+
+    def pane! ...
+      set_pane.set(...)
     end
 
     # Get window (self).
@@ -454,9 +459,9 @@ module Kredki
     def parse_limit limit
       case limit
       when Range
-        [limit.begin || 0, limit.end || 0]
+        [limit.begin || 0, limit.end || 999999999]
       else
-        [0, limit || 0]
+        [0, limit || 999999999]
       end
     end
   end

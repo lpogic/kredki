@@ -6,7 +6,7 @@ module Kredki
       def mixed_set feature
         case feature
         when String
-          self[TextPad]&.set feature or default_text feature
+          upper(TextPad)&.set feature or default_text feature
           self.subject ||= feature
           self
         else
@@ -110,7 +110,7 @@ module Kredki
       end
 
       def report_selected e
-        report SelectEvent.new(e), lower_iterator.to_a.reverse
+        report SelectEvent.new(e), lower_enumerator.to_a.reverse
       end
 
       def mouse_enter e

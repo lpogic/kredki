@@ -40,7 +40,7 @@ module Kredki
             if Kredki.mouse.pressed? :primary
               x, y = pane.translate *e.xy, self
               lower(ColorPickerPad).set_hue x / area_size_x.to_f
-              self[:cursor].x = x.clamp(0..area_size_x) - 3
+              find(:cursor).x = x.clamp(0..area_size_x) - 3
             end
           end
         end
@@ -59,7 +59,7 @@ module Kredki
               x = x.clamp(0..area_size_x)
               y = y.clamp(0..area_size_y)
               lower(ColorPickerPad).set_saturation x / area_size_x.to_f, y / area_size_y.to_f
-              self[:cursor].set_xy x - 8, y - 8
+              find(:cursor).set_xy x - 8, y - 8
             end
           end
           
@@ -104,15 +104,15 @@ module Kredki
             if Kredki.mouse.pressed? :primary
               x, y = pane.translate *e.xy, self
               lower(ColorPickerPad).set_opacity x / area_size_x.to_f
-              self[:cursor].x = x.clamp(0..area_size_x) - 3
+              find(:cursor).x = x.clamp(0..area_size_x) - 3
             end
           end
         end
         
         @hue = 0.5
         @saturation = [0.5, 0.5]
-        @opacity = 1
-        set_hue 0.0, update_note: false
+        @opacity = 0.5
+        set_hue 0.5
       end
 
       def set_hue value, update_note: true
@@ -139,10 +139,8 @@ module Kredki
         else
           [0, Color::CHANNEL_MAX, 0]
         end
-        self[:saturation][:color].then do |it|
-          it.fill = LinearGradient.new [[*@hue_color, 0], @hue_color], area_size_x
-        end
-        self[:hue][:cursor].fill = @hue_color[1] < Color::CHANNEL_MAX * 0.5 ? :white : :black
+        find(A + :hue + :cursor).fill = @hue_color[1] < Color::CHANNEL_MAX * 0.5 ? :white : :black
+        find(A + :saturation + :color).fill = LinearGradient.new [[*@hue_color, 0], @hue_color], area_size_x
         set_saturation *@saturation, update_note: update_note
       end
 
@@ -157,8 +155,8 @@ module Kredki
           0
         end
         @saturation_color = @hue_color.map{|it| shade * (1 - x) + it * x }
-        self[:saturation][:cursor].fill = @saturation_color[1] < Color::CHANNEL_MAX * 0.5 ? :white : :black
-        self[:opacity][:color].fill = LinearGradient.new [[*@saturation_color, 0], @saturation_color, @saturation_color], area_size_x
+        find(A + :saturation + :cursor).fill = @saturation_color[1] < Color::CHANNEL_MAX * 0.5 ? :white : :black
+        find(A + :opacity + :color).fill = LinearGradient.new [[*@saturation_color, 0], @saturation_color, @saturation_color], area_size_x
         set_opacity @opacity, update_note: update_note
       end
 
@@ -174,11 +172,12 @@ module Kredki
         end
         light_cursor = @opacity_color[1] < Color::CHANNEL_MAX * 0.5 && 
           (!@opacity_color[3] || @opacity_color[3] > Color::CHANNEL_MAX * 0.65)
-        self[:opacity][:cursor].fill = light_cursor ? :white : :black
-        lower(ColorPicker)[Button][:color]&.fill = @opacity_color
+        find(A + :opacity + :cursor).fill = light_cursor ? :white : :black
+        lower(ColorPicker)&.find(A + Button + :color)&.fill = @opacity_color
+
         if update_note
           text = @opacity_color.map{|it| it.to_i.to_s(16).rjust 2, "0" }.join.upcase.then{|it| "##{it}" }
-          lower(ColorPicker)[Note]&.text = text
+          lower(ColorPicker)&.find(Note)&.text = text
         end
       end
 
@@ -202,11 +201,11 @@ module Kredki
         end
 
         @opacity = color[3] < 1 ? color[3] / 2 : 0.75
-        opacity_pad = self[:opacity]
+        opacity_pad = find :opacity
         opacity_pad[:cursor].x = @opacity * opacity_pad.area_size_x - 3
         
         @saturation = [x, y]
-        saturation_pad = self[:saturation]
+        saturation_pad = find :saturation
         saturation_pad[:cursor].set_xy x * saturation_pad.area_size_x - 8, y * saturation_pad.area_size_y - 8
 
         @hue = case sc.map{|it| it[1] }
@@ -224,7 +223,7 @@ module Kredki
           z / 6
         end.to_f
 
-        hue_pad = self[:hue]
+        hue_pad = find :hue
         hue_pad[:cursor].x = @hue * hue_pad.area_size_x - 3
 
         set_hue @hue, update_note: update_note
@@ -232,7 +231,7 @@ module Kredki
 
       def update_size x, y
         super
-        hue = self[:hue]
+        hue = find :hue
         hue.fill = LinearGradient.new RAINBOW_GRADIENT, hue.lower_pad.area_size_x
         set_hue @hue, update_note: false
       end

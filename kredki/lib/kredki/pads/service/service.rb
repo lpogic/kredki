@@ -11,7 +11,7 @@ module Kredki
       include ServiceFilter
 
       # Get lower services.
-      def lower_iterator include_self = true
+      def lower_enumerator include_self = true
         Enumerator.new do |e|
           c = include_self ? self : lower
           while c && !c.is(Pane)
@@ -42,13 +42,13 @@ module Kredki
       end
 
       # Get whether +lower+ is lower service of +self+.
-      def in? lower
-        lower_iterator(false).include? lower
+      def in lower
+        lower_enumerator(false).include? lower
       end
 
       # Get whether +upper+ is upper service of +self+.
-      def include? upper
-        upper.in? self
+      def include upper
+        upper.in self
       end
      
       # Get lower service.

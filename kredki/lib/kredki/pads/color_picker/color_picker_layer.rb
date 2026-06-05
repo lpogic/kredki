@@ -64,6 +64,10 @@ module Kredki
 
       def mouse_release e
       end
+
+      def mouse_move e
+        e.close
+      end
     end
   end
 end

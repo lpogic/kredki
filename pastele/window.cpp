@@ -37,7 +37,7 @@ void Window::setScene(tvg::Scene* scene) {
     auto canvas = getCanvas();
     canvas->remove();
     canvas->add(scene);
-    toUpdate.insert(nullptr);
+    needUpdate = true;
 }
 
 void Window::sync(void) {
@@ -66,21 +66,11 @@ void Window::sync(void) {
 }
 
 bool Window::update(tvg::Canvas* canvas) {
-    if(toUpdate.empty()) {
-        return false;
-    } else {
+    if(needUpdate) {
         canvas->update();
-        // canvas->sync();
-        // for(auto paint : toUpdate) {
-        //     canvas->update(paint);
-        // }
-        toUpdate.clear();
         return true;
     }
-}
-
-bool Window::paintDelete(tvg::Paint* paint) {
-    return toUpdate.erase(paint) > 0;
+    return false;
 }
 
 void Window::setNeedResize() {
@@ -88,7 +78,7 @@ void Window::setNeedResize() {
 }
 
 void Window::paintToUpdate(tvg::Paint* paint) {
-    toUpdate.insert(paint);
+    needUpdate = true;
 }
 
 void Window::maximize(void) {

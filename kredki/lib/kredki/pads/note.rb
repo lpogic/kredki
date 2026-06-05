@@ -150,7 +150,7 @@ module Kredki
           area.set_fill kb_top ? color.darken : mouse_in ? color.lighten : color
           area.set_stroke_fill kb_top ? :stroke_focus : color
         end
-        verse.selection.each_paint{|it| it.set_fill kb_top ? :text_selection : :text_selection_inactive }
+        verse.selection.paints.each{|it| it.set_fill kb_top ? :text_selection : :text_selection_inactive }
       end
 
       def behavior

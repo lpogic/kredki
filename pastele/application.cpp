@@ -73,34 +73,22 @@ void Application::run() {
                 }
                 case USEREVENT_DELETEPAINT: {
                     auto paint = (tvg::Paint*)event.user.data1;
-                    for(auto window : windows) {
-                        if(window->paintDelete(paint)) break;
-                    }
-                    tvg::Paint::rel(paint);
+                    paint->unref();
                     break;
                 }
                 case USEREVENT_DELETESCENE: {
                     auto scene = (tvg::Scene*)event.user.data1;
-                    for(auto window : windows) {
-                        if(window->paintDelete(scene)) break;
-                    }
-                    tvg::Paint::rel(scene);
+                    scene->unref();
                     break;
                 }
                 case USEREVENT_DELETESHAPE: {
                     auto shape = (tvg::Shape*)event.user.data1;
-                    for(auto window : windows) {
-                        if(window->paintDelete(shape)) break;
-                    }
-                    tvg::Paint::rel(shape);
+                    shape->unref();
                     break;
                 }
                 case USEREVENT_DELETETEXT: {
                     auto text = (tvg::Text*)event.user.data1;
-                    for(auto window : windows) {
-                        if(window->paintDelete(text)) break;
-                    }
-                    tvg::Paint::rel(text);
+                    text->unref();
                     break;
                 }
                 case USEREVENT_DELETEANIMATION: {

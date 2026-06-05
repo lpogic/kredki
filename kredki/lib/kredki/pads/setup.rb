@@ -1,5 +1,8 @@
 require_relative 'service/service_inherited'
 require_relative "layout/layout"
+require_relative 'service/trace/trace'
+require_relative 'service/trace/negative_trace'
+require_relative 'service/trace/couple_trace'
 
 module Kredki
   module Pads
@@ -32,5 +35,7 @@ module Kredki
     Start = :start
     Center = :center
     End = :end
+
+    A = Trace
   end
 end

@@ -49,7 +49,7 @@ namespace :thorvg do
         strip: false,
         threads: false,
         tests: false,
-        partial: false # unstable at the moment
+        partial: true
       }.map{|k, v| "-D#{k}=#{v}" }.join(" ")
       sh "#$ninja -C builddir"
     end

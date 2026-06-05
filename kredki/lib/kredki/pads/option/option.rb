@@ -45,7 +45,7 @@ module Kredki
 
         on_key :enter do |e|
           if @dropdown.loaded
-            self[:item!, keyboard_in: true]&.report_selected e
+            upper(:item!, keyboard_in: true)&.report_selected e
           else
             @dropdown.load self
           end

@@ -14,7 +14,7 @@ module Kredki
       def mixed_set feature
         case feature
         when String
-          self[:text!]&.set feature or super
+          upper(:text!)&.set feature or super
           self.subject ||= feature
           self
         else

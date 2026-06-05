@@ -15,7 +15,7 @@ module Kredki
 
         # Create/Update dropdown layer.
         def dropdown! ...
-          (self[SecondaryLayer] or dropdown_enable).set(...)
+          (upper(SecondaryLayer) or dropdown_enable).set(...)
         end
 
         # :section: LEVEL 2
@@ -31,7 +31,7 @@ module Kredki
           super
 
           on_key_press :right do |e|
-            layer = self[SecondaryLayer]
+            layer = upper SecondaryLayer
             if layer
               layer.load self
               layer[Item]&.keyboard_request and e.close
@@ -41,7 +41,7 @@ module Kredki
 
         def mouse_enter e
           super
-          layer = self[SecondaryLayer]
+          layer = upper SecondaryLayer
           layer.update_keyboard_pad nil if layer&.loaded
         end
 

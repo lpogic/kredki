@@ -8,5 +8,5 @@ end
 set_layout :xcc, 10
 
 button! "One", mouse_in_zoom
-button! "Hello", mouse_in_zoom
-button! "Two", mouse_in_zoom, suit: :green
+button! "Two", mouse_in_zoom
+button! "Exit", mouse_in_zoom, suit: :red, on_click: proc{ window.close }

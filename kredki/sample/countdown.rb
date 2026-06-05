@@ -1,6 +1,6 @@
 require 'kredki'
 
-# This example shows a slightly more advanced use of the job API.
+# Advanced usage of the job API.
 
 button! "Countdown" do
   on_click do |e|
@@ -22,16 +22,16 @@ button! "Countdown" do
 
       # first loop
       blink_loop = it.loop 500 do # in loop with period 500 ms
-        self[:text!].set_fill{|it| it != :blue ? :blue : :red }
+        upper(:text!).alter(:fill){|it| it != :blue ? :blue : :red }
       end
 
       # second loop
       it.loop 1000 do |it| # in loop with period 1000 ms
         countdown.call
-        it.release if counter < 2 # mark this iteration as final one
+        it.release if counter < 2 # exit the loop
       end.after 1000 do # after 1000 ms
         blink_loop.cancel
-        self[:text!].set "Bye Bye", fill: :white
+        upper(:text!).set "Bye Bye", fill: :white
       end.after 1000 do
         window.close
       end

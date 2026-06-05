@@ -1,5 +1,3 @@
-require_relative 'service/service_filter'
-
 module Kredki
   module Pads
     # Pane of Pads module.
@@ -22,13 +20,15 @@ module Kredki
           filter.all?{|it| self =~ it }
         when Hash
           filter.all?{|key, value| respond_to? key and value === send(key) }
+        when Symbol
+          false
         else
           raise "Unsupported =~ (#{filter} : #{filter.class})"
         end
       end
 
       # Get lower services iterator - empty because Pane is always the lowest.
-      def lower_iterator include_self = false
+      def lower_enumerator include_self = false
         []
       end
 
@@ -230,13 +230,13 @@ module Kredki
         layer.pad_attach self, at
         case at
         when Integer
-          paint_state = put_paint layer.scene, false
+          put_paint layer.scene, false
           @services.insert at, pad
         when Layer
-          paint_state = put_paint layer.scene, false, at.scene
+          put_paint layer.scene, false, at.scene
           @services.insert @services.index(at), layer
         else
-          paint_state = put_paint layer.scene, false
+          put_paint layer.scene, false
           @services << layer
         end
         layer.sketch_service

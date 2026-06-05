@@ -75,7 +75,7 @@ module Kredki
             end
           end
           return focus kb if kb
-          self[Item, displayed: true, disabled: false]&.then{|it| focus it }
+          upper(Item, displayed: true, disabled: false)&.then{|it| focus it }
         end
 
         def focus_next
@@ -88,7 +88,7 @@ module Kredki
             end
           end
           return focus kb if kb
-          self[Item, displayed: true, disabled: false]&.then{|it| focus it }
+          upper(Item, displayed: true, disabled: false)&.then{|it| focus it }
         end
 
         def focus item

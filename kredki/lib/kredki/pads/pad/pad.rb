@@ -729,13 +729,13 @@ module Kredki
       def put_pad pad, at = nil
         case at
         when Integer
-          paint_state = @clip_scene.put_paint pad.scene, false
+          @clip_scene.put_paint pad.scene, false
           @pads.insert [at, @pads.size].min, pad
         when Pad
-          paint_state = @clip_scene.put_paint pad.scene, false, at.scene
+          @clip_scene.put_paint pad.scene, false, at.scene
           @pads.insert @pads.index(at), pad
         else
-          paint_state = @clip_scene.put_paint pad.scene, false
+          @clip_scene.put_paint pad.scene, false
           @pads << pad
         end
         layer&.break_layout

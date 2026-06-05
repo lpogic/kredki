@@ -18,7 +18,7 @@ module Kredki
       def mixed_set feature
         case feature
         when String
-          (self[Label] or default_label).set feature
+          (upper(Label) or default_label).set feature
           self.subject ||= feature
         else
           super

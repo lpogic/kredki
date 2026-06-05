@@ -25,6 +25,10 @@ class Object
   def nest_set name, ka
     ka.count{|k, v| send "mixed_#{name}_#{k}", v }.zero?.not
   end
+
+  def alter attr
+    send "#{attr}=", yield(send attr)
+  end
 end
 
 class Module
@@ -66,12 +70,5 @@ class FalseClass
   # Negation.
   def not
     true
-  end
-end
-
-class NilClass
-  # Enables bracket exploration DSL ex. self[:non_existing_pad!][Button][:text] .
-  def [](...)
-    nil
   end
 end

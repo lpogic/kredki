@@ -75,7 +75,6 @@ service! :game do
           nj = j + n[1]
           nj += GRID if nj < 0
           nj -= GRID if nj >= GRID
-          p [ni, nj, @grid[ni]] if !@grid[ni]
           @grid[ni][nj]
         end
         if @grid[i][j] > 0

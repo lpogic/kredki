@@ -91,18 +91,18 @@ job.loop 50 do |job|
   case move_result = snake.move(food.xy)
   when :self_collision
     snake.body.each do |x, y|
-      self[:yss!, pad_index: x][:pad!, pad_index: y].set fill: :gray
+      find(A[:yss!, pad_index: x][:pad!, pad_index: y]).set fill: :gray
     end
     job.cancel
   when :food_consumed
     head = snake.head
-    self[:yss!, pad_index: head[0]][:pad!, pad_index: head[1]].set fill: :orange
+    find(A[:yss!, pad_index: head[0]][:pad!, pad_index: head[1]]).set fill: :orange
     food_xy = food.draw snake.body
-    self[:yss!, pad_index: food_xy[0]][:pad!, pad_index: food_xy[1]].set fill: :yellow
+    find(A[:yss!, pad_index: food_xy[0]][:pad!, pad_index: food_xy[1]]).set fill: :yellow
   else
     head = snake.head
-    self[:yss!, pad_index: move_result[0]][:pad!, pad_index: move_result[1]].set fill: :green
-    self[:yss!, pad_index: head[0]][:pad!, pad_index: head[1]].set fill: :orange
+    find(A[:yss!, pad_index: move_result[0]][:pad!, pad_index: move_result[1]]).set fill: :green
+    find(A[:yss!, pad_index: head[0]][:pad!, pad_index: head[1]]).set fill: :orange
   end
 end
 

@@ -64,7 +64,7 @@ module Kredki
           @ms = dms
           @total_ms += @ms
           if !@block
-            frame = progress true
+            frame = progress.modulo 1
           elsif RunEvent === @event
             frame = @block.call self, @event.source || @event, @event.result
           else

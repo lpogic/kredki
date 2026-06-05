@@ -9,7 +9,7 @@ module Kredki
       def set_feature feature
         case feature
         when String
-          self[:text!]&.set feature or super
+          upper(:text!)&.set feature or super
           self.subject ||= feature
         else
           super
@@ -32,7 +32,7 @@ module Kredki
         super
 
         set_size Fit, 24
-        set_for proc{|it| it.lower_pad[Pad, keyboardy: true] }
+        set_for proc{|it| it.lower_pad.upper(Pad, keyboardy: true) }
         set_keyboardy false
         area.set_fill false
       end

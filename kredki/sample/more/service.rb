@@ -1,6 +1,6 @@
 require 'kredki'
 
-service! do
+service = service! do
   def sketch
     @value = 0
   end
@@ -28,6 +28,6 @@ end
 set layout: [:xcc, 5]
 
 note! "0", size_x: 100, verse_layout: :yee
-button! "++", on_click: proc{ pane[:service!] + 1 }
-button! "--", on_click: proc{ pane[:service!] - 1 }
-button! "*2", on_click: proc{ pane[:service!] * 2 }
+button! "++", on_click: proc{ service + 1 }
+button! "--", on_click: proc{ service - 1 }
+button! "*2", on_click: proc{ service * 2 }

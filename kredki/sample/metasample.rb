@@ -26,8 +26,8 @@ class ListPane < Pane
               on_mouse_leave{ set_zoom 1.0 }
               on_mouse_click{ application.open RunSamplePane.new(file, File.read(File.expand_path "#{Kredki.dir}/sample/#{file}")) }
             end
-            on_mouse_enter{ self[:glyph!].set_scenic true }
-            on_mouse_leave{ self[:glyph!].set_scenic false }
+            on_mouse_enter{ upper(:glyph!).set_scenic true }
+            on_mouse_leave{ upper(:glyph!).set_scenic false }
             on_mouse_click{|event| go_sample.call subject if event.combo == 2 }
           end
         end

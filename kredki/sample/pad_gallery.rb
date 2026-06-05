@@ -39,7 +39,8 @@ xss! 10, margin: 10 do
       yss! 10 do
         text! "Some text"
         slider_x!
-        button! "Button"
+        button! "Button", on_click: proc{ GC.start }
+        color_picker! size_x: 1r
       end
       tree! do
         item! "Leaf"

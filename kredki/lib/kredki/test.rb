@@ -24,7 +24,7 @@ module Kredki
       loop do
         oc = of.readpartial(1024) rescue nil
         ec = ef.readpartial(1024) rescue nil
-        return assert false if oc != ec
+        return assert false, "Output and expected output are not the same.\nOutput: #{path}\nExpected output: #{expected}" if oc != ec
         return assert true if !oc
       end
     end
