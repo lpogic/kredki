@@ -152,6 +152,9 @@ CABI void window_hide(pastele::Window* self) {
 
 CABI void window_set_scene(pastele::Window* self, tvg::Scene* scene) {
     self->setScene(scene);
+    if(scene) {
+        scene->visible(true);
+    }
 }
 
 CABI void window_paint_to_update(pastele::Window* self, tvg::Paint* paint) {
@@ -343,6 +346,25 @@ CABI void paint_set_opacity(Paint* self, uint8_t opacity) {
 
 CABI int paint_get_opacity(Paint* self) {
     return self->opacity();
+}
+
+CABI void paint_set_visible(Paint* self, int visible) {
+    self->visible((bool)visible);
+}
+
+CABI int paint_get_visible(Paint* self) {
+    return self->visible();
+}
+
+CABI int paint_get_displayed(const Paint* self) {
+    if(!self->visible()) {
+        return false;
+    }
+    auto parent = self->parent();
+    if(!parent) {
+        return true;
+    }
+    return paint_get_displayed(parent);
 }
 
 CABI void paint_get_bounds(Paint* self, Bounds* bounds) {

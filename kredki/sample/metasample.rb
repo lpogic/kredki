@@ -9,7 +9,7 @@ class ListPane < Pane
     set_layout :yss
 
     pad! layout: :xcc, fill: [10, 50, 10], margin: 8, size_y: Fit, size_x: 1r do
-      set "Click #{ glyph! :media_play, fill: :text } to run the sample or #{ text! "double-click", fill: :yellow } on a line to view the code."
+      set "Click #{ glyph! :twk_media_play, fill: :text } to run the sample or #{ text! "double-click", fill: :yellow } on a line to view the code."
     end
 
     scroll! size: 1r, layout: :zss do
@@ -21,7 +21,7 @@ class ListPane < Pane
 
         Dir["*.rb"].each_with_index do |file, index| 
           item! "#{index + 1}. #{file}", subject: file, suit: [20, 70, 20], layout_spacer: 5 do
-            glyph! :media_play, fill: :text, scenic: false, mouse_cursor: :pointer do
+            glyph! :twk_media_play, fill: :text, scenic: false, mouse_cursor: :pointer do
               on_mouse_enter{ set_zoom 1.2 }
               on_mouse_leave{ set_zoom 1.0 }
               on_mouse_click{ application.open RunSamplePane.new(file, File.read(File.expand_path "#{Kredki.dir}/sample/#{file}")) }

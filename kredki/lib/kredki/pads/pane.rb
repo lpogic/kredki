@@ -230,13 +230,13 @@ module Kredki
         layer.pad_attach self, at
         case at
         when Integer
-          put_paint layer.scene, false
+          put_paint layer.scene
           @services.insert at, pad
         when Layer
-          put_paint layer.scene, false, at.scene
+          put_paint layer.scene, at.scene
           @services.insert @services.index(at), layer
         else
-          put_paint layer.scene, false
+          put_paint layer.scene
           @services << layer
         end
         layer.sketch_service

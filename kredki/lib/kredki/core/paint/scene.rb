@@ -74,8 +74,8 @@ module Kredki
     end
 
     # Create new attached Kredki::Animation.
-    def new_animation *a, hidden: false, at: nil, **ka, &b
-      Animation.new.attach(self, hidden, at).set(*a, **ka, &b)
+    def new_animation *a, at: nil, **ka, &b
+      Animation.new.attach(self, at).set(*a, **ka, &b)
     end
 
     # Clear all scene effects.
@@ -137,21 +137,6 @@ module Kredki
     end
 
     # :section: LEVEL 2
-
-    class PaintState
-
-      def initialize paint, hidden
-        @paint = paint
-        @hidden = hidden
-      end
-      
-      attr_accessor :paint
-      attr_accessor :hidden
-
-      def inspect
-        "#{self.class}:#{self.object_id}"
-      end
-    end
     
     def initialize
       super Pastele.scene_new
@@ -165,97 +150,48 @@ module Kredki
       proc{ Pastele.scene_delete pointer }
     end
 
-    def new_paint klass, *a, hidden: false, at: nil, **ka, &b
-      put_paint(klass.new, hidden, at).set(*a, **ka, &b)
+    def new_paint klass, *a, at: nil, **ka, &b
+      put_paint(klass.new, at).set(*a, **ka, &b)
     end
 
     def paints
-      @paints.map{|it| it.paint }
+      @paints
     end
     
     def update_paint paint
       @scene&.update_paint self
     end
 
-    def put_paint paint, hidden = false, at = nil
+    def put_paint paint, at = nil
       paint.detach if paint.scene
       paint.scene = self
       if at
-        at_index = @paints.find_index{|it| it.paint == at }
+        at_index = @paints.find_index{|it| it == at }
         if at_index
-          unless hidden
-            Pastele.scene_add @pointer, paint.pointer, next_show_pointer(at_index)
-            update
-          end
-          @paints.insert at_index, PaintState.new(paint, hidden)
+          Pastele.scene_add @pointer, paint.pointer, at.pointer
+          update
+          @paints.insert at_index, paint
           return
         end
       end
-      unless hidden
-        Pastele.scene_add @pointer, paint.pointer, nil
-        update
-      end
-      @paints.append PaintState.new(paint, hidden)
+      Pastele.scene_add @pointer, paint.pointer, nil
+      update
+      @paints.append paint
       paint
-    end
-
-    def next_show_pointer index
-      (index..).each do |it| 
-        paint_state = @paints[it]
-        break if !paint_state
-        break paint_state.paint.pointer if !paint_state.hidden
-      end
     end
 
     def delete_paint paint
-      index = @paints.find_index{|it| it.paint == paint }
-      if index
+      if @paints.delete paint
         paint.scene = nil
-        paint_state = @paints.delete_at index
-        unless paint_state.hidden
-          Pastele.scene_remove @pointer, paint.pointer
-          update
-        end
+        Pastele.scene_remove @pointer, paint.pointer
+        update
       end
       paint
     end
 
-    def hide_paint paint
-      paint_state = @paints.find{|it| it.paint == paint }
-      if paint_state && !paint_state.hidden
-        Pastele.scene_remove @pointer, paint.pointer
-        update
-        paint_state.hidden = true
-      end
-    end
-
-    def show_paint paint
-      index = @paints.find_index{|it| it.paint == paint }
-      if index
-        paint_state = @paints[index]
-        if paint_state.hidden
-          Pastele.scene_add @pointer, paint.pointer, next_show_pointer(index)
-          update
-          paint_state.hidden = false
-        end
-      end
-    end
-
     def renew_paint paint, old_pointer, new_pointer
-      paint_state = @paints.find{|it| it.paint == paint }
-      if paint_state && !paint_state.hidden
-        Pastele.scene_add @pointer, new_pointer, old_pointer
-        Pastele.scene_remove @pointer, old_pointer
-      end
-    end
-
-    def paint_scenic paint
-      paint_state = @paints.find{|it| it.paint == paint }
-      paint_state && !paint_state.hidden
-    end
-
-    def paint_displayed paint
-      paint_scenic paint and displayed
+      Pastele.scene_add @pointer, new_pointer, old_pointer
+      Pastele.scene_remove @pointer, old_pointer
     end
   end
 end

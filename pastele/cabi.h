@@ -101,6 +101,9 @@ CABI void window_get_pixel_color(pastele::Window* self, int x, int y, IntPoint* 
 CABI void paint_delete(Paint* self);
 CABI void paint_set_transform(Paint* self, float pivot_x, float pivot_y, float x, float y, float a, float zoom_x, float fy);
 CABI void paint_set_opacity(Paint* self, uint8_t opacity);
+CABI void paint_set_visible(Paint* self, int visible);
+CABI int paint_get_visible(Paint* self);
+CABI int paint_get_displayed(const Paint* self);
 CABI void paint_get_bounds(Paint* self, Bounds* bounds);
 CABI void paint_set_clip(Paint* self, Shape* clipper);
 CABI void paint_set_mask(Paint* self, Paint* target, int mask);

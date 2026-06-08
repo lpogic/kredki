@@ -77,6 +77,13 @@ def check_vars *vars, file: true
   end
 end
 
+task :install do
+  chdir "kredki" do
+    system "gem build kredki.gemspec"
+    system "gem install kredki-0.1.0.gem"
+  end
+end
+
 case RUBY_PLATFORM
 when /cygwin|mswin|mingw|bccwin|wince|emx/
   require_relative 'rake/windows_tasks'

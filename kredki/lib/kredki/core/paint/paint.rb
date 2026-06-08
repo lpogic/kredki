@@ -195,17 +195,17 @@ module Kredki
 
     def set_scenic value = true
       return if (c = scenic) == (value = value == Not ? !c : value)
-      update_scenic value
+      Pastele.paint_set_visible @pointer, value ? 1 : 0
       true
     end
     
     def scenic
-      @scene&.paint_scenic self
+      Pastele.paint_get_visible(@pointer) != 0
     end
 
     # Get whether Paint is displayed.
     def displayed
-      @scene&.paint_displayed self
+      Pastele.paint_get_displayed(@pointer) != 0
     end
 
     feature :clip # The Kredki::Shape to use as the Paint clipping path.
@@ -238,9 +238,9 @@ module Kredki
     end
 
     # Attach the Paint to the Kredki::Scene.
-    def attach scene, hidden = false, at = nil
+    def attach scene, at = nil
       @scene&.delete_paint self
-      scene.put_paint self, scenic, at
+      scene.put_paint self, at
       @scene = scene
     end
 
@@ -301,10 +301,6 @@ module Kredki
         @scene&.update_paint self
         true
       end
-    end
-
-    def update_scenic scenic
-      scenic ? @scene&.show_paint(self) : @scene&.hide_paint(self)
     end
 
     def pivot

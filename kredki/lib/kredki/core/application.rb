@@ -25,6 +25,10 @@ module Kredki
       result
     end
 
+    def window! ...
+      open(nil, ...).window
+    end
+
     # Get window.
     def window key = nil
       (key ? @windows[key] : @main_window)&.then{|it| it.scene }

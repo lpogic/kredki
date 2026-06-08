@@ -274,8 +274,17 @@ module Kredki
       @pane
     end
 
-    def pane! ...
-      set_pane.set(...)
+    def pane! *a, attach: true, **ka, &b
+      pane = default_pane
+      if attach
+        set_pane(pane).set(*a, **ka, &b)
+      else
+        pane.window = self
+        context = pane.context_service
+        pane.set *a, **ka
+        context.set &b
+      end
+      pane
     end
 
     # Get window (self).
@@ -437,15 +446,16 @@ module Kredki
     end
 
     def update_pane pane, &block
-      pane&.window&.update_pane nil
-      pane&.window = self
-      Pastele.window_set_scene @pointer, pane&.pointer
+      @pane&.scenic = false
+      if pane
+        pane.window&.update_pane nil
+        pane.window = self
+        Pastele.window_set_scene @pointer, pane.pointer
+      else
+        Pastele.window_set_scene @pointer, nil
+      end
       update_paint pane if pane
       @pane = pane
-    end
-
-    def paint_displayed pane
-      @pane == pane && !!@application
     end
 
     def update_mouse_in set

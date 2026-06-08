@@ -332,7 +332,7 @@ module Kredki
         end
         unless @area == a
           a.set **@area, filter_keywords: true
-          a.attach @scene, true, @area
+          a.attach @scene, @area
           @area.detach
           @area = a
           true
@@ -393,7 +393,7 @@ module Kredki
       end
 
       def scenic
-        get_scenic
+        @scene.scenic
       end
 
       # Get whether Pad is displayed
@@ -729,13 +729,13 @@ module Kredki
       def put_pad pad, at = nil
         case at
         when Integer
-          @clip_scene.put_paint pad.scene, false
+          @clip_scene.put_paint pad.scene
           @pads.insert [at, @pads.size].min, pad
         when Pad
-          @clip_scene.put_paint pad.scene, false, at.scene
+          @clip_scene.put_paint pad.scene, at.scene
           @pads.insert @pads.index(at), pad
         else
-          @clip_scene.put_paint pad.scene, false
+          @clip_scene.put_paint pad.scene
           @pads << pad
         end
         layer&.break_layout
@@ -997,7 +997,7 @@ module Kredki
 
       def update_scenic scenic
         displayed_before = displayed
-        @scene.update_scenic scenic
+        @scene.set_scenic scenic
         displayed_after = displayed
         if displayed_before != displayed_after
           if displayed_after
@@ -1008,10 +1008,6 @@ module Kredki
             @pads.each &:hide_propagate
           end
         end
-      end
-
-      def get_scenic
-        @scene.scenic
       end
 
       def show_propagate

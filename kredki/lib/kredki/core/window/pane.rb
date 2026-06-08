@@ -77,6 +77,7 @@ module Kredki
       @jobs_mutex = Thread::Mutex.new
       @event_manager = PaneEventManager.new
       @fill = new_rectangle xy: 0
+      set_scenic false
       @sketched = false
     end
 
@@ -103,7 +104,7 @@ module Kredki
       on_move do: method(:move_event)
       on_expose do: method(:expose_event)
       on_tick do: method(:tick)
-      on_close{ @jobs.each_key{|it| it.cancel } }
+      on_close do: method(:close_event)
     end
 
     def presence
@@ -132,6 +133,11 @@ module Kredki
       xy = w.xy
       w.report MoveEvent.new(*xy, event) if xy != @last_xy
       w.report TickEvent.new event
+    end
+
+    def close_event event
+      @jobs.each_key{|it| it.cancel }
+      set_scenic false
     end
 
     def translate x, y, target = nil

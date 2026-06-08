@@ -130,8 +130,8 @@ module Kredki
     end
 
     # Attach related Kredki::Picture to the Kredki::Scene.
-    def attach scene, scenic = true, at = nil
-      @picture.attach scene, scenic, at
+    def attach scene, at = nil
+      @picture.attach scene, at
       self
     end
 
@@ -149,7 +149,7 @@ module Kredki
     end
     
     def scenic
-      get_scenic
+      @picture.scenic
     end
 
     # :section: LEVEL 2
@@ -182,10 +182,6 @@ module Kredki
       @picture.update_scenic scenic
     end
   
-    def get_scenic
-      @picture.get_scenic
-    end
-
     def update_frame frame_index
       Pastele.animation_set_frame @pointer, frame_index
       @picture.update
