@@ -2,20 +2,6 @@ module Kredki
   # Base class for all graphical objects.
   class Paint
 
-    def mixed_set feature
-      case feature
-      when Hash
-        set **feature
-      when Array
-        set *feature
-      when Proc
-        set &feature
-      else
-        raise "Unsupported auto set (#{feature} : #{feature.class})"
-      end
-      self
-    end
-
     feature :x # Position along the X axis.
 
     def set_x x

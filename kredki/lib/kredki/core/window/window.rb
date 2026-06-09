@@ -296,6 +296,7 @@ module Kredki
       case feature
       when Pane
         set_pane feature
+      else super
       end
     end
 

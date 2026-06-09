@@ -16,7 +16,6 @@ module Kredki
         when String
           upper(:text!)&.set feature or super
           self.subject ||= feature
-          self
         else
           super
         end

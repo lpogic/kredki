@@ -104,16 +104,8 @@ module Kredki
           set_tag feature
           eval "#{feature} = WeakRef.new self" if feature.start_with? "$"
           # lower&.instance_variable_set feature, self if feature.start_with? "@"
-        when Hash
-          set **feature
-        when Array
-          set *feature
-        when Proc
-          set &feature
-        else
-          raise "Unsupported << (#{feature} : #{feature.class})"
+        else super
         end
-        self
       end
 
       feature :tag

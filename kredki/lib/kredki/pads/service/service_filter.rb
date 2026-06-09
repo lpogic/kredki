@@ -39,7 +39,8 @@ module Kredki
       end
 
       def find trace, reverse: false, deep_first: nil
-        each(trace, reverse: reverse, deep_first: deep_first).first
+        service = each(trace, reverse: reverse, deep_first: deep_first).first
+        service ? block_given? ? yield(service) : service : nil
       end
 
       def each trace, reverse: false, deep_first: nil

@@ -22,6 +22,21 @@ class Object
     self
   end
 
+  def mixed_set feature
+    case feature
+    when Preset
+      set *feature.arguments, **feature.keyword_arguments, &feature.block
+    when Hash
+      set **feature
+    when Array
+      set *feature
+    when Proc
+      set &feature
+    else
+      raise "Unsupported mixed set for (#{feature} : #{feature.class})"
+    end
+  end
+
   def nest_set name, ka
     ka.count{|k, v| send "mixed_#{name}_#{k}", v }.zero?.not
   end

@@ -8,7 +8,6 @@ module Kredki
         when String
           upper(TextPad)&.set feature or default_text feature
           self.subject ||= feature
-          self
         else
           super
         end

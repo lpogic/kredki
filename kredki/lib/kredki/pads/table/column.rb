@@ -10,7 +10,7 @@ module Kredki
             set_size feature
           when Range
             set_limit feature
-          else raise_ia feature
+          else super
           end
         end
 

@@ -237,7 +237,20 @@ module Kredki
         [@margin_xs, @margin_ys, @margin_xe, @margin_ye]
       end
 
-      feature :layout_spacer
+      feature :margin_clip # Whether the clip area is reduced by the margins.
+
+      def set_margin_clip value = true
+        return if (c = margin_clip) == (value = value == Not ? !c : value)
+        @margin_clip_not = !value
+        layer&.break_layout
+        true
+      end
+
+      def margin_clip
+        !@margin_clip_not
+      end
+
+      feature :layout_spacer # Spacer between pads arranged with selected layout (if the layout respects spacing).
       
       def set_layout_spacer layout_spacer
         return if Util.eqr @layout_spacer, layout_spacer
@@ -681,11 +694,19 @@ module Kredki
       end
       
       def clip_size_x
-        @clip_area.size_x
+        if @margin_clip_not
+          @area.size_x
+        else
+          @area.size_x - @margin_xs - @margin_xe
+        end
       end
 
       def clip_size_y
-        @clip_area.size_y
+        if @margin_clip_not
+          @area.size_y
+        else
+          @area.size_y - @margin_ys - @margin_ye
+        end
       end
 
       def clip_size
@@ -803,7 +824,11 @@ module Kredki
         margin_y = @margin_ys + @margin_ye
         @area.set_size x.floor, y.floor
         @scene.set_pivot x * 0.5, y * 0.5
-        @clip_area.set_size (x - margin_x).floor, (y - margin_y).floor
+        if @margin_clip_not
+          @clip_area.set_size x.floor, y.floor
+        else
+          @clip_area.set_size (x - margin_x).floor, (y - margin_y).floor
+        end
       end
 
       def pads_layoutic
@@ -989,10 +1014,15 @@ module Kredki
       end
 
       def update_margin
-        x = @margin_xs.floor
-        y = @margin_ys.floor
-        @clip_scene.set_xy x, y
-        @clip_area.set_xy x, y
+        if @margin_clip_not
+          @clip_scene.set_xy 0, 0
+          @clip_area.set_xy 0, 0
+        else
+          x = @margin_xs.floor
+          y = @margin_ys.floor
+          @clip_scene.set_xy x, y
+          @clip_area.set_xy x, y
+        end
       end
 
       def update_scenic scenic

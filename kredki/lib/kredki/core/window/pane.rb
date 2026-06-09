@@ -52,18 +52,11 @@ module Kredki
     
     def mixed_set feature
       case feature
-      when Hash
-        set **feature
-      when Array
-        set *feature
-      when Proc
-        set &feature
       when Class, String, Pane
         window.pane = feature
       else
-        raise "Unsupported auto set (#{feature} : #{feature.class})"
+        super
       end
-      self
     end
 
     # :section: LEVEL 2

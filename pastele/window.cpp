@@ -68,6 +68,7 @@ void Window::sync(void) {
 bool Window::update(tvg::Canvas* canvas) {
     if(needUpdate) {
         canvas->update();
+        needUpdate = false;
         return true;
     }
     return false;

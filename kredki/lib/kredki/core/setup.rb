@@ -1,3 +1,4 @@
+require_relative 'preset'
 require_relative 'kernel-path'
 require_relative 'media/clipboard'
 require_relative 'media/keyboard_modifiers_decoder'
