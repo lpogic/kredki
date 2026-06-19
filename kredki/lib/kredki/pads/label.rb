@@ -1,4 +1,3 @@
-require_relative 'text/navigable_text_pad'
 require_relative 'portal_layer'
 
 module Kredki

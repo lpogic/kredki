@@ -188,7 +188,7 @@ module Kredki
             layer.clear_mouse_location xy
           else
             event = layer.update_mouse_location event
-            cursor ||= layer.layer_mouse_cursor
+            cursor = layer.layer_mouse_cursor if cursor.nil?
           end
           @event_queue.process
         end

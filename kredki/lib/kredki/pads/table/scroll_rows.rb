@@ -6,16 +6,16 @@ module Kredki
         def fit_size_x
           fit = super
           if lower_pad.pads.last == self
-            slider_y = lower(ScrollRows)&.slider_y
-            fit += slider_y.get_size_x + lower_pad.margin_xe if slider_y.displayed
+            yslider = lower(ScrollRows)&.yslider
+            fit += yslider.get_size_x + lower_pad.margin_xe if yslider.displayed
           end
           fit
         end
 
         def update_size x, y
           if lower_pad.pads.last == self
-            slider_y = lower(ScrollRows)&.slider_y
-            return super(x - slider_y.get_size_x - lower_pad.margin_xe, y) if slider_y.displayed
+            yslider = lower(ScrollRows)&.yslider
+            return super(x - yslider.get_size_x - lower_pad.margin_xe, y) if yslider.displayed
           end
           super
         end

@@ -49,15 +49,31 @@ end
 class Module
   def feature name
     class_eval <<~xx
+      def set_#{name} feature
+        return if @#{name} == feature
+        @#{name} = feature
+        true
+      end
+
+      def #{name}
+        @#{name}
+      end
+
       def mixed_set_#{name} feature
-        if Array === feature
+        case feature
+        when Kredki::Preset
+          set_#{name} *feature.arguments, **feature.keyword_arguments, &feature.block
+        when Array
           if Hash === feature.last
             *a, h = feature
             return set_#{name} *a, **h
           end
-          return set_#{name} *feature
+          set_#{name} *feature
+        when Proc
+          set_#{name} &feature
+        else
+          set_#{name} feature
         end
-        set_#{name} feature
       end
 
       alias_method :#{name}=, :mixed_set_#{name}

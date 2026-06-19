@@ -248,7 +248,11 @@ module Kredki
         if @pin_data
           @pin_data.pad.mouse_cursor
         else
-          @mouse_pads.reverse_each.find{|it| it.mouse_cursor }&.mouse_cursor
+          @mouse_pads.reverse_each do |it|
+            cursor = it.mouse_cursor
+            return cursor unless cursor.nil?
+          end
+          nil
         end
       end
 

@@ -65,11 +65,11 @@ module Kredki
       end
 
       def fit_size_x pad
-        pad.pads_layoutic.map{|p1| p1.min_size_x }.max || 0
+        pad.layoutic_pads.map{|p1| p1.min_size_x }.max || 0
       end
 
       def fit_size_y pad
-        pad.pads_layoutic.map{|p1| p1.min_size_y }.max || 0
+        pad.layoutic_pads.map{|p1| p1.min_size_y }.max || 0
       end
 
       def get_size_x_rational p0, p0w, p1, r

@@ -106,8 +106,21 @@ module Kredki
 
     def set_cursor cursor
       return if @cursor == cursor
-      @cursor = cursor
+      if @cursor == false
+        update_cursor cursor
+        Pastele.mouse_show_cursor
+        @cursor = cursor
+        return true
+      end
+      
+      if cursor == false
+        Pastele.mouse_hide_cursor
+        @cursor = cursor
+        return true
+      end
+      
       update_cursor cursor
+      @cursor = cursor
       true
     end
     

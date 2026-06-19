@@ -1,7 +1,7 @@
 module Kredki
   module Pads
     # A control that allows you to set a value by dragging a handle in X axis.
-    class SliderX < Slider
+    class Xslider < Slider
 
       # :section: LEVEL 2
 

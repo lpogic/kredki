@@ -131,8 +131,9 @@ module Kredki
       end
 
       def update_size x, y # update_size must be called before get_x/get_y
-        super
+        change = super
         update_cursor_location if @cursor.displayed
+        change
       end
 
       def get_x clip_size, size, ax

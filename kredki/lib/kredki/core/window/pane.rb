@@ -142,6 +142,22 @@ module Kredki
       end
     end
 
+    def translate_x x, target = nil
+      if target
+        -target.translate_x(-x)
+      else
+        x
+      end
+    end
+
+    def translate_y y, target = nil
+      if target
+        -target.translate_y(-y)
+      else
+        y
+      end
+    end
+
     def put_job job
       @jobs_mutex.synchronize do
         @jobs[job] = 1

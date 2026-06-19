@@ -1,5 +1,4 @@
 module Kredki
-  # Immutable font model
   class Font
 
     # Get name.

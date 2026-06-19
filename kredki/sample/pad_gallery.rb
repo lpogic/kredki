@@ -35,10 +35,10 @@ xss! 10, margin: 10 do
       item! "Third"
     end
     xss! 10 do
-      slider_y!
+      yslider!
       yss! 10 do
         text! "Some text"
-        slider_x!
+        xslider!
         button! "Button", on_click: proc{ GC.start }
         color_picker! size_x: 1r
       end

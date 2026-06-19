@@ -72,6 +72,14 @@ CABI void mouse_set_cursor(SDL_Cursor* cursor) {
     SDL_SetCursor(cursor);
 }
 
+CABI void mouse_hide_cursor() {
+    SDL_HideCursor();
+}
+
+CABI void mouse_show_cursor() {
+    SDL_ShowCursor();
+}
+
 CABI uint32_t joystick_open(int index) {
     auto sdl_joystick = SDL_OpenJoystick(index);
     return SDL_GetJoystickID(sdl_joystick);

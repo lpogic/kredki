@@ -36,11 +36,11 @@ class PadGalleryTest < Kredki::Test
           item! "Third"
         end
         xss! 10 do
-          slider_y!
+          yslider!
           yss! 10 do
             margin[5]
             text! "Some text"
-            slider_x!
+            xslider!
             button! "Button"
           end
           tree! do

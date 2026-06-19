@@ -1,5 +1,3 @@
-require_relative 'text/editable_text_verses'
-
 module Kredki
   module Pads
     # A multiline text control.

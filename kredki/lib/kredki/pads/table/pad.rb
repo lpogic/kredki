@@ -25,7 +25,7 @@ module Kredki
         feature :layout_spacer_x # Layout spacer in X axis.
 
         def set_layout_spacer_x ...
-          if @column_layout.set_space(...)
+          if @column_layout.set_spacer(...)
             layer&.break_layout
             true
           end
@@ -35,7 +35,7 @@ module Kredki
           @column_layout.space
         end
 
-        feature :layout_spacer_x # Layout spacer in Y axis.
+        feature :layout_spacer_y # Layout spacer in Y axis.
         
         def set_layout_spacer_y layout_spacer_y
           return if Util.eqr @layout_spacer, layout_spacer_y
@@ -50,7 +50,7 @@ module Kredki
 
         feature :layout_spacer # Nest of layout spacers.
 
-        def set_layout_spacer layout_spacer_x = @column_layout.space, layout_spacer_y = layout_spacer_x, **ka
+        def set_layout_spacer layout_spacer_x = self.layout_spacer_x, layout_spacer_y = layout_spacer_x, **ka
           set_layout_spacer_x(layout_spacer_x) | 
           set_layout_spacer_y(layout_spacer_y) |
           nest_set(__method__, ka)

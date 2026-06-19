@@ -9,24 +9,26 @@ module Kredki
 
       class EditEvent < Event
         def param
-          string
+          new_content
         end
 
         # :section: LEVEL 2
 
-        def initialize selection_start, selection_end, string, inset, action
+        def initialize selection_start, selection_end, old_part, new_part, new_content, action
           super()
           @selection_start = selection_start
           @selection_end = selection_end
-          @string = string
-          @inset = inset
+          @old_part = old_part
+          @new_part = new_part
+          @new_content = new_content
           @action = action
         end
 
         attr_accessor :selection_start
         attr_accessor :selection_end
-        attr_accessor :string
-        attr_accessor :inset
+        attr_accessor :old_part
+        attr_accessor :new_part
+        attr_accessor :new_content
         attr_accessor :action        
       end
 
@@ -50,7 +52,7 @@ module Kredki
         end
 
         on_text_input do |e|
-          text.paste e.param
+          text.text_input e.param
           e.close
         end
 
@@ -62,11 +64,20 @@ module Kredki
         end
 
         on_key_press :x do |e|
-          if e.ctrl? && (text.any_selected || e.shift?)
-            s = e.shift? ? clipboard.content : ""
+          if e.ctrl? && text.any_selected
             Kredki.clipboard.content = text.selected_content if text.any_selected
-            text.paste s
+            text.paste ""
             e.close
+          end
+        end
+
+        on_key_press :z do |e|
+          if e.ctrl? && @history_model
+            if e.shift?
+              @history_model&.step_forward text
+            else
+              @history_model&.step_backward text
+            end
           end
         end
 
@@ -83,8 +94,8 @@ module Kredki
         end
 
         on_edit early: true do |e|
-          cursor_position = e.inset.length + e.selection_start
-          text.edit e.string, cursor_position
+          text.edit e.new_content, e.selection_start + e.new_part.length
+          @history_model.push_event e
         end
 
         if multiline

@@ -1,5 +1,3 @@
-require_relative 'text/editable_text_verse'
-
 module Kredki
   module Pads
     # Control with text entry.
@@ -51,7 +49,7 @@ module Kredki
           else
             set_verse_font it
           end
-        end.zero?.not | nest_set(__method__, ka)
+        end > 0 | nest_set(__method__, ka)
       end
 
       feature :verse_font # Font family.
@@ -117,6 +115,7 @@ module Kredki
         set_size_y Fit
 
         sketch_verse
+        @history_model = TextHistory.new
       end
 
       def sketch_verse

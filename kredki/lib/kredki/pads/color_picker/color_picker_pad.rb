@@ -1,6 +1,5 @@
 module Kredki
   module Pads
-    # Option item.
     class ColorPickerPad < RectanglePad
 
       RAINBOW_GRADIENT = [
@@ -230,13 +229,15 @@ module Kredki
       end
 
       def update_size x, y
-        super
-        hue = find :hue
-        hue.fill = LinearGradient.new RAINBOW_GRADIENT, hue.lower_pad.area_size_x
-        set_hue @hue, update_note: false
+        if super
+          hue = find :hue
+          hue.fill = LinearGradient.new RAINBOW_GRADIENT, hue.lower_pad.area_size_x
+          set_hue @hue, update_note: false
+          true
+        end
       end
 
 
-    end#OptionItem
+    end#ColorPickerPad
   end#Pads
 end#Kredki

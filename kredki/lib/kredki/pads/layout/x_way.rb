@@ -15,11 +15,11 @@ module Kredki
             when nil
               PadSizeCharacteristic.new pad, size_x, 0, Float::INFINITY, 0
             when Range
-              sxv = limit.begin&.then{|it| pad.get_size_x_value it, lower_clip_size_x, nil } || 0
-              limit_sxv = limit.end&.then{|it| pad.get_size_x_value it, lower_clip_size_x, nil } || Float::INFINITY
+              sxv = limit.begin&.then{|it| pad.get_size_x_value it, lower_clip_size_x, nil }&.floor || 0
+              limit_sxv = limit.end&.then{|it| pad.get_size_x_value it, lower_clip_size_x, nil }&.floor || Float::INFINITY
               PadSizeCharacteristic.new pad, size_x, sxv, limit_sxv, sxv
             else
-              limit_sxv = pad.get_size_x_value limit, lower_clip_size_x, nil
+              limit_sxv = pad.get_size_x_value(limit, lower_clip_size_x, nil).floor
               PadSizeCharacteristic.new pad, size_x, 0, limit_sxv, 0
             end
           when Auto
@@ -27,15 +27,15 @@ module Kredki
             when nil
               PadSizeCharacteristic.new pad, 1r, 0, Float::INFINITY, 0
             when Range
-              sxv = limit.begin&.then{|it| pad.get_size_x_value it, lower_clip_size_x, nil } || 0
-              limit_sxv = limit.end&.then{|it| pad.get_size_x_value it, lower_clip_size_x, nil } || Float::INFINITY
+              sxv = limit.begin&.then{|it| pad.get_size_x_value it, lower_clip_size_x, nil }&.floor || 0
+              limit_sxv = limit.end&.then{|it| pad.get_size_x_value it, lower_clip_size_x, nil }&.floor || Float::INFINITY
               PadSizeCharacteristic.new pad, 1r, sxv, limit_sxv, sxv
             else
-              limit_sxv = pad.get_size_x_value limit, lower_clip_size_x, nil
+              limit_sxv = pad.get_size_x_value(limit, lower_clip_size_x, nil).floor
               PadSizeCharacteristic.new pad, 1r, 0, limit_sxv, 0
             end
           else
-            sxv = pad.get_size_x_limited size_x, limit, lower_clip_size_x
+            sxv = pad.get_size_x_limited(size_x, limit, lower_clip_size_x).floor
             PadSizeCharacteristic.new pad, 0, sxv, sxv, sxv
           end
         end
@@ -43,7 +43,7 @@ module Kredki
         def arrange pad
           csx, csy = pad.clip_size
           spacer = pad.layout_spacer || 0
-          pad_size_characteristics = pad.pads_layoutic.map{|it| get_size_characteristic it, it.size_x, it.size_x_limit, csx }
+          pad_size_characteristics = pad.layoutic_pads.map{|it| get_size_characteristic it, it.size_x, it.size_x_limit, csx }
           total_size_x = determine_size_characteristics pad_size_characteristics, csx, spacer
           
           pad_size_characteristics.each do |it|
@@ -57,21 +57,7 @@ module Kredki
         end
 
         def arrange_pads pads, sx, csx, csy, spacer
-          cx = case @x
-          when Start
-            0
-          when Center
-            (csx - sx) * 0.5
-          when End
-            csx - sx
-          when Rational 
-            csx * @x
-          when Proc
-            @x[csx, sx]
-          when Numeric
-            @x
-          else raise_ia @x
-          end
+          cx = start_crd @x, csx, sx
           lx = lxm = ly = lym = 0
           
           pads.each do |p1|
@@ -102,13 +88,13 @@ module Kredki
 
         def fit_size_x pad
           spacer = pad.layout_spacer || 0
-          pad.pads_layoutic.map{|p1| p1.min_size_x }.reduce{ _1 + spacer + _2 } || 0
+          pad.layoutic_pads.map{|p1| p1.min_size_x }.reduce{ _1 + spacer + _2 } || 0
         end
 
         def get_size_x_rational pad, psx, p1, r
-          index = pad.pads_layoutic.find_index{|it| it == p1 }
+          index = pad.layoutic_pads.find_index{|it| it == p1 }
           if index
-            pad_size_characteristics = pad.pads_layoutic.map{|it| get_size_characteristic it, it.size_x, it.size_x_limit, psx }
+            pad_size_characteristics = pad.layoutic_pads.map{|it| get_size_characteristic it, it.size_x, it.size_x_limit, psx }
             determine_size_characteristics pad_size_characteristics, psx, pad.layout_spacer || 0
             pad_size_characteristics[index].size
           else

@@ -1,11 +1,12 @@
 require 'kredki'
 
 # Utility for searching defined glyphs.
-# Click on glyph to copy its name to clipboard.
+# Returns clicked glyph id.
 
 module Presets
   def self.glyph glyph
     Preset.new glyph do
+
       on_mouse_enter do
         self.zoom = 1.2
         psx, psy = pane.area_size
@@ -40,12 +41,10 @@ module Presets
         pane[:glyph_layer].detach
       end
 
-      on_mouse_click.after do
-        Kredki.clipboard.content = ":#{glyph}"
-        set_fill :green
-      end.after 500 do
-        set_fill :black
+      on_mouse_click do
+        application.return glyph
       end
+
     end
   end
 end

@@ -15,10 +15,14 @@ require 'kredki/pads/pad/glyph_pad'
 require 'kredki/pads/pad/text_pad'
 require 'kredki/pads/pad/animation_pad'
 require 'kredki/pads/slider/slider'
-require 'kredki/pads/slider/slider_x'
-require 'kredki/pads/slider/slider_y'
+require 'kredki/pads/slider/xslider'
+require 'kredki/pads/slider/yslider'
 require 'kredki/pads/pad/scroll_pad'
 require 'kredki/pads/text/navigable_text_pad'
+require 'kredki/pads/text/text_history'
+require 'kredki/pads/text/editable_text_pad'
+require 'kredki/pads/text/editable_text_verse'
+require 'kredki/pads/text/editable_text_verses'
 require 'kredki/pads/note'
 require 'kredki/pads/notes'
 require 'kredki/pads/button'
@@ -32,6 +36,7 @@ require 'kredki/pads/list/tree/pad'
 require 'kredki/pads/context/menu'
 require 'kredki/pads/toolbar/pad'
 require 'kredki/pads/color_picker/color_picker'
+require 'kredki/pads/accordion/accordion'
 
 module Kredki
 
@@ -46,17 +51,13 @@ module Kredki
       def service! *a, **ka, &b
         put(Class.new(Service, &b), __method__, *a, **ka)
       end
-    end#Service
+    end
 
     class Pad
 
       rectangle! RectanglePad
       def ellipse! ...
-        put(ShapePad, __method__, ...).set do
-          set_area do |sx, sy|
-            ellipse sx, sy
-          end
-        end
+        put(ShapePad, __method__, area: proc{|sx, sy| ellipse sx, sy }).set(...)
       end
       def shape! *a, **ka, &b
         put ShapePad, __method__, *a, **ka do
@@ -73,8 +74,8 @@ module Kredki
         put NavigableTextPad, __method__, *a, keyboardy: true, **ka, &b
       end
       glyph! GlyphPad
-      slider_x! SliderX
-      slider_y! SliderY
+      xslider! Xslider
+      yslider! SliderY
       button! Button
       checkbox! Checkbox
       note! Note
@@ -87,6 +88,8 @@ module Kredki
       radio! Radio::Group
       context_menu! Context::Menu
       toolbar! Toolbar::Pad
+      xaccordion! Accordion::XAccordion
+      yaccordion! Accordion::YAccordion
 
       color_picker! ColorPicker
 

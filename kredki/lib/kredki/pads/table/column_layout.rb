@@ -9,17 +9,7 @@ module Kredki
           @columns << Column.new.set(...)
         end
 
-        feature :space # Space between columns.
-
-        def set_space space = @space
-          return if @space == space
-          @space = space
-          true
-        end
-
-        def space
-          @space
-        end
+        feature :spacer # Spacer between columns.
 
         # :section: LEVEL 2
         
@@ -38,7 +28,7 @@ module Kredki
         def measure_arrange pad
           csx = @table.clip_size_x
 
-          @pad_size_characteristics = pad.pads_layoutic.zip(@columns, @pad_size_characteristics).map do |p1, column, last_characteristic|
+          @pad_size_characteristics = pad.layoutic_pads.zip(@columns, @pad_size_characteristics).map do |p1, column, last_characteristic|
             new_characteristic = get_size_characteristic p1, column&.size || Auto, column&.limit, csx
 
             if last_characteristic
@@ -56,7 +46,7 @@ module Kredki
           client_size_x = @table.clip_size_x
           size_x = @size_x
 
-          pad.pads_layoutic.zip @pad_size_characteristics do |p1, characteristic|
+          pad.layoutic_pads.zip @pad_size_characteristics do |p1, characteristic|
             if characteristic
               sx = characteristic.size
             else
@@ -66,8 +56,7 @@ module Kredki
             sy = p1.get_size_y client_size_y
             p1.update_size sx, sy
           end
-
-          arrange_pads pad.arranged_pads, size_x, client_size_x, client_size_y, @space || 0
+          arrange_pads pad.arranged_pads, size_x, client_size_x, client_size_y, @spacer || 0
         end
   
         def prepare
@@ -76,7 +65,7 @@ module Kredki
         end
   
         def designate
-          @size_x = determine_size_characteristics @pad_size_characteristics, @table.clip_size_x, @space || 0
+          @size_x = determine_size_characteristics @pad_size_characteristics, @table.clip_size_x, @spacer || 0
           @measure_phase = false
         end
   

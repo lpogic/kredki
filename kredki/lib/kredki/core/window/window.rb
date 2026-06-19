@@ -163,7 +163,6 @@ module Kredki
     def set_size_limit x, y = x
       x_min, x_max = parse_limit x
       y_min, y_max = parse_limit y
-      p [x_min, y_min, x_max, y_max]
       Pastele.window_set_minimum_size @pointer, x_min, y_min
       Pastele.window_set_maximum_size @pointer, x_max, y_max
       true

@@ -106,12 +106,30 @@ module Kredki
           value + total_space
         end
 
+        def start_crd c, clip_size, total_size
+          case c
+          when Start
+            0
+          when Center
+            (clip_size - total_size) * 0.5
+          when End
+            clip_size - total_size
+          when Rational 
+            clip_size * c
+          when Proc
+            c[clip_size, total_size]
+          when Numeric
+            c
+          else raise_ia c
+          end
+        end
+
         def arrange_non_layoutic pad, csx, csy
           sx = pad.get_size_x csx
           sy = pad.get_size_y csy
           pad.update_size sx, sy
-          x = pad.get_x csx, sx, (get_x @x, csx, sx)
-          y = pad.get_y csy, sy, (get_y @y, csy, sy)
+          x = pad.get_x csx, sx, (get_x 0, csx, sx)
+          y = pad.get_y csy, sy, (get_y 0, csy, sy)
           pad.update_xy x, y
           pad.update_margin
           pad.arrange

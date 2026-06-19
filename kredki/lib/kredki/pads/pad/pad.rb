@@ -21,7 +21,8 @@ module Kredki
 
       feature :x # Position along the X axis.
 
-      def set_x x = @x
+      def set_x x = @x, &block
+        x = block if block_given?
         return if Util.eqr @x, x
         @x = x
         layer&.break_layout
@@ -34,7 +35,8 @@ module Kredki
 
       feature :y # Position along the Y axis.
 
-      def set_y y = @y
+      def set_y y = @y, &block
+        y = block if block_given?
         return if Util.eqr @y, y
         @y = y
         layer&.break_layout
@@ -61,7 +63,8 @@ module Kredki
 
       feature :size_x # Size in the X axis.
 
-      def set_size_x size_x = @size_x, **ka
+      def set_size_x size_x = @size_x, **ka, &block
+        size_x = block if block_given?
         unless Util.eqr @size_x, size_x
           @size_x = size_x
           layer&.break_layout
@@ -75,7 +78,8 @@ module Kredki
 
       feature :size_y # Size in the Y axis.
       
-      def set_size_y size_y = @size_y, **ka
+      def set_size_y size_y = @size_y, **ka, &block
+        size_y = block if block_given?
         unless Util.eqr @size_y, size_y
           @size_y = size_y
           layer&.break_layout
@@ -793,6 +797,8 @@ module Kredki
           ax
         when Numeric
           @x
+        when :end_center
+          clip_size - size * 0.5
         else raise_is @x
         end
       end
@@ -815,6 +821,8 @@ module Kredki
           ay
         when Numeric
           @y
+        when :end_center
+          clip_size - size * 0.5
         else raise_is @y
         end
       end
@@ -822,16 +830,17 @@ module Kredki
       def update_size x, y
         margin_x = @margin_xs + @margin_xe
         margin_y = @margin_ys + @margin_ye
-        @area.set_size x.floor, y.floor
+        change = @area.set_size x.floor, y.floor
         @scene.set_pivot x * 0.5, y * 0.5
         if @margin_clip_not
-          @clip_area.set_size x.floor, y.floor
+          change = (@clip_area.set_size x.floor, y.floor) || change
         else
-          @clip_area.set_size (x - margin_x).floor, (y - margin_y).floor
+          change = (@clip_area.set_size (x - margin_x).floor, (y - margin_y).floor) || change
         end
+        change
       end
 
-      def pads_layoutic
+      def layoutic_pads
         pads.filter{|it| it.layoutic }
       end
 
@@ -904,14 +913,18 @@ module Kredki
         end
       end
 
-      def get_size_x_rational pad, rational, reference_size_x
-        @pads_layout.get_size_x_rational self, reference_size_x, pad, rational
+      def get_size_x_rational pad, rational
+        @pads_layout.get_size_x_rational self, get_size_x, pad, rational
       end
 
       def get_size_x_value size_x, reference_size_x, size_y
         case size_x
         when Rational
-          @lower_pad.get_size_x_rational self, size_x, reference_size_x || @lower_pad.get_size_x
+          if reference_size_x
+            reference_size_x * size_x
+          else
+            @lower_pad.get_size_x_rational self, size_x
+          end
         when Proc
           size_x[reference_size_x || @lower_pad.get_size_x]
         when Fit
@@ -990,21 +1003,25 @@ module Kredki
         end
       end
 
-      def get_size_y_rational pad, rational, reference_size_y
-        @pads_layout.get_size_y_rational self, reference_size_y, pad, rational
+      def get_size_y_rational pad, rational
+        @pads_layout.get_size_y_rational self, get_size_y, pad, rational
       end
 
       def get_size_y_value size_y, reference_size_y, size_x
         case size_y
         when Rational
-          @lower_pad.get_size_y_rational self, size_y, reference_size_y || @lower_pad.get_size_y
+          if reference_size_y
+            reference_size_y * size_y
+          else
+            @lower_pad.get_size_y_rational self, size_y
+          end
         when Proc
           size_y[reference_size_y || @lower_pad.get_size_y]
         when Fit
           fit_size_y
         when Auto
           @area.size_y
-        when :w
+        when :x
           size_x || get_size_x
         when Numeric
           size_y < 0 ? (reference_size_y || @lower_pad.get_size_y) + size_y : size_y
@@ -1107,6 +1124,36 @@ module Kredki
           return [-xy[0], -xy[1]]
         end
         return [x, y]
+      end
+
+      def translate_x x, target = nil
+        lower = lower_pad
+        case target
+        when self
+        when nil
+          return lower.translate_x x + area_x, false if lower
+        when false
+          return lower.translate_x x + area_x + clip_x, false if lower
+        else
+          tx = lower.translate_x x + area_x + clip_x
+          return -target.translate(-tx)
+        end
+        return x
+      end
+
+      def translate_y y, target = nil
+        lower = lower_pad
+        case target
+        when self
+        when nil
+          return lower.translate_y y + area_y, false if lower
+        when false
+          return lower.translate_y y + area_y + clip_y, false if lower
+        else
+          ty = lower.translate_y y + area_y + clip_y
+          return -target.translate(-ty)
+        end
+        return y
       end
 
       def report event, path = true, instant = false

@@ -1,5 +1,4 @@
 module Kredki
-  # Immutable color model
   class Color
     CHANNEL_MAX = 255
 
