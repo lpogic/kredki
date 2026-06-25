@@ -32,14 +32,15 @@ module Kredki
       feature :stroke
       
       def set_stroke *a, **ka
-        a.count do |it|
+        changes = a.count do |it|
           case it
           when Numeric
             set_stroke_width it
           else
             mixed_set_stroke_fill it
           end
-        end.zero?.not | nest_set(__method__, ka)
+        end
+        nest_set(__method__, ka) || changes > 0
       end
       
       feature :stroke_fill
@@ -69,14 +70,15 @@ module Kredki
       feature :verse
       
       def set_verse *a, **ka
-        a.count do |it|
+        changes = a.count do |it|
           case it
           when Numeric, :auto
             set_verse_size it
           else
             set_verse_layout it
           end
-        end.zero?.not | nest_set(__method__, ka)
+        end
+        nest_set(__method__, ka) || changes > 0
       end
 
       feature :verse_layout

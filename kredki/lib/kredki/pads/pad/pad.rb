@@ -65,11 +65,12 @@ module Kredki
 
       def set_size_x size_x = @size_x, **ka, &block
         size_x = block if block_given?
-        unless Util.eqr @size_x, size_x
+        change = unless Util.eqr @size_x, size_x
           @size_x = size_x
           layer&.break_layout
           true
-        end | nest_set(__method__, ka)
+        end
+        nest_set(__method__, ka) || change
       end
 
       def size_x
@@ -80,11 +81,12 @@ module Kredki
       
       def set_size_y size_y = @size_y, **ka, &block
         size_y = block if block_given?
-        unless Util.eqr @size_y, size_y
+        change = unless Util.eqr @size_y, size_y
           @size_y = size_y
           layer&.break_layout
           true
-        end | nest_set(__method__, ka)
+        end
+        nest_set(__method__, ka) || change
       end
 
       def size_y
@@ -94,12 +96,13 @@ module Kredki
       feature :size
       
       def set_size size_x = @size_x, size_y = size_x, **ka
-        if !Util.eqr(@size_x, size_x) || !Util.eqr(@size_y, size_y)
+        change = unless Util.eqr(@size_x, size_x) && Util.eqr(@size_y, size_y)
           @size_x = size_x
           @size_y = size_y
           layer&.break_layout
           true
-        end | nest_set(__method__, ka)
+        end
+        nest_set(__method__, ka) || change
       end
 
       def size
@@ -227,14 +230,15 @@ module Kredki
       feature :margin # Margin feature nest.
 
       def set_margin margin_xs = @margin_xs, margin_ys = margin_xs, margin_xe = margin_xs, margin_ye = margin_ys, **ka
-        unless (Util.eqr @margin_xs, margin_xs) && (Util.eqr @margin_xe, margin_xe) && (Util.eqr @margin_ys, margin_ys) && (Util.eqr @margin_ye, margin_ye)
+        change = unless (Util.eqr @margin_xs, margin_xs) && (Util.eqr @margin_xe, margin_xe) && (Util.eqr @margin_ys, margin_ys) && (Util.eqr @margin_ye, margin_ye)
           @margin_xs = margin_xs
           @margin_xe = margin_xe
           @margin_ys = margin_ys
           @margin_ye = margin_ye
           layer&.break_layout
           true
-        end | nest_set(__method__, ka)
+        end
+        nest_set(__method__, ka) || change
       end
       
       def margin
@@ -387,14 +391,15 @@ module Kredki
       feature :layout
       
       def set_layout *a, **ka
-        a.count do |it|
+        changes = a.count do |it|
           case it
           when Numeric
             set_layout_spacer it
           else
             update_layout it
           end
-        end.zero?.not | nest_set(__method__, ka)
+        end
+        nest_set(__method__, ka) || changes > 0
       end
 
       def layout

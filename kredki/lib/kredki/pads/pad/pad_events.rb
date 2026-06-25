@@ -30,6 +30,9 @@ module Kredki
       end
     end
 
+    class MousePointerUpdateEvent < PositionEvent
+    end
+
     class MouseButtonClickEvent < Event
 
       # Get event button.
@@ -240,6 +243,16 @@ module Kredki
       # See #on_mouse_move.
       def on_mouse_move= param
         on_mouse_move do: param
+      end
+
+      # Create and attach mouse update event reaction.
+      def on_mouse_update ...
+        on(MousePointerUpdateEvent, ...)
+      end
+
+      # See #on_mouse_update.
+      def on_mouse_update= param
+        on_mouse_update do: param
       end
 
       # Create and attach mouse scroll event reaction.

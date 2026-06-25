@@ -207,6 +207,10 @@ module Kredki
           else
             @services << service
           end
+        when End
+          @services.append service
+        when Start
+          @services.prepend service
         else
           @services << service
         end

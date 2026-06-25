@@ -38,7 +38,7 @@ class Object
   end
 
   def nest_set name, ka
-    ka.count{|k, v| send "mixed_#{name}_#{k}", v }.zero?.not
+    ka.count{|k, v| send "mixed_#{name}_#{k}", v } > 0
   end
 
   def alter attr

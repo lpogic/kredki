@@ -48,7 +48,7 @@ module Kredki
         end
 
         def drag_check bxy, xy
-          (bxy[0] - xy[0]).abs > 0
+          (bxy[1] - xy[1]).abs > 0
         end
 
       end#Handle

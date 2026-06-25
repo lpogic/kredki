@@ -38,7 +38,7 @@ module Kredki
         text_navigation text
 
         on_key_press do |e|
-          e.close false if (32..122).include? e.code
+          e.close close_text: false if (32..122).include? e.code
         end
 
         on_key_press :backspace do |e|

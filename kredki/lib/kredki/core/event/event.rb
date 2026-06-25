@@ -12,7 +12,7 @@ module Kredki
     def initialize source = nil, target = nil
       @source = source
       @target = target
-      @closed = false
+      @closer = false
       @reaction = nil
     end
 
@@ -48,12 +48,20 @@ module Kredki
     
     # Get whether event is closed. Closed events are processed only by reactions with always = +true+.
     def closed
-      @closed
+      !!@closer
+    end
+
+    def closer
+      @closer
+    end
+
+    def default_closer
+      true
     end
 
     # Close event. Closed events are processed only by reactions with always = +true+.
-    def close
-      @closed = true
+    def close closer = default_closer
+      @closer = closer
     end
 
     # Get current event reaction.

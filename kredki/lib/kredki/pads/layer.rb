@@ -32,16 +32,17 @@ module Kredki
       def carry_focus_on_tab
         on_key_press :tab do |event|
           next_pad = layer.keyboard_pad&.then do |p0|
-            upper_pad_iterator(reverse: event.shift?, deep: true)
+            each(Pad, reverse: event.shift?)
               .lazy
               .drop_while{|p1| p0 != p1 }
               .drop(1)
               .filter{|it| it.keyboardy && !it.in_disabled && it.displayed }
               .first
-          end || upper_pad_iterator(reverse: event.shift?, deep: true)
+          end || each(Pad, reverse: event.shift?)
             .lazy
             .filter{|it| it.keyboardy && !it.in_disabled && it.displayed }
             .first
+            p next_pad
           next_pad&.keyboard_request
         end
       end
@@ -292,7 +293,7 @@ module Kredki
       end
 
       def pin_check pad, button, top_only
-        return if button != @pin_data&.button
+        return if button && button != @pin_data&.button
         return @pin_data&.pad == pad if top_only
         @pin_data&.pad&.in_pad pad
       end
@@ -307,7 +308,7 @@ module Kredki
         else
           @pin_data = nil
           xy ||= window.mouse_xy
-          layer.update_mouse_location PositionEvent.new *xy
+          layer.update_mouse_location MousePointerUpdateEvent.new *xy
         end
         true
       end      

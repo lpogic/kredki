@@ -53,19 +53,19 @@ module Kredki
           if @dropdown.loaded
             # self[:item!, keyboard_in: true]&.report_selected e
           else
-            @dropdown.load self
+            @dropdown.load @note
           end
         end
 
         on_mouse_click :primary do
-          @dropdown.load self unless @dropdown.loaded
+          @dropdown.load @note unless @dropdown.loaded
         end
 
         @button.on_mouse_click :primary do |e|
           if @dropdown.loaded
             @dropdown.unload
           else
-            @dropdown.load self
+            @dropdown.load @note
           end
           e.close
         end
@@ -103,19 +103,19 @@ module Kredki
           set stroke_width: 0
           set keyboardy: false
           set layout: :zcc
-          # put RectanglePad, size: 1r do
-          #   set_area do |sx, sy|
-          #     rx = (sx + 16) / 16
-          #     ry = (sy + 8) / 8
-          #     rx.times do |i|
-          #       ry.times do |j|
-          #         jump i * 16 + (j % 2 == 0 ? 4 : 12), j * 8 + 4
-          #         rectangle 8, 8
-          #       end
-          #     end
-          #   end
-          # end
-          put RectanglePad, :color, mousy: false, keyboardy: false, size: 1r, margin: 3, stroke: [2, :white]
+          put RectanglePad, size: 1r do
+            set_area do |sx, sy|
+              rx = (sx + 16) / 16
+              ry = (sy + 8) / 8
+              rx.times do |i|
+                ry.times do |j|
+                  jump i * 16 + (j % 2 == 0 ? 4 : 12), j * 8 + 4
+                  rectangle 8, 8
+                end
+              end
+            end
+          end
+          put RectanglePad, :color, mousy: false, keyboardy: false, size: 1r, margin: 1, stroke: [1, :light_gray]
         end
       end
     end

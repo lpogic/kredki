@@ -159,7 +159,7 @@ module Kredki
         if keyboard = Kredki.keyboard
           event = keyboard.key_press_event abi
           window_event abi.window_id, event do |event|
-            @early_close_next_text_event = event.closed_text && (32..122).include?(event.code)
+            @early_close_next_text_event = event.close_text && (32..122).include?(event.code)
           end
         end
       when 0x301 # SDL_EVENT_KEY_UP

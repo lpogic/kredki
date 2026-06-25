@@ -36,7 +36,7 @@ xss! 10, margin: 10 do
     end
     xss! 10 do
       yslider!
-      yss! 10 do
+      yss! 7 do
         text! "Some text"
         xslider!
         button! "Button", on_click: proc{ GC.start }

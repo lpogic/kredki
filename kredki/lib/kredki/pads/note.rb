@@ -40,7 +40,7 @@ module Kredki
       feature :verse # Nest of verse features.
 
       def set_verse *a, **ka
-        a.count do |it| 
+        changes = a.count do |it| 
           case it
           when Numeric
             set_verse_size it
@@ -49,7 +49,8 @@ module Kredki
           else
             set_verse_font it
           end
-        end > 0 | nest_set(__method__, ka)
+        end
+        nest_set(__method__, ka) || changes > 0
       end
 
       feature :verse_font # Font family.

@@ -37,6 +37,7 @@ require 'kredki/pads/context/menu'
 require 'kredki/pads/toolbar/pad'
 require 'kredki/pads/color_picker/color_picker'
 require 'kredki/pads/accordion/accordion'
+require 'kredki/pads/resizable/resizable'
 
 module Kredki
 
@@ -65,7 +66,9 @@ module Kredki
         end
       end
 
-      pad! RectanglePad
+      def pad! *a, **ka, &b
+        put RectanglePad, __method__, *a, mousy: true, **ka, &b
+      end
       space! SpacePad
       scroll! ScrollPad
       picture! PicturePad
@@ -90,6 +93,7 @@ module Kredki
       toolbar! Toolbar::Pad
       xaccordion! Accordion::XAccordion
       yaccordion! Accordion::YAccordion
+      resizable! Resizable::ResizablePad
 
       color_picker! ColorPicker
 

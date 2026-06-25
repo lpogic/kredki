@@ -84,12 +84,13 @@ module Kredki
     feature :zoom # Zoom in X and Y axes.
 
     def set_zoom zoom_x = @zoom_x, zoom_y = zoom_x, **ka
-      unless @zoom_x == zoom_x && @zoom_y == zoom_y
+      change = unless @zoom_x == zoom_x && @zoom_y == zoom_y
         @zoom_x = zoom_x
         @zoom_y = zoom_y
         update_transform
         update
-      end | nest_set(__method__, ka)
+      end
+      nest_set(__method__, ka) || change
     end
     
     def zoom

@@ -37,13 +37,13 @@ module Kredki
       @close_text = false
     end
 
-    def close close_text = true
-      @closed = true
-      @closed_text = close_text
+    def close closer = true, close_text: true
+      @closer = closer
+      @close_text = close_text
     end
 
-    def closed_text
-      @closed_text
+    def close_text
+      @close_text
     end
   end
 

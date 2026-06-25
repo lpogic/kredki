@@ -19,7 +19,7 @@ module Kredki
         set layout: :ycc, layout_spacer: 0
 
         cursor = proc do |d2|
-          pad! :cursor, layoutic: false, mousy: false, size: [6, 20], y: 0, fill: :black do
+          put RectanglePad, :cursor, layoutic: false, mousy: false, size: [6, 20], y: 0, fill: :black do
             set_area do
               jump 0, 0
               line 1/2r, 1/3r
@@ -32,7 +32,7 @@ module Kredki
           end
         end
 
-        pad! :hue, size_x: 1r, size_y: 20 do
+        put RectanglePad, :hue, size_x: 1r, size_y: 20 do
           set &cursor
           set_fill LinearGradient.new RAINBOW_GRADIENT, lower_pad.area_size_x
           Event.each on_mouse_move, on_mouse_press do |e|
@@ -44,13 +44,13 @@ module Kredki
           end
         end
 
-        pad! :saturation, size_x: 1r, size_y: 50 do
+        put RectanglePad, :saturation, size_x: 1r, size_y: 50 do
           set_fill LinearGradient.new [
             [Color::CHANNEL_MAX, Color::CHANNEL_MAX, Color::CHANNEL_MAX], 
             [0, 0, 0],
           ], 0, 50
 
-          pad! :color, size: 1r
+          put RectanglePad, :color, size: 1r, mousy: false
           
           Event.each on_mouse_move, on_mouse_press do |e|
             if Kredki.mouse.pressed? :primary
@@ -62,7 +62,7 @@ module Kredki
             end
           end
           
-          pad! :cursor, layoutic: false, mousy: false, size: 16, fill: :black do
+          put RectanglePad, :cursor, layoutic: false, mousy: false, size: 16, fill: :black do
             set_area do
               jump 1/4r, 0
               line 0, 1/4r
@@ -83,9 +83,9 @@ module Kredki
           end
         end
 
-        pad! :opacity, size_x: 1r, size_y: 20 do
+        put RectanglePad, :opacity, size_x: 1r, size_y: 20 do
           set_fill :white
-          pad! size: 1r do
+          put RectanglePad, size: 1r, mousy: false do
             set_area do |sx, sy|
               rx = (sx + 16) / 16
               ry = (sy + 8) / 8
@@ -97,7 +97,7 @@ module Kredki
               end
             end
           end
-          pad! :color, size: 1r
+          put RectanglePad, :color, size: 1r, mousy: false
           set &cursor
           Event.each on_mouse_move, on_mouse_press do |e|
             if Kredki.mouse.pressed? :primary
@@ -172,7 +172,9 @@ module Kredki
         light_cursor = @opacity_color[1] < Color::CHANNEL_MAX * 0.5 && 
           (!@opacity_color[3] || @opacity_color[3] > Color::CHANNEL_MAX * 0.65)
         find(A + :opacity + :cursor).fill = light_cursor ? :white : :black
-        lower(ColorPicker)&.find(A + Button + :color)&.fill = @opacity_color
+        color = Kredki.color @opacity_color
+        color = color.clarify 1 if color.a == 0
+        lower(ColorPicker)&.find(A + Button + :color)&.fill = color
 
         if update_note
           text = @opacity_color.map{|it| it.to_i.to_s(16).rjust 2, "0" }.join.upcase.then{|it| "##{it}" }

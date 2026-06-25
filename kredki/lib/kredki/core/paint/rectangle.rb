@@ -114,14 +114,15 @@ module Kredki
     feature :corner
     
     def set_corner corner_ss = @corner_ss, corner_es = corner_ss, corner_se = corner_ss, corner_ee = corner_es, **ka
-      unless @corner_ss == corner_ss && @corner_es == corner_es && @corner_se == corner_se && @corner_ee == corner_ee
+      change = unless @corner_ss == corner_ss && @corner_es == corner_es && @corner_se == corner_se && @corner_ee == corner_ee
         @corner_ss = corner_ss
         @corner_es = corner_es
         @corner_se = corner_se
         @corner_ee = corner_ee
         @redraw_flag = true
         update
-      end | nest_set(__method__, ka)
+      end
+      nest_set(__method__, ka) || change
     end
     
     def corner

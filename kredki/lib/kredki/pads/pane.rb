@@ -180,7 +180,7 @@ module Kredki
       end
 
       def update_mouse_location event = nil
-        event ||= PositionEvent.new *window.mouse_xy
+        event ||= MousePointerUpdateEvent.new *window.mouse_xy
         xy = event.xy
         cursor = nil
         @services.reverse_each do |layer|
